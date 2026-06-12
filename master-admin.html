@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin — FidelizaSaaS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans:   ['Inter', 'sans-serif'],
+                        inter:  ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .nav-item { transition: all 0.15s ease; }
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            border-left: 2px solid #6366f1;
+        }
+        .nav-item:not(.active):hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #e2e8f0;
+        }
+        /* Scrollbar fina */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.35); border-radius: 4px; }
+        /* Spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { animation: spin 0.8s linear infinite; }
+        /* Toast */
+        #toast { transition: opacity 0.3s ease, transform 0.3s ease; }
+        #toast.hide { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+    </style>
+</head>
+<body class="h-full font-inter bg-slate-950 text-slate-100 overflow-hidden">
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOAST GLOBAL
+═══════════════════════════════════════════════════════════ -->
+<div id="toast" class="hide fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
+    <span id="toast-text"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOADING SCREEN
+═══════════════════════════════════════════════════════════ -->
+<div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950">
+    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-6">
+        <i class="fa-solid fa-shield-halved text-white text-3xl"></i>
+    </div>
+    <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full spinner mb-4"></div>
+    <p class="text-slate-400 text-sm">Verificando credenciais…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ACCESS DENIED SCREEN
+═══════════════════════════════════════════════════════════ -->
+<div id="access-denied" class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-slate-950 gap-6">
+    <div class="w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+        <i class="fa-solid fa-ban text-red-400 text-4xl"></i>
+    </div>
+    <div class="text-center">
+        <h2 class="text-2xl font-bold font-outfit text-white mb-2">Acesso Restrito</h2>
+        <p class="text-slate-400 text-sm">Você não tem permissão para acessar este painel.<br>Será desconectado automaticamente.</p>
+    </div>
+    <button id="btn-denied-logout" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition">
+        <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair agora
+    </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADMIN PANEL (oculto até auth passar)
+═══════════════════════════════════════════════════════════ -->
+<div id="admin-panel" class="hidden h-full flex">
+
+    <!-- ─── SIDEBAR ──────────────────────────────────────────── -->
+    <aside class="w-64 shrink-0 h-screen flex flex-col bg-slate-900 border-r border-slate-800 glassmorphism z-10">
+
+        <!-- Logo -->
+        <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/30 shrink-0">
+                    <i class="fa-solid fa-shield-halved text-white text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold font-outfit text-white leading-tight">Super Admin</p>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest leading-tight mt-0.5">Master Control</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nav -->
+        <nav class="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
+            <button class="nav-item active flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-left w-full" data-section="dashboard">
+                <i class="fa-solid fa-gauge-high w-4 text-center"></i>
+                Dashboard
+            </button>
+            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 text-left w-full" data-section="empresas">
+                <i class="fa-solid fa-building w-4 text-center"></i>
+                Empresas
+            </button>
+            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 text-left w-full" data-section="logs">
+                <i class="fa-solid fa-scroll w-4 text-center"></i>
+                Logs do Sistema
+            </button>
+            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 text-left w-full" data-section="comunicacao">
+                <i class="fa-solid fa-bullhorn w-4 text-center"></i>
+                Comunicação
+            </button>
+        </nav>
+
+        <!-- Admin User Footer -->
+        <div class="px-4 py-4 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-user text-white text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p id="admin-email" class="text-xs text-slate-300 font-medium truncate">–</p>
+                    <p class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Super Admin</p>
+                </div>
+                <button id="btn-logout" title="Sair" class="text-slate-500 hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-400/10">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ─── MAIN CONTENT ─────────────────────────────────────── -->
+    <main class="flex-1 h-screen overflow-y-auto bg-slate-950 p-8">
+
+        <!-- ── SEÇÃO 1: DASHBOARD ────────────────────────────── -->
+        <section id="section-dashboard" class="section-content">
+
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold font-outfit text-white">Dashboard</h1>
+                <p class="text-slate-400 text-sm mt-1">Visão geral do seu SaaS em tempo real.</p>
+            </div>
+
+            <!-- KPI Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+
+                <!-- Empresas Ativas -->
+                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-400"></div>
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-building text-emerald-400 text-base"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">Ativo</span>
+                    </div>
+                    <p id="kpi-ativas" class="text-4xl font-bold text-white mb-1">–</p>
+                    <p class="text-slate-400 text-sm">Empresas Ativas</p>
+                </div>
+
+                <!-- MRR -->
+                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-dollar-sign text-indigo-400 text-base"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded-full">MRR</span>
+                    </div>
+                    <p id="kpi-mrr" class="text-4xl font-bold text-white mb-1">–</p>
+                    <p class="text-slate-400 text-sm">Receita Estimada</p>
+                </div>
+
+                <!-- Em Trial -->
+                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-400"></div>
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-clock text-amber-400 text-base"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">Trial</span>
+                    </div>
+                    <p id="kpi-trial" class="text-4xl font-bold text-white mb-1">–</p>
+                    <p class="text-slate-400 text-sm">Em Período Trial</p>
+                </div>
+
+                <!-- Bloqueadas -->
+                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 to-rose-400"></div>
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-ban text-red-400 text-base"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-red-400 bg-red-400/10 px-2 py-1 rounded-full">Bloqueado</span>
+                    </div>
+                    <p id="kpi-bloqueadas" class="text-4xl font-bold text-white mb-1">–</p>
+                    <p class="text-slate-400 text-sm">Empresas Bloqueadas</p>
+                </div>
+
+            </div>
+
+            <!-- Atividade Recente -->
+            <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl">
+                <div class="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-base font-semibold font-outfit text-white">Atividade Recente</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">Últimos 5 eventos do sistema</p>
+                    </div>
+                    <i class="fa-solid fa-timeline text-slate-600 text-lg"></i>
+                </div>
+                <div id="recent-activity-list" class="divide-y divide-slate-800">
+                    <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Carregando…
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ── SEÇÃO 2: EMPRESAS ─────────────────────────────── -->
+        <section id="section-empresas" class="section-content hidden">
+
+            <!-- Header -->
+            <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold font-outfit text-white flex items-center gap-3">
+                        Gestão de Empresas
+                        <span id="badge-total-empresas" class="text-xs font-semibold bg-slate-800 text-slate-300 px-3 py-1 rounded-full">0</span>
+                    </h1>
+                    <p class="text-slate-400 text-sm mt-1">Gerencie todas as contas do SaaS.</p>
+                </div>
+            </div>
+
+            <!-- Toolbar: Busca + Filtros -->
+            <div class="flex flex-wrap items-center gap-3 mb-5">
+                <div class="relative flex-1 min-w-[200px]">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                    <input id="empresa-search" type="text" placeholder="Buscar por nome ou e-mail…"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                </div>
+                <div class="flex gap-2" id="status-filters">
+                    <button class="filter-btn active-filter px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition" data-filter="todos">Todos</button>
+                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-filter="ativo">Ativo</button>
+                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-filter="trial">Trial</button>
+                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-filter="bloqueado">Bloqueado</button>
+                </div>
+            </div>
+
+            <!-- Tabela -->
+            <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-800 bg-slate-900/50">
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">#</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Empresa</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Cadastro</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Trial End</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="empresas-tbody" class="divide-y divide-slate-800">
+                            <tr id="empresas-empty-row" class="hidden">
+                                <td colspan="7" class="px-5 py-12 text-center text-slate-500">
+                                    <i class="fa-solid fa-building text-3xl mb-3 block text-slate-700"></i>
+                                    Nenhuma empresa encontrada.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ── SEÇÃO 3: LOGS ─────────────────────────────────── -->
+        <section id="section-logs" class="section-content hidden">
+
+            <!-- Header -->
+            <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold font-outfit text-white">Logs do Sistema</h1>
+                    <p class="text-slate-400 text-sm mt-1">Eventos em tempo real.</p>
+                </div>
+                <button id="btn-clear-log-filter" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center gap-2">
+                    <i class="fa-solid fa-xmark"></i> Limpar filtros
+                </button>
+            </div>
+
+            <!-- Filtros de Nível -->
+            <div class="flex gap-2 mb-5 flex-wrap" id="log-level-filters">
+                <button class="log-filter-btn active-log-filter px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition" data-level="todos">
+                    <i class="fa-solid fa-list mr-1.5"></i>Todos
+                </button>
+                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-level="info">
+                    <i class="fa-solid fa-circle-info mr-1.5 text-blue-400"></i>Info
+                </button>
+                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-level="warn">
+                    <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-400"></i>Warn
+                </button>
+                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-level="error">
+                    <i class="fa-solid fa-circle-exclamation mr-1.5 text-red-400"></i>Error
+                </button>
+            </div>
+
+            <!-- Lista de Logs -->
+            <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                <div id="logs-list" class="divide-y divide-slate-800 max-h-[60vh] overflow-y-auto">
+                    <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Aguardando eventos…
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-800 flex justify-center">
+                    <button id="btn-load-more-logs" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition hidden">
+                        <i class="fa-solid fa-chevron-down mr-1"></i> Carregar mais 20
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ── SEÇÃO 4: COMUNICAÇÃO ──────────────────────────── -->
+        <section id="section-comunicacao" class="section-content hidden">
+
+            <!-- Header -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold font-outfit text-white">Comunicação Global</h1>
+                <p class="text-slate-400 text-sm mt-1">Envie avisos para todos os tenants do SaaS.</p>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+                <!-- Formulário de Envio -->
+                <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl p-6">
+                    <h2 class="text-base font-semibold font-outfit text-white mb-5 flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane text-indigo-400"></i>
+                        Novo Comunicado
+                    </h2>
+                    <form id="form-comunicado" class="flex flex-col gap-4">
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Título</label>
+                            <input id="com-titulo" type="text" maxlength="120" placeholder="Ex: Manutenção programada…"
+                                class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo</label>
+                            <select id="com-tipo"
+                                class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                                <option value="info">ℹ️ Informativo</option>
+                                <option value="aviso">⚠️ Aviso</option>
+                                <option value="critico">🚨 Crítico</option>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mensagem</label>
+                            <textarea id="com-mensagem" rows="5" maxlength="1000" placeholder="Digite o conteúdo do aviso…"
+                                class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" id="btn-enviar-comunicado"
+                            class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-bold text-white rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition duration-200 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Disparar Comunicado
+                        </button>
+
+                    </form>
+                </div>
+
+                <!-- Comunicados Enviados -->
+                <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col">
+                    <div class="px-6 py-5 border-b border-slate-800">
+                        <h2 class="text-base font-semibold font-outfit text-white">Comunicados Enviados</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">Últimos 20 comunicados globais</p>
+                    </div>
+                    <div id="comunicados-list" class="flex-1 divide-y divide-slate-800 overflow-y-auto max-h-[520px]">
+                        <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                            <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Carregando…
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+</div><!-- /#admin-panel -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     FIREBASE LOGIC
+═══════════════════════════════════════════════════════════ -->
+<script type="module">
+import {
+    auth,
+    db,
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc,
+    deleteDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    onSnapshot,
+    logoutUser
+} from "./config.js";
+
+import {
+    orderBy,
+    limit,
+    serverTimestamp,
+    addDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// ─── Estado global ─────────────────────────────────────────
+let allEmpresas      = [];
+let currentFilter    = "todos";
+let currentSearch    = "";
+let allLogs          = [];
+let currentLogLevel  = "todos";
+let logsLimit        = 50;
+let logsUnsubscribe  = null;
+
+// ─── Utilitários ───────────────────────────────────────────
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function formatDate(val) {
+    if (!val) return "–";
+    const d = val.toDate ? val.toDate() : new Date(val);
+    if (isNaN(d)) return "–";
+    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function formatDateTime(val) {
+    if (!val) return "–";
+    const d = val.toDate ? val.toDate() : new Date(val);
+    if (isNaN(d)) return "–";
+    return d.toLocaleString("pt-BR", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit"
+    });
+}
+
+function formatMoney(val) {
+    return val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+// ─── Toast ─────────────────────────────────────────────────
+
+function showToast(message, type = "success") {
+    const toast     = document.getElementById("toast");
+    const toastText = document.getElementById("toast-text");
+    const toastIcon = document.getElementById("toast-icon");
+
+    toastText.textContent = message;
+
+    const configs = {
+        success: { bg: "bg-indigo-600",  icon: "fa-circle-check" },
+        error:   { bg: "bg-red-600",     icon: "fa-circle-xmark" },
+        warn:    { bg: "bg-amber-500",   icon: "fa-triangle-exclamation" },
+    };
+    const cfg = configs[type] || configs.success;
+
+    toast.className = `fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white ${cfg.bg}`;
+    toastIcon.className = `fa-solid ${cfg.icon} text-base`;
+
+    toast.style.opacity  = "1";
+    toast.style.transform = "translateY(0)";
+    toast.style.pointerEvents = "auto";
+
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+        toast.style.opacity   = "0";
+        toast.style.transform = "translateY(-8px)";
+        toast.style.pointerEvents = "none";
+    }, 3500);
+}
+
+// ─── Navegação entre seções ────────────────────────────────
+
+function activateSection(sectionId) {
+    document.querySelectorAll(".section-content").forEach(s => s.classList.add("hidden"));
+    document.querySelectorAll(".nav-item").forEach(btn => {
+        btn.classList.remove("active");
+        btn.classList.add("text-slate-400");
+        btn.classList.remove("text-indigo-400");
+    });
+
+    const target = document.getElementById("section-" + sectionId);
+    if (target) target.classList.remove("hidden");
+
+    const navBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+    if (navBtn) {
+        navBtn.classList.add("active");
+        navBtn.classList.remove("text-slate-400");
+    }
+}
+
+document.querySelectorAll(".nav-item[data-section]").forEach(btn => {
+    btn.addEventListener("click", () => activateSection(btn.dataset.section));
+});
+
+// ─── Logout ────────────────────────────────────────────────
+
+async function doLogout() {
+    try {
+        await logoutUser();
+        window.location.href = "login.html";
+    } catch (e) {
+        console.error("Erro ao sair:", e);
+        window.location.href = "login.html";
+    }
+}
+
+document.getElementById("btn-logout").addEventListener("click", doLogout);
+document.getElementById("btn-denied-logout").addEventListener("click", doLogout);
+
+// ═══════════════════════════════════════════════════════════
+// 1. GATE DE SEGURANÇA
+// ═══════════════════════════════════════════════════════════
+
+onAuthStateChanged(auth, async (user) => {
+    const loadingScreen = document.getElementById("loading-screen");
+    const accessDenied  = document.getElementById("access-denied");
+    const adminPanel    = document.getElementById("admin-panel");
+
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const snap = await getDoc(doc(db, "superadmins", user.uid));
+        if (!snap.exists()) {
+            loadingScreen.classList.add("hidden");
+            accessDenied.classList.remove("hidden");
+            accessDenied.classList.add("flex");
+            setTimeout(() => doLogout(), 3000);
+            return;
+        }
+    } catch (e) {
+        console.error("Erro ao verificar superadmin:", e);
+        loadingScreen.classList.add("hidden");
+        accessDenied.classList.remove("hidden");
+        accessDenied.classList.add("flex");
+        setTimeout(() => doLogout(), 3000);
+        return;
+    }
+
+    loadingScreen.classList.add("hidden");
+    adminPanel.classList.remove("hidden");
+    adminPanel.classList.add("flex");
+    initPanel(user);
+});
+
+// ═══════════════════════════════════════════════════════════
+// 2. INICIALIZAÇÃO DO PAINEL
+// ═══════════════════════════════════════════════════════════
+
+function initPanel(user) {
+    document.getElementById("admin-email").textContent = user.email || "admin";
+
+    activateSection("dashboard");
+
+    loadDashboard();
+    loadEmpresas();
+    setupLogsListener();
+    loadComunicados();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 3. DASHBOARD KPIs + ATIVIDADE RECENTE
+// ═══════════════════════════════════════════════════════════
+
+async function loadDashboard() {
+    try {
+        const snap = await getDocs(collection(db, "empresas"));
+        let ativas = 0, trial = 0, bloqueadas = 0;
+
+        snap.forEach(d => {
+            const s = d.data().statusAssinatura;
+            if (s === "ativo" || s === "active")    ativas++;
+            else if (s === "trial")                 trial++;
+            else if (s === "bloqueado" || s === "blocked") bloqueadas++;
+        });
+
+        const mrr = ativas * 49;
+
+        document.getElementById("kpi-ativas").textContent     = ativas;
+        document.getElementById("kpi-mrr").textContent        = formatMoney(mrr);
+        document.getElementById("kpi-trial").textContent      = trial;
+        document.getElementById("kpi-bloqueadas").textContent = bloqueadas;
+    } catch (e) {
+        console.error("Erro ao carregar KPIs:", e);
+    }
+
+    // Atividade recente (últimos 5 logs)
+    try {
+        const logsSnap = await getDocs(
+            query(collection(db, "systemLogs"), orderBy("timestamp", "desc"), limit(5))
+        );
+        renderRecentActivity(logsSnap.docs);
+    } catch (e) {
+        console.error("Erro ao carregar atividade recente:", e);
+        document.getElementById("recent-activity-list").innerHTML =
+            `<div class="px-6 py-8 text-center text-slate-500 text-sm">Erro ao carregar eventos.</div>`;
+    }
+}
+
+function renderRecentActivity(docs) {
+    const container = document.getElementById("recent-activity-list");
+
+    if (!docs || docs.length === 0) {
+        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
+            Nenhum evento registrado.
+        </div>`;
+        return;
+    }
+
+    const levelConfig = {
+        info:  { icon: "fa-circle-info",        color: "text-blue-400",  bg: "bg-blue-400/10"  },
+        warn:  { icon: "fa-triangle-exclamation", color: "text-amber-400", bg: "bg-amber-400/10" },
+        error: { icon: "fa-circle-exclamation",  color: "text-red-400",   bg: "bg-red-400/10"   },
+    };
+
+    let html = "";
+    docs.forEach(d => {
+        const data    = d.data();
+        const level   = data.level || "info";
+        const cfg     = levelConfig[level] || levelConfig.info;
+        const msg     = escapeHtml(data.message || "–");
+        const ts      = formatDateTime(data.timestamp);
+        const uid     = data.uid ? `<span class="ml-2 text-[10px] text-slate-600 font-mono">${escapeHtml(data.uid.substring(0, 12))}…</span>` : "";
+
+        html += `
+        <div class="px-6 py-4 flex items-start gap-4 hover:bg-slate-800/30 transition">
+            <div class="w-8 h-8 rounded-full ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5">
+                <i class="fa-solid ${cfg.icon} ${cfg.color} text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm text-slate-200 leading-snug">${msg}${uid}</p>
+                <p class="text-xs text-slate-500 mt-1">${ts}</p>
+            </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 4. GESTÃO DE EMPRESAS
+// ═══════════════════════════════════════════════════════════
+
+function loadEmpresas() {
+    onSnapshot(collection(db, "empresas"), (snap) => {
+        allEmpresas = [];
+        snap.forEach(d => allEmpresas.push({ id: d.id, ...d.data() }));
+        allEmpresas.sort((a, b) => {
+            const ta = a.dataCadastro?.toDate?.() || new Date(0);
+            const tb = b.dataCadastro?.toDate?.() || new Date(0);
+            return tb - ta;
+        });
+        renderEmpresas();
+    });
+}
+
+function renderEmpresas() {
+    const tbody      = document.getElementById("empresas-tbody");
+    const emptyRow   = document.getElementById("empresas-empty-row");
+    const badge      = document.getElementById("badge-total-empresas");
+
+    const search = currentSearch.toLowerCase();
+
+    const filtered = allEmpresas.filter(emp => {
+        const normalizeStatus = (s) => s === "active" ? "ativo" : s === "blocked" ? "bloqueado" : s;
+        const matchStatus = currentFilter === "todos" || normalizeStatus(emp.statusAssinatura) === currentFilter;
+        const matchSearch = !search
+            || (emp.nomeEmpresa    || "").toLowerCase().includes(search)
+            || (emp.emailComercial || "").toLowerCase().includes(search);
+        return matchStatus && matchSearch;
+    });
+
+    badge.textContent = allEmpresas.length;
+
+    // Limpar linhas dinâmicas (manter empty row)
+    const existingRows = tbody.querySelectorAll("tr.emp-row");
+    existingRows.forEach(r => r.remove());
+
+    if (filtered.length === 0) {
+        emptyRow.classList.remove("hidden");
+        return;
+    }
+
+    emptyRow.classList.add("hidden");
+
+    const normalizeStatus = (s) => {
+        if (s === "active")  return "ativo";
+        if (s === "blocked") return "bloqueado";
+        return s;
+    };
+    const statusBadge = (s) => {
+        const n = normalizeStatus(s);
+        const map = {
+            ativo:     `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>Ativo</span>`,
+            trial:     `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>Trial</span>`,
+            bloqueado: `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/20"><span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>Bloqueado</span>`,
+        };
+        return map[n] || `<span class="text-slate-500 text-xs">${escapeHtml(s)}</span>`;
+    };
+
+    filtered.forEach((emp, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "emp-row hover:bg-slate-800/30 transition";
+
+        const isBloqueado = emp.statusAssinatura === "bloqueado";
+        const btnLabel    = isBloqueado ? "Desbloquear" : "Bloquear";
+        const btnClass    = isBloqueado
+            ? "px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition"
+            : "px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition";
+        const novoStatus  = isBloqueado ? "ativo" : "bloqueado";
+
+        const link        = emp.linkUnicoCliente || "";
+
+        tr.innerHTML = `
+            <td class="px-5 py-4 text-slate-500 text-xs">${idx + 1}</td>
+            <td class="px-5 py-4">
+                <p class="text-sm text-white font-medium leading-snug"></p>
+            </td>
+            <td class="px-5 py-4">
+                <p class="text-sm text-slate-300"></p>
+            </td>
+            <td class="px-5 py-4">${statusBadge(emp.statusAssinatura)}</td>
+            <td class="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">${formatDate(emp.dataCadastro)}</td>
+            <td class="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">${formatDate(emp.trialEndDate)}</td>
+            <td class="px-5 py-4">
+                <div class="flex items-center gap-2">
+                    <button class="btn-toggle-status ${btnClass}" data-id="${escapeHtml(emp.id)}" data-nome="" data-novo="${novoStatus}">
+                        ${btnLabel}
+                    </button>
+                    <button class="btn-copy-link px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600 transition" data-link="${escapeHtml(link)}" title="Copiar link do cliente">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+
+        // Preencher campos de texto via textContent (sem XSS)
+        tr.querySelectorAll("p")[0].textContent = emp.nomeEmpresa    || "(sem nome)";
+        tr.querySelectorAll("p")[1].textContent = emp.emailComercial || "–";
+        tr.querySelector(".btn-toggle-status").dataset.nome = emp.nomeEmpresa || emp.id;
+
+        tbody.appendChild(tr);
+    });
+
+    // Delegação de eventos na tabela
+    tbody.querySelectorAll(".btn-toggle-status").forEach(btn => {
+        btn.addEventListener("click", () => {
+            toggleStatus(btn.dataset.id, btn.dataset.nome, btn.dataset.novo);
+        });
+    });
+
+    tbody.querySelectorAll(".btn-copy-link").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const link = btn.dataset.link;
+            if (!link) { showToast("Link não disponível.", "warn"); return; }
+            navigator.clipboard.writeText(link)
+                .then(() => showToast("Link copiado!"))
+                .catch(() => showToast("Falha ao copiar.", "error"));
+        });
+    });
+}
+
+async function toggleStatus(empresaId, nomeEmpresa, novoStatus) {
+    try {
+        await updateDoc(doc(db, "empresas", empresaId), {
+            statusAssinatura: novoStatus
+        });
+
+        const acao = novoStatus === "bloqueado" ? "bloqueada" : "desbloqueada";
+        showToast(`Empresa "${nomeEmpresa}" ${acao} com sucesso.`, novoStatus === "bloqueado" ? "warn" : "success");
+
+        // Gravar log
+        await addDoc(collection(db, "systemLogs"), {
+            level:     novoStatus === "bloqueado" ? "warn" : "info",
+            message:   `Empresa "${nomeEmpresa}" foi ${acao} pelo Super Admin.`,
+            uid:       empresaId,
+            timestamp: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Erro ao alterar status:", e);
+        showToast("Erro ao alterar status da empresa.", "error");
+    }
+}
+
+// Busca em tempo real
+document.getElementById("empresa-search").addEventListener("input", (e) => {
+    currentSearch = e.target.value.trim();
+    renderEmpresas();
+});
+
+// Filtros de status
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        currentFilter = btn.dataset.filter;
+
+        document.querySelectorAll(".filter-btn").forEach(b => {
+            b.classList.remove("active-filter", "bg-indigo-600", "text-white");
+            b.classList.add("bg-slate-800", "text-slate-400");
+        });
+        btn.classList.add("active-filter", "bg-indigo-600", "text-white");
+        btn.classList.remove("bg-slate-800", "text-slate-400");
+
+        renderEmpresas();
+    });
+});
+
+// ═══════════════════════════════════════════════════════════
+// 5. LOGS DO SISTEMA
+// ═══════════════════════════════════════════════════════════
+
+function setupLogsListener() {
+    if (logsUnsubscribe) logsUnsubscribe();
+
+    logsUnsubscribe = onSnapshot(
+        query(collection(db, "systemLogs"), orderBy("timestamp", "desc"), limit(logsLimit)),
+        (snap) => {
+            allLogs = [];
+            snap.forEach(d => allLogs.push({ id: d.id, ...d.data() }));
+            renderLogs();
+        },
+        (err) => {
+            console.error("Erro no listener de logs:", err);
+        }
+    );
+}
+
+function renderLogs() {
+    const container = document.getElementById("logs-list");
+    const btnMore   = document.getElementById("btn-load-more-logs");
+
+    const filtered = currentLogLevel === "todos"
+        ? allLogs
+        : allLogs.filter(l => l.level === currentLogLevel);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
+            Nenhum log encontrado.
+        </div>`;
+        btnMore.classList.add("hidden");
+        return;
+    }
+
+    const levelConfig = {
+        info:  { icon: "fa-circle-info",        color: "text-blue-400",  bg: "bg-blue-400/10",   badge: "bg-blue-400/15 text-blue-400 border-blue-400/20"  },
+        warn:  { icon: "fa-triangle-exclamation", color: "text-amber-400", bg: "bg-amber-400/10",  badge: "bg-amber-400/15 text-amber-400 border-amber-400/20" },
+        error: { icon: "fa-circle-exclamation",  color: "text-red-400",   bg: "bg-red-400/10",    badge: "bg-red-400/15 text-red-400 border-red-400/20"   },
+    };
+
+    let html = "";
+    filtered.forEach(log => {
+        const level = log.level || "info";
+        const cfg   = levelConfig[level] || levelConfig.info;
+
+        html += `<div class="px-5 py-3.5 flex items-start gap-4 hover:bg-slate-800/30 transition">
+            <div class="w-7 h-7 rounded-lg ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5">
+                <i class="fa-solid ${cfg.icon} ${cfg.color} text-xs"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${cfg.badge}">${escapeHtml(level)}</span>
+                    <span class="text-xs text-slate-500">${formatDateTime(log.timestamp)}</span>
+                    ${log.uid ? `<span class="text-[10px] text-slate-600 font-mono bg-slate-800 px-1.5 py-0.5 rounded">${escapeHtml(String(log.uid).substring(0,14))}…</span>` : ""}
+                </div>
+                <p class="text-sm text-slate-300 leading-snug break-words"></p>
+            </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+
+    // Preencher mensagens via textContent (sem XSS)
+    const rows = container.querySelectorAll(".flex.items-start");
+    filtered.forEach((log, i) => {
+        const p = rows[i]?.querySelector("p");
+        if (p) p.textContent = log.message || "–";
+    });
+
+    btnMore.classList.toggle("hidden", allLogs.length < logsLimit);
+}
+
+// Filtro por nível
+document.querySelectorAll(".log-filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        currentLogLevel = btn.dataset.level;
+
+        document.querySelectorAll(".log-filter-btn").forEach(b => {
+            b.classList.remove("active-log-filter", "bg-indigo-600", "text-white");
+            b.classList.add("bg-slate-800", "text-slate-400");
+        });
+        btn.classList.add("active-log-filter", "bg-indigo-600", "text-white");
+        btn.classList.remove("bg-slate-800", "text-slate-400");
+
+        renderLogs();
+    });
+});
+
+// Limpar filtros
+document.getElementById("btn-clear-log-filter").addEventListener("click", () => {
+    currentLogLevel = "todos";
+    document.querySelectorAll(".log-filter-btn").forEach(b => {
+        b.classList.remove("active-log-filter", "bg-indigo-600", "text-white");
+        b.classList.add("bg-slate-800", "text-slate-400");
+    });
+    const allBtn = document.querySelector('.log-filter-btn[data-level="todos"]');
+    if (allBtn) {
+        allBtn.classList.add("active-log-filter", "bg-indigo-600", "text-white");
+        allBtn.classList.remove("bg-slate-800", "text-slate-400");
+    }
+    renderLogs();
+});
+
+// Carregar mais logs
+document.getElementById("btn-load-more-logs").addEventListener("click", () => {
+    logsLimit += 20;
+    setupLogsListener();
+});
+
+// ═══════════════════════════════════════════════════════════
+// 6. COMUNICAÇÃO GLOBAL
+// ═══════════════════════════════════════════════════════════
+
+function loadComunicados() {
+    onSnapshot(
+        query(collection(db, "comunicados"), orderBy("dataCriacao", "desc"), limit(20)),
+        (snap) => {
+            const docs = [];
+            snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+            renderComunicados(docs);
+        },
+        (err) => {
+            console.error("Erro ao ouvir comunicados:", err);
+        }
+    );
+}
+
+const tipoConfig = {
+    info:   { label: "Informativo", icon: "fa-circle-info",        class: "bg-blue-400/15 text-blue-400 border-blue-400/20"  },
+    aviso:  { label: "Aviso",       icon: "fa-triangle-exclamation", class: "bg-amber-400/15 text-amber-400 border-amber-400/20" },
+    critico:{ label: "Crítico",     icon: "fa-circle-exclamation",  class: "bg-red-400/15 text-red-400 border-red-400/20"   },
+};
+
+function renderComunicados(docs) {
+    const container = document.getElementById("comunicados-list");
+
+    if (!docs || docs.length === 0) {
+        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
+            Nenhum comunicado enviado.
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = "";
+
+    docs.forEach(com => {
+        const tipo = tipoConfig[com.tipo] || tipoConfig.info;
+        const div  = document.createElement("div");
+        div.className = "px-5 py-4 hover:bg-slate-800/30 transition";
+
+        div.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${tipo.class} flex items-center gap-1">
+                        <i class="fa-solid ${tipo.icon} text-[10px]"></i>${escapeHtml(tipo.label)}
+                    </span>
+                    <span class="text-xs text-slate-500">${formatDateTime(com.dataCriacao)}</span>
+                </div>
+                <p class="text-sm font-semibold text-white mb-1"></p>
+                <p class="text-xs text-slate-400 leading-relaxed line-clamp-2"></p>
+            </div>
+            <button class="btn-del-comunicado shrink-0 p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition" data-id="${escapeHtml(com.id)}" title="Excluir">
+                <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+        </div>`;
+
+        div.querySelectorAll("p")[0].textContent = com.titulo   || "(sem título)";
+        div.querySelectorAll("p")[1].textContent = com.mensagem || "";
+
+        div.querySelector(".btn-del-comunicado").addEventListener("click", () => {
+            deletarComunicado(com.id, com.titulo);
+        });
+
+        container.appendChild(div);
+    });
+}
+
+async function deletarComunicado(id, titulo) {
+    if (!confirm(`Excluir o comunicado "${titulo || id}"?`)) return;
+    try {
+        await deleteDoc(doc(db, "comunicados", id));
+        showToast("Comunicado excluído.", "warn");
+    } catch (e) {
+        console.error("Erro ao excluir comunicado:", e);
+        showToast("Erro ao excluir comunicado.", "error");
+    }
+}
+
+// Enviar comunicado
+document.getElementById("form-comunicado").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const titulo   = document.getElementById("com-titulo").value.trim();
+    const tipo     = document.getElementById("com-tipo").value;
+    const mensagem = document.getElementById("com-mensagem").value.trim();
+    const btn      = document.getElementById("btn-enviar-comunicado");
+
+    if (!titulo || !mensagem) {
+        showToast("Preencha o título e a mensagem.", "warn");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Enviando…`;
+
+    try {
+        await addDoc(collection(db, "comunicados"), {
+            titulo,
+            tipo,
+            mensagem,
+            dataCriacao: serverTimestamp(),
+            lida:   false,
+            global: true
+        });
+
+        showToast("Comunicado disparado com sucesso!", "success");
+
+        document.getElementById("com-titulo").value   = "";
+        document.getElementById("com-mensagem").value = "";
+        document.getElementById("com-tipo").value     = "info";
+    } catch (err) {
+        console.error("Erro ao enviar comunicado:", err);
+        showToast("Erro ao enviar comunicado.", "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Disparar Comunicado`;
+    }
+});
+
+</script>
+</body>
+</html>

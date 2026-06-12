@@ -92,9 +92,10 @@
 
     <!-- Firebase Logic -->
     <script type="module">
-        import { 
-            auth, 
+        import {
+            auth,
             signInWithEmailAndPassword,
+            loginWithGoogle,
             loginWithGoogleRedirect,
             getRedirectResult
         } from "./config.js?v=2";
@@ -155,12 +156,18 @@
             }
         });
 
-        // Google Login (Redirect para suportar Mobile)
+        // Google Login — popup no desktop, redirect no mobile
         document.getElementById("btn-login-google").addEventListener("click", async () => {
             const btn = document.getElementById("btn-login-google");
-            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Redirecionando...`;
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...`;
             try {
-                await loginWithGoogleRedirect();
+                const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+                if (isMobile) {
+                    await loginWithGoogleRedirect();
+                } else {
+                    await loginWithGoogle();
+                    // onAuthStateChanged cuida do redirect
+                }
             } catch (err) {
                 console.error(err);
                 showToast("Erro ao fazer login com Google.");

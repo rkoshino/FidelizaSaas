@@ -1,50 +1,98 @@
 rules_version = '2';
+// Última atualização: Módulo Super Admin
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Função auxiliar: verifica se o usuário autenticado é um Super Admin
+    function isSuperAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/superadmins/$(request.auth.uid));
+    }
+
     // Regras para a Coleção de Empresas (Inquilinos/Tenants)
     // Qualquer usuário (inclusive não logado) pode ler as configurações públicas para renderizar o app do cliente.
     // Apenas o dono autenticado da empresa pode gravar ou editar suas configurações.
+    // Super admin pode ler qualquer empresa e fazer update (para bloquear/desbloquear).
     match /empresas/{empresaId} {
-      allow read: if true;
+      allow read: if true; // público para renderizar o app do cliente
       allow create: if request.auth != null && request.auth.uid == empresaId;
-      allow update, delete: if request.auth != null && request.auth.uid == empresaId;
+      allow update: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
+      allow delete: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
     }
 
     // Regras para a Coleção de Vendedores (Funcionários)
     // O próprio vendedor ou o dono da empresa correspondente pode ler/escrever.
+    // Super admin pode ler e escrever qualquer vendedor.
     match /vendedores/{vendedorId} {
       allow read: if request.auth != null && (
-        request.auth.uid == vendedorId || 
+        request.auth.uid == vendedorId ||
         resource.data.empresaId == request.auth.uid ||
-        (request.auth.token.email != null && resource.data.email == request.auth.token.email)
+        (request.auth.token.email != null && resource.data.email == request.auth.token.email) ||
+        isSuperAdmin()
       );
       allow create, update: if request.auth != null && (
-        request.auth.uid == vendedorId || 
-        request.resource.data.empresaId == request.auth.uid
+        request.auth.uid == vendedorId ||
+        request.resource.data.empresaId == request.auth.uid ||
+        isSuperAdmin()
       );
       allow delete: if request.auth != null && (
-        resource.data.empresaId == request.auth.uid
+        resource.data.empresaId == request.auth.uid ||
+        isSuperAdmin()
       );
     }
 
     // Regras para a Coleção de Clientes
     // Qualquer cliente logado pode ler e atualizar seu próprio perfil.
     // Vendedores autenticados e donos de empresas também podem ler e atualizar perfis de clientes para gerenciar os pontos.
+    // Super admin pode ler e escrever qualquer cliente.
     match /clientes/{clienteId} {
       allow read: if request.auth != null && (
         request.auth.uid == clienteId ||
         exists(/databases/$(database)/documents/vendedores/$(request.auth.uid)) ||
-        exists(/databases/$(database)/documents/empresas/$(request.auth.uid))
+        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
+        isSuperAdmin()
       );
-      
+
       // Permitir escrita se for o próprio cliente ou se a requisição vier de um vendedor ou empresário cadastrado.
       allow write: if request.auth != null && (
         request.auth.uid == clienteId ||
         exists(/databases/$(database)/documents/vendedores/$(request.auth.uid)) ||
-        exists(/databases/$(database)/documents/empresas/$(request.auth.uid))
+        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
+        isSuperAdmin()
       );
+    }
+
+    // Regras para a Coleção de Super Admins
+    // Só o próprio super admin pode ler seu doc (para o gate de segurança).
+    // Ninguém pode criar/editar via client SDK — apenas via Firebase Console ou Admin SDK.
+    match /superadmins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      allow write: if false;
+    }
+
+    // Regras para a Coleção de Logs do Sistema
+    // Apenas super admin pode ler.
+    // Empresas autenticadas e super admin podem criar logs.
+    // Ninguém pode editar ou deletar logs (imutabilidade).
+    match /systemLogs/{logId} {
+      allow read: if isSuperAdmin();
+      allow create: if request.auth != null && (
+        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
+        isSuperAdmin()
+      );
+      allow update, delete: if false;
+    }
+
+    // Regras para a Coleção de Comunicados
+    // Qualquer empresa autenticada pode ler (para exibir nos dashboards).
+    // Apenas super admin pode criar, atualizar e deletar comunicados.
+    match /comunicados/{comunicadoId} {
+      allow read: if request.auth != null && (
+        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
+        isSuperAdmin()
+      );
+      allow create, update, delete: if isSuperAdmin();
     }
   }
 }
