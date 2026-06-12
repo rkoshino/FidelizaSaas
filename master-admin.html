@@ -48,6 +48,8 @@
         /* Toast */
         #toast { transition: opacity 0.3s ease, transform 0.3s ease; }
         #toast.hide { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+        /* Garante que hidden sempre vence sobre flex no Tailwind CDN (v3 sem !important) */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="h-full font-inter bg-slate-950 text-slate-100 overflow-hidden">
@@ -561,27 +563,28 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
+    function showAccessDenied() {
+        loadingScreen.classList.add("hidden");
+        accessDenied.classList.remove("hidden");
+        accessDenied.classList.add("flex");
+    }
+
     try {
         const snap = await getDoc(doc(db, "superadmins", user.uid));
         if (!snap.exists()) {
-            loadingScreen.classList.add("hidden");
-            accessDenied.classList.remove("hidden");
-            accessDenied.classList.add("flex");
+            showAccessDenied();
             setTimeout(() => doLogout(), 3000);
             return;
         }
     } catch (e) {
         console.error("Erro ao verificar superadmin:", e);
-        loadingScreen.classList.add("hidden");
-        accessDenied.classList.remove("hidden");
-        accessDenied.classList.add("flex");
+        showAccessDenied();
         setTimeout(() => doLogout(), 3000);
         return;
     }
 
     loadingScreen.classList.add("hidden");
     adminPanel.classList.remove("hidden");
-    adminPanel.classList.add("flex");
     initPanel(user);
 });
 
