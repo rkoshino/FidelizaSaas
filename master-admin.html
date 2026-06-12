@@ -564,9 +564,8 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     function showAccessDenied() {
-        loadingScreen.classList.add("hidden");
-        accessDenied.classList.remove("hidden");
-        accessDenied.classList.add("flex");
+        loadingScreen.remove();
+        accessDenied.style.cssText = "display:flex!important";
     }
 
     try {
@@ -583,8 +582,9 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    loadingScreen.classList.add("hidden");
-    adminPanel.classList.remove("hidden");
+    loadingScreen.remove();
+    accessDenied.remove();
+    adminPanel.style.cssText = "display:flex!important";
     initPanel(user);
 });
 
