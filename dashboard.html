@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100 font-inter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Empresário - FidelizaSaaS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- QRCode.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        @media print {
+            @page { size: auto; margin: 0mm; }
+            body * {
+                visibility: hidden !important;
+            }
+            #flyer-a4-preview, #flyer-a4-preview * {
+                visibility: visible !important;
+            }
+            #flyer-a4-preview {
+                position: fixed !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                width: 18cm !important;
+                height: 18cm !important;
+                background: white !important;
+                color: black !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 1cm !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 9999999 !important;
+            }
+            #flyer-a4-preview * {
+                color: black !important;
+            }
+            #flyer-qrcode-placeholder img, #flyer-qrcode-placeholder canvas {
+                width: 10cm !important;
+                height: 10cm !important;
+                margin: 0 auto !important;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="h-full flex bg-slate-950">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-slate-900 bg-slate-950 flex flex-col justify-between shrink-0 hidden md:flex">
+        <div class="flex flex-col gap-8 p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
+                    <i class="fa-solid fa-gem text-white text-base"></i>
+                </div>
+                <span class="text-lg font-bold font-outfit text-white">FidelizaSaaS</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1">
+                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-chart-line text-base"></i> Visão Geral
+                </button>
+                <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-users text-base"></i> Clientes
+                </button>
+                <button onclick="switchTab('equipe')" id="tab-btn-equipe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-user-shield text-base"></i> Equipe (Vendedores)
+                </button>
+                <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-building text-base"></i> Sua Conta
+                </button>
+            </nav>
+        </div>
+
+        <!-- Logged In User Footer -->
+        <div class="p-6 border-t border-slate-900 flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400" id="user-avatar">E</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-white truncate" id="user-display-name">Empresário</p>
+                    <p class="text-[10px] text-slate-500 truncate" id="user-email">email@empresa.com</p>
+                </div>
+            </div>
+            <button id="btn-logout" class="w-full py-2.5 bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-900/50 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-400 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair do Painel
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Container -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Top bar -->
+        <header class="h-16 border-b border-slate-900 px-6 flex items-center justify-between glassmorphism sticky top-0 z-30">
+            <div class="flex items-center gap-2">
+                <h1 class="text-lg font-bold font-outfit text-white" id="page-title">Visão Geral</h1>
+                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden" id="trial-badge">Período de Teste</span>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden" id="active-badge">Pro Ativo</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-xl transition flex items-center gap-1.5" title="Abrir Cartão Digital">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
+                </button>
+                <div class="flex items-center">
+                    <button id="btn-header-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
+                        <i class="fa-solid fa-camera"></i> Câmera do Vendedor
+                    </button>
+                    <button id="btn-header-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link da Câmera">
+                        <i class="fa-regular fa-copy"></i> Copiar Link
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <main class="flex-grow p-6 md:p-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
+
+            <!-- Banner Informativo de Trial -->
+            <div id="trial-alert" class="hidden p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Seu plano experimental expira em <span id="trial-days-left">30</span> dias!</h4>
+                        <p class="text-slate-400 text-xs mt-0.5">Assine o plano comercial Pro hoje mesmo para desbloquear o envio de logotipos e manter seu programa rodando.</p>
+                    </div>
+                </div>
+                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Fazer Upgrade</button>
+            </div>
+
+            <!-- TABS CONTENT -->
+
+            <!-- TAB 1: VISÃO GERAL -->
+            <div id="tab-content-dashboard" class="flex flex-col gap-6">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Clientes Cadastrados</span>
+                            <span class="text-3xl font-bold text-white font-outfit" id="stat-total-clientes">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Carimbos</span>
+                            <span class="text-3xl font-bold text-white font-outfit" id="stat-total-pontos">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Prêmios a Resgatar</span>
+                            <span class="text-3xl font-bold text-white font-outfit" id="stat-premios-disponiveis">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl"><i class="fa-solid fa-gift"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Prêmios Entregues</span>
+                            <span class="text-3xl font-bold text-white font-outfit" id="stat-premios-entregues">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                </div>
+
+                <!-- Resumo Campanha -->
+                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-4">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h3 class="font-bold text-lg text-white font-outfit">Regras da Campanha Ativa</h3>
+                        <div class="flex gap-2 flex-wrap justify-end">
+                            <button onclick="openEditarCampanhaModal()" class="text-sm font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-400 px-4 py-2 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar Regras
+                            </button>
+                            <button onclick="openProFeatureModal('Links Externos e HTML Customizado')" class="text-sm font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 px-4 py-2 rounded-xl transition flex items-center gap-2" id="btn-pro-links">
+                                <i class="fa-solid fa-lock text-amber-400"></i> Links / Visual Pro
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center gap-3 p-4 bg-slate-900/40 rounded-xl border border-slate-800">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-circle-check"></i></div>
+                            <div>
+                                <p class="text-slate-400 text-xs">Meta do Cartão</p>
+                                <p class="text-white text-sm font-semibold mt-0.5"><span id="summary-meta-pontos">10</span> Pontos / Carimbos</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-slate-900/40 rounded-xl border border-slate-800">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-trophy"></i></div>
+                            <div>
+                                <p class="text-slate-400 text-xs">Recompensa final</p>
+                                <p class="text-white text-sm font-semibold mt-0.5" id="summary-premio">1 Drink Especial</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Links e Materiais -->
+                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-6">
+                    <h3 class="font-bold text-lg text-white font-outfit">Links e Divulgação</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Links Úteis -->
+                        <div class="flex flex-col gap-4">
+                            <!-- Client link -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-300 select-all">
+                                    <button id="btn-overview-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                                </div>
+                            </div>
+        
+                            <!-- Admin link -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Câmera do Vendedor (Validar/Carimbar)</span>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly id="overview-link-vendedor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-300 select-all">
+                                    <button id="btn-overview-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Kit -->
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Texto Pronto para WhatsApp</span>
+                            <div class="relative h-full">
+                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full h-full min-h-[110px] bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                                <button id="btn-overview-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Texto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 pt-6 border-t border-slate-800">
+                        <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-slate-950/40 border border-slate-800">
+                            <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="overview-qrcode-box">
+                                <div id="overview-qrcode-placeholder" class="w-[120px] h-[120px] flex items-center justify-center text-slate-300">
+                                    <i class="fa-solid fa-qrcode text-4xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2 text-center sm:text-left">
+                                <h3 class="font-bold text-white text-base font-outfit">Flyer de Divulgação (A4)</h3>
+                                <p class="text-xs text-slate-400 max-w-sm">Imprima o seu flyer contendo o QR Code acima. Coloque-o no balcão e nas mesas para que seus clientes escaneiem e entrem no seu programa de fidelidade instantaneamente.</p>
+                                <button onclick="openFlyerModal()" class="mt-2 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
+                                    <i class="fa-solid fa-file-pdf"></i> Abrir e Baixar Flyer PNG
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CLIENTES -->
+            <div id="tab-content-clientes" class="hidden flex flex-col gap-6">
+                <!-- Header search -->
+                <div class="flex justify-between items-center gap-4 flex-wrap">
+                    <h3 class="font-bold text-lg text-white font-outfit">Clientes Participantes</h3>
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="flex items-center">
+                            <button id="btn-clientes-pagina-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
+                            </button>
+                            <button id="btn-clientes-copiar-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 border-l-0 text-slate-300 px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link do Cliente">
+                                <i class="fa-regular fa-copy"></i> Copiar Link
+                            </button>
+                        </div>
+                        <div class="relative w-full sm:max-w-xs flex-1 mt-3 md:mt-0">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                            <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-slate-300">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Bar -->
+                <div id="bulk-actions-bar" class="hidden glassmorphism px-4 py-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 flex items-center justify-between gap-4 mb-4">
+                    <span class="text-xs text-indigo-300 font-medium"><span id="selected-count">0</span> clientes selecionados</span>
+                    <div class="flex gap-2">
+                        <button onclick="openBulkAjustarModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition active:scale-95">Ajustar Pontos</button>
+                        <button onclick="bulkResetPoints()" class="text-xs font-semibold bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg transition active:scale-95">Zerar Pontos</button>
+                    </div>
+                </div>
+
+                <!-- Table box -->
+                <div class="glassmorphism rounded-2xl overflow-hidden border border-slate-900">
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-900 bg-slate-900/30 text-slate-400 font-semibold uppercase tracking-wider">
+                                    <th class="py-4 px-6 w-12 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4"></th>
+                                    <th class="py-4 px-6">Nome Completo</th>
+                                    <th class="py-4 px-6">E-mail</th>
+                                    <th class="py-4 px-6 text-center">Pontuação</th>
+                                    <th class="py-4 px-6 text-center">Status</th>
+                                    <th class="py-4 px-6 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-table-body" class="divide-y divide-slate-900 text-slate-300">
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-slate-500">
+                                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando clientes cadastrados...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: EQUIPE (VENDEDORES) -->
+            <div id="tab-content-equipe" class="hidden flex flex-col gap-6">
+                <div class="flex justify-between items-center gap-4 flex-wrap">
+                    <div>
+                        <h3 class="font-bold text-lg text-white font-outfit">Equipe de Atendimento</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
+                    </div>
+                    <div class="flex items-center gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
+                        <div class="flex items-center">
+                            <button id="btn-equipe-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2.5 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
+                                <i class="fa-solid fa-camera"></i> Câmera do Vendedor
+                            </button>
+                            <button id="btn-equipe-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2.5 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link da Câmera">
+                                <i class="fa-regular fa-copy"></i> Copiar Link
+                            </button>
+                        </div>
+                        <button onclick="openAddVendedorModal()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
+                            <i class="fa-solid fa-user-plus"></i> Novo Vendedor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vendedores Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-slate-500 col-span-full">
+                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando equipe...
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CONFIGURAÇÕES DA CONTA (Antigo Stripe) -->
+            <div id="tab-content-stripe" class="hidden flex flex-col gap-8">
+                <div class="flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold font-outfit text-white">Configurações da Conta</h3>
+                        <p class="text-slate-400 text-xs mt-1">Gerencie os dados da sua empresa, assinatura e privacidade.</p>
+                    </div>
+                </div>
+
+                <!-- Formulário de Dados da Empresa -->
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-5 border border-slate-800">
+                    <h4 class="font-bold text-white text-base font-outfit">Informações do Controlador (LGPD)</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="config-company-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nome da Empresa</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="config-company-name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                                <button id="btn-save-company-name" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="config-company-slug" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Personalizado</label>
+                            <div class="flex gap-2">
+                                <div class="flex-1 flex items-center bg-slate-900 border border-slate-800 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
+                                    <span class="text-slate-500 text-xs px-3 py-2.5 border-r border-slate-800 bg-slate-950">/cliente.html?link=</span>
+                                    <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-white transition" autocomplete="off">
+                                </div>
+                                <button id="btn-save-company-slug" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar Link</button>
+                            </div>
+                            <span class="text-[10px] text-slate-500">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail Comercial (Login)</label>
+                            <input type="text" id="config-owner-email" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-500 opacity-70 cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Privacidade / Danger Zone -->
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-4 border border-red-900/30 bg-red-950/10">
+                    <h4 class="font-bold text-red-400 text-base font-outfit"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Zona de Perigo (LGPD)</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed max-w-3xl">Como Controlador de Dados, você tem o direito de solicitar a exclusão permanente da sua conta e de todos os dados associados a ela (incluindo todos os clientes cadastrados no seu programa de fidelidade). <strong>Esta ação é irreversível.</strong></p>
+                    <div>
+                        <button id="btn-delete-controller-account" class="mt-2 text-xs font-bold bg-red-900/40 hover:bg-red-600 border border-red-500/50 hover:border-red-500 text-red-400 hover:text-white px-4 py-3 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-slate-800 my-2">
+                
+                <!-- Plans Column Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-start">
+                    
+                    <!-- Free/Trial Card -->
+                    <div class="glassmorphism p-6 rounded-2xl border-slate-800/80 flex flex-col gap-5 bg-slate-950/20">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Plano Atual</span>
+                            <h4 class="text-xl font-bold text-white font-outfit">Período de Testes</h4>
+                            <p class="text-slate-400 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
+                        </div>
+                        <div class="text-2xl font-bold font-outfit text-white">R$ 0 <span class="text-xs font-normal text-slate-500">/ 30 dias</span></div>
+                        
+                        <div class="h-[1px] bg-slate-900 w-full"></div>
+
+                        <ul class="flex flex-col gap-3 text-xs text-slate-400">
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Até 1 vendedor</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Tabela de clientes ativa</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Sem upload de Logotipo</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Suporte Prioritário</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pro Card (Active Stripe simulation) -->
+                    <div class="glassmorphism p-6 rounded-2xl border-indigo-500/40 relative flex flex-col gap-5 bg-indigo-950/5">
+                        <div class="absolute -top-3 right-5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-400/20 shadow-md">Mais Popular</div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Profissional</span>
+                            <h4 class="text-xl font-bold text-white font-outfit">Fidelidade Pro (White Label)</h4>
+                            <p class="text-indigo-200/60 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
+                        </div>
+                        <div class="text-2xl font-bold font-outfit text-white">R$ 79,90 <span class="text-xs font-normal text-slate-500">/ mensal</span></div>
+                        
+                        <div class="h-[1px] bg-slate-900 w-full"></div>
+
+                        <ul class="flex flex-col gap-3 text-xs text-slate-300">
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Vendedores Ilimitados</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Envio de Logotipo da Marca</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Customizações Visuais Estendidas</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Exportação de Dados e Relatórios</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Suporte WhatsApp 24/7</li>
+                        </ul>
+
+                        <button id="btn-stripe-checkout" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-xs rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-2">
+                            <i class="fa-brands fa-stripe text-base mr-1"></i> Assinar com Stripe
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: AJUSTAR PONTOS -->
+    <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
+                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
+                    <p class="text-slate-400">Cliente selecionado:</p>
+                    <p class="text-white font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
+                    <p class="text-[10px] text-slate-500 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
+                    <p class="text-indigo-400 font-bold mt-2">Pontuação Atual: <span id="modal-ajuste-pontos-atuais">0</span> Pontos</p>
+                </div>
+
+                <!-- Ações de Ajuste -->
+                <div class="flex gap-2">
+                    <button onclick="setAjusteAction('add')" id="btn-action-add" class="flex-1 py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-300 transition">+ Adicionar</button>
+                    <button onclick="setAjusteAction('remove')" id="btn-action-remove" class="flex-1 py-2.5 rounded-lg border-2 border-slate-800 bg-transparent text-slate-400 font-bold text-xs transition">- Remover</button>
+                    <button onclick="setAjusteAction('zero')" id="btn-action-zero" class="flex-1 py-2.5 rounded-lg border-2 border-slate-800 bg-transparent text-slate-400 font-bold text-xs transition">Zerar Pontos</button>
+                </div>
+
+                <!-- Campo de Entrada de Pontos -->
+                <div class="flex flex-col gap-1" id="input-pontos-container">
+                    <label for="ajuste-quantidade-pontos" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Quantidade de Pontos</label>
+                    <input type="number" id="ajuste-quantidade-pontos" value="1" min="1" max="100" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <!-- Campo Justificativa Obrigatória -->
+                <div class="flex flex-col gap-1">
+                    <label for="ajuste-justificativa" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
+                    <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-slate-500">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
+                </div>
+
+                <!-- Confirm buttons -->
+                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-slate-800 text-white disabled:text-slate-500 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar Ajuste
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: LINKS DE DIVULGAÇÃO -->
+    <div id="modal-promo-links" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white font-outfit">Links de Divulgação</h3>
+                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-slate-400">Link do Cartão de Fidelidade do Cliente</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-client-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-indigo-300 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-client-url')" class="px-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">Copiar</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-slate-400">Link do Scanner do Vendedor (Equipe)</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-violet-300 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-vendor-url')" class="px-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition">Copiar</button>
+                    </div>
+                </div>
+                
+                <p class="text-[10px] text-slate-500 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados pertencentes à sua empresaId.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CADASTRAR VENDEDOR -->
+    <div id="modal-cadastrar-vendedor" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white font-outfit">Cadastrar Vendedor</h3>
+                <button onclick="closeAddVendedorModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="vendedor-form" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                    <label for="vendedor-nome" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Nome Completo</label>
+                    <input type="text" id="vendedor-nome" placeholder="Ex: João Silva" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                
+                <div class="flex flex-col gap-1">
+                    <label for="vendedor-email" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">E-mail de Acesso</label>
+                    <input type="email" id="vendedor-email" placeholder="joao@vendedor.com" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-slate-500">O vendedor utilizará este e-mail para logar no scanner do celular.</span>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Autorizar Vendedor
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL HISTÓRICO DE CARIMBOS -->
+    <div id="modal-historico" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-white font-outfit">Histórico de Carimbos</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-white font-medium">...</span></p>
+                </div>
+                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="historico-lista" class="flex flex-col gap-3 mt-2">
+                <div class="text-center text-slate-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL 4: EDITAR CAMPANHA -->
+    <div id="modal-editar-campanha" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-white font-outfit">Editar Página</h3>
+                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <label for="edit-theme-title" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Título da Página do Cliente</label>
+                    <input type="text" id="edit-theme-title" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="edit-premio-desc" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-color" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cor de Fundo Principal</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="edit-theme-color" class="w-10 h-10 bg-transparent border-0 cursor-pointer rounded-lg">
+                            <input type="text" id="edit-theme-color-hex" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white uppercase focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-font" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Tipografia (Fonte)</label>
+                        <select id="edit-theme-font" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="sans">Inter</option>
+                            <option value="playfair">Playfair Display</option>
+                            <option value="space">Space Grotesk</option>
+                            <option value="mono">JetBrains Mono</option>
+                            <option value="bebas">Bebas Neue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Custom Premium Emoji Picker inside Dashboard Edit -->
+                <div class="flex flex-col gap-1 relative">
+                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
+                    <button type="button" id="edit-emoji-picker-btn" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-left text-white flex items-center justify-between transition focus:border-indigo-500">
+                        <span id="edit-selected-emoji-label">⭐</span>
+                        <i class="fa-solid fa-chevron-down text-slate-500 text-[10px]"></i>
+                    </button>
+                    <input type="hidden" id="edit-theme-emoji" value="⭐">
+                    
+                    <!-- Premium Emoji Picker Popover -->
+                    <div id="edit-emoji-picker-popover" class="hidden absolute top-[58px] left-0 w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl z-50 flex flex-col gap-3 glassmorphism max-h-[220px]">
+                        <!-- Categorias Tab -->
+                        <div class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800 shrink-0 text-base scrollbar-none justify-between w-full">
+                            <button type="button" id="edit-tab-emoji-popular" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold">🔥</button>
+                            <button type="button" id="edit-tab-emoji-food" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">🍕</button>
+                            <button type="button" id="edit-tab-emoji-smileys" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">😀</button>
+                            <button type="button" id="edit-tab-emoji-activities" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">⚽</button>
+                            <button type="button" id="edit-tab-emoji-objects" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">💡</button>
+                        </div>
+                        <!-- Emojis Grid -->
+                        <div id="edit-emojis-grid-container" class="grid grid-cols-6 gap-2 overflow-y-auto text-xl py-1 justify-items-center">
+                            <!-- Emojis populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar e Salvar Campanha
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: FLYER DE DIVULGAÇÃO A4 -->
+    <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 max-h-[90vh]">
+            <div class="flex justify-between items-center no-print">
+                <h3 class="font-bold text-lg text-white font-outfit">Flyer de Divulgação</h3>
+                <div class="flex gap-2">
+                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
+                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            
+            <!-- Flyer Container (Designed for Printing) -->
+            <div class="overflow-y-auto flex justify-center p-4 bg-slate-950 border border-slate-900 rounded-xl max-h-[60vh] no-print">
+                <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
+                    <div class="flex flex-col items-center gap-4 mt-2">
+                        <!-- QR Code Grande no Topo -->
+                        <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
+                            <div id="flyer-qrcode-placeholder"></div>
+                        </div>
+
+                        <!-- Informações em baixo de forma simples -->
+                        <div class="flex flex-col items-center gap-1">
+                            <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
+                            <p class="text-[9px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Clube de Fidelidade</p>
+                            
+                            <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
+                            <p class="text-[10px] text-slate-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by FidelizaSaaS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRO FEATURE -->
+    <div id="modal-pro-feature" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-8 flex flex-col gap-4 shadow-2xl animate-fade-in text-slate-100 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl"></div>
+            
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-2xl mx-auto flex items-center justify-center text-slate-900 text-3xl shadow-lg shadow-amber-500/30 mb-2">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <h3 class="font-bold text-2xl text-white font-outfit">Recurso Premium</h3>
+            <p class="text-xs text-slate-400 mb-2">A funcionalidade <strong id="pro-feature-name" class="text-amber-400">Links Externos</strong> é exclusiva do plano Profissional (PRO).</p>
+            
+            <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-xl text-left flex flex-col gap-2 mb-2">
+                <p class="text-xs font-semibold text-slate-300 mb-1">Com o Plano PRO você pode:</p>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400"><i class="fa-solid fa-check text-emerald-500"></i> Inserir botões de WhatsApp, Cardápio, etc.</div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400"><i class="fa-solid fa-check text-emerald-500"></i> Trocar logotipo do cartão</div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400"><i class="fa-solid fa-check text-emerald-500"></i> Modificar cores e estilo avançado</div>
+            </div>
+
+            <button onclick="closeProFeatureModal(); switchTab('stripe');" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95">
+                Ver Planos de Assinatura
+            </button>
+            <button onclick="closeProFeatureModal()" class="text-xs text-slate-500 hover:text-white mt-1">Agora não</button>
+        </div>
+    </div>
+
+    <!-- Firebase Logic connection -->
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            logoutUser, 
+            onSnapshot 
+        } from "./config.js?v=2";
+
+        // Variáveis Locais
+        let empresaId = "";
+        let targetClienteId = "";
+        let targetClienteIds = [];
+        let isBulkAjuste = false;
+        let currentAjusteAction = "add"; // add, remove, zero
+        let metaCampanha = 10;
+        let visualConfig = {};
+        let fullEmpresaData = null;
+        let qrCodeFlyerInstance = null;
+
+        // Recupera empresaId pela query URL
+        const urlParams = new URLSearchParams(window.location.search);
+        empresaId = urlParams.get("empresa");
+
+        // Se não tiver empresa logada na query, tenta pegar no Auth
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                if (!empresaId) {
+                    empresaId = user.uid;
+                }
+                
+                // Preenche dados do rodapé lateral
+                document.getElementById("user-display-name").innerText = user.displayName || "Empresário";
+                document.getElementById("user-email").innerText = user.email;
+                document.getElementById("user-avatar").innerText = (user.displayName || "E").charAt(0).toUpperCase();
+
+                // Busca dados da empresa
+                await loadEmpresaData();
+                // Assina escuta em tempo real dos clientes e vendedores
+                listenToData();
+            } else {
+                // Redireciona se não estiver logado
+                window.location.href = "./login.html";
+            }
+        });
+
+        // Efetua Logout
+        document.getElementById("btn-logout").addEventListener("click", async () => {
+            await logoutUser();
+            window.location.href = "./login.html";
+        });
+
+        // Carrega dados da empresa no Firestore
+        async function loadEmpresaData() {
+            try {
+                const docRef = doc(db, "empresas", empresaId);
+                const docSnap = await docRef.get ? await docRef.get() : await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    fullEmpresaData = data;
+                    visualConfig = data.visualConfig || {};
+                    metaCampanha = data.metaConfig?.metaPontos || 10;
+
+                    // Atualiza elementos estáticos
+                    document.getElementById("summary-meta-pontos").innerText = metaCampanha;
+                    document.getElementById("summary-premio").innerText = data.metaConfig?.descriçãoPremio || "Prêmio";
+                    document.getElementById("stat-premios-entregues").innerText = data.totalPremiosEntregues || 0;
+                    
+                    // Exibe Badges do plano
+                    const status = data.statusAssinatura;
+                    if (status === "active") {
+                        document.getElementById("active-badge").classList.remove("hidden");
+                        document.getElementById("trial-badge").classList.add("hidden");
+                        document.getElementById("trial-alert").classList.add("hidden");
+                    } else {
+                        document.getElementById("trial-badge").classList.remove("hidden");
+                        document.getElementById("active-badge").classList.add("hidden");
+                        
+                        // Calcula dias do trial
+                        const trialEnd = data.trialEndDate ? data.trialEndDate.toDate() : new Date();
+                        const today = new Date();
+                        const diffTime = trialEnd - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        document.getElementById("trial-days-left").innerText = diffDays > 0 ? diffDays : 0;
+                        document.getElementById("trial-alert").classList.remove("hidden");
+                    }
+
+                    // Configura URLs do modal de links e visão geral
+                    const baseUrl = window.location.origin + window.location.pathname.replace("dashboard.html", "");
+                    const linkSlug = data.linkUnicoCliente || data.donoUid;
+                    const clientUrl = `${baseUrl}cliente.html?link=${linkSlug}`;
+                    const vendorUrl = `${baseUrl}vendedor.html?empresa=${empresaId}`;
+                    
+                    // Modais originais (mantidos por segurança caso existam)
+                    const promoClientUrl = document.getElementById("promo-client-url");
+                    if (promoClientUrl) promoClientUrl.value = clientUrl;
+                    const promoVendorUrl = document.getElementById("promo-vendor-url");
+                    if (promoVendorUrl) promoVendorUrl.value = vendorUrl;
+                           // Preenche dados laterais e modal
+                    document.getElementById("config-company-name").value = data.nomeEmpresa || "";
+                    document.getElementById("config-company-slug").value = data.linkUnicoCliente || "";
+                    document.getElementById("config-owner-email").value = data.emailComercial || "";
+
+                    // Novos campos na Visão Geral
+                    document.getElementById("overview-link-cliente-url").value = clientUrl;
+                    document.getElementById("overview-link-vendedor-url").value = vendorUrl;
+                    
+                    const premio = data.metaConfig?.descriçãoPremio || "um super prêmio";
+                    document.getElementById("overview-whatsapp-kit-text").value = `🎉 Olá! Lançamos nosso sistema de fidelidade digital!\n\nCadastre-se agora e comece a acumular pontos para ganhar ${premio}.\n\nAcesse seu cartão aqui: ${clientUrl}`;
+
+                    // Gerar QR Code da Visão Geral
+                    const overviewQrContainer = document.getElementById("overview-qrcode-placeholder");
+                    overviewQrContainer.innerHTML = "";
+                    overviewQrContainer.className = ""; // Remover as classes de placeholder
+                    new QRCode(overviewQrContainer, {
+                        text: clientUrl,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#0f172a", // slate-900
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+
+                    // Botões do Cabeçalho
+                    document.getElementById("btn-header-pagina-cliente").onclick = () => window.open(clientUrl, '_blank');
+                    document.getElementById("btn-header-camera-vendedor").onclick = () => window.open(vendorUrl, '_blank');
+                    document.getElementById("btn-header-copiar-camera").onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link da câmera copiado!");
+                    };
+
+                    // Botões da aba Clientes
+                    const btnClientesPagina = document.getElementById("btn-clientes-pagina-cliente");
+                    if(btnClientesPagina) btnClientesPagina.onclick = () => window.open(clientUrl, '_blank');
+                    
+                    const btnClientesCopiar = document.getElementById("btn-clientes-copiar-cliente");
+                    if(btnClientesCopiar) btnClientesCopiar.onclick = () => {
+                        navigator.clipboard.writeText(clientUrl);
+                        showToast("Link do cliente copiado!");
+                    };
+
+                    // Botões da aba Equipe
+                    const btnEquipeCamera = document.getElementById("btn-equipe-camera-vendedor");
+                    if(btnEquipeCamera) btnEquipeCamera.onclick = () => window.open(vendorUrl, '_blank');
+                    
+                    const btnEquipeCopiar = document.getElementById("btn-equipe-copiar-camera");
+                    if(btnEquipeCopiar) btnEquipeCopiar.onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link da câmera copiado!");
+                    };
+
+                    // Preencher aba Sua Conta
+                    const inputCompanyName = document.getElementById("config-company-name");
+                    const inputOwnerEmail = document.getElementById("config-owner-email");
+                    if(inputCompanyName) inputCompanyName.value = data.nomeEmpresa || "";
+                    if(inputOwnerEmail) inputOwnerEmail.value = data.ownerEmail || "";
+
+                    // Botões de Copiar da Visão Geral
+                    document.getElementById("btn-overview-copy-cliente").onclick = () => {
+                        navigator.clipboard.writeText(clientUrl);
+                        showToast("Link do cliente copiado!");
+                    };
+                    document.getElementById("btn-overview-copy-vendedor").onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link do vendedor copiado!");
+                    };
+                    document.getElementById("btn-overview-copy-whatsapp").onclick = () => {
+                        navigator.clipboard.writeText(document.getElementById("overview-whatsapp-kit-text").value);
+                        showToast("Kit do WhatsApp copiado!");
+                    };
+                }
+            } catch (err) {
+                console.error("Erro ao ler dados da empresa: ", err);
+            }
+        }
+
+        // Assinatura em tempo real para Clientes e Vendedores
+        function listenToData() {
+            // Escuta Clientes
+            // OBS: No Firestore, os pontos dos clientes estão no Map `pontosPerEmpresa[empresaId]`
+            const clientesQuery = query(collection(db, "clientes"));
+            onSnapshot(clientesQuery, (snapshot) => {
+                const tableBody = document.getElementById("clientes-table-body");
+                tableBody.innerHTML = "";
+
+                let totalClientes = 0;
+                let totalPontos = 0;
+                let premiosDisponiveis = 0;
+
+                let hasClientes = false;
+
+                snapshot.forEach((doc) => {
+                    const client = doc.data();
+                    const clientId = doc.id;
+                    const pontos = client.pontosPerEmpresa?.[empresaId] || 0;
+
+                    // Filtrar apenas se o cliente tem pontos ou histórico nesta empresa
+                    if (client.pontosPerEmpresa && empresaId in client.pontosPerEmpresa) {
+                        hasClientes = true;
+                        totalClientes++;
+                        totalPontos += pontos;
+                        
+                        window.clientesDataMap = window.clientesDataMap || {};
+                        window.clientesDataMap[clientId] = client;
+
+                        const isWin = pontos >= metaCampanha;
+                        if (isWin) premiosDisponiveis++;
+
+                        const tr = document.createElement("tr");
+                        tr.className = "hover:bg-slate-900/30 transition duration-150";
+                        tr.innerHTML = `
+                            <td class="py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${client.nomeCompleto || 'Sem nome'}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
+                            <td class="py-4 px-6 font-medium text-white">${client.nomeCompleto || "Sem nome"}</td>
+                            <td class="py-4 px-6 text-slate-400">${client.email}</td>
+                            <td class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
+                            <td class="py-4 px-6 text-center">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
+                                    isWin 
+                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                                        : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                }">
+                                    ${isWin ? "Aguardando Prêmio" : "Acumulando"}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-right">
+                                <div class="flex gap-2 justify-end">
+                                    <button onclick="openHistoricoModal('${clientId}', '${client.nomeCompleto}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition" title="Ver Histórico">
+                                        <i class="fa-solid fa-list-ul"></i>
+                                    </button>
+                                    <button onclick="openAjustarModal('${clientId}', '${client.nomeCompleto}', '${client.email}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                        Ajustar
+                                    </button>
+                                    <button onclick="resetClientePontos('${clientId}', '${client.nomeCompleto}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                        Zerar
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(tr);
+                    }
+                });
+
+                if (!hasClientes) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="py-12 text-center text-slate-500">
+                                Nenhum cliente ativo registrado no seu programa ainda.<br>
+                                <span class="text-[10px] text-indigo-400 mt-2 block">Compartilhe o link do cliente para começar!</span>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                // Atualiza contadores do dashboard
+                document.getElementById("stat-total-clientes").innerText = totalClientes;
+                document.getElementById("stat-total-pontos").innerText = totalPontos;
+                document.getElementById("stat-premios-disponiveis").innerText = premiosDisponiveis;
+            });
+
+            // Escuta Vendedores
+            const vendedoresQuery = query(collection(db, "vendedores"), where("empresaId", "==", empresaId));
+            onSnapshot(vendedoresQuery, (snapshot) => {
+                const grid = document.getElementById("vendedores-grid");
+                grid.innerHTML = "";
+
+                let hasVendedores = false;
+
+                snapshot.forEach((docSnap) => {
+                    hasVendedores = true;
+                    const vended = docSnap.data();
+                    const vUid = docSnap.id;
+
+                    const card = document.createElement("div");
+                    card.className = "glassmorphism p-5 rounded-2xl flex flex-col justify-between gap-4";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 text-lg">
+                                <i class="fa-solid fa-user-tag"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm leading-tight">${vended.nomeVendedor}</h4>
+                                <p class="text-[10px] text-slate-500 mt-0.5">${vended.email}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-slate-900 pt-3">
+                            <span class="text-[9px] font-bold uppercase tracking-wider ${vended.ativo ? 'text-emerald-400' : 'text-slate-500'}">
+                                ${vended.ativo ? 'Ativo' : 'Inativo'}
+                            </span>
+                            <button onclick="deletarVendedor('${vUid}')" class="text-[10px] text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-500/10 transition">
+                                Remover
+                            </button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                if (!hasVendedores) {
+                    grid.innerHTML = `
+                        <div class="glassmorphism p-8 rounded-2xl text-center text-slate-500 col-span-full">
+                            Nenhum vendedor registrado nesta empresa.
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        // --- Modals e Funções de Escrita no Firestore ---
+
+        // Abrir Modal de Histórico de Carimbos
+        window.openHistoricoModal = function(clientId, clientName) {
+            document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
+            const historicoLista = document.getElementById("historico-lista");
+            
+            const client = window.clientesDataMap?.[clientId];
+            if (!client) {
+                historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Dados não encontrados.</div>`;
+            } else {
+                const logsCarimbos = client[`logCarimbos_${empresaId}`] || [];
+                const logsResgates = client[`logResgastes_${empresaId}`] || []; // Para também mostrar resgates no futuro se quiser
+                
+                if (logsCarimbos.length === 0) {
+                    historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Nenhum carimbo registrado no histórico.</div>`;
+                } else {
+                    // Ordena do mais recente pro mais antigo
+                    const logsOrdenados = [...logsCarimbos].sort((a, b) => new Date(b.data) - new Date(a.data));
+                    
+                    historicoLista.innerHTML = logsOrdenados.map(log => {
+                        const dateObj = new Date(log.data);
+                        const dateStr = dateObj.toLocaleDateString('pt-BR');
+                        const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                        
+                        return `
+                            <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-white font-medium"><i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.quantidade || 1} Ponto(s)</span>
+                                    <span class="text-slate-500 text-[10px]">Vendedor: ${log.vendedor || "Sistema"}</span>
+                                </div>
+                                <div class="text-right flex flex-col gap-0.5">
+                                    <span class="text-slate-300">${dateStr}</span>
+                                    <span class="text-slate-500 text-[10px]">${timeStr}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join("");
+                }
+            }
+            
+            document.getElementById("modal-historico").classList.remove("hidden");
+        };
+
+        window.closeHistoricoModal = function() {
+            document.getElementById("modal-historico").classList.add("hidden");
+        };
+
+        // Abrir Modal de Feature Pro
+        window.openProFeatureModal = function(featureName) {
+            document.getElementById("pro-feature-name").innerText = featureName || "Recurso Premium";
+            document.getElementById("modal-pro-feature").classList.remove("hidden");
+        };
+
+        window.closeProFeatureModal = function() {
+            document.getElementById("modal-pro-feature").classList.add("hidden");
+        };
+
+        // Abrir Modal de Ajuste de Pontos
+        window.openAjustarModal = function(clientId, nome, email, pontosAtuais) {
+            isBulkAjuste = false;
+            targetClienteId = clientId;
+            document.getElementById("modal-ajuste-nome").innerText = nome;
+            document.getElementById("modal-ajuste-email").innerText = email;
+            document.getElementById("modal-ajuste-pontos-atuais").innerText = pontosAtuais;
+            
+            // Reseta inputs do modal
+            document.getElementById("ajuste-quantidade-pontos").value = 1;
+            document.getElementById("ajuste-justificativa").value = "";
+            document.getElementById("btn-confirm-ajuste").disabled = true;
+
+            setAjusteAction("add");
+            
+            document.getElementById("modal-ajustar-pontos").classList.remove("hidden");
+        };
+
+        window.closeAjustarModal = function() {
+            document.getElementById("modal-ajustar-pontos").classList.add("hidden");
+        };
+
+        // Gerenciamento da Ação Ativa do Modal
+        window.setAjusteAction = function(action) {
+            currentAjusteAction = action;
+            const btnAdd = document.getElementById("btn-action-add");
+            const btnRemove = document.getElementById("btn-action-remove");
+            const btnZero = document.getElementById("btn-action-zero");
+            const pointsContainer = document.getElementById("input-pontos-container");
+
+            // Reseta classes
+            [btnAdd, btnRemove, btnZero].forEach(btn => {
+                btn.className = "flex-grow py-2.5 rounded-lg border-2 border-slate-800 bg-transparent text-slate-400 font-bold text-xs transition";
+            });
+
+            if (action === "add") {
+                btnAdd.className = "flex-grow py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-300 transition";
+                pointsContainer.classList.remove("hidden");
+            } else if (action === "remove") {
+                btnRemove.className = "flex-grow py-2.5 rounded-lg border-2 border-amber-600 bg-amber-600/10 font-bold text-xs text-amber-300 transition";
+                pointsContainer.classList.remove("hidden");
+            } else if (action === "zero") {
+                btnZero.className = "flex-grow py-2.5 rounded-lg border-2 border-red-600 bg-red-600/10 font-bold text-xs text-red-300 transition";
+                pointsContainer.classList.add("hidden");
+            }
+            
+            validateAjusteForm();
+        };
+
+        // Visual Emoji Feedback for Dashboard
+        window.showEmojiFeedback = function(qty) {
+            const emojiStr = window.metaConfig?.brandEmoji || "⭐";
+            const popup = document.createElement("div");
+            popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
+            popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
+            document.body.appendChild(popup);
+            
+            popup.offsetWidth; // force reflow
+            
+            popup.classList.remove("opacity-0", "scale-50");
+            popup.classList.add("opacity-100", "scale-110");
+            
+            setTimeout(() => {
+                popup.classList.remove("opacity-100", "scale-110");
+                popup.classList.add("opacity-0", "scale-150");
+                setTimeout(() => popup.remove(), 300);
+            }, 800);
+        };
+
+        // Validação da justificativa antes de habilitar submissão
+        const justificativaInput = document.getElementById("ajuste-justificativa");
+        justificativaInput.addEventListener("input", validateAjusteForm);
+
+        function validateAjusteForm() {
+            const justificativaLength = justificativaInput.value.trim().length;
+            const btnConfirm = document.getElementById("btn-confirm-ajuste");
+            
+            if (justificativaLength >= 5) {
+                btnConfirm.disabled = false;
+            } else {
+                btnConfirm.disabled = true;
+            }
+        }
+
+        // Submissão do Ajuste de Pontos
+        document.getElementById("btn-confirm-ajuste").addEventListener("click", async () => {
+            const btnConfirm = document.getElementById("btn-confirm-ajuste");
+            btnConfirm.disabled = true;
+            btnConfirm.innerText = "Salvando...";
+
+            try {
+                if (isBulkAjuste) {
+                    for (const cid of targetClienteIds) {
+                        const clienteRef = doc(db, "clientes", cid);
+                        const docSnap = await getDoc(clienteRef);
+                        if (docSnap.exists()) {
+                            const clientData = docSnap.data();
+                            let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
+                            let novosPontos = pontosAtuais;
+
+                            if (currentAjusteAction === "add") {
+                                const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                                novosPontos += addQty;
+                            } else if (currentAjusteAction === "remove") {
+                                const remQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                                novosPontos = Math.max(0, novosPontos - remQty);
+                            } else if (currentAjusteAction === "zero") {
+                                novosPontos = 0;
+                            }
+
+                            const pontosMap = clientData.pontosPerEmpresa || {};
+                            pontosMap[empresaId] = novosPontos;
+
+                            await updateDoc(clienteRef, {
+                                pontosPerEmpresa: pontosMap,
+                                [`logAjustes_${empresaId}`]: (clientData[`logAjustes_${empresaId}`] || []).concat({
+                                    data: new Date(),
+                                    acao: currentAjusteAction,
+                                    quantidade: currentAjusteAction === "zero" ? pontosAtuais : parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1,
+                                    justificativa: justificativaInput.value.trim()
+                                })
+                            });
+                        }
+                    }
+                    alert("Pontuação ajustada com sucesso para os clientes selecionados!");
+                    const allCheckbox = document.getElementById("select-all-clients");
+                    if (allCheckbox) allCheckbox.checked = false;
+                    toggleSelectAll(allCheckbox);
+                } else {
+                    const clienteRef = doc(db, "clientes", targetClienteId);
+                    const docSnap = await getDoc(clienteRef);
+                    const clientData = docSnap.data();
+                    
+                    let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
+                    let novosPontos = pontosAtuais;
+
+                    if (currentAjusteAction === "add") {
+                        const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                        novosPontos += addQty;
+                    } else if (currentAjusteAction === "remove") {
+                        const remQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                        novosPontos = Math.max(0, novosPontos - remQty);
+                    } else if (currentAjusteAction === "zero") {
+                        novosPontos = 0;
+                    }
+
+                    const pontosMap = clientData.pontosPerEmpresa || {};
+                    pontosMap[empresaId] = novosPontos;
+
+                    await updateDoc(clienteRef, {
+                        pontosPerEmpresa: pontosMap,
+                        [`logAjustes_${empresaId}`]: (clientData[`logAjustes_${empresaId}`] || []).concat({
+                            data: new Date(),
+                            acao: currentAjusteAction,
+                            quantidade: currentAjusteAction === "zero" ? pontosAtuais : parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1,
+                            justificativa: justificativaInput.value.trim()
+                        })
+                    });
+
+                    alert("Pontuação ajustada com sucesso!");
+                    
+                    if (currentAjusteAction === "add") {
+                        const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                        showEmojiFeedback(addQty);
+                    }
+                }
+                closeAjustarModal();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao ajustar pontos: " + err.message);
+            } finally {
+                btnConfirm.disabled = false;
+                btnConfirm.innerText = "Confirmar Ajuste";
+            }
+        });
+
+        // --- Gerenciamento de Equipe (Vendedores) ---
+        window.openAddVendedorModal = function() {
+            document.getElementById("vendedor-nome").value = "";
+            document.getElementById("vendedor-email").value = "";
+            document.getElementById("modal-cadastrar-vendedor").classList.remove("hidden");
+        };
+
+        window.closeAddVendedorModal = function() {
+            document.getElementById("modal-cadastrar-vendedor").classList.add("hidden");
+        };
+
+        // Submissão do Cadastro de Vendedor
+        document.getElementById("vendedor-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("vendedor-nome").value.trim();
+            const email = document.getElementById("vendedor-email").value.trim().toLowerCase();
+
+            try {
+                // Para o MVP: Geramos o UID do Vendedor baseado no Hash do E-mail ou UUID simples
+                // Ao logar na vendedor.html, o app valida se o e-mail do vendedor está registrado
+                const cleanId = email.replace(/[^a-z0-9]/g, "_");
+                const vendedorRef = doc(db, "vendedores", cleanId);
+
+                await setDoc(vendedorRef, {
+                    nomeVendedor: nome,
+                    email: email,
+                    empresaId: empresaId,
+                    ativo: true
+                });
+
+                alert("Vendedor autorizado com sucesso!");
+                closeAddVendedorModal();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao cadastrar vendedor: " + err.message);
+            }
+        });
+
+        // Exclusão/Desativação de Vendedor
+        window.deletarVendedor = async function(vUid) {
+            if (confirm("Deseja realmente remover a autorização deste vendedor? Ele não conseguirá mais carimbar cartões.")) {
+                try {
+                    const docRef = doc(db, "vendedores", vUid);
+                    await docRef.delete ? await docRef.delete() : await updateDoc(docRef, { ativo: false }); // Ou deletar direto
+                    // Deletando diretamente:
+                    // Se não tiver suporte .delete() no compat:
+                    // Utilizando a importação deleteDoc:
+                    // Para simplificar, usamos updateDoc ativo = false
+                    await updateDoc(docRef, { ativo: false });
+                    alert("Vendedor desativado.");
+                } catch (err) {
+                    console.error(err);
+                    alert("Erro ao desativar vendedor: " + err.message);
+                }
+            }
+        };
+
+        // --- Links de Promoção ---
+        window.openPromoLinks = function() {
+            document.getElementById("modal-promo-links").classList.remove("hidden");
+        };
+
+        window.closePromoLinks = function() {
+            document.getElementById("modal-promo-links").classList.add("hidden");
+        };
+
+        window.copyPromoUrl = function(inputId) {
+            const urlInput = document.getElementById(inputId);
+            navigator.clipboard.writeText(urlInput.value);
+            alert("URL copiada!");
+        };
+
+        // --- Simulador Stripe Upgrade ---
+        document.getElementById("btn-stripe-checkout").addEventListener("click", async () => {
+            const btn = document.getElementById("btn-stripe-checkout");
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Conectando ao Stripe...`;
+
+            setTimeout(async () => {
+                try {
+                    const docRef = doc(db, "empresas", empresaId);
+                    await updateDoc(docRef, {
+                        statusAssinatura: "active"
+                    });
+                    
+                    alert("Parabéns! Assinatura ativada pelo Stripe. Sandbox Pro ativado.");
+                    loadEmpresaData(); // Atualiza painel
+                    switchTab("dashboard");
+                } catch (err) {
+                    console.error(err);
+                    alert("Erro ao ativar assinatura: " + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-brands fa-stripe text-base mr-1"></i> Assinar com Stripe`;
+                }
+            }, 2000);
+        });
+
+        // --- Gerenciamento Visual de Abas ---
+        window.switchTab = function(tabName) {
+            // Abas
+            const tabBtnDash = document.getElementById("tab-btn-dashboard");
+            const tabBtnClientes = document.getElementById("tab-btn-clientes");
+            const tabBtnEquipe = document.getElementById("tab-btn-equipe");
+            const tabBtnStripe = document.getElementById("tab-btn-stripe");
+
+            // Conteúdos
+            const contentDash = document.getElementById("tab-content-dashboard");
+            const contentClientes = document.getElementById("tab-content-clientes");
+            const contentEquipe = document.getElementById("tab-content-equipe");
+            const contentStripe = document.getElementById("tab-content-stripe");
+
+            // Reseta cores dos botões das abas
+            [tabBtnDash, tabBtnClientes, tabBtnEquipe, tabBtnStripe].forEach(btn => {
+                btn.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200";
+            });
+
+            // Reseta exibições de conteúdos
+            [contentDash, contentClientes, contentEquipe, contentStripe].forEach(content => {
+                content.classList.add("hidden");
+            });
+
+            // Define aba ativa
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            activeBtn.className = "flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200";
+
+            // Define conteúdo ativo
+            const activeContent = document.getElementById(`tab-content-${tabName}`);
+            activeContent.classList.remove("hidden");
+
+            // Define título da página
+            const pageTitle = document.getElementById("page-title");
+            if (tabName === "dashboard") pageTitle.innerText = "Visão Geral";
+            if (tabName === "clientes") pageTitle.innerText = "Painel de Clientes";
+            if (tabName === "equipe") pageTitle.innerText = "Gerenciar Equipe";
+            if (tabName === "stripe") pageTitle.innerText = "Minha Assinatura";
+        };
+
+        // --- Seleção em Massa de Clientes (Bulk Actions) ---
+        window.toggleSelectAll = function(master) {
+            const checkboxes = document.querySelectorAll(".client-checkbox");
+            checkboxes.forEach(cb => {
+                const row = cb.closest("tr");
+                if (row && row.style.display !== "none") {
+                    cb.checked = master.checked;
+                }
+            });
+            updateBulkBar();
+        };
+
+        window.updateBulkBar = function() {
+            const checkboxes = document.querySelectorAll(".client-checkbox:checked");
+            const count = checkboxes.length;
+            const bar = document.getElementById("bulk-actions-bar");
+            const countEl = document.getElementById("selected-count");
+            
+            if (count > 0) {
+                countEl.innerText = count;
+                bar.classList.remove("hidden");
+            } else {
+                bar.classList.add("hidden");
+                const allCheckbox = document.getElementById("select-all-clients");
+                if (allCheckbox) allCheckbox.checked = false;
+            }
+        };
+
+        window.openBulkAjustarModal = function() {
+            const checkboxes = document.querySelectorAll(".client-checkbox:checked");
+            targetClienteIds = Array.from(checkboxes).map(cb => cb.getAttribute("data-id"));
+            isBulkAjuste = true;
+
+            document.getElementById("modal-ajuste-nome").innerText = `${targetClienteIds.length} Clientes Selecionados`;
+            document.getElementById("modal-ajuste-email").innerText = "Ação em massa";
+            document.getElementById("modal-ajuste-pontos-atuais").innerText = "-";
+            
+            document.getElementById("ajuste-quantidade-pontos").value = 1;
+            document.getElementById("ajuste-justificativa").value = "";
+            document.getElementById("btn-confirm-ajuste").disabled = true;
+
+            setAjusteAction("add");
+            document.getElementById("modal-ajustar-pontos").classList.remove("hidden");
+        };
+
+        window.bulkResetPoints = async function() {
+            const checkboxes = document.querySelectorAll(".client-checkbox:checked");
+            const ids = Array.from(checkboxes).map(cb => cb.getAttribute("data-id"));
+            
+            if (confirm(`Deseja realmente zerar a pontuação de ${ids.length} clientes selecionados nesta empresa?`)) {
+                try {
+                    for (const cid of ids) {
+                        const clientRef = doc(db, "clientes", cid);
+                        const docSnap = await getDoc(clientRef);
+                        if (docSnap.exists()) {
+                            const clientData = docSnap.data();
+                            const pontosMap = clientData.pontosPerEmpresa || {};
+                            pontosMap[empresaId] = 0;
+                            await updateDoc(clientRef, {
+                                pontosPerEmpresa: pontosMap
+                            });
+                        }
+                    }
+                    alert("Pontuação dos clientes selecionados zerada com sucesso!");
+                    const allCheckbox = document.getElementById("select-all-clients");
+                    if (allCheckbox) allCheckbox.checked = false;
+                    toggleSelectAll(allCheckbox);
+                } catch (err) {
+                    console.error(err);
+                    alert("Erro ao zerar pontuação: " + err.message);
+                }
+            }
+        };
+
+        // --- Resetar/Zerar Pontos de Cliente ---
+        window.resetClientePontos = async function(clientId, clientName) {
+            if (confirm(`Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`)) {
+                try {
+                    const clientRef = doc(db, "clientes", clientId);
+                    const docSnap = await getDoc(clientRef);
+                    if (docSnap.exists()) {
+                        const clientData = docSnap.data();
+                        const pontosMap = clientData.pontosPerEmpresa || {};
+                        pontosMap[empresaId] = 0;
+                        await updateDoc(clientRef, {
+                            pontosPerEmpresa: pontosMap
+                        });
+                        alert("Pontuação zerada com sucesso!");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Erro ao zerar pontuação: " + err.message);
+                }
+            }
+        };
+
+        // --- Modals da Campanha ---
+        window.openEditarCampanhaModal = function() {
+            if (!fullEmpresaData) {
+                alert("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.");
+                return;
+            }
+            document.getElementById("edit-theme-title").value = fullEmpresaData.visualConfig?.tituloPagina || "";
+            document.getElementById("edit-meta-pontos").value = fullEmpresaData.metaConfig?.metaPontos || 10;
+            document.getElementById("edit-premio-desc").value = fullEmpresaData.metaConfig?.descriçãoPremio || "";
+            document.getElementById("edit-theme-color").value = fullEmpresaData.visualConfig?.corFundo || "#4f46e5";
+            document.getElementById("edit-theme-color-hex").value = fullEmpresaData.visualConfig?.corFundo || "#4f46e5";
+            document.getElementById("edit-theme-font").value = fullEmpresaData.visualConfig?.fonte || "sans";
+            
+            const currentEmoji = fullEmpresaData.visualConfig?.emoji || "⭐";
+            document.getElementById("edit-theme-emoji").value = currentEmoji;
+            document.getElementById("edit-selected-emoji-label").innerText = currentEmoji;
+            
+            document.getElementById("modal-editar-campanha").classList.remove("hidden");
+        };
+
+        window.closeEditarCampanhaModal = function() {
+            document.getElementById("modal-editar-campanha").classList.add("hidden");
+        };
+
+        // Color input sync in edit modal
+        document.getElementById("edit-theme-color").addEventListener("input", (e) => {
+            document.getElementById("edit-theme-color-hex").value = e.target.value.toUpperCase();
+        });
+        document.getElementById("edit-theme-color-hex").addEventListener("input", (e) => {
+            let val = e.target.value;
+            if (val.startsWith("#") && val.length === 7) {
+                document.getElementById("edit-theme-color").value = val.toLowerCase();
+            }
+        });
+
+
+
+
+        // WhatsApp Style Emoji Picker for Edit modal
+        const editEmojiCategories = {
+            popular: [
+                "⭐", "🍕", "🍔", "☕", "🔥", "❤️", "🍺", "🍩", "🍦", "🚀", "💎", "🏆",
+                "🌟", "✨", "💥", "🎉", "🎈", "🎁", "🧁", "🍿", "🥤", "🍉", "🍓",
+                "🥇", "🎮", "🍔", "🍟", "🍕", "🍺", "🍷", "🍹", "🍩", "🧁", "🍭", "❤️"
+            ],
+            food: [
+                "🍕", "🍔", "🍟", "🌭", "🍿", "🍳", "🥞", "🧇", "🍞", "🥐", "🥨", "🥯",
+                "🧀", "🥗", "🥪", "🌮", "🌯", "🍣", "🍱", "🥟", "🍤", "🍙", "🍚",
+                "🍛", "🍜", "🍝", "🍩", "🍪", "🎂", "🍰", "🧁", "🥧", "🍫", "🍬",
+                "🍭", "🍮", "🍯", "🥛", "☕", "🍵", "🍶", "🍾", "🍷", "🍸", "🍹", "🍺",
+                "🍻", "🥂", "🥃", "🥤", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏",
+                "🍒", "🍓", "🍇", "🫐", "🥝", "🍅", "🥥", "🥑", "🍆", "🥕"
+            ],
+            smileys: [
+                "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃",
+                "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜",
+                "🤪", "🤨", "🧐", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔",
+                "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤",
+                "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓"
+            ],
+            activities: [
+                "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓",
+                "🏸", "🥅", "⛳", "🪁", "🎣", "🤿", "🥊", "🥋", "🎽", "🛹", "🛷", "🎿",
+                "🏂", "🏋️", "🤼", "🤸", "⛹️", "🤾", "🧗", "🧘", "🚴", "🏆", "🥇", "🥈",
+                "🥉", "🏅", "🎟️", "🎭", "🎨", "🎬", "🎤", "🎧", "🎮", "🎳", "🎲", "🧩"
+            ],
+            objects: [
+                "💡", "🔑", "🔒", "🔓", "🔨", "🪓", "⛏️", "🛠️", "🛡️", "🔧", "🔩", "⚙️",
+                "⚖️", "⛓️", "🔫", "💣", "🧨", "🔮", "💈", "🔭", "🔬", "🧳", "🌂", "☂️",
+                "🧹", "🧼", "🔑", "🗝️", "💎", "🛡️", "🔔", "🔕", "📣", "📢", "🎙️", "📻", "💾",
+                "💿", "🧮", "🧾", "📝", "📁", "📂", "📅", "📆", "📋", "📌", "📍", "📎",
+                "📏", "📐", "✂️", "🗑️", "🔒", "🛡️", "🕯️", "💡", "🏮",
+                "📖", "📕", "📘", "📚", "📓", "💵", "🪙", "💳", "✉️", "📦", "🚗", "🚀"
+            ]
+        };
+
+        const editEmojiPickerBtn = document.getElementById("edit-emoji-picker-btn");
+        const editEmojiPickerPopover = document.getElementById("edit-emoji-picker-popover");
+        const editSelectedEmojiLabel = document.getElementById("edit-selected-emoji-label");
+        const editThemeEmojiInput = document.getElementById("edit-theme-emoji");
+        const editEmojisGridContainer = document.getElementById("edit-emojis-grid-container");
+
+        editEmojiPickerBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            editEmojiPickerPopover.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!editEmojiPickerPopover.contains(e.target) && e.target !== editEmojiPickerBtn) {
+                editEmojiPickerPopover.classList.add("hidden");
+            }
+        });
+
+        window.loadEditEmojiCategory = function(category) {
+            editEmojisGridContainer.innerHTML = "";
+            const list = editEmojiCategories[category] || [];
+            list.forEach(emoji => {
+                const el = document.createElement("button");
+                el.type = "button";
+                el.className = "hover:scale-125 transition active:scale-95 p-1 select-none cursor-pointer";
+                el.innerText = emoji;
+                el.addEventListener("click", () => {
+                    editThemeEmojiInput.value = emoji;
+                    editSelectedEmojiLabel.innerText = emoji;
+                    editEmojiPickerPopover.classList.add("hidden");
+                });
+                editEmojisGridContainer.appendChild(el);
+            });
+
+            document.querySelectorAll(".edit-emoji-tab-btn").forEach(btn => {
+                btn.className = "edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold";
+            });
+            const activeTab = document.getElementById(`edit-tab-emoji-${category}`);
+            if (activeTab) {
+                activeTab.className = "edit-emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold";
+            }
+        };
+
+        document.getElementById("edit-tab-emoji-popular").addEventListener("click", () => loadEditEmojiCategory("popular"));
+        document.getElementById("edit-tab-emoji-food").addEventListener("click", () => loadEditEmojiCategory("food"));
+        document.getElementById("edit-tab-emoji-smileys").addEventListener("click", () => loadEditEmojiCategory("smileys"));
+        document.getElementById("edit-tab-emoji-activities").addEventListener("click", () => loadEditEmojiCategory("activities"));
+        document.getElementById("edit-tab-emoji-objects").addEventListener("click", () => loadEditEmojiCategory("objects"));
+
+        loadEditEmojiCategory("popular");
+
+        // Submit edit campaign rules
+        document.getElementById("edit-campanha-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (confirm("Tem certeza que quer mudar? Isso atualizará a campanha e a identidade visual sem resetar os carimbos existentes de seus clientes.")) {
+                try {
+                    const docRef = doc(db, "empresas", empresaId);
+                    await updateDoc(docRef, {
+                        metaConfig: {
+                            metaPontos: parseInt(document.getElementById("edit-meta-pontos").value) || 10,
+                            descriçãoPremio: document.getElementById("edit-premio-desc").value.trim()
+                        },
+                        visualConfig: {
+                            tituloPagina: document.getElementById("edit-theme-title").value.trim(),
+                            corFundo: document.getElementById("edit-theme-color").value,
+                            fonte: document.getElementById("edit-theme-font").value,
+                            emoji: document.getElementById("edit-theme-emoji").value
+                        }
+                    });
+                    alert("Campanha atualizada com sucesso!");
+                    closeEditarCampanhaModal();
+                    await loadEmpresaData();
+                } catch (err) {
+                    console.error(err);
+                    alert("Erro ao salvar campanha: " + err.message);
+                }
+            }
+        });
+
+        // --- Flyer Modals ---
+        window.openFlyerModal = function() {
+            if (!fullEmpresaData) {
+                alert("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.");
+                return;
+            }
+            
+            // Set styles dynamically based on visual config
+            const previewEl = document.getElementById("flyer-a4-preview");
+            
+            const activeFont = fullEmpresaData.visualConfig?.fonte || "sans";
+            // Only update font class, preserve other classes
+            previewEl.className = `w-[320px] min-h-[420px] py-8 px-4 bg-white text-slate-900 flex flex-col justify-center items-center text-center shadow-2xl relative rounded-md select-none font-${activeFont} border-4 border-dashed border-slate-200`;
+            
+            document.getElementById("flyer-company-name").innerText = fullEmpresaData.visualConfig?.tituloPagina || fullEmpresaData.nomeEmpresa;
+            document.getElementById("flyer-prize-desc").innerText = fullEmpresaData.metaConfig?.descriçãoPremio || "Prêmio";
+            
+            // Generate QR Code inside Flyer
+            const baseUrl = window.location.origin + window.location.pathname.replace("dashboard.html", "");
+            const linkSlug = fullEmpresaData.linkUnicoCliente || fullEmpresaData.donoUid;
+            const targetUrl = `${baseUrl}cliente.html?link=${linkSlug}`;
+            
+            const qrContainer = document.getElementById("flyer-qrcode-placeholder");
+            qrContainer.innerHTML = "";
+            qrCodeFlyerInstance = new QRCode(qrContainer, {
+                text: targetUrl,
+                width: 140,
+                height: 140,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            document.getElementById("modal-flyer-divulgacao").classList.remove("hidden");
+        };
+
+        window.downloadFlyerPng = async function() {
+            const btn = document.getElementById("btn-download-png");
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gerando...`;
+            btn.disabled = true;
+
+            try {
+                const element = document.getElementById("flyer-a4-preview");
+                const canvas = await html2canvas(element, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+                const link = document.createElement("a");
+                link.download = "Flyer_Divulgacao.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao gerar a imagem do Flyer.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        window.closeFlyerModal = function() {
+            document.getElementById("modal-flyer-divulgacao").classList.add("hidden");
+        };
+
+        // Filtro de Busca de Clientes
+        document.getElementById("search-cliente").addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll("#clientes-table-body tr");
+            
+            rows.forEach(row => {
+                const name = row.cells[0]?.textContent.toLowerCase() || "";
+                const email = row.cells[1]?.textContent.toLowerCase() || "";
+                
+                if (name.includes(query) || email.includes(query)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+
+        // --- Configurações da Conta ---
+        const btnSaveCompany = document.getElementById("btn-save-company-name");
+        if (btnSaveCompany) {
+            btnSaveCompany.addEventListener("click", async () => {
+                const newName = document.getElementById("config-company-name").value.trim();
+                if (!newName) return alert("O nome não pode ser vazio.");
+                
+                const oldText = btnSaveCompany.innerText;
+                btnSaveCompany.innerText = "Salvando...";
+                try {
+                    const empRef = doc(db, "empresas", empresaId);
+                    await updateDoc(empRef, { nomeEmpresa: newName });
+                    alert("Nome da empresa atualizado!");
+                    await loadEmpresaData(); // Reload UI
+                } catch (e) {
+                    alert("Erro ao salvar: " + e.message);
+                } finally {
+                    btnSaveCompany.innerText = oldText;
+                }
+            });
+        }
+
+        const btnSaveSlug = document.getElementById("btn-save-company-slug");
+        if (btnSaveSlug) {
+            document.getElementById("config-company-slug").addEventListener("input", (e) => {
+                e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            });
+
+            btnSaveSlug.addEventListener("click", async () => {
+                const newSlug = document.getElementById("config-company-slug").value.trim();
+                if (!newSlug) return alert("O link não pode ser vazio.");
+                
+                const oldText = btnSaveSlug.innerText;
+                btnSaveSlug.innerText = "Verificando...";
+                
+                try {
+                    // Verifica se o slug já está em uso
+                    const q1 = query(collection(db, "empresas"), where("linkUnicoCliente", "==", newSlug));
+                    const q2 = query(collection(db, "empresas"), where("slugsAntigos", "array-contains", newSlug));
+                    
+                    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                    
+                    let isTaken = false;
+                    snap1.forEach(d => { if (d.id !== empresaId) isTaken = true; });
+                    snap2.forEach(d => { if (d.id !== empresaId) isTaken = true; });
+
+                    if (isTaken) {
+                        alert("Este link já está em uso por outra empresa. Escolha outro.");
+                        return;
+                    }
+
+                    // Se não está em uso e for diferente do atual, salvamos o antigo no array
+                    if (fullEmpresaData.linkUnicoCliente !== newSlug) {
+                        const oldSlug = fullEmpresaData.linkUnicoCliente;
+                        let aliases = fullEmpresaData.slugsAntigos || [];
+                        if (oldSlug && !aliases.includes(oldSlug)) {
+                            aliases.push(oldSlug);
+                        }
+
+                        const empRef = doc(db, "empresas", empresaId);
+                        await updateDoc(empRef, { 
+                            linkUnicoCliente: newSlug,
+                            slugsAntigos: aliases
+                        });
+                        alert("Link atualizado com sucesso! Códigos QR antigos funcionarão normalmente.");
+                        await loadEmpresaData(); // Isso também regera os links exibidos e o Flyer!
+                    } else {
+                        alert("Este já é o seu link atual.");
+                    }
+                } catch (e) {
+                    alert("Erro ao salvar link: " + e.message);
+                } finally {
+                    btnSaveSlug.innerText = oldText;
+                }
+            });
+        }
+
+        const btnDeleteController = document.getElementById("btn-delete-controller-account");
+        if (btnDeleteController) {
+            btnDeleteController.addEventListener("click", async () => {
+                const confirmMsg = "ATENÇÃO CONTROLADOR (LGPD):\n\nVocê está prestes a apagar todos os dados da sua empresa. Isso removerá o programa de fidelidade e impedirá o acesso aos dados dos seus clientes.\n\nEsta ação é IRREVERSÍVEL. Digite 'APAGAR' para confirmar:";
+                const userResponse = prompt(confirmMsg);
+                if (userResponse !== "APAGAR") {
+                    if (userResponse !== null) alert("Ação cancelada. Palavra-chave incorreta.");
+                    return;
+                }
+
+                btnDeleteController.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
+                try {
+                    const empRef = doc(db, "empresas", empresaId);
+                    await deleteDoc(empRef);
+                    
+                    try {
+                        await auth.currentUser.delete();
+                    } catch(e) {
+                        console.warn("Auth user não deletado. Os dados públicos foram apagados.");
+                    }
+                    
+                    alert("Sua conta e dados foram removidos permanentemente.");
+                    await logoutUser();
+                } catch (e) {
+                    alert("Erro ao apagar conta: " + e.message);
+                    btnDeleteController.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados';
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

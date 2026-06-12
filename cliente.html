@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full text-slate-100 font-inter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartão de Fidelidade - Carregando...</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCode.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .stamp-pulse {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(255, 255, 255, 0.2); }
+            50% { border-color: rgba(255, 255, 255, 0.6); }
+        }
+    </style>
+</head>
+<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #0b0f19;">
+
+    <!-- Main Container -->
+    <main class="flex-grow flex items-center justify-center py-6 w-full max-w-sm mx-auto">
+        
+        <!-- LOGIN CARD -->
+        <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-6 text-center">
+            <div class="flex flex-col items-center gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white text-3xl">
+                    ✶
+                </div>
+                <h2 id="login-welcome-title" class="text-xl font-bold font-outfit text-white">Carregando Programa...</h2>
+                <p id="login-welcome-desc" class="text-slate-300 text-xs px-2 leading-relaxed">
+                    Entre com uma de suas contas de rede social para começar a acumular carimbos e resgatar prêmios incríveis!
+                </p>
+            </div>
+
+            <!-- Social Authentication Buttons -->
+            <div class="flex flex-col gap-3" id="social-login-container">
+                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98]">
+                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
+                    <span>Logar com Google</span>
+                </button>
+                <button id="btn-login-facebook" class="flex items-center justify-center gap-3 w-full py-3.5 bg-[#1877F2] hover:bg-[#166fe5] rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                    <i class="fa-brands fa-facebook text-lg"></i>
+                    <span>Logar com Facebook</span>
+                </button>
+                <button id="btn-login-apple" class="flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-slate-800 hover:bg-slate-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                    <i class="fa-brands fa-apple text-lg"></i>
+                    <span>Logar com Apple</span>
+                </button>
+                <div class="flex items-center my-1">
+                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                    <span class="px-2 text-[10px] text-slate-400 uppercase tracking-widest">ou</span>
+                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                </div>
+                <button id="btn-toggle-email" class="w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-slate-300">
+                    <i class="fa-regular fa-envelope mr-1.5 text-sm"></i> Entrar com E-mail
+                </button>
+            </div>
+
+            <!-- Email Login Form -->
+            <form id="email-login-form" class="hidden flex flex-col gap-3.5 text-left">
+                <div class="flex flex-col gap-1">
+                    <label for="client-email" class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="client-email" required placeholder="ex: cliente@email.com" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="client-password" class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Senha (Mínimo 6 caracteres)</label>
+                    <input type="password" id="client-password" required placeholder="Digite sua senha" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <button type="submit" id="btn-submit-client-email" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-white text-xs rounded-xl active:scale-[0.98] transition">
+                    Entrar / Criar Conta
+                </button>
+                <button type="button" id="btn-back-social" class="text-center text-[10px] text-slate-400 mt-1 hover:underline">
+                    Voltar para Login Social
+                </button>
+            </form>
+            
+            <div class="text-[10px] text-slate-400 px-4 mt-2 bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+                <p class="mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> <strong>Sua privacidade é importante.</strong></p>
+                <p>
+                    Ao criar uma conta, você concorda com nossos <a href="termos.html" target="_blank" class="text-white hover:underline font-semibold">Termos de Uso</a> e <a href="privacidade.html" target="_blank" class="text-white hover:underline font-semibold">Política de Privacidade (LGPD)</a>, e autoriza explicitamente o compartilhamento do seu Nome e E-mail com <strong id="lgpd-store-name" class="text-indigo-300">este estabelecimento</strong> para fins de pontuação.
+                </p>
+            </div>
+        </div>
+
+        <!-- APP / LOYALTY CARD SCREEN (Hidden at start) -->
+        <div id="app-screen" class="hidden w-full flex flex-col gap-5 text-center">
+            
+            <!-- Branding Header -->
+            <div class="flex flex-col items-center gap-1.5 mt-2">
+                <div class="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white text-lg">
+                    ✶
+                </div>
+                <h2 id="app-title" class="font-bold text-lg text-white leading-tight">Clube de Fidelidade</h2>
+                <span class="text-[9px] bg-black/35 text-white/90 border border-white/10 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Cartão de Pontos</span>
+            </div>
+
+            <!-- Unique Client QR Code Section (Moved to top) -->
+            <div class="glassmorphism rounded-3xl p-6 flex flex-col items-center gap-4">
+                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-black/15" id="qrcode-box">
+                    <div id="qrcode-placeholder"></div>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-xs text-white font-semibold">Seu QR Code de Pontuação</p>
+                    <p class="text-[9px] text-white/60">Apresente este código ao vendedor no balcão para registrar carimbos.</p>
+                </div>
+            </div>
+
+            <!-- Stamped Point Area (Card Deck style) -->
+            <div class="glassmorphism rounded-3xl p-5 border border-white/10 shadow-xl flex flex-col gap-4">
+                <div class="flex justify-between items-center text-xs border-b border-white/10 pb-3">
+                    <span class="text-white/80 font-medium">Pontuação Acumulada</span>
+                    <span id="points-counter" class="font-bold text-white bg-black/20 px-2.5 py-1 rounded-lg">0 / 10</span>
+                </div>
+
+                <!-- Stamps Grid -->
+                <div id="stamps-grid" class="grid grid-cols-5 gap-2.5 py-3 justify-center">
+                    <!-- JS will fill dynamically based on points target -->
+                </div>
+
+                <!-- Goal Banner and Prize Detail -->
+                <div class="p-3 bg-black/25 border border-white/5 rounded-2xl text-xs text-white/90 leading-relaxed font-medium">
+                    Meta de <span id="points-target" class="font-bold underline">10</span> carimbos = 
+                    <span id="prize-description" class="font-bold text-yellow-300">Carregando Prêmio...</span>
+                </div>
+            </div>
+
+            <!-- Victory Banner (Hidden, displayed only when points >= meta) -->
+            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-yellow-400 bg-yellow-400/10 text-yellow-300 flex flex-col items-center gap-2 text-center animate-bounce">
+                <h4 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-trophy mr-1.5"></i>Prêmio Desbloqueado!</h4>
+                <p class="text-[11px] text-white font-medium">Apresente esta tela ao vendedor!</p>
+                <p class="text-[10px] text-white/70 italic">Ele deve escanear o QR Code acima para resgatar o prêmio e resetar sua cartela.</p>
+            </div>
+
+            <!-- Profile Info Footer / Logged user info -->
+            <div class="flex flex-col gap-3 px-3 text-[11px] text-white/70 mt-2">
+                <div class="flex items-center justify-between">
+                    <span id="client-name">Cliente</span>
+                    <button id="btn-logout" class="text-white/50 hover:text-white font-bold flex items-center gap-1.5 transition"><i class="fa-solid fa-power-off"></i> Desconectar</button>
+                </div>
+                <div class="flex justify-center border-t border-white/10 pt-3">
+                    <button id="btn-delete-account" class="text-red-400 hover:text-red-300 font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-trash-can"></i> Apagar Meus Dados (LGPD)</button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center text-[9px] text-white/40 pb-2">
+        <p>&copy; FidelizaSaaS. Alimentado por White Label.</p>
+    </footer>
+
+    <!-- Firebase SDK Logic -->
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            deleteDoc,
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            onSnapshot,
+            logoutUser,
+            loginWithGoogleRedirect,
+            loginWithFacebookRedirect,
+            loginWithAppleRedirect,
+            getRedirectResult,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword
+        } from "./config.js?v=2";
+
+        // Variáveis Locais do Sistema
+        let slugEmpresa = "";
+        let idEmpresa = "";
+        let metaPontos = 10;
+        let visualConfig = null;
+        let loggedUser = null;
+        let qrCodeInstance = null;
+        let unsubscribeListener = null;
+        let brandEmoji = "⭐";
+
+        // Recupera slug/empresaId pelos parâmetros de URL com fallback de localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        slugEmpresa = urlParams.get("link") || localStorage.getItem("fideliza_cliente_link") || "";
+        idEmpresa = urlParams.get("empresa") || localStorage.getItem("fideliza_cliente_empresa") || "";
+
+        if (slugEmpresa) localStorage.setItem("fideliza_cliente_link", slugEmpresa);
+        if (idEmpresa) localStorage.setItem("fideliza_cliente_empresa", idEmpresa);
+
+        // 1. Inicializa o App buscando a empresa para carregar identidade visual
+        async function fetchCompanyBranding() {
+            try {
+                let companyRef = null;
+
+                if (slugEmpresa) {
+                    // Busca por linkUnicoCliente (Slug)
+                    const q = query(collection(db, "empresas"), where("linkUnicoCliente", "==", slugEmpresa));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        const firstDoc = querySnapshot.docs[0];
+                        idEmpresa = firstDoc.id;
+                        companyRef = doc(db, "empresas", idEmpresa);
+                    } else {
+                        // Busca no histórico (Redirecionamento Inteligente de QR Code antigo)
+                        const qAlias = query(collection(db, "empresas"), where("slugsAntigos", "array-contains", slugEmpresa));
+                        const aliasSnapshot = await getDocs(qAlias);
+                        
+                        if (!aliasSnapshot.empty) {
+                            const aliasDoc = aliasSnapshot.docs[0].data();
+                            const novoLink = aliasDoc.linkUnicoCliente;
+                            if (novoLink) {
+                                localStorage.setItem("fideliza_cliente_link", novoLink);
+                                window.location.replace(`cliente.html?link=${novoLink}`);
+                                return;
+                            }
+                        }
+                    }
+                } else if (idEmpresa) {
+                    // Busca por ID direto do Firestore
+                    companyRef = doc(db, "empresas", idEmpresa);
+                }
+
+                if (companyRef) {
+                    // Escuta alterações na empresa em tempo real
+                    onSnapshot(companyRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const companyData = docSnap.data();
+                            metaPontos = companyData.metaConfig?.metaPontos || 10;
+                            visualConfig = companyData.visualConfig || {};
+                            brandEmoji = visualConfig.emoji || "⭐";
+
+                            // Ajusta a Identidade Visual Dinamicamente
+                            const pageTitle = visualConfig.tituloPagina || companyData.nomeEmpresa || "Empresa";
+                            document.title = pageTitle;
+                            
+                            // Altera a cor de fundo do container da página inteira
+                            document.documentElement.style.backgroundColor = visualConfig.corFundo || "#0b0f19";
+                            document.getElementById("body-container").style.backgroundColor = visualConfig.corFundo || "#0b0f19";
+                            
+                            // Altera fontes
+                            const activeFont = visualConfig.fonte || "sans";
+                            document.getElementById("body-container").className = `h-full flex flex-col justify-between overflow-x-hidden p-4 font-${activeFont} transition-all duration-500`;
+                            document.getElementById("app-title").className = `font-bold text-lg text-white leading-tight font-${activeFont}`;
+                            document.getElementById("app-title").innerText = pageTitle;
+                            
+                            const lgpdName = document.getElementById("lgpd-store-name");
+                            if (lgpdName) lgpdName.innerText = pageTitle;
+
+                            // Atualiza textos
+                            document.getElementById("prize-description").innerText = companyData.metaConfig?.descriçãoPremio || "Prêmio";
+                            document.getElementById("points-target").innerText = metaPontos;
+
+                            // Configura os textos de boas-vindas da tela de login
+                            document.getElementById("login-welcome-title").innerText = `Fidelidade - ${pageTitle}`;
+                            document.getElementById("login-welcome-desc").innerText = `Entre e comece a acumular pontos para ganhar: ${companyData.metaConfig?.descriçãoPremio || "um prêmio especial"}`;
+                            
+                            // Se o usuário já estiver logado, forçar um re-render dos carimbos com a nova meta/emoji
+                            if (loggedUser) {
+                                // Dispara fake event para re-renderizar sem adicionar ponto
+                                // Pois setupPointsRealtimeListener usa a variável global metaPontos e brandEmoji
+                                setupPointsRealtimeListener(loggedUser.uid);
+                            }
+                        }
+                    });
+                } else {
+                    document.getElementById("login-welcome-title").innerText = "Link Inválido";
+                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-400 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Parâmetro de link ausente!</span> Por favor, use o link completo gerado no onboarding (ex: <code>cliente.html?link=nome-da-empresa</code>).`;
+                    // Oculta botões de login
+                    const btnContainer = document.querySelector("#login-screen div.flex-col");
+                    if (btnContainer) btnContainer.classList.add("hidden");
+                }
+            } catch (err) {
+                console.error("Erro ao carregar branding da empresa: ", err);
+            }
+        }
+
+        // Executa branding
+        await fetchCompanyBranding();
+
+        // Finaliza o fluxo de redirect do mobile (se houver)
+        try {
+            await getRedirectResult(auth);
+        } catch (err) {
+            console.error("Erro ao recuperar resultado do redirecionamento:", err);
+            alert("Erro no login: " + err.message);
+        }
+
+        // 2. Controla o estado de Autenticação do Usuário (Cliente)
+        auth.onAuthStateChanged(async (user) => {
+            if (user && idEmpresa) {
+                loggedUser = user;
+                
+                // Grava / Atualiza o cadastro do cliente
+                await syncClientProfile(user);
+
+                // Alterna Telas
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("app-screen").classList.remove("hidden");
+                document.getElementById("client-name").innerText = user.displayName || user.email;
+
+                // Limpa e inicializa o QR Code
+                const qrBox = document.getElementById("qrcode-placeholder");
+                qrBox.innerHTML = "";
+                qrCodeInstance = new QRCode(qrBox, {
+                    text: user.uid,
+                    width: 140,
+                    height: 140,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+
+                // Assina escuta em tempo real dos pontos do cliente
+                setupPointsRealtimeListener(user.uid);
+            } else {
+                // Se deslogar, reseta visualização
+                document.getElementById("login-screen").classList.remove("hidden");
+                document.getElementById("app-screen").classList.add("hidden");
+                if (unsubscribeListener) unsubscribeListener();
+            }
+        });
+
+        // Sincroniza dados do cliente no Firestore
+        async function syncClientProfile(user) {
+            const clientRef = doc(db, "clientes", user.uid);
+            const docSnap = await getDoc(clientRef);
+            
+            const phone = user.phoneNumber || "";
+            
+            if (!docSnap.exists()) {
+                // Novo Cadastro de Cliente
+                await setDoc(clientRef, {
+                    nomeCompleto: user.displayName || "Cliente Fidelidade",
+                    email: user.email || "",
+                    telefone: phone,
+                    uidAuth: user.uid,
+                    pontosPerEmpresa: {
+                        [idEmpresa]: 0
+                    }
+                });
+            } else {
+                const data = docSnap.data();
+                const updates = {};
+                
+                // Coleta dados sociais adicionais silenciosamente
+                if (user.displayName && data.nomeCompleto !== user.displayName) updates.nomeCompleto = user.displayName;
+                if (user.email && data.email !== user.email) updates.email = user.email;
+                if (phone && data.telefone !== phone) updates.telefone = phone;
+                
+                // Garante que o Map tem a chave da empresa
+                if (!data.pontosPerEmpresa || !(idEmpresa in data.pontosPerEmpresa)) {
+                    const updatedMap = data.pontosPerEmpresa || {};
+                    updatedMap[idEmpresa] = 0;
+                    updates.pontosPerEmpresa = updatedMap;
+                }
+                
+                if (Object.keys(updates).length > 0) {
+                    await setDoc(clientRef, updates, { merge: true });
+                }
+            }
+        }
+
+        // 3. Ouvinte em tempo real da pontuação do cliente
+        function setupPointsRealtimeListener(clientUid) {
+            if (unsubscribeListener) unsubscribeListener();
+
+            let firstLoad = true;
+            let lastPoints = 0;
+
+            unsubscribeListener = onSnapshot(doc(db, "clientes", clientUid), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    const pontos = data.pontosPerEmpresa?.[idEmpresa] || 0;
+
+                    // Atualiza Contador
+                    document.getElementById("points-counter").innerText = `${pontos} / ${metaPontos}`;
+                    
+                    // Renderiza Grid de Carimbos
+                    renderStamps(pontos);
+
+                    // Executa a animação de pouso do emoji se os pontos aumentarem
+                    if (!firstLoad && pontos > lastPoints) {
+                        for (let p = lastPoints + 1; p <= pontos; p++) {
+                            playLandingAnimation(p);
+                        }
+                    }
+
+                    // Dispara Confete e Vitória se pontos atingiram a meta
+                    if (pontos >= metaPontos) {
+                        if (!firstLoad && pontos > lastPoints) {
+                            // Delay para esperar o pouso da estrela (1100ms)
+                            setTimeout(() => {
+                                document.getElementById("victory-banner").classList.remove("hidden");
+                                
+                                // Pequeno delay extra para evitar que o layout shift de mobile cancele a animação
+                                setTimeout(() => {
+                                    fireVictoryConfetti();
+                                }, 100);
+                            }, 1100);
+                        } else if (firstLoad) {
+                            // Se já carregou com a meta batida, mostra o banner sem confete
+                            document.getElementById("victory-banner").classList.remove("hidden");
+                        }
+                    } else {
+                        document.getElementById("victory-banner").classList.add("hidden");
+                    }
+
+                    lastPoints = pontos;
+                    firstLoad = false;
+                }
+            });
+        }
+
+        // Animação de Pouso Rápido do Ponto
+        function playLandingAnimation(pointIndex) {
+            const giantEmoji = document.createElement("div");
+            giantEmoji.innerText = brandEmoji;
+            giantEmoji.style.position = "fixed";
+            giantEmoji.style.zIndex = "9999";
+            giantEmoji.style.pointerEvents = "none";
+            giantEmoji.style.left = "50%";
+            giantEmoji.style.top = "50%";
+            giantEmoji.style.transform = "translate(-50%, -50%) scale(20)";
+            giantEmoji.style.opacity = "0";
+            giantEmoji.style.transition = "all 0.1s ease-out";
+            
+            document.body.appendChild(giantEmoji);
+            
+            // Força reflow
+            giantEmoji.offsetWidth;
+            
+            // Aparece gigante no centro rapidamente
+            giantEmoji.style.opacity = "1";
+            giantEmoji.style.transform = "translate(-50%, -50%) scale(20)";
+            
+            // Pausa no centro da tela para o cliente visualizar o ganho (Delay de 700ms)
+            // Depois, voa para o slot 30% mais devagar (Duração de 400ms)
+            setTimeout(() => {
+                const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
+                if (targetSlot) {
+                    const rect = targetSlot.getBoundingClientRect();
+                    
+                    giantEmoji.style.transition = "all 0.4s cubic-bezier(0.25, 1, 0.5, 1)";
+                    giantEmoji.style.left = `${rect.left + rect.width / 2}px`;
+                    giantEmoji.style.top = `${rect.top + rect.height / 2}px`;
+                    giantEmoji.style.transform = "translate(-50%, -50%) scale(0.3) rotate(360deg)";
+                    giantEmoji.style.opacity = "0.2";
+                }
+            }, 700);
+            
+            // Remove o elemento após a animação pousar (700ms espera + 400ms transição = 1100ms total)
+            setTimeout(() => {
+                giantEmoji.remove();
+                const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
+                if (targetSlot) {
+                    targetSlot.classList.remove("bg-black/20", "text-white/50", "border-white/10", "rounded-full", "border-2", "text-xs");
+                    targetSlot.classList.add("bg-transparent", "border-transparent", "scale-110");
+                    targetSlot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${brandEmoji}</span>`;
+                }
+            }, 1100);
+        }
+
+        // Renderização visual dos carimbos (stamps)
+        function renderStamps(pointsCount) {
+            const grid = document.getElementById("stamps-grid");
+            grid.innerHTML = "";
+
+            // Ajusta o número de colunas do grid
+            if (metaPontos <= 8) {
+                grid.className = "grid grid-cols-4 gap-2.5 py-3 justify-center";
+            } else if (metaPontos <= 12) {
+                grid.className = "grid grid-cols-5 gap-2 py-3 justify-center";
+            } else {
+                grid.className = "grid grid-cols-6 gap-1.5 py-3 justify-center";
+            }
+
+            for (let i = 1; i <= metaPontos; i++) {
+                const stamp = document.createElement("div");
+                stamp.id = `stamp-slot-${i}`;
+                const isStamped = i <= pointsCount;
+
+                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
+                    isStamped 
+                        ? "bg-transparent border-transparent scale-110" 
+                        : "rounded-full border-2 bg-black/20 text-white/50 border-white/10 text-xs"
+                }`;
+
+                stamp.innerHTML = isStamped 
+                    ? `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${brandEmoji}</span>` 
+                    : `${i}`;
+
+                grid.appendChild(stamp);
+            }
+        }
+
+        // Confetes Interativos de Sucesso com Emojis da Empresa
+        function fireVictoryConfetti() {
+            try {
+                var scalar = 3;
+                var emojiShape = confetti.shapeFromText({ text: brandEmoji, scalar });
+
+                var duration = 3000;
+                var end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        shapes: [emojiShape],
+                        scalar: scalar,
+                        ticks: 60
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        shapes: [emojiShape],
+                        scalar: scalar,
+                        ticks: 60
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            } catch (e) {
+                console.error("Confetti error", e);
+            }
+        }
+
+        // --- Social Login Actions ---
+        document.getElementById("btn-login-google").addEventListener("click", () => loginWithGoogleRedirect());
+        document.getElementById("btn-login-facebook").addEventListener("click", () => loginWithFacebookRedirect());
+        document.getElementById("btn-login-apple").addEventListener("click", () => loginWithAppleRedirect());
+
+        // Alternância de Telas (Social vs E-mail)
+        const socialContainer = document.getElementById("social-login-container");
+        const emailForm = document.getElementById("email-login-form");
+        const toggleEmailBtn = document.getElementById("btn-toggle-email");
+        const backSocialBtn = document.getElementById("btn-back-social");
+
+        if (toggleEmailBtn && backSocialBtn) {
+            toggleEmailBtn.addEventListener("click", () => {
+                socialContainer.classList.add("hidden");
+                emailForm.classList.remove("hidden");
+            });
+
+            backSocialBtn.addEventListener("click", () => {
+                socialContainer.classList.remove("hidden");
+                emailForm.classList.add("hidden");
+            });
+        }
+
+        // Submissão do Formulário de E-mail do Cliente
+        if (emailForm) {
+            emailForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const email = document.getElementById("client-email").value.trim().toLowerCase();
+                const password = document.getElementById("client-password").value;
+                const btn = document.getElementById("btn-submit-client-email");
+
+                btn.disabled = true;
+                btn.innerText = "Processando...";
+
+                try {
+                    // Tenta efetuar login
+                    await signInWithEmailAndPassword(auth, email, password);
+                } catch (err) {
+                    // Se o usuário não existir no Auth, cria a conta automaticamente
+                    if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential" || err.code === "auth/cannot-find-user") {
+                        try {
+                            await createUserWithEmailAndPassword(auth, email, password);
+                        } catch (createErr) {
+                            alert("Erro ao criar conta de cliente: " + createErr.message);
+                        }
+                    } else {
+                        alert("Erro de autenticação: " + err.message);
+                    }
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = "Entrar / Criar Conta";
+                }
+            });
+        }
+
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", async () => {
+            await logoutUser();
+        });
+        // Exclusão de Conta (LGPD)
+        const btnDeleteAccount = document.getElementById("btn-delete-account");
+        if (btnDeleteAccount) {
+            btnDeleteAccount.addEventListener("click", async () => {
+                const user = auth.currentUser;
+                if (!user) return;
+                
+                try {
+                    btnDeleteAccount.disabled = true;
+                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando dados...';
+
+                    // 1. Buscar dados do cliente para listar as empresas
+                    const clientRef = doc(db, "clientes", user.uid);
+                    const docSnap = await getDoc(clientRef);
+                    
+                    let titulosCartoes = [];
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const pontosMap = data.pontosPerEmpresa || {};
+                        const empresasIds = Object.keys(pontosMap);
+                        
+                        // Buscar título de cada empresa
+                        for (let eid of empresasIds) {
+                            const empRef = doc(db, "empresas", eid);
+                            const empSnap = await getDoc(empRef);
+                            if (empSnap.exists()) {
+                                const empData = empSnap.data();
+                                if (empData.visualConfig && empData.visualConfig.tituloPagina) {
+                                    titulosCartoes.push(empData.visualConfig.tituloPagina);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 2. Montar mensagem de confirmação
+                    let confirmMessage = "ATENÇÃO: Você está prestes a excluir todos os seus dados da plataforma (Direito ao Esquecimento - LGPD).\n\n";
+                    if (titulosCartoes.length > 0) {
+                        confirmMessage += "Você perderá seus pontos acumulados e histórico dos seguintes cartões de fidelidade:\n";
+                        titulosCartoes.forEach(t => confirmMessage += `- ${t}\n`);
+                        confirmMessage += "\n";
+                    } else {
+                        confirmMessage += "Você não possui pontos acumulados no momento.\n\n";
+                    }
+                    confirmMessage += "Esta ação é IRREVERSÍVEL. Tem certeza que deseja apagar todos os seus dados?";
+                    
+                    // 3. Confirmar e Apagar
+                    if (confirm(confirmMessage)) {
+                        btnDeleteAccount.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
+                        
+                        // Deletar o documento do Firestore
+                        await deleteDoc(clientRef);
+                        
+                        // Tentar deletar o usuário da Auth (pode falhar se precisar relogar)
+                        try {
+                            await user.delete();
+                        } catch (e) {
+                            console.log("Aviso: Auth user não deletado devido a exigência de re-login, mas os dados públicos (Firestore) foram apagados.");
+                        }
+                        
+                        alert("Seus dados pessoais e cartões foram removidos permanentemente com sucesso.");
+                        await logoutUser();
+                    } else {
+                        btnDeleteAccount.disabled = false;
+                        btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Meus Dados (LGPD)';
+                    }
+                } catch (err) {
+                    console.error("Erro ao apagar dados:", err);
+                    alert("Ocorreu um erro ao processar sua solicitação.");
+                    btnDeleteAccount.disabled = false;
+                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Meus Dados (LGPD)';
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

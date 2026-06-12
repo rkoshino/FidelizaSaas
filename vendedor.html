@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100 font-inter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador de Pontos - Vendedor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html5-qrcode Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <style>
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        #reader__scan_region video {
+            object-fit: cover !important;
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between overflow-x-hidden bg-slate-950 p-4 font-sans">
+
+    <!-- Main Container -->
+    <main class="flex-grow flex items-center justify-center py-4 w-full max-w-sm mx-auto">
+
+        <!-- LOGIN SCREEN (VENDEDOR) -->
+        <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-5 text-center">
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-xl font-bold font-outfit text-white" id="login-empresa-nome">Área do Atendente</h2>
+                <p class="text-slate-400 text-xs px-1 leading-relaxed">
+                    Faça login para acessar a câmera e registrar carimbos.
+                </p>
+            </div>
+
+            <!-- Social Authentication Buttons -->
+            <div class="flex flex-col gap-3">
+                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
+                    <span>Logar com Google</span>
+                </button>
+                
+                <div class="flex items-center my-1">
+                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                    <span class="px-2 text-[10px] text-slate-500 uppercase tracking-widest">ou</span>
+                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="flex flex-col gap-4 text-left">
+                <div class="flex flex-col gap-1">
+                    <label for="email" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="email" required placeholder="ex: joao@atendimento.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-white">
+                </div>
+                
+                <div class="flex flex-col gap-1">
+                    <label for="password" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Senha (Crie ou Digite)</label>
+                    <input type="password" id="password" required placeholder="Digite sua senha" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-white">
+                    <span class="text-[9px] text-indigo-400 leading-normal mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Se for seu primeiro acesso, a senha digitada acima será registrada como sua senha oficial.</span>
+                </div>
+
+                <button type="submit" id="btn-login" class="mt-2 w-full py-4 bg-indigo-600 hover:bg-indigo-700 font-semibold text-white text-xs rounded-xl shadow-lg transition active:scale-[0.98]">
+                    Entrar no Scanner
+                </button>
+            </form>
+            <span class="text-[9px] text-slate-500 leading-normal">Apenas atendentes pré-registrados pelo dono do estabelecimento conseguem acessar.</span>
+        </div>
+
+        <!-- SCANNER APP SCREEN (Hidden initially) -->
+        <div id="app-screen" class="hidden w-full flex flex-col gap-4 text-center">
+            
+            <!-- Branding Header -->
+            <div class="flex justify-between items-center glassmorphism px-4 py-3 rounded-2xl">
+                <div class="flex items-center gap-2 text-left">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xs text-white leading-tight" id="empresa-nome">Minha Empresa</h3>
+                        <p class="text-[9px] text-slate-500" id="vendedor-nome">Atendente Logado</p>
+                    </div>
+                </div>
+                <button id="btn-logout" class="text-[10px] font-bold text-red-400 hover:text-red-300 px-2 py-1 rounded bg-slate-900 border border-slate-800 transition"><i class="fa-solid fa-power-off"></i> Sair</button>
+            </div>
+
+            <!-- Camera Scanner Box -->
+            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3 relative">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Leitor de QR Code</span>
+                    <span class="w-2 h-2 rounded-full bg-slate-600 animate-pulse" id="scanner-status-dot"></span>
+                </div>
+
+                <!-- Video Element viewport -->
+                <div id="reader" class="w-full overflow-hidden border border-slate-800 rounded-2xl bg-black flex items-center justify-center"></div>
+
+                <!-- Scanner Actions Buttons -->
+                <div class="flex gap-2">
+                    <button id="btn-start-scanner" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
+                        <i class="fa-solid fa-play"></i> Iniciar Câmera
+                    </button>
+                    <button id="btn-stop-scanner" disabled class="flex-1 py-3 bg-slate-900 border border-slate-800 disabled:border-slate-900 text-slate-400 disabled:text-slate-600 hover:bg-slate-800 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
+                        <i class="fa-solid fa-stop"></i> Parar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Operation Mode -->
+            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Modo do Próximo Scan</span>
+                <div class="flex gap-2">
+                    <button id="btn-mode-remove" class="flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition">Tirar 1 Ponto</button>
+                    <select id="select-points-qty" class="w-32 bg-slate-900 border border-slate-800 rounded-xl px-2 py-2 text-xs text-indigo-400 focus:outline-none focus:border-indigo-500 font-bold">
+                        <option value="1" selected>+1 Ponto</option>
+                        <option value="2">+2 Pontos</option>
+                        <option value="3">+3 Pontos</option>
+                        <option value="4">+4 Pontos</option>
+                        <option value="5">+5 Pontos</option>
+                        <option value="10">+10 Pontos</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Manual Fallback box -->
+            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Carimbar Manualmente</span>
+                <div class="flex gap-2">
+                    <input type="text" id="manual-client-input" placeholder="Digite UID ou e-mail do cliente..." class="flex-grow bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <button id="btn-manual-submit" class="px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition">Carimbar</button>
+                </div>
+            </div>
+
+            <!-- Feedbacks Popup Area (Dynamic states alerts) -->
+            <div id="alert-card" class="hidden p-4 rounded-2xl flex items-start gap-3 text-left transition-all duration-300">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg shrink-0" id="alert-icon-box">
+                    <i class="fa-solid fa-info"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-xs" id="alert-title">Sucesso!</h4>
+                    <p class="text-[10px] text-slate-300 mt-0.5" id="alert-message">Detalhes do alerta.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center text-[9px] text-slate-600 pb-2">
+        <p>Validador FidelizaSaaS &copy; 2026. Segurança lógica ativa.</p>
+    </footer>
+
+    <!-- Firebase SDK Logic connection -->
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            doc, 
+            getDoc, 
+            updateDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            onSnapshot,
+            loginWithGoogleRedirect,
+            getRedirectResult,
+            logoutUser,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            loginWithGoogle,
+            increment
+        } from "./config.js?v=2";
+
+        // Variáveis de Estado
+        let empresaId = "";
+        let loggedVendedor = null;
+        let metaConfig = { metaPontos: 10, descriçãoPremio: "Recompensa" };
+        
+        let html5QrcodeScanner = null;
+        let isScannerRunning = false;
+
+        // Tenta obter o ID da empresa pela query param com fallback de localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        empresaId = urlParams.get("empresa") || urlParams.get("empresaId") || urlParams.get("id") || localStorage.getItem("fideliza_vendedor_empresa") || "";
+
+        if (empresaId) localStorage.setItem("fideliza_vendedor_empresa", empresaId);
+
+        // Web Audio Sintetizador de Feedback Sonoro
+        let audioCtx = null;
+        
+        function playSound(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                // Reinicia se suspenso
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === "success") {
+                    // Beep-Beep agradável de sucesso
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                    
+                    setTimeout(() => {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioCtx.destination);
+                        osc2.type = "sine";
+                        osc2.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+                        gain2.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        osc2.start();
+                        osc2.stop(audioCtx.currentTime + 0.15);
+                    }, 120);
+                } else if (type === "win") {
+                    // Fanfarra / Chime especial de resgate de prêmio
+                    osc.type = "triangle";
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                    
+                    const steps = [659.25, 783.99, 1046.50]; // E5, G5, C6
+                    steps.forEach((freq, idx) => {
+                        setTimeout(() => {
+                            const o = audioCtx.createOscillator();
+                            const g = audioCtx.createGain();
+                            o.connect(g);
+                            g.connect(audioCtx.destination);
+                            o.type = "triangle";
+                            o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                            o.start();
+                            o.stop(audioCtx.currentTime + 0.2);
+                        }, (idx + 1) * 100);
+                    });
+                } else if (type === "error") {
+                    // Som de erro de baixa frequência
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.35);
+                }
+            } catch (err) {
+                console.error("Falha ao tocar som de feedback", err);
+            }
+        }
+
+        // Haptic Feedback de vibração
+        function triggerVibration(pattern) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Executa busca preliminar das regras e nome da empresa
+        async function fetchCompanyBranding() {
+            if (!empresaId) {
+                // Se não tiver empresaId na URL, bloqueia login e mostra aviso com diagnóstico
+                document.getElementById("login-empresa-nome").innerText = "Link de Vendedor Inválido";
+                document.getElementById("login-form").outerHTML = `
+                    <div class="p-4 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs leading-relaxed text-left font-medium flex flex-col gap-2">
+                        <div>
+                            <i class="fa-solid fa-triangle-exclamation mr-1 text-sm"></i>
+                            <strong>Erro:</strong> O link do vendedor está incompleto.
+                        </div>
+                        <div class="bg-black/20 p-2 rounded border border-red-500/10 font-mono text-[10px] break-all select-all">
+                            URL Detectada: ${window.location.href}
+                        </div>
+                        <p>Por favor, use a URL completa fornecida no painel (ex: <code>vendedor.html?empresa=ID_DA_EMPRESA</code>).</p>
+                    </div>
+                `;
+                return;
+            }
+            try {
+                const docSnap = await getDoc(doc(db, "empresas", empresaId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    metaConfig = data.metaConfig;
+                    
+                    // Exibe nome da empresa no topo e na tela de login
+                    document.getElementById("empresa-nome").innerText = data.nomeEmpresa;
+                    document.getElementById("login-empresa-nome").innerText = `Atendente - ${data.nomeEmpresa}`;
+                }
+            } catch (err) {
+                console.error("Erro ao buscar dados da empresa: ", err);
+            }
+        }
+
+        await fetchCompanyBranding();
+
+        // Finaliza o fluxo de redirect do mobile (se houver)
+        try {
+            await getRedirectResult(auth);
+        } catch (err) {
+            console.error("Erro ao recuperar resultado do redirecionamento:", err);
+            alert("Erro no login: " + err.message);
+        }
+
+        // Gerenciamento da Autenticação do Vendedor
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const cleanId = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
+                    const vendedorRef = doc(db, "vendedores", cleanId);
+                    const vendedorSnap = await getDoc(vendedorRef);
+
+                    if (vendedorSnap.exists()) {
+                        const vData = vendedorSnap.data();
+                        
+                        if (vData.empresaId === empresaId && vData.ativo) {
+                            loggedVendedor = vData;
+                            document.getElementById("login-screen").classList.add("hidden");
+                            document.getElementById("app-screen").classList.remove("hidden");
+                            document.getElementById("vendedor-nome").innerText = vData.nomeVendedor;
+                            
+                            // Inicializa scanner
+                            html5QrcodeScanner = new Html5Qrcode("reader");
+                            return;
+                        }
+                    }
+                    
+                    // Se não pertencer à empresa ou não for vendedor ativo, bloqueia e faz deslog
+                    alert("Acesso negado! Você não está autorizado como vendedor desta empresa.");
+                    await logoutUser();
+                } catch (err) {
+                    console.error("Erro ao verificar vendedor:", err);
+                    alert("Erro ao checar permissão: " + err.message);
+                    await logoutUser();
+                }
+            } else {
+                document.getElementById("login-screen").classList.remove("hidden");
+                document.getElementById("app-screen").classList.add("hidden");
+            }
+        });
+
+        // Form Login do Vendedor
+        document.getElementById("login-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value.trim().toLowerCase();
+            const password = document.getElementById("password").value;
+            const btn = document.getElementById("btn-login");
+
+            btn.disabled = true;
+            btn.innerText = "Verificando Credenciais...";
+
+            try {
+                // Primeiro faz login com e-mail/senha normais no Firebase Auth
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                // Se a conta não existir ainda no Auth, mas existir na coleção de vendedores,
+                // significa que o dono da empresa pré-registrou o email e o vendedor está acessando a primeira vez.
+                // Criamos o usuário no Auth automaticamente para facilitar.
+                if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") {
+                    try {
+                        const cleanId = email.replace(/[^a-z0-9]/g, "_");
+                        const vendedorSnap = await getDoc(doc(db, "vendedores", cleanId));
+                        
+                        if (vendedorSnap.exists() && vendedorSnap.data().empresaId === empresaId) {
+                            // Tenta criar a conta no Auth. Se der erro de email já em uso, significa que a senha
+                            // que ele digitou está simplesmente errada para a conta já existente.
+                            await createUserWithEmailAndPassword(auth, email, password);
+                            return; // AuthStateChanged cuidará do resto
+                        }
+                    } catch (innerErr) {
+                        if (innerErr.code === "auth/email-already-in-use") {
+                            alert("Erro: Este e-mail já possui uma conta criada, mas a senha digitada está incorreta (ou você usa Login pelo Google). Tente usar o botão 'Logar com Google'.");
+                        } else {
+                            console.error(innerErr);
+                        }
+                    }
+                }
+                
+                alert("Erro de Login: Senha incorreta ou atendente não autorizado.");
+                btn.disabled = false;
+                btn.innerText = "Entrar no Scanner";
+            }
+        });
+
+        // Login Social Google
+        document.getElementById("btn-login-google").addEventListener("click", async () => {
+            const btn = document.getElementById("btn-login-google");
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Redirecionando...`;
+            try {
+                // Usando Redirect ao invés de Popup porque Popup é bloqueado por navegadores mobile in-app
+                await loginWithGoogleRedirect();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao logar com Google: " + err.message);
+                btn.innerHTML = originalText;
+            }
+        });
+
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", async () => {
+            if (isScannerRunning) {
+                await stopScanner();
+            }
+            await logoutUser();
+        });
+
+        // --- Lógica do Scanner de Câmera (html5-qrcode) ---
+        const btnStart = document.getElementById("btn-start-scanner");
+        const btnStop = document.getElementById("btn-stop-scanner");
+        const statusDot = document.getElementById("scanner-status-dot");
+
+        btnStart.addEventListener("click", () => startScanner());
+        btnStop.addEventListener("click", () => stopScanner());
+
+        async function startScanner() {
+            if (!html5QrcodeScanner) return;
+            
+            btnStart.disabled = true;
+            btnStop.disabled = false;
+            statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
+
+            try {
+                isScannerRunning = true;
+                // facingMode: "environment" força o uso da Câmera Traseira por padrão!
+                await html5QrcodeScanner.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 220, height: 220 }
+                    },
+                    onScanSuccess,
+                    onScanFailure
+                );
+            } catch (err) {
+                console.error("Falha ao abrir a câmera: ", err);
+                showAlert("error", "Falha na Câmera", "Verifique as permissões de câmera do seu navegador.");
+                stopScanner();
+            }
+        }
+
+        async function stopScanner() {
+            if (!html5QrcodeScanner || !isScannerRunning) return;
+            
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+            statusDot.className = "w-2 h-2 rounded-full bg-slate-600";
+            
+            try {
+                await html5QrcodeScanner.stop();
+                isScannerRunning = false;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // --- Processamento da Leitura de QR Code ---
+        
+        // Evitar múltiplos processamentos repetitivos da mesma leitura rápida
+        let isProcessing = false;
+
+        async function onScanSuccess(decodedText) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            // Pausa scanner momentaneamente
+            triggerVibration(100); // Vibração simples de confirmação de captura
+
+            const clientUid = decodedText.trim();
+            await processPointAward(clientUid);
+
+            // Reativa leitura após 2.5 segundos de cooldown
+            setTimeout(() => {
+                isProcessing = false;
+            }, 2500);
+        }
+
+        function onScanFailure(error) {
+            // Callback silencioso para não entupir o console
+        }
+
+        // Manual Submit Button
+        document.getElementById("btn-manual-submit").addEventListener("click", async () => {
+            const input = document.getElementById("manual-client-input");
+            const val = input.value.trim();
+            
+            if (!val) {
+                alert("Por favor, digite o UID ou E-mail do cliente.");
+                return;
+            }
+
+            document.getElementById("btn-manual-submit").disabled = true;
+            
+            let clientUid = val;
+
+            // Se for um e-mail, busca o UID dele na coleção de clientes
+            if (val.includes("@")) {
+                try {
+                    const q = query(collection(db, "clientes"), where("email", "==", val.toLowerCase()));
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        clientUid = snap.docs[0].id;
+                    } else {
+                        showAlert("error", "Erro de Busca", "Nenhum cliente cadastrado com este e-mail.");
+                        playSound("error");
+                        document.getElementById("btn-manual-submit").disabled = false;
+                        return;
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            await processPointAward(clientUid);
+            input.value = "";
+            document.getElementById("btn-manual-submit").disabled = false;
+        });
+
+        let isRemovingPoint = false;
+        
+        // Handle mode toggle UI
+        const btnModeRemove = document.getElementById("btn-mode-remove");
+        const selectPointsQty = document.getElementById("select-points-qty");
+
+        if (btnModeRemove) {
+            btnModeRemove.addEventListener("click", () => {
+                isRemovingPoint = !isRemovingPoint;
+                if (isRemovingPoint) {
+                    btnModeRemove.className = "flex-1 py-2 bg-red-900/40 border border-red-500/50 text-red-400 font-bold text-xs rounded-xl active:scale-95 transition";
+                    btnModeRemove.innerText = "Modo: Tirar Ponto";
+                    selectPointsQty.disabled = true;
+                    selectPointsQty.classList.add("opacity-50");
+                } else {
+                    btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
+                    btnModeRemove.innerText = "Tirar 1 Ponto";
+                    selectPointsQty.disabled = false;
+                    selectPointsQty.classList.remove("opacity-50");
+                }
+            });
+        }
+
+        // Lógica de Negócio: Gravação de Pontos e Resgate
+        async function processPointAward(clientUid) {
+            try {
+                const clienteRef = doc(db, "clientes", clientUid);
+                const docSnap = await getDoc(clienteRef);
+
+                if (!docSnap.exists()) {
+                    showAlert("error", "Cliente Inválido", "O QR Code lido não pertence a um cliente válido.");
+                    playSound("error");
+                    triggerVibration([200, 100, 200]);
+                    return;
+                }
+
+                const clientData = docSnap.data();
+                let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
+                
+                const meta = metaConfig.metaPontos || 10;
+                const premio = metaConfig.descriçãoPremio || "Prêmio";
+
+                const pontosMap = clientData.pontosPerEmpresa || {};
+
+                // MODO: TIRAR PONTO
+                if (isRemovingPoint) {
+                    if (pontosAtuais > 0) {
+                        pontosMap[empresaId] = pontosAtuais - 1;
+                        await updateDoc(clienteRef, { pontosPerEmpresa: pontosMap });
+                        showAlert("success", "Ponto Removido", `Foi removido 1 ponto. Cliente agora possui ${pontosMap[empresaId]} pontos.`);
+                        playSound("success");
+                        triggerVibration(150);
+                    } else {
+                        showAlert("error", "Ação Inválida", "O cliente já possui 0 pontos.");
+                        playSound("error");
+                    }
+                    
+                    // Reset do modo automaticamente
+                    isRemovingPoint = false;
+                    btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
+                    btnModeRemove.innerText = "Tirar 1 Ponto";
+                    selectPointsQty.disabled = false;
+                    selectPointsQty.classList.remove("opacity-50");
+                    return;
+                }
+
+                // MODO: RESGATE AUTOMÁTICO (Se o cliente já está com a cartela cheia apresentando ao vendedor)
+                if (pontosAtuais >= meta) {
+                    const resgatesAFazer = Math.floor(pontosAtuais / meta);
+                    pontosMap[empresaId] = pontosAtuais % meta; // Deixa o resto (ex: 12 -> 2)
+                    
+                    let updateData = { pontosPerEmpresa: pontosMap };
+                    
+                    // Registra os resgates
+                    let novosResgates = [];
+                    for(let i = 0; i < resgatesAFazer; i++) {
+                        novosResgates.push({
+                            data: new Date().toISOString(),
+                            vendedor: loggedVendedor.nomeVendedor,
+                            premioEntregue: premio
+                        });
+                    }
+                    updateData[`logResgastes_${empresaId}`] = (clientData[`logResgastes_${empresaId}`] || []).concat(novosResgates);
+                    
+                    await updateDoc(clienteRef, updateData);
+
+                    // Incrementa o contador de prêmios entregues na empresa
+                    try {
+                        const empresaRef = doc(db, "empresas", empresaId);
+                        await updateDoc(empresaRef, {
+                            totalPremiosEntregues: increment(resgatesAFazer)
+                        });
+                    } catch (err) {
+                        console.error("Erro ao incrementar totalPremiosEntregues:", err);
+                    }
+
+                    showAlert("win", "Prêmio Resgatado!", `O cliente resgatou: "${premio}". A cartela foi reiniciada.`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                    
+                    if (selectPointsQty) selectPointsQty.value = "1";
+                    return; // Encerra, não adiciona pontos extras nesse mesmo scan
+                }
+
+                // MODO: ADICIONAR PONTOS (Cartela ainda não estava cheia)
+                const qtyToAdd = parseInt(selectPointsQty?.value || "1");
+                let totalPontos = pontosAtuais + qtyToAdd;
+
+                // Limita a adição ao teto da meta (para ele ver a cartela cheia na tela dele)
+                if (totalPontos > meta) {
+                    totalPontos = meta; 
+                }
+                
+                const pontosAdicionadosReais = totalPontos - pontosAtuais;
+
+                pontosMap[empresaId] = totalPontos;
+                let updateData = { pontosPerEmpresa: pontosMap };
+
+                // Log do Carimbo
+                let logHistorico = clientData[`logCarimbos_${empresaId}`] || [];
+                logHistorico.push({
+                    data: new Date().toISOString(),
+                    vendedor: loggedVendedor.nomeVendedor,
+                    quantidade: pontosAdicionadosReais
+                });
+                updateData[`logCarimbos_${empresaId}`] = logHistorico;
+
+                await updateDoc(clienteRef, updateData);
+
+                if (totalPontos >= meta) {
+                    // Completou agora!
+                    showAlert("success", "Meta Atingida!", `Cartela completa (${meta}/${meta}). O cliente está vendo os confetes! Escaneie novamente a tela dele para entregar o prêmio e zerar.`);
+                    playSound("success");
+                    triggerVibration([150, 100, 150]);
+                    showEmojiFeedback(pontosAdicionadosReais);
+                } else {
+                    // Apenas adicionou
+                    showAlert("success", "Pontos Adicionados!", `Adicionado +${pontosAdicionadosReais}. Cliente agora tem ${totalPontos}/${meta} pontos.`);
+                    playSound("success");
+                    triggerVibration(150);
+                    showEmojiFeedback(pontosAdicionadosReais);
+                }
+                
+                // Reset da quantidade automaticamente para 1
+                if (selectPointsQty) {
+                    selectPointsQty.value = "1";
+                }
+            } catch (err) {
+                console.error("Erro ao processar pontos: ", err);
+                showAlert("error", "Erro de Processamento", err.message);
+                playSound("error");
+            }
+        }
+        // Visual Emoji Feedback for Vendor
+        function showEmojiFeedback(qty) {
+            const emojiStr = metaConfig.brandEmoji || "⭐";
+            const popup = document.createElement("div");
+            popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
+            popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
+            document.body.appendChild(popup);
+            
+            popup.offsetWidth; // force reflow
+            
+            popup.classList.remove("opacity-0", "scale-50");
+            popup.classList.add("opacity-100", "scale-110");
+            
+            setTimeout(() => {
+                popup.classList.remove("opacity-100", "scale-110");
+                popup.classList.add("opacity-0", "scale-150");
+                setTimeout(() => popup.remove(), 300);
+            }, 800);
+        }
+
+        // --- Manipulação da Área de Alertas na Interface ---
+        function showAlert(type, title, message) {
+            const card = document.getElementById("alert-card");
+            const iconBox = document.getElementById("alert-icon-box");
+            const titleEl = document.getElementById("alert-title");
+            const messageEl = document.getElementById("alert-message");
+
+            card.className = "p-4 rounded-2xl flex items-start gap-3 text-left transition-all duration-300 animate-fade-in";
+            
+            if (type === "success") {
+                card.classList.add("bg-emerald-500/10", "border-2", "border-emerald-500/20", "text-emerald-400");
+                iconBox.className = "w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg shrink-0";
+                iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            } else if (type === "win") {
+                card.classList.add("bg-yellow-400/10", "border-2", "border-yellow-400/20", "text-yellow-400");
+                iconBox.className = "w-8 h-8 rounded-lg bg-yellow-400/20 flex items-center justify-center text-yellow-400 text-lg shrink-0";
+                iconBox.innerHTML = '<i class="fa-solid fa-trophy animate-bounce"></i>';
+            } else if (type === "error") {
+                card.classList.add("bg-red-500/10", "border-2", "border-red-500/20", "text-red-400");
+                iconBox.className = "w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 text-lg shrink-0";
+                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+
+            titleEl.innerText = title;
+            messageEl.innerText = message;
+            card.classList.remove("hidden");
+
+            // Oculta feedback após 6 segundos
+            setTimeout(() => {
+                card.classList.add("hidden");
+            }, 6000);
+        }
+
+    </script>
+</body>
+</html>

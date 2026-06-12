@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100 font-inter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FidelizaSaaS - Crie seu Programa de Fidelidade Digital</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCode.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .glassmorphism {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .phone-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.15);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        @media print {
+            @page { size: auto; margin: 0mm; }
+            body * {
+                visibility: hidden !important;
+            }
+            #flyer-a4-preview, #flyer-a4-preview * {
+                visibility: visible !important;
+            }
+            #flyer-a4-preview {
+                position: fixed !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                width: 18cm !important;
+                height: 18cm !important;
+                background: white !important;
+                color: black !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 1cm !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 9999999 !important;
+            }
+            #flyer-a4-preview * {
+                color: black !important;
+            }
+            #flyer-qrcode-placeholder img, #flyer-qrcode-placeholder canvas {
+                width: 10cm !important;
+                height: 10cm !important;
+                margin: 0 auto !important;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="w-full py-5 px-6 md:px-12 flex justify-between items-center glassmorphism sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-gem text-white text-xl"></i>
+            </div>
+            <span class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 font-outfit">FidelizaSaaS</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-full font-medium">Versão MVP 1.0</span>
+        </div>
+    </header>
+
+    <!-- Main Content Wizard & Simulator -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Wizard Panel (Left Side - 7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Step Indicators -->
+            <div class="flex items-center justify-between px-2">
+                <div class="flex items-center gap-1.5 md:gap-3">
+                    <div id="step-indicator-1" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">1</div>
+                    <span class="text-xs md:text-sm font-medium text-slate-300 hidden sm:inline">Cadastro</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-800 mx-2 md:mx-4">
+                    <div id="step-line-1" class="h-full bg-indigo-600 w-0 transition-all duration-500"></div>
+                </div>
+                
+                <div class="flex items-center gap-1.5 md:gap-3">
+                    <div id="step-indicator-2" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400">2</div>
+                    <span class="text-xs md:text-sm font-medium text-slate-500 hidden sm:inline">Regras</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-800 mx-2 md:mx-4">
+                    <div id="step-line-2" class="h-full bg-indigo-600 w-0 transition-all duration-500"></div>
+                </div>
+
+                <div class="flex items-center gap-1.5 md:gap-3">
+                    <div id="step-indicator-3" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400">3</div>
+                    <span class="text-xs md:text-sm font-medium text-slate-500 hidden sm:inline">Visual</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-800 mx-2 md:mx-4">
+                    <div id="step-line-3" class="h-full bg-indigo-600 w-0 transition-all duration-500"></div>
+                </div>
+
+                <div class="flex items-center gap-1.5 md:gap-3">
+                    <div id="step-indicator-4" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400">4</div>
+                    <span class="text-xs md:text-sm font-medium text-slate-500 hidden sm:inline">Materiais</span>
+                </div>
+            </div>
+
+            <!-- Toast Notification -->
+            <div id="toast" class="hidden fixed bottom-5 right-5 bg-indigo-600 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="toast-text" class="text-sm font-medium"></span>
+            </div>
+
+            <!-- STEP 1: LOGIN / CADASTRO -->
+            <div id="step-panel-1" class="glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300">
+                <div>
+                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 1: Cadastro da Empresa & Trial</h2>
+                    <p class="text-slate-400 text-sm mt-1">Crie sua conta para começar seu teste gratuito de 30 dias. Não é necessário cartão de crédito.</p>
+                </div>
+
+                <!-- Social Sign-ins -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button id="btn-login-google" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 transition duration-200">
+                        <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
+                        <span class="text-sm font-medium">Google</span>
+                    </button>
+                    <button id="btn-login-facebook" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 transition duration-200">
+                        <i class="fa-brands fa-facebook text-[#1877F2] text-xl"></i>
+                        <span class="text-sm font-medium">Facebook</span>
+                    </button>
+                    <button id="btn-login-apple" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 transition duration-200">
+                        <i class="fa-brands fa-apple text-white text-xl"></i>
+                        <span class="text-sm font-medium">Apple</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center my-2">
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                    <span class="px-3 text-xs text-slate-500 uppercase tracking-widest">ou E-mail</span>
+                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                </div>
+
+                <!-- Form E-mail -->
+                <form id="auth-form" class="flex flex-col gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1.5 hidden">
+                            <label for="company-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nome da Empresa</label>
+                            <input type="text" id="company-name" placeholder="Ex: Hamburgueria Gourmet" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="owner-email" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail Comercial</label>
+                            <input type="email" id="owner-email" placeholder="nome@empresa.com" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="owner-password" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Senha</label>
+                        <input type="password" id="owner-password" placeholder="Mínimo 6 caracteres" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                    </div>
+
+                    <!-- Toggle login mode -->
+                    <div class="flex justify-between items-center text-xs mt-1">
+                        <span class="text-slate-400">Já tem uma conta? <button type="button" id="toggle-auth-mode" class="text-indigo-400 font-semibold hover:underline">Fazer Login</button></span>
+                    </div>
+
+                    <!-- LGPD Checkbox -->
+                    <div class="flex items-start gap-2 mt-2" id="lgpd-container">
+                        <input type="checkbox" id="lgpd-consent" required class="mt-1 w-4 h-4 bg-slate-900 border-slate-700 rounded text-indigo-500 focus:ring-indigo-500">
+                        <label for="lgpd-consent" class="text-[11px] text-slate-400 leading-tight">
+                            Declaro que li e concordo com os <a href="termos.html" target="_blank" class="text-indigo-400 hover:underline">Termos de Uso</a> e a <a href="termos.html" target="_blank" class="text-indigo-400 hover:underline">Política de Privacidade</a>, aceitando os termos de processamento de dados (LGPD).
+                        </label>
+                    </div>
+
+                    <button type="submit" id="btn-submit-step1" class="mt-2 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Criar Conta e Iniciar Teste Grátis
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 2: CONFIGURAÇÃO DO PROGRAMA -->
+            <div id="step-panel-2" class="hidden glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300 animate-fade-in">
+                <div>
+                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 2: Configuração da Campanha</h2>
+                    <p class="text-slate-400 text-sm mt-1">Defina como funcionará a pontuação e qual será a recompensa final do seu cliente.</p>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="step2-company-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nome da Empresa / Negócio</label>
+                        <input type="text" id="step2-company-name" placeholder="Ex: Hamburgueria Gourmet" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="step2-custom-slug" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Personalizado do Cartão</label>
+                        <div class="flex items-center bg-slate-900/60 border border-slate-800 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
+                            <span class="text-slate-500 text-xs px-3 py-3 border-r border-slate-800 bg-slate-950">cliente.html?link=</span>
+                            <input type="text" id="step2-custom-slug" placeholder="meu-negocio" required class="w-full bg-transparent border-none px-3 py-3 text-sm focus:outline-none text-white transition" autocomplete="off">
+                        </div>
+                        <span id="slug-error" class="hidden text-red-400 text-[10px] font-semibold mt-1">Este link já está em uso ou é inválido. Tente outro.</span>
+                        <span class="text-[11px] text-slate-500">Este será o link que você enviará aos seus clientes. Use apenas letras minúsculas e hífens.</span>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="campaign-points" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="campaign-points" value="10" min="3" max="20" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        <span class="text-[11px] text-slate-500">Número de visitas/stamps necessários para obter o prêmio (Sugerido: 10).</span>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label for="campaign-prize" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="campaign-prize" value="1 Drink Especial" placeholder="Ex: 1 Hambúrguer + Batata Frita" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        <span class="text-[11px] text-slate-500">Seja atraente e claro sobre o que seu cliente ganhará ao preencher o cartão.</span>
+                    </div>
+                    
+                    <button id="btn-next-step2" class="mt-4 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200">
+                        Continuar para Aparência
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: CUSTOMIZAÇÃO VISUAL -->
+            <div id="step-panel-3" class="hidden glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300">
+                <div>
+                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 3: Personalização Visual</h2>
+                    <p class="text-slate-400 text-sm mt-1">Configure o visual da página do cliente. Acompanhe os ajustes no simulador de celular à direita.</p>
+                </div>
+
+                <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="theme-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Título da Página</label>
+                        <input type="text" id="theme-title" value="Clube Fidelidade Gourmet" placeholder="Ex: Cartão de Fidelidade - Pizzaria" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="theme-color" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cor de Fundo Principal</label>
+                            <div class="flex gap-2 items-center">
+                                <input type="color" id="theme-color" value="#4f46e5" class="w-12 h-11 bg-transparent border-0 cursor-pointer rounded-xl">
+                                <input type="text" id="theme-color-hex" value="#4f46e5" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3 py-3 text-sm focus:outline-none text-white uppercase transition">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="theme-font" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipografia (Fonte)</label>
+                            <select id="theme-font" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                                <option value="sans" selected>Inter</option>
+                                <option value="playfair">Playfair Display</option>
+                                <option value="space">Space Grotesk</option>
+                                <option value="mono">JetBrains Mono</option>
+                                <option value="bebas">Bebas Neue</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 relative">
+                        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
+                        <button type="button" id="emoji-picker-btn" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm text-left text-white flex items-center justify-between transition focus:border-indigo-500">
+                            <span id="selected-emoji-label">⭐</span>
+                            <i class="fa-solid fa-chevron-down text-slate-500 text-xs"></i>
+                        </button>
+                        <input type="hidden" id="theme-emoji" value="⭐">
+                        
+                        <!-- Premium Emoji Picker Popover -->
+                        <div id="emoji-picker-popover" class="hidden absolute top-[76px] left-0 w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl z-50 flex flex-col gap-3 glassmorphism max-h-[300px]">
+                            <!-- Categorias Tab -->
+                            <div class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800 shrink-0 text-base scrollbar-none justify-between w-full">
+                                <button type="button" id="tab-emoji-popular" class="emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold">🔥</button>
+                                <button type="button" id="tab-emoji-food" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">🍕</button>
+                                <button type="button" id="tab-emoji-smileys" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">😀</button>
+                                <button type="button" id="tab-emoji-activities" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">⚽</button>
+                                <button type="button" id="tab-emoji-objects" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">💡</button>
+                            </div>
+                            <!-- Emojis Grid -->
+                            <div id="emojis-grid-container" class="grid grid-cols-6 gap-2 overflow-y-auto text-xl py-1 justify-items-center">
+                                <!-- Emojis populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Upload Locked for Free Plan -->
+                    <div class="flex flex-col gap-2 p-4 rounded-xl border border-slate-800 bg-slate-950/40">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Logotipo da Empresa</span>
+                            <span class="text-[10px] bg-violet-500/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded-md font-bold uppercase"><i class="fa-solid fa-lock text-[8px] mr-1"></i>PRO</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-slate-600 border border-slate-700">
+                                <i class="fa-solid fa-image text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <input type="file" disabled class="hidden" id="logo-upload">
+                                <label for="logo-upload" class="cursor-not-allowed text-xs text-slate-500 bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg font-medium inline-block">
+                                    Enviar Logotipo
+                                </label>
+                                <span class="text-[10px] text-slate-600 block mt-1">Disponível apenas após a ativação da conta comercial Pro.</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="btn-next-step3" class="mt-2 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200">
+                        Ativar Programa e Gerar Links
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: ATIVAÇÃO E MATERIAIS -->
+            <div id="step-panel-4" class="hidden glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300">
+                <div class="text-center flex flex-col items-center gap-2">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-3xl mb-1 shadow-lg shadow-emerald-500/5 animate-pulse">
+                        <i class="fa-solid fa-circle-check animate-bounce"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold font-outfit text-white">Programa Ativado com Sucesso!</h2>
+                    <p class="text-slate-400 text-sm max-w-md">Sua campanha está no ar e pronta para receber clientes. Abaixo estão seus links exclusivos e materiais de divulgação.</p>
+                </div>
+
+                <!-- Generated links card -->
+                <div class="flex flex-col gap-4 mt-2">
+                    <!-- Client link -->
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
+                        <div class="flex gap-2">
+                            <input type="text" readonly id="link-cliente-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-300 select-all">
+                            <button id="btn-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                        </div>
+                    </div>
+
+                    <!-- Admin link -->
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link do Vendedor (Leitor/Validador de Pontos)</span>
+                        <div class="flex gap-2">
+                            <input type="text" readonly id="link-vendedor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-300 select-all">
+                            <button id="btn-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Block -->
+                <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-slate-950/40 border border-slate-800">
+                    <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="qrcode-box">
+                        <div id="qrcode-placeholder"></div>
+                    </div>
+                    <div class="flex flex-col gap-2 text-center sm:text-left">
+                        <h3 class="font-bold text-white text-base font-outfit">QR Code de Divulgação</h3>
+                        <p class="text-xs text-slate-400 max-w-sm">Imprima este QR Code ou coloque-o no balcão e mesas para que seus clientes escaneiem e entrem no programa instantaneamente.</p>
+                        <button id="btn-download-qrcode" class="mt-2 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
+                            <i class="fa-solid fa-download"></i> Baixar para Impressão
+                        </button>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Kit -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">WhatsApp Kit (Pronto para enviar)</span>
+                    <div class="relative">
+                        <textarea readonly id="whatsapp-kit-text" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                        <button id="btn-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Kit</button>
+                    </div>
+                </div>
+
+                <!-- Finish wizard button -->
+                <button id="btn-finish-wizard" class="mt-4 w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 font-semibold text-white rounded-xl shadow-lg shadow-emerald-500/20 transition duration-200">
+                    Ir para o Painel Administrativo <i class="fa-solid fa-arrow-right ml-1 text-sm"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Smartphone Simulator Panel (Right Side - 5 cols) -->
+        <div class="lg:col-span-5 w-full flex flex-col items-center sticky top-28 z-40">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-mobile-screen mr-1"></i> Visualização Mobile ao Vivo</span>
+            
+            <!-- Smartphone frame mockup -->
+            <div class="w-full max-w-[340px] aspect-[9/18.5] bg-slate-900 rounded-[50px] p-3 border-4 border-slate-800 phone-shadow relative flex flex-col">
+                <!-- Speaker and Camera notch -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-2xl z-30 flex items-center justify-center gap-1.5">
+                    <div class="w-10 h-1 bg-slate-800 rounded-full"></div>
+                    <div class="w-2.5 h-2.5 bg-slate-800 rounded-full"></div>
+                </div>
+                
+                <!-- Mockup Screen -->
+                <div id="sim-screen" class="flex-1 w-full rounded-[40px] overflow-y-auto overflow-x-hidden flex flex-col justify-between py-8 px-5 relative transition-all duration-300" style="background-color: #4f46e5;">
+                    <!-- Screen Overlay decoration -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35 pointer-events-none rounded-[40px]"></div>
+                    
+                    <!-- Sim Header -->
+                    <div class="flex flex-col items-center text-center mt-3 gap-2 relative z-10">
+                        <!-- Brand logo simulated -->
+                        <div class="w-12 h-12 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white text-xl shadow-sm">
+                            ✶
+                        </div>
+                        <h4 id="sim-title" class="font-bold text-lg text-white leading-tight font-sans">Clube Fidelidade Gourmet</h4>
+                        <p class="text-white/80 text-[10px] bg-black/10 px-2.5 py-0.5 rounded-full inline-block">Cartão de Fidelidade</p>
+                    </div>
+
+                    <!-- Sim Body / Point Stamp Grid -->
+                    <div class="flex flex-col gap-4 py-4 items-center justify-center relative z-10">
+                        
+                        <!-- Mini simulated Points Grid -->
+                        <div id="sim-points-grid" class="grid grid-cols-5 gap-2 max-w-[240px] justify-center">
+                            <!-- JS will generate stamp circles based on meta config -->
+                        </div>
+
+                        <!-- Info tag -->
+                        <p id="sim-prize-text" class="text-center text-white/90 text-xs px-4 leading-normal mt-2 font-medium">
+                            Acumule <span id="sim-meta-text" class="font-bold underline text-white">10</span> pontos e ganhe: <br>
+                            <span id="sim-prize-name" class="font-bold text-sm text-yellow-300 tracking-wide">1 Drink Especial</span>
+                        </p>
+                    </div>
+
+                    <!-- Sim QR Code & Footer -->
+                    <div class="flex flex-col items-center gap-3 relative z-10">
+                        <div class="w-28 h-28 bg-white p-2.5 rounded-xl flex items-center justify-center shadow-md">
+                            <!-- Simulated client identification QR Code -->
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=client_uid_sample" class="w-full h-full object-contain" alt="QR Code">
+                        </div>
+                        <span class="text-white/80 text-[9px] uppercase tracking-wider font-semibold">Seu ID: client-1234-sample</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: FLYER DE DIVULGAÇÃO A4 -->
+    <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 max-h-[90vh]">
+            <div class="flex justify-between items-center no-print">
+                <h3 class="font-bold text-lg text-white font-outfit">Flyer de Divulgação</h3>
+                <div class="flex gap-2">
+                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
+                    <button id="btn-close-flyer" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            
+            <!-- Flyer Container (Designed for Printing) -->
+            <div class="overflow-y-auto flex justify-center p-4 bg-slate-950 border border-slate-900 rounded-xl max-h-[60vh] no-print">
+                <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
+                    <div class="flex flex-col items-center gap-4 mt-2">
+                        <!-- QR Code Grande no Topo -->
+                        <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
+                            <div id="flyer-qrcode-placeholder"></div>
+                        </div>
+
+                        <!-- Informações em baixo de forma simples -->
+                        <div class="flex flex-col items-center gap-1">
+                            <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
+                            <p class="text-[9px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Clube de Fidelidade</p>
+                            
+                            <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
+                            <p class="text-[10px] text-slate-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by FidelizaSaaS</div>
+                </div>
+            </div>
+        </div>
+    <footer class="w-full py-6 px-6 text-center border-t border-slate-900 bg-slate-950/80 text-xs text-slate-500 mt-8">
+        <p>&copy; 2026 FidelizaSaaS. Todos os direitos reservados. MVP White Label.</p>
+    </footer>
+
+    <!-- Firebase Script and Logic Connection -->
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            doc, 
+            setDoc, 
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            loginWithGoogle,
+            loginWithFacebook,
+            loginWithApple 
+        } from "./config.js?v=2";
+
+        // --- Variáveis de Estado do Wizard ---
+        let currentStep = 1;
+        let loggedUser = null;
+        let createdCompanyId = "";
+        let qrcodeInstance = null;
+        let qrCodeFlyerInstance = null;
+
+        // --- Seleção de Elementos DOM ---
+        const stepIndicators = [1, 2, 3, 4].map(num => document.getElementById(`step-indicator-${num}`));
+        const stepLines = [1, 2, 3].map(num => document.getElementById(`step-line-${num}`));
+        const stepPanels = [1, 2, 3, 4].map(num => document.getElementById(`step-panel-${num}`));
+        
+        // Form & Inputs Step 1
+        const authForm = document.getElementById("auth-form");
+        const companyNameInput = document.getElementById("company-name");
+        const emailInput = document.getElementById("owner-email");
+        const passwordInput = document.getElementById("owner-password");
+        const toggleAuthModeBtn = document.getElementById("toggle-auth-mode");
+        const btnSubmitStep1 = document.getElementById("btn-submit-step1");
+        
+        // Inputs Step 2
+        const step2CompanyNameInput = document.getElementById("step2-company-name");
+        const step2CustomSlugInput = document.getElementById("step2-custom-slug");
+        const slugError = document.getElementById("slug-error");
+        const campaignPointsInput = document.getElementById("campaign-points");
+        const campaignPrizeInput = document.getElementById("campaign-prize");
+        const btnNextStep2 = document.getElementById("btn-next-step2");
+        
+        // Inputs Step 3
+        const themeTitleInput = document.getElementById("theme-title");
+        const themeColorInput = document.getElementById("theme-color");
+        const themeColorHexInput = document.getElementById("theme-color-hex");
+        const themeFontInput = document.getElementById("theme-font");
+        const btnNextStep3 = document.getElementById("btn-next-step3");
+
+        // Outputs Step 4
+        const linkClienteUrlInput = document.getElementById("link-cliente-url");
+        const linkVendedorUrlInput = document.getElementById("link-vendedor-url");
+        const btnCopyClienteBtn = document.getElementById("btn-copy-cliente");
+        const btnCopyVendedorBtn = document.getElementById("btn-copy-vendedor");
+        const btnCopyWhatsappBtn = document.getElementById("btn-copy-whatsapp");
+        const whatsappKitTextarea = document.getElementById("whatsapp-kit-text");
+        const btnDownloadQrcodeBtn = document.getElementById("btn-download-qrcode");
+        const btnFinishWizardBtn = document.getElementById("btn-finish-wizard");
+
+        // Simulator Elements
+        const simScreen = document.getElementById("sim-screen");
+        const simTitle = document.getElementById("sim-title");
+        const simPointsGrid = document.getElementById("sim-points-grid");
+        const simPrizeName = document.getElementById("sim-prize-name");
+        const simMetaText = document.getElementById("sim-meta-text");
+
+        // Toast element
+        const toast = document.getElementById("toast");
+        const toastText = document.getElementById("toast-text");
+
+        // --- Modos de Login / Cadastro (Cadastro por padrão) ---
+        let isSignupMode = true;
+
+        toggleAuthModeBtn.addEventListener("click", () => {
+            isSignupMode = !isSignupMode;
+            const lgpdContainer = document.getElementById("lgpd-container");
+            const lgpdCheckbox = document.getElementById("lgpd-consent");
+
+            if (isSignupMode) {
+                document.querySelector("#step-panel-1 h2").innerText = "Etapa 1: Cadastro da Empresa & Trial";
+                companyNameInput.parentNode.classList.remove("hidden");
+                companyNameInput.required = true;
+                btnSubmitStep1.innerText = "Criar Conta e Iniciar Teste Grátis";
+                toggleAuthModeBtn.innerText = "Fazer Login";
+                
+                // Mostrar checkbox LGPD no cadastro
+                if(lgpdContainer) lgpdContainer.classList.remove("hidden");
+                if(lgpdCheckbox) lgpdCheckbox.required = true;
+            } else {
+                document.querySelector("#step-panel-1 h2").innerText = "Fazer Login no FidelizaSaaS";
+                companyNameInput.parentNode.classList.add("hidden");
+                companyNameInput.required = false;
+                btnSubmitStep1.innerText = "Acessar Painel";
+                toggleAuthModeBtn.innerText = "Criar Nova Conta";
+                
+                // Esconder checkbox LGPD no login
+                if(lgpdContainer) lgpdContainer.classList.add("hidden");
+                if(lgpdCheckbox) lgpdCheckbox.required = false;
+            }
+        });
+
+        // Helper para mostrar mensagens popup (Toast)
+        function showToast(message) {
+            toastText.innerText = message;
+            toast.classList.remove("hidden");
+            toast.classList.add("flex");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+                toast.classList.remove("flex");
+            }, 3000);
+        }
+
+        // --- Lógica de Transição do Assistente (Wizard) ---
+        function setStep(step) {
+            currentStep = step;
+            stepPanels.forEach((panel, i) => {
+                if (i + 1 === step) {
+                    panel.classList.remove("hidden");
+                } else {
+                    panel.classList.add("hidden");
+                }
+            });
+
+            // Atualiza barra de progresso visual
+            stepIndicators.forEach((ind, i) => {
+                if (i + 1 < step) {
+                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20";
+                    ind.innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (i + 1 === step) {
+                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+                    ind.innerText = i + 1;
+                } else {
+                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400";
+                    ind.innerText = i + 1;
+                }
+            });
+
+            stepLines.forEach((line, i) => {
+                if (i + 1 < step) {
+                    line.className = "h-[2px] flex-1 bg-emerald-600 transition-all duration-500";
+                } else {
+                    line.className = "h-[2px] flex-1 bg-slate-800 transition-all duration-500";
+                }
+            });
+        }
+
+        // --- Atualizações Instantâneas do Simulador Mobile ---
+        function updateSimulator() {
+            // Atualiza Título
+            simTitle.innerText = themeTitleInput.value || "Cartão Fidelidade";
+            
+            // Atualiza Cor
+            simScreen.style.backgroundColor = themeColorInput.value;
+            themeColorHexInput.value = themeColorInput.value;
+            
+            // Atualiza Tipografia (Font)
+            const activeFont = themeFontInput.value;
+            simTitle.className = `font-bold text-lg text-white leading-tight font-${activeFont}`;
+            
+            // Atualiza Prêmio
+            simPrizeName.innerText = campaignPrizeInput.value || "Prêmio";
+            
+            // Atualiza Meta de Pontos no Grid
+            const pointsMeta = parseInt(campaignPointsInput.value) || 10;
+            simMetaText.innerText = pointsMeta;
+            
+            // Limpa e recria Stamps
+            simPointsGrid.innerHTML = "";
+            
+            // Layout responsivo de colunas no grid de preview
+            if (pointsMeta <= 8) {
+                simPointsGrid.className = "grid grid-cols-4 gap-2.5 max-w-[220px] justify-center";
+            } else if (pointsMeta <= 12) {
+                simPointsGrid.className = "grid grid-cols-5 gap-2 max-w-[240px] justify-center";
+            } else {
+                simPointsGrid.className = "grid grid-cols-6 gap-1.5 max-w-[250px] justify-center";
+            }
+
+            const selectedEmoji = document.getElementById("theme-emoji").value;
+            for (let i = 1; i <= pointsMeta; i++) {
+                const stamp = document.createElement("div");
+                // Simulando as primeiras 2 bolinhas preenchidas para dar contraste
+                const isFilled = i <= 2;
+                
+                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
+                    isFilled 
+                        ? "bg-transparent border-transparent scale-110" 
+                        : "rounded-full border-2 bg-black/20 text-white/50 border-white/10 text-xs"
+                }`;
+                
+                stamp.innerHTML = isFilled 
+                    ? `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${selectedEmoji}</span>` 
+                    : `${i}`;
+                
+                simPointsGrid.appendChild(stamp);
+            }
+        }
+
+        // Adiciona listeners para atualizações dinâmicas
+        themeTitleInput.addEventListener("input", updateSimulator);
+        themeFontInput.addEventListener("change", updateSimulator);
+        campaignPrizeInput.addEventListener("input", updateSimulator);
+        campaignPointsInput.addEventListener("input", updateSimulator);
+        themeColorInput.addEventListener("input", (e) => {
+            themeColorHexInput.value = e.target.value.toUpperCase();
+            updateSimulator();
+        });
+        
+        themeColorHexInput.addEventListener("input", (e) => {
+            let val = e.target.value;
+            if (val.startsWith("#") && val.length === 7) {
+                themeColorInput.value = val.toLowerCase();
+                updateSimulator();
+            }
+        });
+
+
+        // Configuração do Seletor de Emojis Premium (WhatsApp Style)
+        const emojiCategories = {
+            popular: [
+                "⭐", "🍕", "🍔", "☕", "🔥", "❤️", "🍺", "🍩", "🍦", "🚀", "💎", "🏆",
+                "🌟", "✨", "💥", "🎉", "🎈", "🎁", "🧁", "🍿", "🥤", "🍉", "🍓",
+                "🥇", "🎮", "🍔", "🍟", "🍕", "🍺", "🍷", "🍹", "🍩", "🧁", "🍭", "❤️"
+            ],
+            food: [
+                "🍕", "🍔", "🍟", "🌭", "🍿", "🍳", "🥞", "🧇", "🍞", "🥐", "🥨", "🥯",
+                "🧀", "🥗", "🥪", "🌮", "🌯", "🍣", "🍱", "🥟", "🍤", "🍙", "🍚",
+                "🍛", "🍜", "🍝", "🍩", "🍪", "🎂", "🍰", "🧁", "🥧", "🍫", "🍬",
+                "🍭", "🍮", "🍯", "🥛", "☕", "🍵", "🍶", "🍾", "🍷", "🍸", "🍹", "🍺",
+                "🍻", "🥂", "🥃", "🥤", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏",
+                "🍒", "🍓", "🍇", "🫐", "🥝", "🍅", "🥥", "🥑", "🍆", "🥕"
+            ],
+            smileys: [
+                "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃",
+                "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜",
+                "🤪", "🤨", "🧐", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔",
+                "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤",
+                "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓"
+            ],
+            activities: [
+                "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓",
+                "🏸", "🥅", "⛳", "🪁", "🎣", "🤿", "🥊", "🥋", "🎽", "🛹", "🛷", "🎿",
+                "🏂", "🏋️", "🤼", "🤸", "⛹️", "🤾", "🧗", "🧘", "🚴", "🏆", "🥇", "🥈",
+                "🥉", "🏅", "🎟️", "🎭", "🎨", "🎬", "🎤", "🎧", "🎮", "🎳", "🎲", "🧩"
+            ],
+            objects: [
+                "💡", "🔑", "🔒", "🔓", "🔨", "🪓", "⛏️", "🛠️", "🛡️", "🔧", "🔩", "⚙️",
+                "⚖️", "⛓️", "🔫", "💣", "🧨", "🔮", "💈", "🔭", "🔬", "🧳", "🌂", "☂️",
+                "🧹", "🧼", "🔑", "🗝️", "💎", "🛡️", "🔔", "🔕", "📣", "📢", "🎙️", "📻", "💾",
+                "💿", "🧮", "🧾", "📝", "📁", "📂", "📅", "📆", "📋", "📌", "📍", "📎",
+                "📏", "📐", "✂️", "🗑️", "🔒", "🛡️", "🕯️", "💡", "🏮",
+                "📖", "📕", "📘", "📚", "📓", "💵", "🪙", "💳", "✉️", "📦", "🚗", "🚀"
+            ]
+        };
+
+        const emojiPickerBtn = document.getElementById("emoji-picker-btn");
+        const emojiPickerPopover = document.getElementById("emoji-picker-popover");
+        const selectedEmojiLabel = document.getElementById("selected-emoji-label");
+        const themeEmojiInput = document.getElementById("theme-emoji");
+        const emojisGridContainer = document.getElementById("emojis-grid-container");
+
+        emojiPickerBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            emojiPickerPopover.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!emojiPickerPopover.contains(e.target) && e.target !== emojiPickerBtn) {
+                emojiPickerPopover.classList.add("hidden");
+            }
+        });
+
+        function loadEmojiCategory(category) {
+            emojisGridContainer.innerHTML = "";
+            const list = emojiCategories[category] || [];
+            list.forEach(emoji => {
+                const el = document.createElement("button");
+                el.type = "button";
+                el.className = "hover:scale-125 transition active:scale-95 p-1 select-none cursor-pointer";
+                el.innerText = emoji;
+                el.addEventListener("click", () => {
+                    themeEmojiInput.value = emoji;
+                    selectedEmojiLabel.innerText = emoji;
+                    emojiPickerPopover.classList.add("hidden");
+                    updateSimulator();
+                });
+                emojisGridContainer.appendChild(el);
+            });
+
+            // Update active tab styles
+            document.querySelectorAll(".emoji-tab-btn").forEach(btn => {
+                btn.className = "emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold";
+            });
+            const activeTab = document.getElementById(`tab-emoji-${category}`);
+            if (activeTab) {
+                activeTab.className = "emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold";
+            }
+        }
+
+        // Initialize tabs
+        document.getElementById("tab-emoji-popular").addEventListener("click", () => loadEmojiCategory("popular"));
+        document.getElementById("tab-emoji-food").addEventListener("click", () => loadEmojiCategory("food"));
+        document.getElementById("tab-emoji-smileys").addEventListener("click", () => loadEmojiCategory("smileys"));
+        document.getElementById("tab-emoji-activities").addEventListener("click", () => loadEmojiCategory("activities"));
+        document.getElementById("tab-emoji-objects").addEventListener("click", () => loadEmojiCategory("objects"));
+
+        loadEmojiCategory("popular"); // Load default
+
+
+        // Inicializa o preview no início
+        updateSimulator();
+
+        // Auto-generate slug suggestion
+        step2CompanyNameInput.addEventListener("input", (e) => {
+            const val = e.target.value;
+            let slug = val.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            step2CustomSlugInput.value = slug;
+        });
+
+        // Enforce valid characters in slug input manually
+        step2CustomSlugInput.addEventListener("input", (e) => {
+            let val = e.target.value;
+            e.target.value = val.toLowerCase().replace(/[^a-z0-9-]/g, '');
+        });
+
+        // Setup inicial da Empresa (Apenas preenche os campos do Step 2)
+        async function setupCompanyDraft(userId, companyName, email) {
+            createdCompanyId = userId;
+            step2CompanyNameInput.value = companyName;
+            
+            let slug = companyName.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            step2CustomSlugInput.value = slug;
+        }
+
+        // Submissão do Formulário de Cadastro / Login por E-mail
+        authForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const companyName = companyNameInput.value.trim();
+
+            btnSubmitStep1.disabled = true;
+            btnSubmitStep1.innerText = "Processando...";
+
+            try {
+                if (isSignupMode) {
+                    // Cadastro
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    loggedUser = cred.user;
+                    await setupCompanyDraft(loggedUser.uid, companyName || "Minha Empresa", email);
+                    showToast("Conta criada e trial de 30 dias iniciado!");
+                    setStep(2);
+                } else {
+                    // Login
+                    const cred = await signInWithEmailAndPassword(auth, email, password);
+                    loggedUser = cred.user;
+                    createdCompanyId = loggedUser.uid;
+                    showToast("Login efetuado com sucesso!");
+                    
+                    // Se fez login, vamos pular a criação e recuperar as configs
+                    setStep(2);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Erro: " + err.message);
+            } finally {
+                btnSubmitStep1.disabled = false;
+                btnSubmitStep1.innerText = isSignupMode ? "Criar Conta e Iniciar Teste Grátis" : "Acessar Painel";
+            }
+        });
+
+        // Cadastro/Login Social
+        async function handleSocialAuth(providerLoginFn) {
+            try {
+                const user = await providerLoginFn();
+                loggedUser = user;
+                createdCompanyId = user.uid;
+                
+                // Setup Draft e vai pro Step 2
+                await setupCompanyDraft(user.uid, user.displayName || "Minha Empresa", user.email);
+                showToast("Autenticado com sucesso!");
+                setStep(2);
+            } catch (err) {
+                console.error(err);
+                showToast("Erro de Autenticação: " + err.message);
+            }
+        }
+
+        document.getElementById("btn-login-google").addEventListener("click", () => handleSocialAuth(loginWithGoogle));
+        document.getElementById("btn-login-facebook").addEventListener("click", () => handleSocialAuth(loginWithFacebook));
+        document.getElementById("btn-login-apple").addEventListener("click", () => handleSocialAuth(loginWithApple));
+
+        // --- Lógica do Step 2: Configuração da Campanha ---
+        btnNextStep2.addEventListener("click", async () => {
+            if (!step2CompanyNameInput.value || !step2CustomSlugInput.value || !campaignPointsInput.value || !campaignPrizeInput.value) {
+                showToast("Por favor, preencha todos os campos obrigatórios!");
+                return;
+            }
+
+            btnNextStep2.disabled = true;
+            btnNextStep2.innerText = "Verificando Link...";
+            slugError.classList.add("hidden");
+
+            try {
+                const requestedSlug = step2CustomSlugInput.value.trim();
+                
+                // Valida se o slug já existe no linkUnicoCliente OU nos slugsAntigos de OUTRA empresa
+                const q1 = query(collection(db, "empresas"), where("linkUnicoCliente", "==", requestedSlug));
+                const q2 = query(collection(db, "empresas"), where("slugsAntigos", "array-contains", requestedSlug));
+                
+                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                
+                let isTaken = false;
+                snap1.forEach(d => { if (d.id !== createdCompanyId) isTaken = true; });
+                snap2.forEach(d => { if (d.id !== createdCompanyId) isTaken = true; });
+
+                if (isTaken) {
+                    slugError.classList.remove("hidden");
+                    btnNextStep2.disabled = false;
+                    btnNextStep2.innerText = "Continuar para Aparência";
+                    return;
+                }
+
+                // Carrega pre-fill do titulo do Step 3
+                if (!themeTitleInput.value || themeTitleInput.value === "Fidelidade") {
+                    themeTitleInput.value = step2CompanyNameInput.value + " - Fidelidade";
+                }
+                updateSimulator();
+                setStep(3);
+
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao verificar link.");
+            } finally {
+                btnNextStep2.disabled = false;
+                btnNextStep2.innerText = "Continuar para Aparência";
+            }
+        });
+
+        // --- Lógica do Step 3: Configurações Visuais e Gravação Final no Firestore ---
+        btnNextStep3.addEventListener("click", async () => {
+            btnNextStep3.disabled = true;
+            btnNextStep3.innerText = "Salvando Configurações...";
+
+            try {
+                const empresaRef = doc(db, "empresas", createdCompanyId);
+                
+                // Coleta dados dos inputs
+                const metaPontos = parseInt(campaignPointsInput.value) || 10;
+                const descriçãoPremio = campaignPrizeInput.value.trim();
+                const corFundo = themeColorInput.value;
+                const tituloPagina = themeTitleInput.value.trim();
+                const fonte = themeFontInput.value;
+                const emoji = document.getElementById("theme-emoji").value;
+
+                // Prepara dados base da empresa (Trial e Configuração Inicial)
+                const trialEnd = new Date();
+                trialEnd.setDate(trialEnd.getDate() + 30);
+
+                const finalSlug = step2CustomSlugInput.value.trim();
+
+                // Atualiza o Firestore (Cria/Sobrescreve com os dados oficiais)
+                await setDoc(empresaRef, {
+                    nomeEmpresa: step2CompanyNameInput.value.trim(),
+                    emailComercial: loggedUser?.email || "",
+                    donoUid: createdCompanyId,
+                    dataCadastro: new Date(),
+                    statusAssinatura: "trial",
+                    trialEndDate: trialEnd,
+                    linkUnicoCliente: finalSlug,
+                    slugsAntigos: [],
+                    metaConfig: {
+                        metaPontos: metaPontos,
+                        descriçãoPremio: descriçãoPremio
+                    },
+                    visualConfig: {
+                        corFundo: corFundo,
+                        tituloPagina: tituloPagina,
+                        fonte: fonte,
+                        logoUrl: "",
+                        emoji: emoji
+                    }
+                }, { merge: true });
+
+                // Recupera documento atualizado para obter o linkUnicoCliente
+                const docSnap = await getDoc(empresaRef);
+                const data = docSnap.data();
+                const linkSlug = data.linkUnicoCliente || createdCompanyId;
+
+                // Constrói as URLs finais apontando para o mesmo servidor
+                const baseUrl = window.location.origin + window.location.pathname.replace("onboarding.html", "");
+                const clientUrl = `${baseUrl}cliente.html?link=${linkSlug}`;
+                const vendorUrl = `${baseUrl}vendedor.html?empresa=${createdCompanyId}`;
+
+                linkClienteUrlInput.value = clientUrl;
+                linkVendedorUrlInput.value = vendorUrl;
+
+                // Gera QR Code para o cliente
+                const qrcodeBox = document.getElementById("qrcode-placeholder");
+                qrcodeBox.innerHTML = ""; // Limpa anterior
+                qrcodeInstance = new QRCode(qrcodeBox, {
+                    text: clientUrl,
+                    width: 120,
+                    height: 120,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+
+                // Prepara Kit de Mensagem do WhatsApp
+                whatsappKitTextarea.value = `🎉 Olá! Lançamos nosso sistema de fidelidade digital! Cadastre-se agora e comece a acumular pontos para ganhar ${descriçãoPremio}: ${clientUrl}`;
+
+                showToast("Campanha ativada com sucesso!");
+                setStep(4);
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao salvar: " + err.message);
+            } finally {
+                btnNextStep3.disabled = false;
+                btnNextStep3.innerText = "Ativar Programa e Gerar Links";
+            }
+        });
+
+        // --- Helpers do Step 4: Cópias e Downloads ---
+        btnCopyClienteBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(linkClienteUrlInput.value);
+            showToast("Link do cliente copiado!");
+        });
+
+        btnCopyVendedorBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(linkVendedorUrlInput.value);
+            showToast("Link do vendedor copiado!");
+        });
+
+        btnCopyWhatsappBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(whatsappKitTextarea.value);
+            showToast("WhatsApp Kit copiado!");
+        });
+
+        function openFlyerModal() {
+            const previewEl = document.getElementById("flyer-a4-preview");
+            const color = themeColorInput.value;
+            previewEl.style.setProperty("--flyer-bg", color);
+            previewEl.style.backgroundColor = "white";
+            
+            const activeFont = themeFontInput.value;
+            // Only update font class, preserve other classes
+            previewEl.className = `w-[320px] min-h-[420px] py-8 px-4 bg-white text-slate-900 flex flex-col justify-center items-center text-center shadow-2xl relative rounded-md select-none font-${activeFont} border-4 border-dashed border-slate-200`;
+            
+            document.getElementById("flyer-company-name").innerText = themeTitleInput.value || companyNameInput.value || "Minha Empresa";
+            document.getElementById("flyer-prize-desc").innerText = campaignPrizeInput.value || "Prêmio";
+            
+            const targetUrl = linkClienteUrlInput.value;
+            const qrContainer = document.getElementById("flyer-qrcode-placeholder");
+            qrContainer.innerHTML = "";
+            qrCodeFlyerInstance = new QRCode(qrContainer, {
+                text: targetUrl,
+                width: 140,
+                height: 140,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            document.getElementById("modal-flyer-divulgacao").classList.remove("hidden");
+        }
+
+        window.downloadFlyerPng = async function() {
+            const btn = document.getElementById("btn-download-png");
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gerando...`;
+            btn.disabled = true;
+
+            try {
+                const element = document.getElementById("flyer-a4-preview");
+                const canvas = await html2canvas(element, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+                const link = document.createElement("a");
+                link.download = "Flyer_Divulgacao.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao gerar a imagem do Flyer.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function closeFlyerModal() {
+            document.getElementById("modal-flyer-divulgacao").classList.add("hidden");
+        }
+
+        // Abrir Modal de Flyer A4 de Divulgação
+        btnDownloadQrcodeBtn.addEventListener("click", () => {
+            openFlyerModal();
+        });
+
+        document.getElementById("btn-close-flyer").addEventListener("click", () => {
+            closeFlyerModal();
+        });
+
+        // Finalizar Wizard e Direcionar para Dashboard
+        btnFinishWizardBtn.addEventListener("click", () => {
+            window.location.href = `./dashboard.html?empresa=${createdCompanyId}`;
+        });
+
+    </script>
+</body>
+</html>
