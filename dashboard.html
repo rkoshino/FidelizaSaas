@@ -633,30 +633,10 @@
                     </div>
                 </div>
 
-                <!-- Custom Premium Emoji Picker inside Dashboard Edit -->
-                <div class="flex flex-col gap-1 relative">
-                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
-                    <button type="button" id="edit-emoji-picker-btn" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-left text-white flex items-center justify-between transition focus:border-indigo-500">
-                        <span id="edit-selected-emoji-label">⭐</span>
-                        <i class="fa-solid fa-chevron-down text-slate-500 text-[10px]"></i>
-                    </button>
-                    <input type="hidden" id="edit-theme-emoji" value="⭐">
-                    
-                    <!-- Premium Emoji Picker Popover -->
-                    <div id="edit-emoji-picker-popover" class="hidden absolute top-[58px] left-0 w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl z-50 flex flex-col gap-3 glassmorphism max-h-[220px]">
-                        <!-- Categorias Tab -->
-                        <div class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800 shrink-0 text-base scrollbar-none justify-between w-full">
-                            <button type="button" id="edit-tab-emoji-popular" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold">🔥</button>
-                            <button type="button" id="edit-tab-emoji-food" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">🍕</button>
-                            <button type="button" id="edit-tab-emoji-smileys" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">😀</button>
-                            <button type="button" id="edit-tab-emoji-activities" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">⚽</button>
-                            <button type="button" id="edit-tab-emoji-objects" class="edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">💡</button>
-                        </div>
-                        <!-- Emojis Grid -->
-                        <div id="edit-emojis-grid-container" class="grid grid-cols-6 gap-2 overflow-y-auto text-xl py-1 justify-items-center">
-                            <!-- Emojis populated by JS -->
-                        </div>
-                    </div>
+                <div class="flex flex-col gap-1.5 relative">
+                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
+                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition text-center text-xl">
+                    <p class="text-[10px] text-slate-500 mt-1">Use o teclado para inserir 1 emoji.</p>
                 </div>
 
                 <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
@@ -1526,7 +1506,6 @@
             
             const currentEmoji = fullEmpresaData.visualConfig?.emoji || "⭐";
             document.getElementById("edit-theme-emoji").value = currentEmoji;
-            document.getElementById("edit-selected-emoji-label").innerText = currentEmoji;
             
             document.getElementById("modal-editar-campanha").classList.remove("hidden");
         };
@@ -1546,87 +1525,6 @@
             }
         });
 
-
-
-
-        // WhatsApp Style Emoji Picker for Edit modal
-        const editEmojiCategories = {
-            popular: [
-                "⭐", "🍕", "🍔", "☕", "🔥", "❤️", "🍺", "🍩", "🍦", "🚀", "💎", "🏆",
-                "🌟", "✨", "💥", "🎉", "🎈", "🎁", "🧁", "🍿", "🥤", "🍉", "🍓",
-                "🥇", "🎮", "🍔", "🍟", "🍕", "🍺", "🍷", "🍹", "🍩", "🧁", "🍭", "❤️"
-            ],
-            food: [
-                "🍕", "🍔", "🍟", "🌭", "🍿", "🍳", "🥞", "🧇", "🍞", "🥐", "🥨", "🥯",
-                "🧀", "🥗", "🥪", "🌮", "🌯", "🍣", "🍱", "🥟", "🍤", "🍙", "🍚",
-                "🍛", "🍜", "🍝", "🍩", "🍪", "🎂", "🍰", "🧁", "🥧", "🍫", "🍬",
-                "🍭", "🍮", "🍯", "🥛", "☕", "🍵", "🍶", "🍾", "🍷", "🍸", "🍹", "🍺",
-                "🍻", "🥂", "🥃", "🥤", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏",
-                "🍒", "🍓", "🍇", "🫐", "🥝", "🍅", "🥥", "🥑", "🍆", "🥕"
-            ],
-            smileys: [
-                "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃",
-                "😉", "😌", "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜",
-                "🤪", "🤨", "🧐", "🤓", "😎", "🥸", "🤩", "🥳", "😏", "😒", "😞", "😔",
-                "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭", "😤",
-                "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓"
-            ],
-            activities: [
-                "⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓",
-                "🏸", "🥅", "⛳", "🪁", "🎣", "🤿", "🥊", "🥋", "🎽", "🛹", "🛷", "🎿",
-                "🏂", "🏋️", "🤼", "🤸", "⛹️", "🤾", "🧗", "🧘", "🚴", "🏆", "🥇", "🥈",
-                "🥉", "🏅", "🎟️", "🎭", "🎨", "🎬", "🎤", "🎧", "🎮", "🎳", "🎲", "🧩"
-            ],
-            objects: [
-                "💡", "🔑", "🔒", "🔓", "🔨", "🪓", "⛏️", "🛠️", "🛡️", "🔧", "🔩", "⚙️",
-                "⚖️", "⛓️", "🔫", "💣", "🧨", "🔮", "💈", "🔭", "🔬", "🧳", "🌂", "☂️",
-                "🧹", "🧼", "🔑", "🗝️", "💎", "🛡️", "🔔", "🔕", "📣", "📢", "🎙️", "📻", "💾",
-                "💿", "🧮", "🧾", "📝", "📁", "📂", "📅", "📆", "📋", "📌", "📍", "📎",
-                "📏", "📐", "✂️", "🗑️", "🔒", "🛡️", "🕯️", "💡", "🏮",
-                "📖", "📕", "📘", "📚", "📓", "💵", "🪙", "💳", "✉️", "📦", "🚗", "🚀"
-            ]
-        };
-
-        const editEmojiPickerBtn = document.getElementById("edit-emoji-picker-btn");
-        const editEmojiPickerPopover = document.getElementById("edit-emoji-picker-popover");
-        const editSelectedEmojiLabel = document.getElementById("edit-selected-emoji-label");
-        const editThemeEmojiInput = document.getElementById("edit-theme-emoji");
-        const editEmojisGridContainer = document.getElementById("edit-emojis-grid-container");
-
-        editEmojiPickerBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            editEmojiPickerPopover.classList.toggle("hidden");
-        });
-
-        document.addEventListener("click", (e) => {
-            if (!editEmojiPickerPopover.contains(e.target) && e.target !== editEmojiPickerBtn) {
-                editEmojiPickerPopover.classList.add("hidden");
-            }
-        });
-
-        window.loadEditEmojiCategory = function(category) {
-            editEmojisGridContainer.innerHTML = "";
-            const list = editEmojiCategories[category] || [];
-            list.forEach(emoji => {
-                const el = document.createElement("button");
-                el.type = "button";
-                el.className = "hover:scale-125 transition active:scale-95 p-1 select-none cursor-pointer";
-                el.innerText = emoji;
-                el.addEventListener("click", () => {
-                    editThemeEmojiInput.value = emoji;
-                    editSelectedEmojiLabel.innerText = emoji;
-                    editEmojiPickerPopover.classList.add("hidden");
-                });
-                editEmojisGridContainer.appendChild(el);
-            });
-
-            document.querySelectorAll(".edit-emoji-tab-btn").forEach(btn => {
-                btn.className = "edit-emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold";
-            });
-            const activeTab = document.getElementById(`edit-tab-emoji-${category}`);
-            if (activeTab) {
-                activeTab.className = "edit-emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold";
-            }
         };
 
         document.getElementById("edit-tab-emoji-popular").addEventListener("click", () => loadEditEmojiCategory("popular"));
