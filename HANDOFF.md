@@ -5,6 +5,34 @@
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
 > Última atualização: 2026-06-16.
 
+## 📚 Documentação do projeto (comece aqui)
+
+Toda a documentação interna fica em **`docs/`** (e NÃO é servida no hosting — ver
+nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap atual:
+
+1. **`docs/RELATORIO_FINAL.md`** — visão master que cruza a auditoria de design com o
+   review do CEO. **É o melhor ponto de partida.** Tem o mapa de ~40 problemas (IDs
+   `B-01`, `M-01`, `$-03`…) e as **5 decisões estratégicas pendentes do CEO**.
+2. **`docs/PLANO_EXECUCAO.md`** — o plano operacional em 6 ondas (0 a 5), com tarefas,
+   critério de aceite, estimativa e dependências. **É o que executar.**
+3. **`docs/TAREFAS_CEO.md`** — backlog do review do CEO (checkboxes rastreáveis).
+4. **`docs/RELATORIO_DESIGN.md`** — auditoria de design detalhada, tela a tela.
+5. **`docs/PLANO_BILLING.md`** — contrato de billing Asaas/PIX (referência técnica).
+6. **`docs/PLANO_ACAO.md`** — plano antigo de refatoração de pontos (histórico, concluído;
+   restam só itens de segurança: App Check e expor branding público — ver §6 dele).
+
+> **Próxima sessão — onde retomar:** a auditoria + o plano estão prontos e aguardando
+> o CEO aprovar e responder as **5 decisões** da §5 do `RELATORIO_FINAL.md`
+> (preço oficial, marca única, tema do app, Apple/Facebook no MVP, login do cliente).
+> A **Onda 0** (bugs P0, incl. `B-01`/CAD-05 = erro de permissions ao finalizar cadastro)
+> **não depende dessas decisões e pode começar já.**
+
+> **⚠️ Segurança de hosting (corrigido nesta sessão):** o `firebase.json` usava
+> `"public": "."` e servia a raiz inteira — `HANDOFF.md` e outros `.md` ficavam
+> **públicos** em `tempontinho.com/<arquivo>.md`. Adicionado `"**/*.md"` e `"docs/**"`
+> ao `ignore` do hosting. **Faça `firebase deploy --only hosting` para a correção valer
+> em produção** (até lá, o HANDOFF antigo ainda pode estar acessível no ar).
+
 ## O que é o projeto
 
 **Tem Pontinho** — SaaS de cartão fidelidade digital (pontos/carimbos) para
@@ -58,15 +86,17 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
   (`statusAssinatura`, `trialEndDate`, `asaasCustomerId`, `asaasSubscriptionId`,
   `proximoVencimento`, `totalPremiosEntregues`) — só Admin SDK/webhook. (Antes o
   dono conseguia se auto-promover a Pro — furo corrigido.)
-- **Contrato completo:** ver `PLANO_BILLING.md`. **Plano de refatoração:** `PLANO_ACAO.md`.
+- **Contrato completo:** ver `docs/PLANO_BILLING.md`. **Plano de refatoração:** `docs/PLANO_ACAO.md`.
 
 ## Secrets (Secret Manager) — já configurados
 
 - `ASAAS_API_KEY` — chave de **produção** do Asaas. ⚠️ **Foi exposta em texto puro
   numa conversa anterior — precisa ser rotacionada** (tarefa do dono no painel Asaas;
   depois é só rodar `firebase functions:secrets:set ASAAS_API_KEY` e redeploy das functions).
-- `ASAAS_WEBHOOK_TOKEN` — gerado nesta sessão: `4045dc7be7f96c8bd7d3d9e752dd9f4702bbe76bf536dad8`
-  (mesmo valor deve estar no painel Asaas como token do webhook).
+- `ASAAS_WEBHOOK_TOKEN` — armazenado no Secret Manager (valor REMOVIDO deste doc por
+  segurança — estava em texto puro num arquivo que era servido publicamente). Para
+  recuperar o valor: `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`.
+  O mesmo valor deve estar no painel Asaas como token do webhook.
 
 ## Auth (corrigido nesta sessão)
 
@@ -116,7 +146,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [ ] **Configurar o webhook no painel Asaas** (responsável: sócio). Em
       Configurações → Integrações → Webhooks:
       URL = `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`;
-      Token = `4045dc7be7f96c8bd7d3d9e752dd9f4702bbe76bf536dad8`;
+      Token = valor de `ASAAS_WEBHOOK_TOKEN` (rodar `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`);
       Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/
       inativação de assinatura. (Status atual: provavelmente AINDA NÃO feito.)
 - [ ] **Rotacionar a chave de produção do Asaas** (foi exposta). Gerar nova no painel
@@ -139,8 +169,12 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       desejado), redeploy. Testar que o app continua logando.
 - [ ] **Limpeza:** apagar imagens de build do GCR que geram aviso de custo
       (`https://console.cloud.google.com/gcr/images/nice-dreamks-fidelidade/us/gcf`).
+- [ ] **Executar o roadmap de design/produto:** seguir `docs/PLANO_EXECUCAO.md` por ondas
+      (começar pela Onda 0 — bugs P0, incl. `B-01`/CAD-05). Marcar progresso em
+      `docs/TAREFAS_CEO.md`.
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
-      prod), PWA/manifest, auditoria de acessibilidade, atualizar `AI_CONTEXT.md`/`README`.
+      prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
+      manter o `README` atualizado.
 - [ ] **(Opcional)** adicionar `www.tempontinho.com` como domínio próprio no Hosting se
       quiser servir direto em vez do 301.
 
@@ -152,3 +186,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] Rebrand Tem Pontinho; domínio + SSL; preço R$10
 - [x] Fix do loop de login mobile (authDomain → tempontinho.com)
 - [x] Tudo deployado e mergeado no `main`
+- [x] **Auditoria de design completa** (web + mobile) → `docs/RELATORIO_DESIGN.md`
+- [x] **Review do CEO organizado em backlog** → `docs/TAREFAS_CEO.md`
+- [x] **Relatório master + plano de execução em ondas** → `docs/RELATORIO_FINAL.md` + `docs/PLANO_EXECUCAO.md`
+- [x] **Organização da pasta:** docs movidos para `docs/`; `AI_CONTEXT.md` (desatualizado)
+      e `PLANO_ACAO_DESIGN.md` (redundante) removidos; hosting deixou de servir `.md`;
+      token do webhook removido do HANDOFF (estava em texto puro num doc público)

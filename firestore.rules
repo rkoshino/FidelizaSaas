@@ -39,7 +39,7 @@ service cloud.firestore {
     // --- Empresas (tenants) ---
     // Leitura pública para o app do cliente renderizar branding (cor, emoji,
     // título, prêmio, meta, link). Dívida técnica: idealmente expor só um
-    // subdocumento público — ver PLANO_ACAO.md §6.
+    // subdocumento público — ver docs/PLANO_ACAO.md §6.
     match /empresas/{empresaId} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == empresaId;

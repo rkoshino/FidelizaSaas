@@ -15,9 +15,8 @@
       "**/.*",
       "**/node_modules/**",
       "functions/**",
-      "PLANO_ACAO.md",
-      "AI_CONTEXT.md",
-      "README.md",
+      "**/*.md",
+      "docs/**",
       "check.js",
       "check2.js"
     ],
