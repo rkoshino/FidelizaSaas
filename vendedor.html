@@ -362,7 +362,9 @@
                             document.getElementById("app-screen").classList.remove("hidden");
                             document.getElementById("vendedor-nome").innerText = vData.nomeVendedor;
                             
-                            // Inicializa scanner
+                            // Inicializa scanner — desmonta qualquer instância anterior
+                            // (relogin) antes de recriar, garantindo um #reader limpo (B-02).
+                            await teardownScanner();
                             html5QrcodeScanner = new Html5Qrcode("reader");
                             return;
                         }
@@ -377,6 +379,8 @@
                     await logoutUser();
                 }
             } else {
+                // Deslogado: desmonta o scanner para liberar a câmera e limpar o #reader (B-02).
+                await teardownScanner();
                 document.getElementById("login-screen").classList.remove("hidden");
                 document.getElementById("app-screen").classList.add("hidden");
             }
@@ -442,9 +446,8 @@
 
         // Logout
         document.getElementById("btn-logout").addEventListener("click", async () => {
-            if (isScannerRunning) {
-                await stopScanner();
-            }
+            // B-02: desmonta totalmente (stop + clear) antes de deslogar.
+            await teardownScanner();
             await logoutUser();
         });
 
@@ -484,16 +487,37 @@
 
         async function stopScanner() {
             if (!html5QrcodeScanner || !isScannerRunning) return;
-            
+
             btnStart.disabled = false;
             btnStop.disabled = true;
             statusDot.className = "w-2 h-2 rounded-full bg-slate-600";
-            
+
             try {
                 await html5QrcodeScanner.stop();
                 isScannerRunning = false;
             } catch (err) {
                 console.error(err);
+            }
+        }
+
+        // B-02: desmonta o scanner por completo (stop + clear + libera a instância).
+        // Sem isto, ao relogar criávamos um novo Html5Qrcode sobre o <div id="reader">
+        // que ainda continha o vídeo/canvas da sessão anterior → tela preta.
+        async function teardownScanner() {
+            if (!html5QrcodeScanner) return;
+            try {
+                if (isScannerRunning) {
+                    await html5QrcodeScanner.stop();
+                }
+                await html5QrcodeScanner.clear(); // remove o vídeo/canvas do #reader
+            } catch (err) {
+                console.error("Erro ao desmontar o scanner:", err);
+            } finally {
+                isScannerRunning = false;
+                html5QrcodeScanner = null;
+                if (btnStart) btnStart.disabled = false;
+                if (btnStop) btnStop.disabled = true;
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-slate-600";
             }
         }
 
@@ -631,6 +655,11 @@
                 if (selectPointsQty) selectPointsQty.value = "1";
             } catch (err) {
                 console.error("Erro ao processar pontos: ", err);
+                // B-03: a leitura falhou (ex.: cliente sem cartão ativo). Limpa o painel
+                // para que a caixa de prêmio do cliente ANTERIOR não fique pendurada na tela.
+                panelClienteId = null;
+                if (clientPanel) clientPanel.classList.add("hidden");
+                updatePrizeBox(0);
                 const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
                 if (isInativa) {
                     showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");

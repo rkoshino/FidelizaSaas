@@ -21,11 +21,18 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 6. **`docs/PLANO_ACAO.md`** — plano antigo de refatoração de pontos (histórico, concluído;
    restam só itens de segurança: App Check e expor branding público — ver §6 dele).
 
-> **Próxima sessão — onde retomar:** a auditoria + o plano estão prontos e aguardando
-> o CEO aprovar e responder as **5 decisões** da §5 do `RELATORIO_FINAL.md`
-> (preço oficial, marca única, tema do app, Apple/Facebook no MVP, login do cliente).
-> A **Onda 0** (bugs P0, incl. `B-01`/CAD-05 = erro de permissions ao finalizar cadastro)
-> **não depende dessas decisões e pode começar já.**
+> **Próxima sessão — onde retomar:** as **5 decisões do CEO foram respondidas** (registradas
+> em `docs/PLANO_EXECUCAO.md §0`): preço **R$ 19,90/mês + 1º mês grátis**; logo **on hold**
+> (padronizar placeholder atual, tarefa do logo em aberto); tema **claro** (paleta a decidir);
+> auth **só Google + e-mail** (+ pedido de um meio de testar cadastro sem criar e-mail novo —
+> `T-DEV`, baixa prioridade); cartão do cliente **mínimo de movimentos**. Mandato-mestra do CEO:
+> *"MVP mínimo e completo funcional antes de luxos."*
+>
+> **A Onda 0 (bugs P0) está CONCLUÍDA nesta sessão** (B-01, B-02, B-03, B-04, $-04, B-07 — ver
+> `docs/TAREFAS_CEO.md` e `docs/PLANO_EXECUCAO.md`). Verificada por análise de regras + syntax-check
+> dos módulos. **Falta:** teste runtime ponta a ponta (câmera/scan/re-signup) — depende do `T-DEV`.
+> **Próximo:** Fase B = reconciliar preço para R$ 19,90 (inclui `functions/billing.js`, hoje R$10),
+> depois Onda 1 (mobile). Sequência completa em `docs/PLANO_EXECUCAO.md`.
 
 > **⚠️ Segurança de hosting (corrigido nesta sessão):** o `firebase.json` usava
 > `"public": "."` e servia a raiz inteira — `HANDOFF.md` e outros `.md` ficavam

@@ -971,16 +971,20 @@
 
                 const finalSlug = step2CustomSlugInput.value.trim();
 
-                // Atualiza o Firestore (Cria/Sobrescreve com os dados oficiais)
-                await setDoc(empresaRef, {
+                // B-01: os campos de billing (statusAssinatura/trialEndDate) são
+                // protegidos pelas regras (camposProtegidosIntactos) e só podem ser
+                // gravados na CRIAÇÃO do doc — nunca num update via client. Se a
+                // empresa já existe (re-onboarding / login com conta existente),
+                // omitimos esses campos para o setDoc passar como update válido.
+                const existingSnap = await getDoc(empresaRef);
+                const isFirstCreate = !existingSnap.exists();
+
+                const empresaData = {
                     nomeEmpresa: step2CompanyNameInput.value.trim(),
                     emailComercial: loggedUser?.email || "",
                     donoUid: createdCompanyId,
-                    dataCadastro: new Date(),
-                    statusAssinatura: "trial",
-                    trialEndDate: trialEnd,
                     linkUnicoCliente: finalSlug,
-                    slugsAntigos: [],
+                    slugsAntigos: existingSnap.data()?.slugsAntigos || [],
                     metaConfig: {
                         metaPontos: metaPontos,
                         descriçãoPremio: descriçãoPremio
@@ -992,7 +996,17 @@
                         logoUrl: "",
                         emoji: emoji
                     }
-                }, { merge: true });
+                };
+
+                // Só na criação: trial (1º mês grátis) + carimbo de cadastro.
+                if (isFirstCreate) {
+                    empresaData.dataCadastro = new Date();
+                    empresaData.statusAssinatura = "trial";
+                    empresaData.trialEndDate = trialEnd;
+                }
+
+                // Cria (com trial) ou atualiza (sem tocar nos campos de billing).
+                await setDoc(empresaRef, empresaData, { merge: true });
 
                 // Recupera documento atualizado para obter o linkUnicoCliente
                 const docSnap = await getDoc(empresaRef);

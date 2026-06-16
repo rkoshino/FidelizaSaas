@@ -50,13 +50,15 @@
   A caixa de prêmio deve aparecer **entre o QR code e os pontos**.
   **Aceite:** ordem visual = QR → caixa de prêmio → pontos. _(Depende de VEND-01.)_
 
-- [ ] **VEND-03 · 🐛 P1 — Caixa de prêmio não some após pontuar**
+- [x] **VEND-03 (B-03) · 🐛 P1 — Caixa de prêmio não some após pontuar** ✅ 2026-06-16
   Repro do CEO: completei 1 cartão → mensagem de prêmio apareceu → li o QR → cartão ganhou pontos → **a caixa não sumiu**.
   **Aceite:** após um scan que pontua/zera o cartão, o estado de prêmio é reavaliado e a caixa some/atualiza sozinha (sem refresh manual).
+  **Resolução:** o caminho feliz (awardPoints) já reavaliava `premiosPendentes`; o real defeito era o caminho de **erro** (scan de cliente sem cartão ativo → `not-found`) que não limpava o painel, deixando a caixa do cliente anterior pendurada. `vendedor.html`: catch de `processPointAward` agora limpa painel + `updatePrizeBox(0)`. _Verificado: sintaxe OK; teste em device com câmera pendente (precisa T-DEV)._
 
-- [ ] **VEND-04 · 🐛 P1 — Câmera escura ao relogar**
+- [x] **VEND-04 (B-02) · 🐛 P1 — Câmera escura ao relogar** ✅ 2026-06-16
   Ao logar de novo no site do vendedor, a câmera ficou escura.
-  **Aceite:** reabrir/relogar reinicia o stream da câmera corretamente; sem tela preta. _(Investigar reuso de stream do html5-qrcode após logout/login.)_
+  **Aceite:** reabrir/relogar reinicia o stream da câmera corretamente; sem tela preta.
+  **Resolução:** `vendedor.html`: nova `teardownScanner()` (stop + clear + libera instância) chamada no logout, no estado deslogado e antes de recriar o `Html5Qrcode` no login. Antes recriávamos sobre um `#reader` com vídeo/canvas órfãos → tela preta. _Verificado: sintaxe OK; teste em device com câmera pendente._
 
 - [ ] **VEND-05 · ✨ P1 — Aviso de fim do mês grátis (vendedor)**
   Mensagem mostrando **quantos dias faltam** para o mês grátis acabar, **com link para comprar o plano**.
@@ -107,9 +109,11 @@
   **Aceite:** título/descrição da etapa 2 com esse texto.
 
 ### Parte 3 do cadastro
-- [ ] **CAD-05 · ⚙️ P0 — Erro ao finalizar: "missing or insufficient permissions"** ⚠️ bloqueante
+- [x] **CAD-05 (B-01) · ⚙️ P0 — Erro ao finalizar: "missing or insufficient permissions"** ✅ 2026-06-16
   Ao clicar para finalizar o cadastro, erro "Erro ao salvar, missing or insufficient permissions".
-  **Aceite:** cadastro finaliza sem erro; gravação respeita `firestore.rules`. _(Investigar regras de escrita do doc da empresa/onboarding — provável regra negando o create/update na conclusão.)_
+  **Aceite:** cadastro finaliza sem erro; gravação respeita `firestore.rules`.
+  **Causa raiz:** `onboarding.html:975` gravava `statusAssinatura`/`trialEndDate` (campos protegidos por `camposProtegidosIntactos`) **incondicionalmente** com `setDoc(merge)`. No 1º signup o doc não existe → `create` (permitido). Mas ao **reentrar** (login com conta já existente ou re-onboarding — justamente o que acontece ao testar repetidamente com o mesmo e-mail) o doc já existe → vira `update` que reescreve `trialEndDate` → **negado**. O doc ID já era o `uid` (hipótese do slug descartada).
+  **Resolução:** só grava os campos de billing quando `isFirstCreate` (doc inexistente); no update, omite-os. Sem necessidade de deploy de Functions. _Verificado: rules + imports OK; teste runtime de re-signup depende do T-DEV (e-mail reutilizável)._
 
 - [ ] **CAD-06 · 🎨 P2 — Pré-preencher "Título da Página" com o nome da empresa**
   O campo já deve vir com o nome da empresa; a pessoa muda se quiser.

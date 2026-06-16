@@ -807,7 +807,8 @@
             where, 
             getDocs, 
             logoutUser,
-            onSnapshot
+            onSnapshot,
+            deleteDoc
         } from "./config.js?v=2";
         import { setPoints, awardPoints, removePoint, createSubscription } from "./points-api.js?v=2";
 
@@ -844,6 +845,7 @@
         let currentAjusteAction = "add"; // add, remove, zero
         let metaCampanha = 10;
         let visualConfig = {};
+        let writesBlocked = false; // $-04: estado do paywall (reaplica em re-renders)
         let fullEmpresaData = null;
         let qrCodeFlyerInstance = null;
 
@@ -1066,6 +1068,9 @@
                 document.getElementById("stat-total-clientes").innerText = totalClientes;
                 document.getElementById("stat-total-pontos").innerText = totalPontos;
                 document.getElementById("stat-premios-disponiveis").innerText = premiosDisponiveis;
+
+                // $-04: reaplica o paywall aos botões recém-renderizados da tabela.
+                setWriteButtonsDisabled(writesBlocked);
             });
 
             // Escuta Vendedores
@@ -1112,6 +1117,9 @@
                         </div>
                     `;
                 }
+
+                // $-04: reaplica o paywall ao botão "Remover" recém-renderizado.
+                setWriteButtonsDisabled(writesBlocked);
             });
         }
 
@@ -1531,8 +1539,36 @@
         ];
 
         function setWriteButtonsDisabled(disabled) {
-            // Botões de ajuste/zerar na tabela de clientes (gerados dinamicamente)
-            document.querySelectorAll("[onclick^='openAjustarModal'], [onclick^='resetClientePontos'], [onclick^='openBulkAjustarModal'], [onclick^='bulkResetPoints']").forEach(btn => {
+            // $-04: bloqueia TODAS as ações de escrita quando a assinatura está inativa.
+            // Exceção deliberada: o fluxo de assinatura/PIX (btn-pix-submit e o CTA
+            // "Pagar com PIX") permanece ativo — é justamente o que regulariza a conta.
+            writesBlocked = disabled;
+
+            // onclick-based — inclui botões gerados dinamicamente (tabela de clientes
+            // e lista de vendedores), por isso esta função é reaplicada após cada render.
+            const onclickSelectors = [
+                "[onclick^='openAjustarModal']",        // Ajustar pontos
+                "[onclick^='resetClientePontos']",      // Zerar pontos
+                "[onclick^='openBulkAjustarModal']",    // Ajuste em massa
+                "[onclick^='bulkResetPoints']",         // Zerar em massa
+                "[onclick^='openEditarCampanhaModal']", // Editar Regras
+                "[onclick^='openAddVendedorModal']",    // Novo Vendedor
+                "[onclick^='deletarVendedor']"          // Remover vendedor (dinâmico)
+            ].join(", ");
+
+            // id-based — botões estáticos de escrita.
+            const idButtons = [
+                "btn-save-company-slug",         // Salvar Link (slug)
+                "btn-delete-controller-account", // Apagar conta (LGPD)
+                "btn-confirm-ajuste"             // Confirmar ajuste no modal
+            ];
+
+            const els = [
+                ...document.querySelectorAll(onclickSelectors),
+                ...idButtons.map(id => document.getElementById(id)).filter(Boolean)
+            ];
+
+            els.forEach(btn => {
                 btn.disabled = disabled;
                 if (disabled) {
                     btn.title = "Assinatura inativa — regularize para continuar operando";
@@ -1542,12 +1578,6 @@
                     btn.classList.remove("opacity-40", "cursor-not-allowed");
                 }
             });
-            // Botão de confirmar ajuste no modal
-            const btnConfirm = document.getElementById("btn-confirm-ajuste");
-            if (btnConfirm && disabled) {
-                btnConfirm.disabled = true;
-                btnConfirm.title = "Assinatura inativa";
-            }
         }
 
         // --- Gerenciamento Visual de Abas ---
