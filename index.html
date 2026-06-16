@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FidelizaSaaS - A Evolução do Cartão Fidelidade</title>
+    <title>Tem Pontinho - A Evolução do Cartão Fidelidade</title>
+    <meta name="description" content="Tem pontinho? O fim do cartão de papel. O Tem Pontinho leva o cartão de fidelidade direto para o celular do seu cliente.">
+    <link rel="canonical" href="https://tempontinho.com/">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tem Pontinho">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:url" content="https://tempontinho.com/">
+    <meta property="og:title" content="Tem Pontinho - A Evolução do Cartão Fidelidade">
+    <meta property="og:description" content="Tem pontinho? O fim do cartão de papel. O cartão de fidelidade direto no celular do seu cliente.">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tem Pontinho - A Evolução do Cartão Fidelidade">
+    <meta name="twitter:description" content="Tem pontinho? O fim do cartão de papel. O cartão de fidelidade direto no celular do seu cliente.">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -97,7 +110,7 @@
                         </defs>
                     </svg>
                 </div>
-                <span class="text-2xl font-extrabold tracking-tight font-outfit text-slate-900">Fideliza<span class="text-indigo-600">SaaS</span></span>
+                <span class="text-2xl font-extrabold tracking-tight font-outfit text-slate-900">Tem <span class="text-indigo-600">Pontinho</span></span>
             </div>
 
             <!-- Navigation Actions -->
@@ -127,7 +140,7 @@
                 </h1>
                 
                 <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                    Pare de jogar dinheiro na gráfica toda semana para imprimir cartões que seus clientes perdem. Com o FidelizaSaaS, o cartão de pontos vai direto para o celular do cliente.
+                    Pare de jogar dinheiro na gráfica toda semana para imprimir cartões que seus clientes perdem. Com o Tem Pontinho, o cartão de pontos vai direto para o celular do cliente.
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center lg:justify-start">
@@ -218,7 +231,7 @@
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center max-w-2xl mx-auto mb-16">
                 <h2 class="text-3xl md:text-5xl font-bold font-outfit text-slate-900 mb-6">Tudo que você precisa em <span class="text-indigo-600">segundos</span>.</h2>
-                <p class="text-slate-600 text-lg">Deixe o trabalho pesado conosco. O FidelizaSaaS automatiza a retenção dos seus clientes com uma facilidade absurda.</p>
+                <p class="text-slate-600 text-lg">Deixe o trabalho pesado conosco. O Tem Pontinho automatiza a retenção dos seus clientes com uma facilidade absurda.</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -326,7 +339,7 @@
     <!-- Footer -->
     <footer class="py-12 border-t border-slate-200 mt-0 bg-white">
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-            <p>&copy; 2026 FidelizaSaaS. Feito para pequenos empreendedores brasileiros.</p>
+            <p>&copy; 2026 Tem Pontinho &middot; tempontinho.com. Feito para pequenos empreendedores brasileiros.</p>
             <div class="flex gap-6">
                 <a href="termos.html" class="hover:text-indigo-600 transition">Termos de Uso</a>
                 <a href="privacidade.html" class="hover:text-indigo-600 transition">Política de Privacidade</a>
@@ -352,14 +365,14 @@
             const banner = document.getElementById("cookie-banner");
             const btnAccept = document.getElementById("btn-accept-cookies");
             
-            if (!localStorage.getItem("fideliza_cookies_accepted")) {
+            if (!localStorage.getItem("tempontinho_cookies_accepted")) {
                 setTimeout(() => {
                     banner.classList.remove("translate-y-full");
                 }, 1000);
             }
 
             btnAccept.addEventListener("click", () => {
-                localStorage.setItem("fideliza_cookies_accepted", "true");
+                localStorage.setItem("tempontinho_cookies_accepted", "true");
                 banner.classList.add("translate-y-full");
             });
         });

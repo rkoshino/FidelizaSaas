@@ -1,0 +1,277 @@
+/**
+ * Tem Pontinho — Cloud Functions (lógica de pontos server-side).
+ *
+ * Toda mutação de pontos/prêmios passa por aqui. O client NUNCA escreve
+ * `pontos`/`premiosPendentes` direto no Firestore (ver firestore.rules).
+ * Isso fecha duas falhas críticas:
+ *   1. Cliente dar pontos a si mesmo (fraude).
+ *   2. Lojista A ler/editar clientes do Lojista B (vazamento PII / LGPD).
+ *
+ * Modelo de dados (multi-tenant, partição por empresa):
+ *   empresas/{empresaId}/clientes/{clienteId}  -> { nome, email, pontos, premiosPendentes, atualizadoEm }
+ *   empresas/{empresaId}/clientes/{clienteId}/logs/{logId} -> { tipo, qtd, vendedor, motivo, data }
+ */
+
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { setGlobalOptions } = require("firebase-functions/v2");
+const { initializeApp } = require("firebase-admin/app");
+const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
+
+initializeApp();
+const db = getFirestore();
+
+// Região Brasil. App Check temporariamente NÃO obrigatório para a fase de
+// teste (ainda não há site key reCAPTCHA configurado em config.js).
+// PENDÊNCIA PRÉ-LANÇAMENTO: registrar reCAPTCHA v3, preencher APP_CHECK_SITE_KEY
+// em config.js e voltar enforceAppCheck para true.
+setGlobalOptions({ region: "southamerica-east1", enforceAppCheck: false });
+
+const QTD_MAX = 50; // teto de pontos por scan (anti-abuso de client adulterado)
+
+/* ----------------------------- Helpers ----------------------------- */
+
+// Garante que o chamador é o DONO da empresa ou um VENDEDOR ativo dela.
+// Vendedor é resolvido pelo e-mail do token (a coleção `vendedores` é
+// chaveada por e-mail-slug, então a validação tem de ser server-side).
+async function assertAutorizado(request, empresaId) {
+  const auth = request.auth;
+  if (!auth) throw new HttpsError("unauthenticated", "Faça login para continuar.");
+
+  // Dono da empresa.
+  if (auth.uid === empresaId) return { papel: "dono", nome: "Dono" };
+
+  // Vendedor: precisa existir um doc em `vendedores` com o e-mail do token
+  // E vinculado a esta empresa.
+  const email = (auth.token && auth.token.email ? auth.token.email : "").toLowerCase();
+  if (email) {
+    const snap = await db
+      .collection("vendedores")
+      .where("email", "==", email)
+      .where("empresaId", "==", empresaId)
+      .limit(1)
+      .get();
+    if (!snap.empty) {
+      const v = snap.docs[0].data();
+      return { papel: "vendedor", nome: v.nomeVendedor || email };
+    }
+  }
+  throw new HttpsError("permission-denied", "Você não tem acesso a esta empresa.");
+}
+
+async function lerMeta(empresaId) {
+  const empSnap = await db.collection("empresas").doc(empresaId).get();
+  if (!empSnap.exists) throw new HttpsError("not-found", "Empresa não encontrada.");
+  const emp = empSnap.data();
+  const meta = Number(emp.metaConfig && emp.metaConfig.metaPontos);
+  if (!Number.isFinite(meta) || meta <= 0) {
+    throw new HttpsError("failed-precondition", "Meta de pontos da empresa está inválida.");
+  }
+  return { meta: Math.floor(meta), premio: (emp.metaConfig && emp.metaConfig.descriçãoPremio) || "Prêmio" };
+}
+
+function validarIds(empresaId, clienteId) {
+  if (typeof empresaId !== "string" || !empresaId) throw new HttpsError("invalid-argument", "empresaId inválido.");
+  if (typeof clienteId !== "string" || !clienteId) throw new HttpsError("invalid-argument", "clienteId inválido.");
+}
+
+function cartaoRef(empresaId, clienteId) {
+  return db.collection("empresas").doc(empresaId).collection("clientes").doc(clienteId);
+}
+
+/* ----------------------------- Callables ----------------------------- */
+
+/**
+ * awardPoints({ empresaId, clienteId, qtd }) — credita pontos com carry-over.
+ * total = pontos + qtd; premiosGanhos = floor(total/meta); pontos = total % meta.
+ * Transação atômica (evita lost update em double-scan).
+ */
+exports.awardPoints = onCall(async (request) => {
+  const { empresaId, clienteId } = request.data || {};
+  let { qtd } = request.data || {};
+  validarIds(empresaId, clienteId);
+  qtd = Math.floor(Number(qtd));
+  if (!Number.isFinite(qtd) || qtd < 1 || qtd > QTD_MAX) {
+    throw new HttpsError("invalid-argument", `qtd deve ser um inteiro entre 1 e ${QTD_MAX}.`);
+  }
+
+  const caller = await assertAutorizado(request, empresaId);
+  const { meta } = await lerMeta(empresaId);
+  const ref = cartaoRef(empresaId, clienteId);
+
+  const resultado = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new HttpsError("not-found", "Cartão do cliente não encontrado.");
+    const data = snap.data();
+    const pontosAtuais = Number(data.pontos) || 0;
+    const total = pontosAtuais + qtd;
+    const premiosGanhos = Math.floor(total / meta);
+    const pontosRestantes = total % meta;
+
+    tx.update(ref, {
+      pontos: pontosRestantes,
+      premiosPendentes: FieldValue.increment(premiosGanhos),
+      atualizadoEm: FieldValue.serverTimestamp(),
+    });
+    tx.set(ref.collection("logs").doc(), {
+      tipo: "carimbo",
+      qtd,
+      premiosGanhos,
+      vendedor: caller.nome,
+      data: FieldValue.serverTimestamp(),
+    });
+    return { pontos: pontosRestantes, premiosGanhos, meta };
+  });
+
+  // Lê o total de pendentes pós-transação para devolver ao client.
+  const after = await ref.get();
+  return { ...resultado, premiosPendentes: Number(after.data().premiosPendentes) || 0 };
+});
+
+/**
+ * deliverPrize({ empresaId, clienteId }) — entrega 1 prêmio pendente.
+ * Idempotente: exige premiosPendentes > 0; decrementa 1; incrementa o
+ * contador da empresa — tudo na mesma transação.
+ */
+exports.deliverPrize = onCall(async (request) => {
+  const { empresaId, clienteId } = request.data || {};
+  validarIds(empresaId, clienteId);
+  const caller = await assertAutorizado(request, empresaId);
+  const ref = cartaoRef(empresaId, clienteId);
+  const empRef = db.collection("empresas").doc(empresaId);
+
+  const premiosPendentes = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new HttpsError("not-found", "Cartão do cliente não encontrado.");
+    const pendentes = Number(snap.data().premiosPendentes) || 0;
+    if (pendentes <= 0) throw new HttpsError("failed-precondition", "Cliente não tem prêmios a entregar.");
+
+    tx.update(ref, { premiosPendentes: pendentes - 1, atualizadoEm: FieldValue.serverTimestamp() });
+    tx.update(empRef, { totalPremiosEntregues: FieldValue.increment(1) });
+    tx.set(ref.collection("logs").doc(), {
+      tipo: "resgate",
+      vendedor: caller.nome,
+      data: FieldValue.serverTimestamp(),
+    });
+    return pendentes - 1;
+  });
+
+  return { premiosPendentes };
+});
+
+/**
+ * removePoint({ empresaId, clienteId }) — correção do vendedor: -1 ponto (mín. 0).
+ */
+exports.removePoint = onCall(async (request) => {
+  const { empresaId, clienteId } = request.data || {};
+  validarIds(empresaId, clienteId);
+  const caller = await assertAutorizado(request, empresaId);
+  const ref = cartaoRef(empresaId, clienteId);
+
+  const pontos = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new HttpsError("not-found", "Cartão do cliente não encontrado.");
+    const atuais = Number(snap.data().pontos) || 0;
+    const novo = Math.max(0, atuais - 1);
+    tx.update(ref, { pontos: novo, atualizadoEm: FieldValue.serverTimestamp() });
+    tx.set(ref.collection("logs").doc(), { tipo: "remocao", vendedor: caller.nome, data: FieldValue.serverTimestamp() });
+    return novo;
+  });
+
+  return { pontos };
+});
+
+/**
+ * setPoints({ empresaId, clienteId, pontos, motivo }) — ajuste manual do DONO
+ * (com auditoria). Não aplica carry-over (é override administrativo).
+ */
+exports.setPoints = onCall(async (request) => {
+  const { empresaId, clienteId, motivo } = request.data || {};
+  let { pontos } = request.data || {};
+  validarIds(empresaId, clienteId);
+  if (request.auth.uid !== empresaId) {
+    throw new HttpsError("permission-denied", "Apenas o dono da empresa pode ajustar pontos manualmente.");
+  }
+  const { meta } = await lerMeta(empresaId);
+  pontos = Math.floor(Number(pontos));
+  if (!Number.isFinite(pontos) || pontos < 0 || pontos >= meta) {
+    throw new HttpsError("invalid-argument", `pontos deve ser inteiro entre 0 e ${meta - 1}.`);
+  }
+  const ref = cartaoRef(empresaId, clienteId);
+  await ref.update({
+    pontos,
+    atualizadoEm: FieldValue.serverTimestamp(),
+  });
+  await ref.collection("logs").doc().set({
+    tipo: "ajuste",
+    qtd: pontos,
+    motivo: typeof motivo === "string" ? motivo.slice(0, 200) : "",
+    data: FieldValue.serverTimestamp(),
+  });
+  return { pontos };
+});
+
+/**
+ * getCard({ empresaId, clienteId }) — leitura do cartão para o STAFF
+ * (dono/vendedor). Necessária porque o vendedor não é dono nem cliente e,
+ * pelas regras, não pode ler o doc do cartão diretamente.
+ */
+exports.getCard = onCall(async (request) => {
+  const { empresaId, clienteId } = request.data || {};
+  validarIds(empresaId, clienteId);
+  await assertAutorizado(request, empresaId);
+  const snap = await cartaoRef(empresaId, clienteId).get();
+  if (!snap.exists) return { exists: false };
+  const d = snap.data();
+  return {
+    exists: true,
+    nome: d.nome || "",
+    email: d.email || "",
+    pontos: Number(d.pontos) || 0,
+    premiosPendentes: Number(d.premiosPendentes) || 0,
+  };
+});
+
+/**
+ * findClient({ empresaId, email }) — busca o cliente por e-mail (fallback do
+ * vendedor quando não há QR). Resolve o uid server-side sem expor a base.
+ */
+exports.findClient = onCall(async (request) => {
+  const { empresaId, email } = request.data || {};
+  if (typeof empresaId !== "string" || !empresaId) throw new HttpsError("invalid-argument", "empresaId inválido.");
+  if (typeof email !== "string" || !email) throw new HttpsError("invalid-argument", "email inválido.");
+  await assertAutorizado(request, empresaId);
+
+  const emailNorm = email.toLowerCase().trim();
+  const q = await db.collection("clientes").where("email", "==", emailNorm).limit(1).get();
+  if (q.empty) return { found: false };
+
+  const clienteId = q.docs[0].id;
+  const cardSnap = await cartaoRef(empresaId, clienteId).get();
+  return {
+    found: true,
+    clienteId,
+    nome: q.docs[0].data().nome || "",
+    email: emailNorm,
+    temCartao: cardSnap.exists,
+    pontos: cardSnap.exists ? Number(cardSnap.data().pontos) || 0 : 0,
+    premiosPendentes: cardSnap.exists ? Number(cardSnap.data().premiosPendentes) || 0 : 0,
+  };
+});
+
+/**
+ * deleteMyData() — LGPD (direito ao esquecimento). Apaga todos os cartões do
+ * cliente logado (e seus logs) em todas as empresas + o perfil. O client não
+ * consegue apagar os cartões pelas regras, por isso é server-side.
+ * Obs.: requer índice de collection group para `clienteId` em `clientes`.
+ */
+exports.deleteMyData = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Faça login para continuar.");
+  const uid = request.auth.uid;
+
+  const cards = await db.collectionGroup("clientes").where("clienteId", "==", uid).get();
+  for (const docSnap of cards.docs) {
+    await db.recursiveDelete(docSnap.ref); // cartão + subcoleção logs
+  }
+  await db.recursiveDelete(db.collection("clientes").doc(uid));
+  return { deletedCards: cards.size };
+});

@@ -1,4 +1,4 @@
-# FidelizaSaaS: Plataforma SaaS de Fidelidade Digital Multi-tenant
+# Tem Pontinho: Plataforma SaaS de Fidelidade Digital Multi-tenant
 
 Esta é uma plataforma SaaS White-Label completa, altamente responsiva e portátil para fidelidade digital por pontos/carimbos. Ela permite que proprietários de empresas criem programas de fidelidade personalizados para seus clientes, e que atendentes autorizados possam ler os cartões via scanner de câmera do celular e dar pontos em tempo real.
 
@@ -35,12 +35,12 @@ Para que o MVP funcione com seu próprio banco de dados, siga as instruções ab
 
 ### 1. Criar o Projeto Firebase
 1. Acesse o [Console do Firebase](https://console.firebase.google.com/).
-2. Clique em **Adicionar Projeto** e dê um nome (ex: `FidelizaSaaS`).
+2. Clique em **Adicionar Projeto** e dê um nome (ex: `Tem Pontinho`).
 3. Siga os passos e clique em **Criar Projeto**.
 
 ### 2. Registrar um Web App
 1. Na tela inicial do seu projeto, clique no ícone **Web (</>)** para registrar um aplicativo.
-2. Dê o nome de `FidelizaSaaS Web` e clique em **Registrar app**.
+2. Dê o nome de `Tem Pontinho Web` e clique em **Registrar app**.
 3. Copie o bloco de configuração `firebaseConfig` gerado na tela.
 4. Abra o arquivo `config.js` e substitua o bloco `firebaseConfig` da linha 22 com os seus dados.
 

@@ -25,6 +25,7 @@ import {
     onSnapshot,
     increment
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
 // Configuração padrão do Firebase (White-label)
 // O usuário pode substituir este bloco pelas credenciais do seu próprio projeto Firebase
@@ -40,6 +41,20 @@ const firebaseConfig = {
 
 // Inicialização do Firebase
 const app = initializeApp(firebaseConfig);
+
+// App Check — protege as Cloud Functions contra chamadas feitas fora do app
+// (a config do Firebase é pública). Registre um site key reCAPTCHA v3 no
+// Console do Firebase (App Check) e cole abaixo. Enquanto estiver vazio, o
+// App Check fica DESATIVADO — e as callables (enforceAppCheck: true) vão
+// RECUSAR as chamadas até este passo ser concluído e o enforcement ativado.
+const APP_CHECK_SITE_KEY = ""; // TODO: colar o site key do reCAPTCHA v3
+if (APP_CHECK_SITE_KEY) {
+    initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(APP_CHECK_SITE_KEY),
+        isTokenAutoRefreshEnabled: true
+    });
+}
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 

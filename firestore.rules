@@ -1,96 +1,89 @@
 rules_version = '2';
-// Última atualização: Módulo Super Admin
+// Modelo multi-tenant: pontos particionados por empresa.
+// Mutação de pontos/prêmios é EXCLUSIVA das Cloud Functions (Admin SDK ignora
+// estas regras). O client só cria o cartão zerado e lê o que lhe pertence.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Função auxiliar: verifica se o usuário autenticado é um Super Admin
     function isSuperAdmin() {
       return request.auth != null &&
         exists(/databases/$(database)/documents/superadmins/$(request.auth.uid));
     }
 
-    // Regras para a Coleção de Empresas (Inquilinos/Tenants)
-    // Qualquer usuário (inclusive não logado) pode ler as configurações públicas para renderizar o app do cliente.
-    // Apenas o dono autenticado da empresa pode gravar ou editar suas configurações.
-    // Super admin pode ler qualquer empresa e fazer update (para bloquear/desbloquear).
+    // --- Empresas (tenants) ---
+    // Leitura pública para o app do cliente renderizar branding (cor, emoji,
+    // título, prêmio, meta, link). Dívida técnica: idealmente expor só um
+    // subdocumento público — ver PLANO_ACAO.md §6.
     match /empresas/{empresaId} {
-      allow read: if true; // público para renderizar o app do cliente
+      allow read: if true;
       allow create: if request.auth != null && request.auth.uid == empresaId;
-      allow update: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
-      allow delete: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
+      allow update, delete: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
+
+      // --- Cartão do cliente naquela empresa ---
+      // Lê: o dono da empresa ou o próprio cliente.
+      // Cria: só o próprio cliente, e SOMENTE zerado (auto-cadastro).
+      // Atualiza/Deleta: ninguém via client -> só Cloud Functions (Admin SDK).
+      match /clientes/{clienteId} {
+        allow read: if request.auth != null &&
+          (request.auth.uid == empresaId || request.auth.uid == clienteId || isSuperAdmin());
+        allow create: if request.auth != null &&
+          request.auth.uid == clienteId &&
+          request.resource.data.pontos == 0 &&
+          request.resource.data.premiosPendentes == 0;
+        allow update, delete: if false;
+
+        // Logs imutáveis (carimbos/resgates/ajustes). Só Functions gravam.
+        match /logs/{logId} {
+          allow read: if request.auth != null && (request.auth.uid == empresaId || isSuperAdmin());
+          allow write: if false;
+        }
+      }
     }
 
-    // Regras para a Coleção de Vendedores (Funcionários)
-    // O próprio vendedor ou o dono da empresa correspondente pode ler/escrever.
-    // Super admin pode ler e escrever qualquer vendedor.
+    // --- Perfil do consumidor (sem pontos) ---
+    // Só o próprio cliente lê/escreve. Pontos NÃO ficam aqui.
+    match /clientes/{clienteId} {
+      allow read, write: if request.auth != null && request.auth.uid == clienteId;
+    }
+
+    // --- Vendedores (chaveados por e-mail-slug) ---
+    // Criados/editados SOMENTE pelo dono da empresa (sem self-create arbitrário).
+    // Vendedor lê o próprio doc pelo e-mail do token.
     match /vendedores/{vendedorId} {
       allow read: if request.auth != null && (
-        request.auth.uid == vendedorId ||
         resource.data.empresaId == request.auth.uid ||
         (request.auth.token.email != null && resource.data.email == request.auth.token.email) ||
         isSuperAdmin()
       );
       allow create, update: if request.auth != null && (
-        request.auth.uid == vendedorId ||
         request.resource.data.empresaId == request.auth.uid ||
         isSuperAdmin()
       );
       allow delete: if request.auth != null && (
-        resource.data.empresaId == request.auth.uid ||
-        isSuperAdmin()
+        resource.data.empresaId == request.auth.uid || isSuperAdmin()
       );
     }
 
-    // Regras para a Coleção de Clientes
-    // Qualquer cliente logado pode ler e atualizar seu próprio perfil.
-    // Vendedores autenticados e donos de empresas também podem ler e atualizar perfis de clientes para gerenciar os pontos.
-    // Super admin pode ler e escrever qualquer cliente.
-    match /clientes/{clienteId} {
-      allow read: if request.auth != null && (
-        request.auth.uid == clienteId ||
-        exists(/databases/$(database)/documents/vendedores/$(request.auth.uid)) ||
-        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
-        isSuperAdmin()
-      );
-
-      // Permitir escrita se for o próprio cliente ou se a requisição vier de um vendedor ou empresário cadastrado.
-      allow write: if request.auth != null && (
-        request.auth.uid == clienteId ||
-        exists(/databases/$(database)/documents/vendedores/$(request.auth.uid)) ||
-        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
-        isSuperAdmin()
-      );
-    }
-
-    // Regras para a Coleção de Super Admins
-    // Só o próprio super admin pode ler seu doc (para o gate de segurança).
-    // Ninguém pode criar/editar via client SDK — apenas via Firebase Console ou Admin SDK.
+    // --- Super Admin ---
     match /superadmins/{adminId} {
       allow read: if request.auth != null && request.auth.uid == adminId;
       allow write: if false;
     }
 
-    // Regras para a Coleção de Logs do Sistema
-    // Apenas super admin pode ler.
-    // Empresas autenticadas e super admin podem criar logs.
-    // Ninguém pode editar ou deletar logs (imutabilidade).
+    // --- Logs do sistema ---
     match /systemLogs/{logId} {
       allow read: if isSuperAdmin();
       allow create: if request.auth != null && (
-        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
-        isSuperAdmin()
+        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) || isSuperAdmin()
       );
       allow update, delete: if false;
     }
 
-    // Regras para a Coleção de Comunicados
-    // Qualquer empresa autenticada pode ler (para exibir nos dashboards).
-    // Apenas super admin pode criar, atualizar e deletar comunicados.
+    // --- Comunicados ---
     match /comunicados/{comunicadoId} {
       allow read: if request.auth != null && (
-        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) ||
-        isSuperAdmin()
+        exists(/databases/$(database)/documents/empresas/$(request.auth.uid)) || isSuperAdmin()
       );
       allow create, update, delete: if isSuperAdmin();
     }

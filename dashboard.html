@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Empresário - FidelizaSaaS</title>
+    <title>Painel do Empresário - Tem Pontinho</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -84,7 +84,7 @@
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
                     <i class="fa-solid fa-gem text-white text-base"></i>
                 </div>
-                <span class="text-lg font-bold font-outfit text-white">FidelizaSaaS</span>
+                <span class="text-lg font-bold font-outfit text-white">Tem Pontinho</span>
             </div>
             
             <nav class="flex flex-col gap-1">
@@ -676,7 +676,7 @@
                         </div>
                     </div>
 
-                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by FidelizaSaaS</div>
+                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by Tem Pontinho</div>
                 </div>
             </div>
         </div>
@@ -721,9 +721,10 @@
             query, 
             where, 
             getDocs, 
-            logoutUser, 
-            onSnapshot 
+            logoutUser,
+            onSnapshot
         } from "./config.js?v=2";
+        import { setPoints, awardPoints, removePoint } from "./points-api.js?v=2";
 
         // Variáveis Locais
         let empresaId = "";
@@ -895,9 +896,8 @@
 
         // Assinatura em tempo real para Clientes e Vendedores
         function listenToData() {
-            // Escuta Clientes
-            // OBS: No Firestore, os pontos dos clientes estão no Map `pontosPerEmpresa[empresaId]`
-            const clientesQuery = query(collection(db, "clientes"));
+            // Escuta Clientes — subcoleção já escopada à empresa (multi-tenant)
+            const clientesQuery = collection(db, "empresas", empresaId, "clientes");
             onSnapshot(clientesQuery, (snapshot) => {
                 const tableBody = document.getElementById("clientes-table-body");
                 tableBody.innerHTML = "";
@@ -908,55 +908,54 @@
 
                 let hasClientes = false;
 
-                snapshot.forEach((doc) => {
-                    const client = doc.data();
-                    const clientId = doc.id;
-                    const pontos = client.pontosPerEmpresa?.[empresaId] || 0;
+                snapshot.forEach((docSnap) => {
+                    const client = docSnap.data();
+                    const clientId = docSnap.id;
+                    const pontos = client.pontos || 0;
+                    const premios = client.premiosPendentes || 0;
+                    const nome = client.nome || client.nomeCompleto || "Sem nome";
 
-                    // Filtrar apenas se o cliente tem pontos ou histórico nesta empresa
-                    if (client.pontosPerEmpresa && empresaId in client.pontosPerEmpresa) {
-                        hasClientes = true;
-                        totalClientes++;
-                        totalPontos += pontos;
-                        
-                        window.clientesDataMap = window.clientesDataMap || {};
-                        window.clientesDataMap[clientId] = client;
+                    hasClientes = true;
+                    totalClientes++;
+                    totalPontos += pontos;
 
-                        const isWin = pontos >= metaCampanha;
-                        if (isWin) premiosDisponiveis++;
+                    window.clientesDataMap = window.clientesDataMap || {};
+                    window.clientesDataMap[clientId] = client;
 
-                        const tr = document.createElement("tr");
-                        tr.className = "hover:bg-slate-900/30 transition duration-150";
-                        tr.innerHTML = `
-                            <td class="py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${client.nomeCompleto || 'Sem nome'}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
-                            <td class="py-4 px-6 font-medium text-white">${client.nomeCompleto || "Sem nome"}</td>
-                            <td class="py-4 px-6 text-slate-400">${client.email}</td>
-                            <td class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
-                            <td class="py-4 px-6 text-center">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
-                                    isWin 
-                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-                                        : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
-                                }">
-                                    ${isWin ? "Aguardando Prêmio" : "Acumulando"}
-                                </span>
-                            </td>
-                            <td class="py-4 px-6 text-right">
-                                <div class="flex gap-2 justify-end">
-                                    <button onclick="openHistoricoModal('${clientId}', '${client.nomeCompleto}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition" title="Ver Histórico">
-                                        <i class="fa-solid fa-list-ul"></i>
-                                    </button>
-                                    <button onclick="openAjustarModal('${clientId}', '${client.nomeCompleto}', '${client.email}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
-                                        Ajustar
-                                    </button>
-                                    <button onclick="resetClientePontos('${clientId}', '${client.nomeCompleto}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
-                                        Zerar
-                                    </button>
-                                </div>
-                            </td>
-                        `;
-                        tableBody.appendChild(tr);
-                    }
+                    const isWin = premios > 0;
+                    if (isWin) premiosDisponiveis += premios;
+
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-slate-900/30 transition duration-150";
+                    tr.innerHTML = `
+                        <td class="py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
+                        <td class="py-4 px-6 font-medium text-white">${nome}</td>
+                        <td class="py-4 px-6 text-slate-400">${client.email || ""}</td>
+                        <td class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
+                                isWin
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                    : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                            }">
+                                ${isWin ? `${premios} prêmio(s) a entregar` : "Acumulando"}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <div class="flex gap-2 justify-end">
+                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition" title="Ver Histórico">
+                                    <i class="fa-solid fa-list-ul"></i>
+                                </button>
+                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                    Ajustar
+                                </button>
+                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                    Zerar
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
                 });
 
                 if (!hasClientes) {
@@ -1026,45 +1025,56 @@
         // --- Modals e Funções de Escrita no Firestore ---
 
         // Abrir Modal de Histórico de Carimbos
-        window.openHistoricoModal = function(clientId, clientName) {
+        window.openHistoricoModal = async function(clientId, clientName) {
             document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
             const historicoLista = document.getElementById("historico-lista");
-            
-            const client = window.clientesDataMap?.[clientId];
-            if (!client) {
-                historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Dados não encontrados.</div>`;
-            } else {
-                const logsCarimbos = client[`logCarimbos_${empresaId}`] || [];
-                const logsResgates = client[`logResgastes_${empresaId}`] || []; // Para também mostrar resgates no futuro se quiser
-                
-                if (logsCarimbos.length === 0) {
-                    historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Nenhum carimbo registrado no histórico.</div>`;
-                } else {
-                    // Ordena do mais recente pro mais antigo
-                    const logsOrdenados = [...logsCarimbos].sort((a, b) => new Date(b.data) - new Date(a.data));
-                    
-                    historicoLista.innerHTML = logsOrdenados.map(log => {
-                        const dateObj = new Date(log.data);
-                        const dateStr = dateObj.toLocaleDateString('pt-BR');
-                        const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                        
-                        return `
-                            <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
-                                <div class="flex flex-col gap-1">
-                                    <span class="text-white font-medium"><i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.quantidade || 1} Ponto(s)</span>
-                                    <span class="text-slate-500 text-[10px]">Vendedor: ${log.vendedor || "Sistema"}</span>
-                                </div>
-                                <div class="text-right flex flex-col gap-0.5">
-                                    <span class="text-slate-300">${dateStr}</span>
-                                    <span class="text-slate-500 text-[10px]">${timeStr}</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join("");
-                }
-            }
-            
+            historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Carregando histórico...</div>`;
             document.getElementById("modal-historico").classList.remove("hidden");
+
+            try {
+                // Logs ficam na subcoleção do cartão (gravados pelas Cloud Functions)
+                const logsRef = collection(db, "empresas", empresaId, "clientes", clientId, "logs");
+                const snap = await getDocs(logsRef);
+
+                if (snap.empty) {
+                    historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Nenhum registro no histórico.</div>`;
+                    return;
+                }
+
+                const logs = snap.docs.map(d => d.data());
+                logs.sort((a, b) => (b.data?.toMillis?.() || 0) - (a.data?.toMillis?.() || 0));
+
+                historicoLista.innerHTML = logs.map(log => {
+                    const dateObj = log.data?.toDate ? log.data.toDate() : new Date();
+                    const dateStr = dateObj.toLocaleDateString('pt-BR');
+                    const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    const desc = log.tipo === "resgate"
+                        ? `<i class="fa-solid fa-gift text-yellow-400 mr-1.5"></i> Prêmio entregue`
+                        : log.tipo === "remocao"
+                        ? `<i class="fa-solid fa-minus text-red-400 mr-1.5"></i> -1 Ponto`
+                        : log.tipo === "ajuste"
+                        ? `<i class="fa-solid fa-pen text-amber-400 mr-1.5"></i> Ajuste manual (${log.qtd ?? 0})`
+                        : `<i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.qtd || 1} Ponto(s)`;
+                    const sub = log.motivo ? `Motivo: ${log.motivo}` : `Vendedor: ${log.vendedor || "Sistema"}`;
+
+                    return `
+                        <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-white font-medium">${desc}</span>
+                                <span class="text-slate-500 text-[10px]">${sub}</span>
+                            </div>
+                            <div class="text-right flex flex-col gap-0.5">
+                                <span class="text-slate-300">${dateStr}</span>
+                                <span class="text-slate-500 text-[10px]">${timeStr}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            } catch (err) {
+                console.error("Erro ao carregar histórico:", err);
+                historicoLista.innerHTML = `<div class="text-center text-red-400 py-6 text-xs">Erro ao carregar histórico.</div>`;
+            }
         };
 
         window.closeHistoricoModal = function() {
@@ -1172,76 +1182,35 @@
             btnConfirm.innerText = "Salvando...";
 
             try {
+                // Aplica o ajuste via Cloud Function (server-side, auditado):
+                //  add  -> awardPoints (carry-over + prêmio)
+                //  remove/zero -> setPoints (valor absoluto, com justificativa)
+                const aplicarAjusteCliente = async (cid, pontosAtuais) => {
+                    const qty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                    const motivo = justificativaInput.value.trim();
+                    if (currentAjusteAction === "add") {
+                        await awardPoints({ empresaId, clienteId: cid, qtd: qty });
+                    } else if (currentAjusteAction === "remove") {
+                        await setPoints({ empresaId, clienteId: cid, pontos: Math.max(0, pontosAtuais - qty), motivo });
+                    } else if (currentAjusteAction === "zero") {
+                        await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo });
+                    }
+                };
+
                 if (isBulkAjuste) {
                     for (const cid of targetClienteIds) {
-                        const clienteRef = doc(db, "clientes", cid);
-                        const docSnap = await getDoc(clienteRef);
-                        if (docSnap.exists()) {
-                            const clientData = docSnap.data();
-                            let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
-                            let novosPontos = pontosAtuais;
-
-                            if (currentAjusteAction === "add") {
-                                const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                                novosPontos += addQty;
-                            } else if (currentAjusteAction === "remove") {
-                                const remQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                                novosPontos = Math.max(0, novosPontos - remQty);
-                            } else if (currentAjusteAction === "zero") {
-                                novosPontos = 0;
-                            }
-
-                            const pontosMap = clientData.pontosPerEmpresa || {};
-                            pontosMap[empresaId] = novosPontos;
-
-                            await updateDoc(clienteRef, {
-                                pontosPerEmpresa: pontosMap,
-                                [`logAjustes_${empresaId}`]: (clientData[`logAjustes_${empresaId}`] || []).concat({
-                                    data: new Date(),
-                                    acao: currentAjusteAction,
-                                    quantidade: currentAjusteAction === "zero" ? pontosAtuais : parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1,
-                                    justificativa: justificativaInput.value.trim()
-                                })
-                            });
-                        }
+                        const atual = (window.clientesDataMap?.[cid]?.pontos) || 0;
+                        await aplicarAjusteCliente(cid, atual);
                     }
                     alert("Pontuação ajustada com sucesso para os clientes selecionados!");
                     const allCheckbox = document.getElementById("select-all-clients");
                     if (allCheckbox) allCheckbox.checked = false;
                     toggleSelectAll(allCheckbox);
                 } else {
-                    const clienteRef = doc(db, "clientes", targetClienteId);
-                    const docSnap = await getDoc(clienteRef);
-                    const clientData = docSnap.data();
-                    
-                    let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
-                    let novosPontos = pontosAtuais;
-
-                    if (currentAjusteAction === "add") {
-                        const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                        novosPontos += addQty;
-                    } else if (currentAjusteAction === "remove") {
-                        const remQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                        novosPontos = Math.max(0, novosPontos - remQty);
-                    } else if (currentAjusteAction === "zero") {
-                        novosPontos = 0;
-                    }
-
-                    const pontosMap = clientData.pontosPerEmpresa || {};
-                    pontosMap[empresaId] = novosPontos;
-
-                    await updateDoc(clienteRef, {
-                        pontosPerEmpresa: pontosMap,
-                        [`logAjustes_${empresaId}`]: (clientData[`logAjustes_${empresaId}`] || []).concat({
-                            data: new Date(),
-                            acao: currentAjusteAction,
-                            quantidade: currentAjusteAction === "zero" ? pontosAtuais : parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1,
-                            justificativa: justificativaInput.value.trim()
-                        })
-                    });
-
+                    const atual = (window.clientesDataMap?.[targetClienteId]?.pontos) || 0;
+                    await aplicarAjusteCliente(targetClienteId, atual);
                     alert("Pontuação ajustada com sucesso!");
-                    
+
                     if (currentAjusteAction === "add") {
                         const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
                         showEmojiFeedback(addQty);
@@ -1447,16 +1416,7 @@
             if (confirm(`Deseja realmente zerar a pontuação de ${ids.length} clientes selecionados nesta empresa?`)) {
                 try {
                     for (const cid of ids) {
-                        const clientRef = doc(db, "clientes", cid);
-                        const docSnap = await getDoc(clientRef);
-                        if (docSnap.exists()) {
-                            const clientData = docSnap.data();
-                            const pontosMap = clientData.pontosPerEmpresa || {};
-                            pontosMap[empresaId] = 0;
-                            await updateDoc(clientRef, {
-                                pontosPerEmpresa: pontosMap
-                            });
-                        }
+                        await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo: "Zerado em massa pelo painel" });
                     }
                     alert("Pontuação dos clientes selecionados zerada com sucesso!");
                     const allCheckbox = document.getElementById("select-all-clients");
@@ -1473,17 +1433,8 @@
         window.resetClientePontos = async function(clientId, clientName) {
             if (confirm(`Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`)) {
                 try {
-                    const clientRef = doc(db, "clientes", clientId);
-                    const docSnap = await getDoc(clientRef);
-                    if (docSnap.exists()) {
-                        const clientData = docSnap.data();
-                        const pontosMap = clientData.pontosPerEmpresa || {};
-                        pontosMap[empresaId] = 0;
-                        await updateDoc(clientRef, {
-                            pontosPerEmpresa: pontosMap
-                        });
-                        alert("Pontuação zerada com sucesso!");
-                    }
+                    await setPoints({ empresaId, clienteId: clientId, pontos: 0, motivo: "Zerado pelo painel" });
+                    alert("Pontuação zerada com sucesso!");
                 } catch (err) {
                     console.error(err);
                     alert("Erro ao zerar pontuação: " + err.message);

@@ -1,4 +1,4 @@
-# Contexto do Projeto FidelizaSaaS (Para IA)
+# Contexto do Projeto Tem Pontinho (Para IA)
 
 ## Visão Geral
 Este é um **SaaS de Fidelidade Multi-tenant (White-label)** focado em pequenos comerciantes (MEIs). O sistema é 100% web (PWA), eliminando a necessidade de clientes ou lojistas baixarem aplicativos nas lojas de app.
