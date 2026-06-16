@@ -52,6 +52,10 @@ export const findClient = call("findClient");
 // deleteMyData() -> { deletedCards }   LGPD: apaga cartões + perfil do cliente logado.
 export const deleteMyData = call("deleteMyData");
 
+// createSubscription({ empresaId, cpfCnpj, telefone? })
+//   -> { status, subscriptionId, value, pixCopiaECola, pixQrCodeBase64, invoiceUrl }
+export const createSubscription = call("createSubscription");
+
 /* ---- Leitura / cadastro (client-side, permitido pelas regras) ---- */
 
 function cardRef(empresaId, clienteId) {

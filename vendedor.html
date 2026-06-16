@@ -631,7 +631,12 @@
                 if (selectPointsQty) selectPointsQty.value = "1";
             } catch (err) {
                 console.error("Erro ao processar pontos: ", err);
-                showAlert("error", "Erro de Processamento", err.message || "Falha ao registrar pontos.");
+                const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
+                if (isInativa) {
+                    showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
+                } else {
+                    showAlert("error", "Erro de Processamento", err.message || "Falha ao registrar pontos.");
+                }
                 playSound("error");
             }
         }
@@ -691,7 +696,12 @@
                     updatePrizeBox(r.premiosPendentes);
                 } catch (err) {
                     console.error("Erro ao entregar prêmio:", err);
-                    showAlert("error", "Erro ao entregar", err.message || "Falha ao entregar o prêmio.");
+                    const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
+                    if (isInativa) {
+                        showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
+                    } else {
+                        showAlert("error", "Erro ao entregar", err.message || "Falha ao entregar o prêmio.");
+                    }
                     playSound("error");
                     btnDeliverPrize.disabled = false;
                 }

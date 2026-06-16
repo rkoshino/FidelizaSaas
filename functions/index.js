@@ -17,6 +17,8 @@ const { setGlobalOptions } = require("firebase-functions/v2");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 
+
+
 initializeApp();
 const db = getFirestore();
 
@@ -78,6 +80,36 @@ function cartaoRef(empresaId, clienteId) {
   return db.collection("empresas").doc(empresaId).collection("clientes").doc(clienteId);
 }
 
+/**
+ * assertAssinaturaAtiva(empresaId)
+ *
+ * Verifica se a empresa está autorizada a operar pontos (contrato §2):
+ *   - statusAssinatura === "active"
+ *   - OU statusAssinatura === "trial" E trialEndDate > agora
+ *
+ * Se bloqueada, lança HttpsError("failed-precondition", "ASSINATURA_INATIVA").
+ * Deve ser chamada dentro de awardPoints e deliverPrize após assertAutorizado.
+ */
+async function assertAssinaturaAtiva(empresaId) {
+  const empSnap = await db.collection("empresas").doc(empresaId).get();
+  if (!empSnap.exists) throw new HttpsError("not-found", "Empresa não encontrada.");
+  const emp = empSnap.data();
+  const status = emp.statusAssinatura || "trial";
+
+  if (status === "active") return; // liberada
+
+  if (status === "trial") {
+    const trialEnd = emp.trialEndDate; // Firestore Timestamp ou null
+    if (trialEnd) {
+      const trialEndMs = trialEnd.toMillis ? trialEnd.toMillis() : Number(trialEnd);
+      if (Date.now() < trialEndMs) return; // trial ainda válido
+    }
+  }
+
+  // Qualquer outro status (overdue, canceled) ou trial expirado → bloqueia
+  throw new HttpsError("failed-precondition", "ASSINATURA_INATIVA");
+}
+
 /* ----------------------------- Callables ----------------------------- */
 
 /**
@@ -95,6 +127,7 @@ exports.awardPoints = onCall(async (request) => {
   }
 
   const caller = await assertAutorizado(request, empresaId);
+  await assertAssinaturaAtiva(empresaId);
   const { meta } = await lerMeta(empresaId);
   const ref = cartaoRef(empresaId, clienteId);
 
@@ -136,6 +169,7 @@ exports.deliverPrize = onCall(async (request) => {
   const { empresaId, clienteId } = request.data || {};
   validarIds(empresaId, clienteId);
   const caller = await assertAutorizado(request, empresaId);
+  await assertAssinaturaAtiva(empresaId);
   const ref = cartaoRef(empresaId, clienteId);
   const empRef = db.collection("empresas").doc(empresaId);
 
@@ -275,3 +309,9 @@ exports.deleteMyData = onCall(async (request) => {
   await db.recursiveDelete(db.collection("clientes").doc(uid));
   return { deletedCards: cards.size };
 });
+
+/* ------------------------------------------------------------------ */
+/*  Billing (Asaas / PIX) — exportado do módulo billing.js             */
+/*  Nomes exportados: createSubscription, asaasWebhook                 */
+/* ------------------------------------------------------------------ */
+Object.assign(exports, require("./billing"));

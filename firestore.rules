@@ -11,6 +11,31 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/superadmins/$(request.auth.uid));
     }
 
+    // Garante que os campos de billing NÃO sejam alterados via client.
+    // Para cada campo: se ele NÃO está na request, tudo bem; se está, deve
+    // ser idêntico ao valor já gravado no documento (ou o documento ainda não
+    // tem o campo — nesse caso o client também não pode criá-lo via update).
+    //
+    // Padrão: !('X' in request.resource.data) || request.resource.data.X == resource.data.X
+    // Quando o campo não existe no doc atual (resource.data), o segundo termo
+    // nunca é true, então exigimos que ele também não apareça na request.
+    function camposProtegidosIntactos() {
+      let d = request.resource.data;
+      let r = resource.data;
+      // Para cada campo protegido:
+      //   • Se ausente na request → OK (o dono pode omiti-lo).
+      //   • Se presente na request E existia no doc → deve ser igual ao valor atual.
+      //   • Se presente na request E NÃO existia no doc → bloqueado (client não pode criá-lo).
+      return (
+        (!('statusAssinatura' in d) || ('statusAssinatura' in r && d.statusAssinatura == r.statusAssinatura))
+        && (!('trialEndDate' in d) || ('trialEndDate' in r && d.trialEndDate == r.trialEndDate))
+        && (!('asaasCustomerId' in d) || ('asaasCustomerId' in r && d.asaasCustomerId == r.asaasCustomerId))
+        && (!('asaasSubscriptionId' in d) || ('asaasSubscriptionId' in r && d.asaasSubscriptionId == r.asaasSubscriptionId))
+        && (!('proximoVencimento' in d) || ('proximoVencimento' in r && d.proximoVencimento == r.proximoVencimento))
+        && (!('totalPremiosEntregues' in d) || ('totalPremiosEntregues' in r && d.totalPremiosEntregues == r.totalPremiosEntregues))
+      );
+    }
+
     // --- Empresas (tenants) ---
     // Leitura pública para o app do cliente renderizar branding (cor, emoji,
     // título, prêmio, meta, link). Dívida técnica: idealmente expor só um
@@ -18,7 +43,11 @@ service cloud.firestore {
     match /empresas/{empresaId} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == empresaId;
-      allow update, delete: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
+      // SuperAdmin pode tudo. Dono pode atualizar, mas não pode alterar campos
+      // protegidos de billing (esses campos só mudam via Admin SDK / Cloud Functions).
+      allow update: if isSuperAdmin() ||
+        (request.auth != null && request.auth.uid == empresaId && camposProtegidosIntactos());
+      allow delete: if (request.auth != null && request.auth.uid == empresaId) || isSuperAdmin();
 
       // --- Cartão do cliente naquela empresa ---
       // Lê: o dono da empresa ou o próprio cliente.
