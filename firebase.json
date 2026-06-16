@@ -1,13 +1,25 @@
 {
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
   },
   "hosting": {
+    "site": "nice-dreamks-fidelidade",
     "public": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "functions/**",
+      "PLANO_ACAO.md",
+      "AI_CONTEXT.md",
+      "README.md",
+      "check.js",
+      "check2.js"
     ],
     "headers": [
       {

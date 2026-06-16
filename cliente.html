@@ -155,21 +155,21 @@
                 </div>
             </div>
 
-            <!-- Victory Banner (Hidden, displayed only when points >= meta) -->
+            <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
             <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-yellow-400 bg-yellow-400/10 text-yellow-300 flex flex-col items-center gap-2 text-center animate-bounce">
-                <h4 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-trophy mr-1.5"></i>Prêmio Desbloqueado!</h4>
-                <p class="text-[11px] text-white font-medium">Apresente esta tela ao vendedor!</p>
-                <p class="text-[10px] text-white/70 italic">Ele deve escanear o QR Code acima para resgatar o prêmio e resetar sua cartela.</p>
+                <h4 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>Você tem <span id="victory-count">1</span> prêmio(s)!</h4>
+                <p class="text-[11px] text-white font-medium">Mostre esta tela (o QR acima) ao vendedor para retirar.</p>
             </div>
 
             <!-- Profile Info Footer / Logged user info -->
-            <div class="flex flex-col gap-3 px-3 text-[11px] text-white/70 mt-2">
-                <div class="flex items-center justify-between">
-                    <span id="client-name">Cliente</span>
-                    <button id="btn-logout" class="text-white/50 hover:text-white font-bold flex items-center gap-1.5 transition"><i class="fa-solid fa-power-off"></i> Desconectar</button>
-                </div>
-                <div class="flex justify-center border-t border-white/10 pt-3">
-                    <button id="btn-delete-account" class="text-red-400 hover:text-red-300 font-semibold flex items-center gap-1.5 transition"><i class="fa-solid fa-trash-can"></i> Apagar Meus Dados (LGPD)</button>
+            <div class="flex items-center justify-between px-3 text-[11px] text-white/70 mt-2">
+                <span id="client-name">Cliente</span>
+                <div class="relative">
+                    <button id="btn-menu-toggle" class="text-white/60 hover:text-white px-2 py-1 rounded-lg transition" aria-label="Menu"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    <div id="account-menu" class="hidden absolute right-0 bottom-full mb-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 text-left">
+                        <button id="btn-logout" class="w-full px-4 py-2.5 text-white/80 hover:bg-white/5 flex items-center gap-2 transition"><i class="fa-solid fa-power-off w-4"></i> Desconectar</button>
+                        <button id="btn-delete-account" class="w-full px-4 py-2.5 text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition border-t border-white/5"><i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)</button>
+                    </div>
                 </div>
             </div>
 
@@ -179,7 +179,7 @@
 
     <!-- Footer -->
     <footer class="w-full text-center text-[9px] text-white/40 pb-2">
-        <p>&copy; FidelizaSaaS. Alimentado por White Label.</p>
+        <p>&copy; Tem Pontinho. Alimentado por White Label.</p>
     </footer>
 
     <!-- Firebase SDK Logic -->
@@ -204,6 +204,7 @@
             signInWithEmailAndPassword,
             createUserWithEmailAndPassword
         } from "./config.js?v=2";
+        import { ensureClientCard, listenCard, deleteMyData } from "./points-api.js?v=2";
 
         // Variáveis Locais do Sistema
         let slugEmpresa = "";
@@ -217,11 +218,11 @@
 
         // Recupera slug/empresaId pelos parâmetros de URL com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
-        slugEmpresa = urlParams.get("link") || localStorage.getItem("fideliza_cliente_link") || "";
-        idEmpresa = urlParams.get("empresa") || localStorage.getItem("fideliza_cliente_empresa") || "";
+        slugEmpresa = urlParams.get("link") || localStorage.getItem("tempontinho_cliente_link") || "";
+        idEmpresa = urlParams.get("empresa") || localStorage.getItem("tempontinho_cliente_empresa") || "";
 
-        if (slugEmpresa) localStorage.setItem("fideliza_cliente_link", slugEmpresa);
-        if (idEmpresa) localStorage.setItem("fideliza_cliente_empresa", idEmpresa);
+        if (slugEmpresa) localStorage.setItem("tempontinho_cliente_link", slugEmpresa);
+        if (idEmpresa) localStorage.setItem("tempontinho_cliente_empresa", idEmpresa);
 
         // 1. Inicializa o App buscando a empresa para carregar identidade visual
         async function fetchCompanyBranding() {
@@ -246,7 +247,7 @@
                             const aliasDoc = aliasSnapshot.docs[0].data();
                             const novoLink = aliasDoc.linkUnicoCliente;
                             if (novoLink) {
-                                localStorage.setItem("fideliza_cliente_link", novoLink);
+                                localStorage.setItem("tempontinho_cliente_link", novoLink);
                                 window.location.replace(`cliente.html?link=${novoLink}`);
                                 return;
                             }
@@ -357,94 +358,56 @@
             }
         });
 
-        // Sincroniza dados do cliente no Firestore
+        // Garante o cartão (zerado) na empresa + perfil do consumidor.
         async function syncClientProfile(user) {
-            const clientRef = doc(db, "clientes", user.uid);
-            const docSnap = await getDoc(clientRef);
-            
-            const phone = user.phoneNumber || "";
-            
-            if (!docSnap.exists()) {
-                // Novo Cadastro de Cliente
-                await setDoc(clientRef, {
-                    nomeCompleto: user.displayName || "Cliente Fidelidade",
-                    email: user.email || "",
-                    telefone: phone,
-                    uidAuth: user.uid,
-                    pontosPerEmpresa: {
-                        [idEmpresa]: 0
-                    }
-                });
-            } else {
-                const data = docSnap.data();
-                const updates = {};
-                
-                // Coleta dados sociais adicionais silenciosamente
-                if (user.displayName && data.nomeCompleto !== user.displayName) updates.nomeCompleto = user.displayName;
-                if (user.email && data.email !== user.email) updates.email = user.email;
-                if (phone && data.telefone !== phone) updates.telefone = phone;
-                
-                // Garante que o Map tem a chave da empresa
-                if (!data.pontosPerEmpresa || !(idEmpresa in data.pontosPerEmpresa)) {
-                    const updatedMap = data.pontosPerEmpresa || {};
-                    updatedMap[idEmpresa] = 0;
-                    updates.pontosPerEmpresa = updatedMap;
-                }
-                
-                if (Object.keys(updates).length > 0) {
-                    await setDoc(clientRef, updates, { merge: true });
-                }
-            }
+            await ensureClientCard(idEmpresa, {
+                nome: user.displayName || "Cliente Fidelidade",
+                email: user.email || ""
+            });
         }
 
-        // 3. Ouvinte em tempo real da pontuação do cliente
+        // 3. Ouvinte em tempo real do cartão do cliente (subcoleção da empresa)
         function setupPointsRealtimeListener(clientUid) {
             if (unsubscribeListener) unsubscribeListener();
 
             let firstLoad = true;
             let lastPoints = 0;
+            let lastPremios = 0;
 
-            unsubscribeListener = onSnapshot(doc(db, "clientes", clientUid), (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.data();
-                    const pontos = data.pontosPerEmpresa?.[idEmpresa] || 0;
+            unsubscribeListener = listenCard(idEmpresa, clientUid, (card) => {
+                if (!card) return;
+                const pontos = card.pontos || 0;
+                const premios = card.premiosPendentes || 0;
 
-                    // Atualiza Contador
-                    document.getElementById("points-counter").innerText = `${pontos} / ${metaPontos}`;
-                    
-                    // Renderiza Grid de Carimbos
-                    renderStamps(pontos);
+                // Atualiza Contador + Grid de Carimbos
+                document.getElementById("points-counter").innerText = `${pontos} / ${metaPontos}`;
+                renderStamps(pontos);
 
-                    // Executa a animação de pouso do emoji se os pontos aumentarem
-                    if (!firstLoad && pontos > lastPoints) {
-                        for (let p = lastPoints + 1; p <= pontos; p++) {
-                            playLandingAnimation(p);
-                        }
+                // Animação de pouso do emoji quando os pontos sobem
+                if (!firstLoad && pontos > lastPoints) {
+                    for (let p = lastPoints + 1; p <= pontos; p++) {
+                        playLandingAnimation(p);
                     }
-
-                    // Dispara Confete e Vitória se pontos atingiram a meta
-                    if (pontos >= metaPontos) {
-                        if (!firstLoad && pontos > lastPoints) {
-                            // Delay para esperar o pouso da estrela (1100ms)
-                            setTimeout(() => {
-                                document.getElementById("victory-banner").classList.remove("hidden");
-                                
-                                // Pequeno delay extra para evitar que o layout shift de mobile cancele a animação
-                                setTimeout(() => {
-                                    fireVictoryConfetti();
-                                }, 100);
-                            }, 1100);
-                        } else if (firstLoad) {
-                            // Se já carregou com a meta batida, mostra o banner sem confete
-                            document.getElementById("victory-banner").classList.remove("hidden");
-                        }
-                    } else {
-                        document.getElementById("victory-banner").classList.add("hidden");
-                    }
-
-                    lastPoints = pontos;
-                    firstLoad = false;
                 }
+
+                // Prêmio(s) pendente(s): gatilho do banner/confete é premiosPendentes
+                // (o cartão reseta no carry-over, então pontos nunca chega à meta).
+                const banner = document.getElementById("victory-banner");
+                const countEl = document.getElementById("victory-count");
+                if (premios > 0) {
+                    if (countEl) countEl.innerText = premios;
+                    banner.classList.remove("hidden");
+                    if (!firstLoad && premios > lastPremios) {
+                        const delay = pontos > lastPoints ? 1100 : 0; // espera o pouso, se houve
+                        setTimeout(() => setTimeout(() => fireVictoryConfetti(), 100), delay);
+                    }
+                } else {
+                    banner.classList.add("hidden");
+                }
+
+                lastPoints = pontos;
+                lastPremios = premios;
+                firstLoad = false;
             });
         }
 
@@ -627,76 +590,55 @@
         document.getElementById("btn-logout").addEventListener("click", async () => {
             await logoutUser();
         });
-        // Exclusão de Conta (LGPD)
+        // Menu (kebab) do cliente — abre/fecha o dropdown de conta
+        const btnMenuToggle = document.getElementById("btn-menu-toggle");
+        const accountMenu = document.getElementById("account-menu");
+        if (btnMenuToggle && accountMenu) {
+            btnMenuToggle.addEventListener("click", (e) => {
+                e.stopPropagation();
+                accountMenu.classList.toggle("hidden");
+            });
+            document.addEventListener("click", () => accountMenu.classList.add("hidden"));
+        }
+
+        // Exclusão de Conta (LGPD) — apaga cartões + perfil via Cloud Function
         const btnDeleteAccount = document.getElementById("btn-delete-account");
         if (btnDeleteAccount) {
             btnDeleteAccount.addEventListener("click", async () => {
                 const user = auth.currentUser;
                 if (!user) return;
-                
+
+                const confirmMessage = "ATENÇÃO: Você vai excluir TODOS os seus dados da plataforma " +
+                    "(Direito ao Esquecimento - LGPD): seus pontos e cartões de fidelidade em todas as lojas.\n\n" +
+                    "Esta ação é IRREVERSÍVEL. Deseja continuar?";
+                if (!confirm(confirmMessage)) return;
+
                 try {
                     btnDeleteAccount.disabled = true;
-                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Buscando dados...';
+                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
 
-                    // 1. Buscar dados do cliente para listar as empresas
-                    const clientRef = doc(db, "clientes", user.uid);
-                    const docSnap = await getDoc(clientRef);
-                    
-                    let titulosCartoes = [];
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const pontosMap = data.pontosPerEmpresa || {};
-                        const empresasIds = Object.keys(pontosMap);
-                        
-                        // Buscar título de cada empresa
-                        for (let eid of empresasIds) {
-                            const empRef = doc(db, "empresas", eid);
-                            const empSnap = await getDoc(empRef);
-                            if (empSnap.exists()) {
-                                const empData = empSnap.data();
-                                if (empData.visualConfig && empData.visualConfig.tituloPagina) {
-                                    titulosCartoes.push(empData.visualConfig.tituloPagina);
-                                }
-                            }
+                    // 1. Apaga cartões + perfil server-side (client não pode apagar cartões).
+                    await deleteMyData();
+
+                    // 2. Tenta remover a conta de autenticação (pode exigir re-login recente).
+                    try {
+                        await user.delete();
+                        alert("Seus dados e sua conta foram removidos permanentemente.");
+                    } catch (e) {
+                        if (e && e.code === "auth/requires-recent-login") {
+                            alert("Seus dados (pontos e cartões) foram apagados. Para remover também o login, " +
+                                "entre novamente e repita a exclusão. Você será desconectado agora.");
+                        } else {
+                            console.warn("Auth não removida:", e);
+                            alert("Seus dados foram apagados. Sua conta de login será encerrada agora.");
                         }
                     }
-                    
-                    // 2. Montar mensagem de confirmação
-                    let confirmMessage = "ATENÇÃO: Você está prestes a excluir todos os seus dados da plataforma (Direito ao Esquecimento - LGPD).\n\n";
-                    if (titulosCartoes.length > 0) {
-                        confirmMessage += "Você perderá seus pontos acumulados e histórico dos seguintes cartões de fidelidade:\n";
-                        titulosCartoes.forEach(t => confirmMessage += `- ${t}\n`);
-                        confirmMessage += "\n";
-                    } else {
-                        confirmMessage += "Você não possui pontos acumulados no momento.\n\n";
-                    }
-                    confirmMessage += "Esta ação é IRREVERSÍVEL. Tem certeza que deseja apagar todos os seus dados?";
-                    
-                    // 3. Confirmar e Apagar
-                    if (confirm(confirmMessage)) {
-                        btnDeleteAccount.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
-                        
-                        // Deletar o documento do Firestore
-                        await deleteDoc(clientRef);
-                        
-                        // Tentar deletar o usuário da Auth (pode falhar se precisar relogar)
-                        try {
-                            await user.delete();
-                        } catch (e) {
-                            console.log("Aviso: Auth user não deletado devido a exigência de re-login, mas os dados públicos (Firestore) foram apagados.");
-                        }
-                        
-                        alert("Seus dados pessoais e cartões foram removidos permanentemente com sucesso.");
-                        await logoutUser();
-                    } else {
-                        btnDeleteAccount.disabled = false;
-                        btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Meus Dados (LGPD)';
-                    }
+                    await logoutUser();
                 } catch (err) {
                     console.error("Erro ao apagar dados:", err);
-                    alert("Ocorreu um erro ao processar sua solicitação.");
+                    alert("Ocorreu um erro ao processar sua solicitação. Tente novamente.");
                     btnDeleteAccount.disabled = false;
-                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Meus Dados (LGPD)';
+                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)';
                 }
             });
         }

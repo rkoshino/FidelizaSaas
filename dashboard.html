@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Empresário - FidelizaSaaS</title>
+    <title>Painel do Empresário - Tem Pontinho</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -84,7 +84,7 @@
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
                     <i class="fa-solid fa-gem text-white text-base"></i>
                 </div>
-                <span class="text-lg font-bold font-outfit text-white">FidelizaSaaS</span>
+                <span class="text-lg font-bold font-outfit text-white">Tem Pontinho</span>
             </div>
             
             <nav class="flex flex-col gap-1">
@@ -98,7 +98,7 @@
                     <i class="fa-solid fa-user-shield text-base"></i> Equipe (Vendedores)
                 </button>
                 <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
-                    <i class="fa-solid fa-building text-base"></i> Sua Conta
+                    <i class="fa-solid fa-qrcode text-base"></i> Assinatura
                 </button>
             </nav>
         </div>
@@ -449,7 +449,7 @@
                             <h4 class="text-xl font-bold text-white font-outfit">Fidelidade Pro (White Label)</h4>
                             <p class="text-indigo-200/60 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
                         </div>
-                        <div class="text-2xl font-bold font-outfit text-white">R$ 79,90 <span class="text-xs font-normal text-slate-500">/ mensal</span></div>
+                        <div class="text-2xl font-bold font-outfit text-white">R$ 10,00 <span class="text-xs font-normal text-slate-500">/ mensal</span></div>
                         
                         <div class="h-[1px] bg-slate-900 w-full"></div>
 
@@ -462,7 +462,7 @@
                         </ul>
 
                         <button id="btn-stripe-checkout" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-xs rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-2">
-                            <i class="fa-brands fa-stripe text-base mr-1"></i> Assinar com Stripe
+                            <i class="fa-solid fa-qrcode text-base mr-1"></i> Pagar com PIX
                         </button>
                     </div>
 
@@ -676,7 +676,7 @@
                         </div>
                     </div>
 
-                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by FidelizaSaaS</div>
+                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by Tem Pontinho</div>
                 </div>
             </div>
         </div>
@@ -708,6 +708,91 @@
         </div>
     </div>
 
+    <!-- PAYWALL BANNER -->
+    <div id="paywall-banner" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-end justify-center p-4 pointer-events-none">
+        <div class="w-full max-w-2xl pointer-events-auto mb-6">
+            <div class="glassmorphism rounded-2xl border border-red-500/30 bg-red-950/20 p-5 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
+                <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-red-400 shrink-0 text-xl">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h4 class="font-bold text-white text-sm">Assinatura inativa — <span id="paywall-motivo">Período de teste encerrado</span></h4>
+                    <p class="text-slate-400 text-xs mt-0.5">Os carimbos e resgates estão bloqueados. Regularize sua assinatura para continuar operando seu programa de fidelidade.</p>
+                </div>
+                <button onclick="switchTab('stripe')" class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Pagar com PIX
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PIX CHECKOUT -->
+    <div id="modal-pix-checkout" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-white font-outfit">Assinar — Fidelidade Pro</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">R$ 10,00 / mês via PIX</p>
+                </div>
+                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Step 1: Form -->
+            <div id="pix-checkout-form-step" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-cpfcnpj" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">CPF / CNPJ <span class="text-red-400">*</span></label>
+                    <input type="text" id="pix-cpfcnpj" placeholder="Somente números (11 ou 14 dígitos)" maxlength="18"
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                    <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-400">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-telefone" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Telefone <span class="text-slate-500">(opcional)</span></label>
+                    <input type="text" id="pix-telefone" placeholder="Ex: 11999990000"
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                </div>
+                <button id="btn-pix-submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-sm rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-1">
+                    <i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX
+                </button>
+                <p class="text-[10px] text-slate-500 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
+            </div>
+
+            <!-- Step 2: PIX Result -->
+            <div id="pix-result-step" class="hidden flex flex-col gap-5 items-center">
+                <div class="w-full p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 text-center">
+                    <i class="fa-solid fa-circle-check mr-1"></i>
+                    Cobrança gerada! Escaneie o QR no app do seu banco. A liberação é automática assim que o pagamento cair.
+                </div>
+
+                <!-- QR Code -->
+                <div class="bg-white p-3 rounded-2xl shadow-lg">
+                    <img id="pix-qr-image" src="" alt="QR Code PIX" class="w-48 h-48 object-contain">
+                </div>
+
+                <!-- Copia e Cola -->
+                <div class="w-full flex flex-col gap-1.5">
+                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">PIX Copia e Cola</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="pix-copia-cola" readonly
+                            class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-indigo-300 select-all focus:outline-none">
+                        <button id="btn-pix-copiar" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Link da fatura -->
+                <a id="pix-invoice-link" href="#" target="_blank" rel="noopener"
+                    class="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Abrir fatura no navegador
+                </a>
+
+                <button onclick="closePixCheckoutModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition active:scale-95">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase Logic connection -->
     <script type="module">
         import { 
@@ -721,9 +806,35 @@
             query, 
             where, 
             getDocs, 
-            logoutUser, 
-            onSnapshot 
+            logoutUser,
+            onSnapshot
         } from "./config.js?v=2";
+        import { setPoints, awardPoints, removePoint, createSubscription } from "./points-api.js?v=2";
+
+        // --- Toast de notificação ---
+        window.showToast = function(message, type = "success") {
+            const existing = document.getElementById("toast-notification");
+            if (existing) existing.remove();
+
+            const toast = document.createElement("div");
+            toast.id = "toast-notification";
+            const colorClass = type === "error"
+                ? "bg-red-900/90 border-red-500/40 text-red-200"
+                : "bg-slate-800/90 border-slate-700/60 text-slate-100";
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-xl border backdrop-blur-md text-sm font-medium shadow-2xl transition-all duration-300 opacity-0 translate-y-2 ${colorClass}`;
+            toast.innerText = message;
+            document.body.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove("opacity-0", "translate-y-2");
+                toast.classList.add("opacity-100", "translate-y-0");
+            });
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
 
         // Variáveis Locais
         let empresaId = "";
@@ -756,6 +867,8 @@
                 await loadEmpresaData();
                 // Assina escuta em tempo real dos clientes e vendedores
                 listenToData();
+                // Assina status da assinatura em tempo real (paywall + badges)
+                listenEmpresaStatus();
             } else {
                 // Redireciona se não estiver logado
                 window.location.href = "./login.html";
@@ -785,25 +898,6 @@
                     document.getElementById("summary-premio").innerText = data.metaConfig?.descriçãoPremio || "Prêmio";
                     document.getElementById("stat-premios-entregues").innerText = data.totalPremiosEntregues || 0;
                     
-                    // Exibe Badges do plano
-                    const status = data.statusAssinatura;
-                    if (status === "active") {
-                        document.getElementById("active-badge").classList.remove("hidden");
-                        document.getElementById("trial-badge").classList.add("hidden");
-                        document.getElementById("trial-alert").classList.add("hidden");
-                    } else {
-                        document.getElementById("trial-badge").classList.remove("hidden");
-                        document.getElementById("active-badge").classList.add("hidden");
-                        
-                        // Calcula dias do trial
-                        const trialEnd = data.trialEndDate ? data.trialEndDate.toDate() : new Date();
-                        const today = new Date();
-                        const diffTime = trialEnd - today;
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        document.getElementById("trial-days-left").innerText = diffDays > 0 ? diffDays : 0;
-                        document.getElementById("trial-alert").classList.remove("hidden");
-                    }
-
                     // Configura URLs do modal de links e visão geral
                     const baseUrl = window.location.origin + window.location.pathname.replace("dashboard.html", "");
                     const linkSlug = data.linkUnicoCliente || data.donoUid;
@@ -895,9 +989,8 @@
 
         // Assinatura em tempo real para Clientes e Vendedores
         function listenToData() {
-            // Escuta Clientes
-            // OBS: No Firestore, os pontos dos clientes estão no Map `pontosPerEmpresa[empresaId]`
-            const clientesQuery = query(collection(db, "clientes"));
+            // Escuta Clientes — subcoleção já escopada à empresa (multi-tenant)
+            const clientesQuery = collection(db, "empresas", empresaId, "clientes");
             onSnapshot(clientesQuery, (snapshot) => {
                 const tableBody = document.getElementById("clientes-table-body");
                 tableBody.innerHTML = "";
@@ -908,55 +1001,54 @@
 
                 let hasClientes = false;
 
-                snapshot.forEach((doc) => {
-                    const client = doc.data();
-                    const clientId = doc.id;
-                    const pontos = client.pontosPerEmpresa?.[empresaId] || 0;
+                snapshot.forEach((docSnap) => {
+                    const client = docSnap.data();
+                    const clientId = docSnap.id;
+                    const pontos = client.pontos || 0;
+                    const premios = client.premiosPendentes || 0;
+                    const nome = client.nome || client.nomeCompleto || "Sem nome";
 
-                    // Filtrar apenas se o cliente tem pontos ou histórico nesta empresa
-                    if (client.pontosPerEmpresa && empresaId in client.pontosPerEmpresa) {
-                        hasClientes = true;
-                        totalClientes++;
-                        totalPontos += pontos;
-                        
-                        window.clientesDataMap = window.clientesDataMap || {};
-                        window.clientesDataMap[clientId] = client;
+                    hasClientes = true;
+                    totalClientes++;
+                    totalPontos += pontos;
 
-                        const isWin = pontos >= metaCampanha;
-                        if (isWin) premiosDisponiveis++;
+                    window.clientesDataMap = window.clientesDataMap || {};
+                    window.clientesDataMap[clientId] = client;
 
-                        const tr = document.createElement("tr");
-                        tr.className = "hover:bg-slate-900/30 transition duration-150";
-                        tr.innerHTML = `
-                            <td class="py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${client.nomeCompleto || 'Sem nome'}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
-                            <td class="py-4 px-6 font-medium text-white">${client.nomeCompleto || "Sem nome"}</td>
-                            <td class="py-4 px-6 text-slate-400">${client.email}</td>
-                            <td class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
-                            <td class="py-4 px-6 text-center">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
-                                    isWin 
-                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-                                        : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
-                                }">
-                                    ${isWin ? "Aguardando Prêmio" : "Acumulando"}
-                                </span>
-                            </td>
-                            <td class="py-4 px-6 text-right">
-                                <div class="flex gap-2 justify-end">
-                                    <button onclick="openHistoricoModal('${clientId}', '${client.nomeCompleto}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition" title="Ver Histórico">
-                                        <i class="fa-solid fa-list-ul"></i>
-                                    </button>
-                                    <button onclick="openAjustarModal('${clientId}', '${client.nomeCompleto}', '${client.email}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
-                                        Ajustar
-                                    </button>
-                                    <button onclick="resetClientePontos('${clientId}', '${client.nomeCompleto}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
-                                        Zerar
-                                    </button>
-                                </div>
-                            </td>
-                        `;
-                        tableBody.appendChild(tr);
-                    }
+                    const isWin = premios > 0;
+                    if (isWin) premiosDisponiveis += premios;
+
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-slate-900/30 transition duration-150";
+                    tr.innerHTML = `
+                        <td class="py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
+                        <td class="py-4 px-6 font-medium text-white">${nome}</td>
+                        <td class="py-4 px-6 text-slate-400">${client.email || ""}</td>
+                        <td class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
+                        <td class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
+                                isWin
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                    : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                            }">
+                                ${isWin ? `${premios} prêmio(s) a entregar` : "Acumulando"}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <div class="flex gap-2 justify-end">
+                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition" title="Ver Histórico">
+                                    <i class="fa-solid fa-list-ul"></i>
+                                </button>
+                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                    Ajustar
+                                </button>
+                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                    Zerar
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
                 });
 
                 if (!hasClientes) {
@@ -1026,45 +1118,56 @@
         // --- Modals e Funções de Escrita no Firestore ---
 
         // Abrir Modal de Histórico de Carimbos
-        window.openHistoricoModal = function(clientId, clientName) {
+        window.openHistoricoModal = async function(clientId, clientName) {
             document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
             const historicoLista = document.getElementById("historico-lista");
-            
-            const client = window.clientesDataMap?.[clientId];
-            if (!client) {
-                historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Dados não encontrados.</div>`;
-            } else {
-                const logsCarimbos = client[`logCarimbos_${empresaId}`] || [];
-                const logsResgates = client[`logResgastes_${empresaId}`] || []; // Para também mostrar resgates no futuro se quiser
-                
-                if (logsCarimbos.length === 0) {
-                    historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Nenhum carimbo registrado no histórico.</div>`;
-                } else {
-                    // Ordena do mais recente pro mais antigo
-                    const logsOrdenados = [...logsCarimbos].sort((a, b) => new Date(b.data) - new Date(a.data));
-                    
-                    historicoLista.innerHTML = logsOrdenados.map(log => {
-                        const dateObj = new Date(log.data);
-                        const dateStr = dateObj.toLocaleDateString('pt-BR');
-                        const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                        
-                        return `
-                            <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
-                                <div class="flex flex-col gap-1">
-                                    <span class="text-white font-medium"><i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.quantidade || 1} Ponto(s)</span>
-                                    <span class="text-slate-500 text-[10px]">Vendedor: ${log.vendedor || "Sistema"}</span>
-                                </div>
-                                <div class="text-right flex flex-col gap-0.5">
-                                    <span class="text-slate-300">${dateStr}</span>
-                                    <span class="text-slate-500 text-[10px]">${timeStr}</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join("");
-                }
-            }
-            
+            historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Carregando histórico...</div>`;
             document.getElementById("modal-historico").classList.remove("hidden");
+
+            try {
+                // Logs ficam na subcoleção do cartão (gravados pelas Cloud Functions)
+                const logsRef = collection(db, "empresas", empresaId, "clientes", clientId, "logs");
+                const snap = await getDocs(logsRef);
+
+                if (snap.empty) {
+                    historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Nenhum registro no histórico.</div>`;
+                    return;
+                }
+
+                const logs = snap.docs.map(d => d.data());
+                logs.sort((a, b) => (b.data?.toMillis?.() || 0) - (a.data?.toMillis?.() || 0));
+
+                historicoLista.innerHTML = logs.map(log => {
+                    const dateObj = log.data?.toDate ? log.data.toDate() : new Date();
+                    const dateStr = dateObj.toLocaleDateString('pt-BR');
+                    const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    const desc = log.tipo === "resgate"
+                        ? `<i class="fa-solid fa-gift text-yellow-400 mr-1.5"></i> Prêmio entregue`
+                        : log.tipo === "remocao"
+                        ? `<i class="fa-solid fa-minus text-red-400 mr-1.5"></i> -1 Ponto`
+                        : log.tipo === "ajuste"
+                        ? `<i class="fa-solid fa-pen text-amber-400 mr-1.5"></i> Ajuste manual (${log.qtd ?? 0})`
+                        : `<i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.qtd || 1} Ponto(s)`;
+                    const sub = log.motivo ? `Motivo: ${log.motivo}` : `Vendedor: ${log.vendedor || "Sistema"}`;
+
+                    return `
+                        <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-white font-medium">${desc}</span>
+                                <span class="text-slate-500 text-[10px]">${sub}</span>
+                            </div>
+                            <div class="text-right flex flex-col gap-0.5">
+                                <span class="text-slate-300">${dateStr}</span>
+                                <span class="text-slate-500 text-[10px]">${timeStr}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            } catch (err) {
+                console.error("Erro ao carregar histórico:", err);
+                historicoLista.innerHTML = `<div class="text-center text-red-400 py-6 text-xs">Erro ao carregar histórico.</div>`;
+            }
         };
 
         window.closeHistoricoModal = function() {
@@ -1172,76 +1275,35 @@
             btnConfirm.innerText = "Salvando...";
 
             try {
+                // Aplica o ajuste via Cloud Function (server-side, auditado):
+                //  add  -> awardPoints (carry-over + prêmio)
+                //  remove/zero -> setPoints (valor absoluto, com justificativa)
+                const aplicarAjusteCliente = async (cid, pontosAtuais) => {
+                    const qty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                    const motivo = justificativaInput.value.trim();
+                    if (currentAjusteAction === "add") {
+                        await awardPoints({ empresaId, clienteId: cid, qtd: qty });
+                    } else if (currentAjusteAction === "remove") {
+                        await setPoints({ empresaId, clienteId: cid, pontos: Math.max(0, pontosAtuais - qty), motivo });
+                    } else if (currentAjusteAction === "zero") {
+                        await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo });
+                    }
+                };
+
                 if (isBulkAjuste) {
                     for (const cid of targetClienteIds) {
-                        const clienteRef = doc(db, "clientes", cid);
-                        const docSnap = await getDoc(clienteRef);
-                        if (docSnap.exists()) {
-                            const clientData = docSnap.data();
-                            let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
-                            let novosPontos = pontosAtuais;
-
-                            if (currentAjusteAction === "add") {
-                                const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                                novosPontos += addQty;
-                            } else if (currentAjusteAction === "remove") {
-                                const remQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                                novosPontos = Math.max(0, novosPontos - remQty);
-                            } else if (currentAjusteAction === "zero") {
-                                novosPontos = 0;
-                            }
-
-                            const pontosMap = clientData.pontosPerEmpresa || {};
-                            pontosMap[empresaId] = novosPontos;
-
-                            await updateDoc(clienteRef, {
-                                pontosPerEmpresa: pontosMap,
-                                [`logAjustes_${empresaId}`]: (clientData[`logAjustes_${empresaId}`] || []).concat({
-                                    data: new Date(),
-                                    acao: currentAjusteAction,
-                                    quantidade: currentAjusteAction === "zero" ? pontosAtuais : parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1,
-                                    justificativa: justificativaInput.value.trim()
-                                })
-                            });
-                        }
+                        const atual = (window.clientesDataMap?.[cid]?.pontos) || 0;
+                        await aplicarAjusteCliente(cid, atual);
                     }
                     alert("Pontuação ajustada com sucesso para os clientes selecionados!");
                     const allCheckbox = document.getElementById("select-all-clients");
                     if (allCheckbox) allCheckbox.checked = false;
                     toggleSelectAll(allCheckbox);
                 } else {
-                    const clienteRef = doc(db, "clientes", targetClienteId);
-                    const docSnap = await getDoc(clienteRef);
-                    const clientData = docSnap.data();
-                    
-                    let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
-                    let novosPontos = pontosAtuais;
-
-                    if (currentAjusteAction === "add") {
-                        const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                        novosPontos += addQty;
-                    } else if (currentAjusteAction === "remove") {
-                        const remQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
-                        novosPontos = Math.max(0, novosPontos - remQty);
-                    } else if (currentAjusteAction === "zero") {
-                        novosPontos = 0;
-                    }
-
-                    const pontosMap = clientData.pontosPerEmpresa || {};
-                    pontosMap[empresaId] = novosPontos;
-
-                    await updateDoc(clienteRef, {
-                        pontosPerEmpresa: pontosMap,
-                        [`logAjustes_${empresaId}`]: (clientData[`logAjustes_${empresaId}`] || []).concat({
-                            data: new Date(),
-                            acao: currentAjusteAction,
-                            quantidade: currentAjusteAction === "zero" ? pontosAtuais : parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1,
-                            justificativa: justificativaInput.value.trim()
-                        })
-                    });
-
+                    const atual = (window.clientesDataMap?.[targetClienteId]?.pontos) || 0;
+                    await aplicarAjusteCliente(targetClienteId, atual);
                     alert("Pontuação ajustada com sucesso!");
-                    
+
                     if (currentAjusteAction === "add") {
                         const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
                         showEmojiFeedback(addQty);
@@ -1329,31 +1391,164 @@
             alert("URL copiada!");
         };
 
-        // --- Simulador Stripe Upgrade ---
-        document.getElementById("btn-stripe-checkout").addEventListener("click", async () => {
-            const btn = document.getElementById("btn-stripe-checkout");
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Conectando ao Stripe...`;
-
-            setTimeout(async () => {
-                try {
-                    const docRef = doc(db, "empresas", empresaId);
-                    await updateDoc(docRef, {
-                        statusAssinatura: "active"
-                    });
-                    
-                    alert("Parabéns! Assinatura ativada pelo Stripe. Sandbox Pro ativado.");
-                    loadEmpresaData(); // Atualiza painel
-                    switchTab("dashboard");
-                } catch (err) {
-                    console.error(err);
-                    alert("Erro ao ativar assinatura: " + err.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = `<i class="fa-brands fa-stripe text-base mr-1"></i> Assinar com Stripe`;
-                }
-            }, 2000);
+        // --- Checkout PIX (createSubscription) ---
+        document.getElementById("btn-stripe-checkout").addEventListener("click", () => {
+            openPixCheckoutModal();
         });
+
+        window.openPixCheckoutModal = function() {
+            document.getElementById("modal-pix-checkout").classList.remove("hidden");
+            document.getElementById("pix-checkout-form-step").classList.remove("hidden");
+            document.getElementById("pix-result-step").classList.add("hidden");
+            document.getElementById("pix-cpfcnpj").value = "";
+            document.getElementById("pix-telefone").value = "";
+            document.getElementById("pix-cpfcnpj-error").classList.add("hidden");
+            const btn = document.getElementById("btn-pix-submit");
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
+        };
+
+        window.closePixCheckoutModal = function() {
+            document.getElementById("modal-pix-checkout").classList.add("hidden");
+        };
+
+        // Validação CPF/CNPJ: apenas dígitos, 11 ou 14 caracteres
+        function validarCpfCnpj(valor) {
+            const digits = valor.replace(/\D/g, "");
+            return digits.length === 11 || digits.length === 14;
+        }
+
+        document.getElementById("btn-pix-submit").addEventListener("click", async () => {
+            const cpfCnpjRaw = document.getElementById("pix-cpfcnpj").value.trim();
+            const telefoneRaw = document.getElementById("pix-telefone").value.trim();
+            const errEl = document.getElementById("pix-cpfcnpj-error");
+
+            if (!validarCpfCnpj(cpfCnpjRaw)) {
+                errEl.classList.remove("hidden");
+                return;
+            }
+            errEl.classList.add("hidden");
+
+            const cpfCnpj = cpfCnpjRaw.replace(/\D/g, "");
+            const telefone = telefoneRaw.replace(/\D/g, "") || undefined;
+
+            const btn = document.getElementById("btn-pix-submit");
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i> Gerando cobrança...`;
+
+            try {
+                const result = await createSubscription({ empresaId, cpfCnpj, telefone });
+
+                // Mostra resultado
+                document.getElementById("pix-checkout-form-step").classList.add("hidden");
+                document.getElementById("pix-result-step").classList.remove("hidden");
+
+                // QR Code Base64
+                const qrImg = document.getElementById("pix-qr-image");
+                qrImg.src = `data:image/png;base64,${result.pixQrCodeBase64}`;
+
+                // Copia-e-cola
+                document.getElementById("pix-copia-cola").value = result.pixCopiaECola;
+
+                // Link da fatura
+                const linkFatura = document.getElementById("pix-invoice-link");
+                linkFatura.href = result.invoiceUrl;
+
+            } catch (err) {
+                console.error("Erro ao gerar cobrança PIX:", err);
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
+                showToast("Erro ao gerar cobrança: " + (err.message || "Tente novamente."), "error");
+            }
+        });
+
+        document.getElementById("btn-pix-copiar").addEventListener("click", () => {
+            const val = document.getElementById("pix-copia-cola").value;
+            navigator.clipboard.writeText(val).then(() => {
+                showToast("Código PIX copiado!");
+            });
+        });
+
+        // --- Paywall: onSnapshot no doc da empresa para reagir em tempo real ---
+        function listenEmpresaStatus() {
+            const empRef = doc(db, "empresas", empresaId);
+            onSnapshot(empRef, (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.data();
+                const status = data.statusAssinatura;
+                const trialEnd = data.trialEndDate ? data.trialEndDate.toDate() : null;
+
+                const agora = new Date();
+                const isActive = status === "active" ||
+                    (status === "trial" && trialEnd && trialEnd > agora);
+
+                const paywall = document.getElementById("paywall-banner");
+
+                if (!isActive) {
+                    // Mostrar paywall
+                    paywall.classList.remove("hidden");
+                    // Atualizar texto do motivo
+                    const motivo = (status === "overdue") ? "Pagamento em atraso" :
+                                   (status === "canceled") ? "Assinatura cancelada" :
+                                   "Período de teste encerrado";
+                    document.getElementById("paywall-motivo").innerText = motivo;
+                    // Desabilitar botões de escrita
+                    setWriteButtonsDisabled(true);
+                } else {
+                    // Liberar
+                    paywall.classList.add("hidden");
+                    setWriteButtonsDisabled(false);
+                }
+
+                // Atualizar badges
+                if (status === "active") {
+                    document.getElementById("active-badge").classList.remove("hidden");
+                    document.getElementById("trial-badge").classList.add("hidden");
+                    document.getElementById("trial-alert").classList.add("hidden");
+                } else {
+                    document.getElementById("active-badge").classList.add("hidden");
+                    document.getElementById("trial-badge").classList.remove("hidden");
+                    if (!isActive) {
+                        document.getElementById("trial-alert").classList.remove("hidden");
+                    }
+                    if (trialEnd) {
+                        const diffDays = Math.ceil((trialEnd - agora) / (1000 * 60 * 60 * 24));
+                        const el = document.getElementById("trial-days-left");
+                        if (el) el.innerText = diffDays > 0 ? diffDays : 0;
+                    }
+                }
+            });
+        }
+
+        // Seletores dos botões de ação de escrita do dashboard
+        const WRITE_BUTTON_SELECTORS = [
+            "#btn-confirm-ajuste",
+            ".client-checkbox",
+            "#select-all-clients",
+        ];
+        const WRITE_BUTTON_IDS_STATIC = [
+            "btn-overview-copy-cliente", // não é escrita, mas deixar; só botões de mutação abaixo:
+        ];
+
+        function setWriteButtonsDisabled(disabled) {
+            // Botões de ajuste/zerar na tabela de clientes (gerados dinamicamente)
+            document.querySelectorAll("[onclick^='openAjustarModal'], [onclick^='resetClientePontos'], [onclick^='openBulkAjustarModal'], [onclick^='bulkResetPoints']").forEach(btn => {
+                btn.disabled = disabled;
+                if (disabled) {
+                    btn.title = "Assinatura inativa — regularize para continuar operando";
+                    btn.classList.add("opacity-40", "cursor-not-allowed");
+                } else {
+                    btn.title = "";
+                    btn.classList.remove("opacity-40", "cursor-not-allowed");
+                }
+            });
+            // Botão de confirmar ajuste no modal
+            const btnConfirm = document.getElementById("btn-confirm-ajuste");
+            if (btnConfirm && disabled) {
+                btnConfirm.disabled = true;
+                btnConfirm.title = "Assinatura inativa";
+            }
+        }
 
         // --- Gerenciamento Visual de Abas ---
         window.switchTab = function(tabName) {
@@ -1447,16 +1642,7 @@
             if (confirm(`Deseja realmente zerar a pontuação de ${ids.length} clientes selecionados nesta empresa?`)) {
                 try {
                     for (const cid of ids) {
-                        const clientRef = doc(db, "clientes", cid);
-                        const docSnap = await getDoc(clientRef);
-                        if (docSnap.exists()) {
-                            const clientData = docSnap.data();
-                            const pontosMap = clientData.pontosPerEmpresa || {};
-                            pontosMap[empresaId] = 0;
-                            await updateDoc(clientRef, {
-                                pontosPerEmpresa: pontosMap
-                            });
-                        }
+                        await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo: "Zerado em massa pelo painel" });
                     }
                     alert("Pontuação dos clientes selecionados zerada com sucesso!");
                     const allCheckbox = document.getElementById("select-all-clients");
@@ -1473,17 +1659,8 @@
         window.resetClientePontos = async function(clientId, clientName) {
             if (confirm(`Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`)) {
                 try {
-                    const clientRef = doc(db, "clientes", clientId);
-                    const docSnap = await getDoc(clientRef);
-                    if (docSnap.exists()) {
-                        const clientData = docSnap.data();
-                        const pontosMap = clientData.pontosPerEmpresa || {};
-                        pontosMap[empresaId] = 0;
-                        await updateDoc(clientRef, {
-                            pontosPerEmpresa: pontosMap
-                        });
-                        alert("Pontuação zerada com sucesso!");
-                    }
+                    await setPoints({ empresaId, clienteId: clientId, pontos: 0, motivo: "Zerado pelo painel" });
+                    alert("Pontuação zerada com sucesso!");
                 } catch (err) {
                     console.error(err);
                     alert("Erro ao zerar pontuação: " + err.message);

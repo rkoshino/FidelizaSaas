@@ -154,6 +154,16 @@
                 </div>
             </div>
 
+            <!-- Cliente escaneado / Prêmio pendente -->
+            <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-3 text-left">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cliente</span>
+                <p class="text-sm font-bold text-white"><span id="client-points">0</span><span class="text-slate-500">/<span id="client-meta">10</span> pontos</span></p>
+                <div id="prize-box" class="hidden flex-col gap-2 p-3 rounded-2xl bg-yellow-400/10 border-2 border-yellow-400/20">
+                    <p class="text-xs font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-gift"></i> <span id="prize-count-text">1 prêmio a entregar</span></p>
+                    <button id="btn-deliver-prize" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-50">Entregar prêmio</button>
+                </div>
+            </div>
+
             <!-- Feedbacks Popup Area (Dynamic states alerts) -->
             <div id="alert-card" class="hidden p-4 rounded-2xl flex items-start gap-3 text-left transition-all duration-300">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg shrink-0" id="alert-icon-box">
@@ -171,7 +181,7 @@
 
     <!-- Footer -->
     <footer class="w-full text-center text-[9px] text-slate-600 pb-2">
-        <p>Validador FidelizaSaaS &copy; 2026. Segurança lógica ativa.</p>
+        <p>Validador Tem Pontinho &copy; 2026. Segurança lógica ativa.</p>
     </footer>
 
     <!-- Firebase SDK Logic connection -->
@@ -195,6 +205,7 @@
             loginWithGoogle,
             increment
         } from "./config.js?v=2";
+        import { awardPoints, deliverPrize, removePoint, getCard, findClient } from "./points-api.js?v=2";
 
         // Variáveis de Estado
         let empresaId = "";
@@ -206,9 +217,9 @@
 
         // Tenta obter o ID da empresa pela query param com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
-        empresaId = urlParams.get("empresa") || urlParams.get("empresaId") || urlParams.get("id") || localStorage.getItem("fideliza_vendedor_empresa") || "";
+        empresaId = urlParams.get("empresa") || urlParams.get("empresaId") || urlParams.get("id") || localStorage.getItem("tempontinho_vendedor_empresa") || "";
 
-        if (empresaId) localStorage.setItem("fideliza_vendedor_empresa", empresaId);
+        if (empresaId) localStorage.setItem("tempontinho_vendedor_empresa", empresaId);
 
         // Web Audio Sintetizador de Feedback Sonoro
         let audioCtx = null;
@@ -525,21 +536,29 @@
             
             let clientUid = val;
 
-            // Se for um e-mail, busca o UID dele na coleção de clientes
+            // Se for um e-mail, resolve o cliente via Cloud Function (findClient)
             if (val.includes("@")) {
                 try {
-                    const q = query(collection(db, "clientes"), where("email", "==", val.toLowerCase()));
-                    const snap = await getDocs(q);
-                    if (!snap.empty) {
-                        clientUid = snap.docs[0].id;
-                    } else {
+                    const r = await findClient({ empresaId, email: val.toLowerCase() });
+                    if (!r.found) {
                         showAlert("error", "Erro de Busca", "Nenhum cliente cadastrado com este e-mail.");
                         playSound("error");
                         document.getElementById("btn-manual-submit").disabled = false;
                         return;
                     }
+                    if (!r.temCartao) {
+                        showAlert("error", "Sem cartão", "Cliente ainda não ativou o cartão desta loja.");
+                        playSound("error");
+                        document.getElementById("btn-manual-submit").disabled = false;
+                        return;
+                    }
+                    clientUid = r.clienteId;
                 } catch (err) {
                     console.error(err);
+                    showAlert("error", "Erro de Busca", err.message || "Falha ao buscar cliente.");
+                    playSound("error");
+                    document.getElementById("btn-manual-submit").disabled = false;
+                    return;
                 }
             }
 
@@ -571,135 +590,122 @@
             });
         }
 
-        // Lógica de Negócio: Gravação de Pontos e Resgate
+        // Lógica de Negócio: tudo via Cloud Functions (points-api.js).
         async function processPointAward(clientUid) {
             try {
-                const clienteRef = doc(db, "clientes", clientUid);
-                const docSnap = await getDoc(clienteRef);
-
-                if (!docSnap.exists()) {
-                    showAlert("error", "Cliente Inválido", "O QR Code lido não pertence a um cliente válido.");
+                if (!empresaId) {
+                    showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
                     playSound("error");
-                    triggerVibration([200, 100, 200]);
                     return;
                 }
-
-                const clientData = docSnap.data();
-                let pontosAtuais = clientData.pontosPerEmpresa?.[empresaId] || 0;
-                
                 const meta = metaConfig.metaPontos || 10;
-                const premio = metaConfig.descriçãoPremio || "Prêmio";
 
-                const pontosMap = clientData.pontosPerEmpresa || {};
-
-                // MODO: TIRAR PONTO
+                // MODO: TIRAR PONTO (correção do vendedor)
                 if (isRemovingPoint) {
-                    if (pontosAtuais > 0) {
-                        pontosMap[empresaId] = pontosAtuais - 1;
-                        await updateDoc(clienteRef, { pontosPerEmpresa: pontosMap });
-                        showAlert("success", "Ponto Removido", `Foi removido 1 ponto. Cliente agora possui ${pontosMap[empresaId]} pontos.`);
-                        playSound("success");
-                        triggerVibration(150);
-                    } else {
-                        showAlert("error", "Ação Inválida", "O cliente já possui 0 pontos.");
-                        playSound("error");
-                    }
-                    
-                    // Reset do modo automaticamente
-                    isRemovingPoint = false;
-                    btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
-                    btnModeRemove.innerText = "Tirar 1 Ponto";
-                    selectPointsQty.disabled = false;
-                    selectPointsQty.classList.remove("opacity-50");
-                    return;
-                }
-
-                // MODO: RESGATE AUTOMÁTICO (Se o cliente já está com a cartela cheia apresentando ao vendedor)
-                if (pontosAtuais >= meta) {
-                    const resgatesAFazer = Math.floor(pontosAtuais / meta);
-                    pontosMap[empresaId] = pontosAtuais % meta; // Deixa o resto (ex: 12 -> 2)
-                    
-                    let updateData = { pontosPerEmpresa: pontosMap };
-                    
-                    // Registra os resgates
-                    let novosResgates = [];
-                    for(let i = 0; i < resgatesAFazer; i++) {
-                        novosResgates.push({
-                            data: new Date().toISOString(),
-                            vendedor: loggedVendedor.nomeVendedor,
-                            premioEntregue: premio
-                        });
-                    }
-                    updateData[`logResgastes_${empresaId}`] = (clientData[`logResgastes_${empresaId}`] || []).concat(novosResgates);
-                    
-                    await updateDoc(clienteRef, updateData);
-
-                    // Incrementa o contador de prêmios entregues na empresa
-                    try {
-                        const empresaRef = doc(db, "empresas", empresaId);
-                        await updateDoc(empresaRef, {
-                            totalPremiosEntregues: increment(resgatesAFazer)
-                        });
-                    } catch (err) {
-                        console.error("Erro ao incrementar totalPremiosEntregues:", err);
-                    }
-
-                    showAlert("win", "Prêmio Resgatado!", `O cliente resgatou: "${premio}". A cartela foi reiniciada.`);
-                    playSound("win");
-                    triggerVibration([100, 50, 100, 50, 300]);
-                    
-                    if (selectPointsQty) selectPointsQty.value = "1";
-                    return; // Encerra, não adiciona pontos extras nesse mesmo scan
-                }
-
-                // MODO: ADICIONAR PONTOS (Cartela ainda não estava cheia)
-                const qtyToAdd = parseInt(selectPointsQty?.value || "1");
-                let totalPontos = pontosAtuais + qtyToAdd;
-
-                // Limita a adição ao teto da meta (para ele ver a cartela cheia na tela dele)
-                if (totalPontos > meta) {
-                    totalPontos = meta; 
-                }
-                
-                const pontosAdicionadosReais = totalPontos - pontosAtuais;
-
-                pontosMap[empresaId] = totalPontos;
-                let updateData = { pontosPerEmpresa: pontosMap };
-
-                // Log do Carimbo
-                let logHistorico = clientData[`logCarimbos_${empresaId}`] || [];
-                logHistorico.push({
-                    data: new Date().toISOString(),
-                    vendedor: loggedVendedor.nomeVendedor,
-                    quantidade: pontosAdicionadosReais
-                });
-                updateData[`logCarimbos_${empresaId}`] = logHistorico;
-
-                await updateDoc(clienteRef, updateData);
-
-                if (totalPontos >= meta) {
-                    // Completou agora!
-                    showAlert("success", "Meta Atingida!", `Cartela completa (${meta}/${meta}). O cliente está vendo os confetes! Escaneie novamente a tela dele para entregar o prêmio e zerar.`);
-                    playSound("success");
-                    triggerVibration([150, 100, 150]);
-                    showEmojiFeedback(pontosAdicionadosReais);
-                } else {
-                    // Apenas adicionou
-                    showAlert("success", "Pontos Adicionados!", `Adicionado +${pontosAdicionadosReais}. Cliente agora tem ${totalPontos}/${meta} pontos.`);
+                    const r = await removePoint({ empresaId, clienteId: clientUid });
+                    renderClientPanel(clientUid, r.pontos, null);
+                    showAlert("success", "Ponto Removido", `Cliente agora tem ${r.pontos}/${meta} pontos.`);
                     playSound("success");
                     triggerVibration(150);
-                    showEmojiFeedback(pontosAdicionadosReais);
+                    resetRemoveMode();
+                    return;
                 }
-                
-                // Reset da quantidade automaticamente para 1
-                if (selectPointsQty) {
-                    selectPointsQty.value = "1";
+
+                // MODO: ADICIONAR PONTOS — carry-over + prêmio no MESMO scan (server-side)
+                const qtyToAdd = parseInt(selectPointsQty?.value || "1");
+                const res = await awardPoints({ empresaId, clienteId: clientUid, qtd: qtyToAdd });
+                // res: { pontos, premiosGanhos, premiosPendentes, meta }
+                renderClientPanel(clientUid, res.pontos, res.premiosPendentes);
+
+                if (res.premiosGanhos > 0) {
+                    showAlert("win", "Cartela completa!", `+${qtyToAdd} pontos · ${res.premiosGanhos} cartela(s) completa(s)! · ${res.premiosPendentes} prêmio(s) a entregar · cartão agora ${res.pontos}/${res.meta}.`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                } else {
+                    showAlert("success", "Pontos Adicionados!", `+${qtyToAdd} · cliente agora tem ${res.pontos}/${res.meta} pontos.`);
+                    playSound("success");
+                    triggerVibration(150);
                 }
+                showEmojiFeedback(qtyToAdd);
+
+                if (selectPointsQty) selectPointsQty.value = "1";
             } catch (err) {
                 console.error("Erro ao processar pontos: ", err);
-                showAlert("error", "Erro de Processamento", err.message);
+                const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
+                if (isInativa) {
+                    showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
+                } else {
+                    showAlert("error", "Erro de Processamento", err.message || "Falha ao registrar pontos.");
+                }
                 playSound("error");
             }
+        }
+
+        function resetRemoveMode() {
+            isRemovingPoint = false;
+            if (btnModeRemove) {
+                btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
+                btnModeRemove.innerText = "Tirar 1 Ponto";
+            }
+            if (selectPointsQty) {
+                selectPointsQty.disabled = false;
+                selectPointsQty.classList.remove("opacity-50");
+            }
+        }
+
+        // Painel do cliente escaneado + entrega de prêmio
+        let panelClienteId = null;
+        const clientPanel = document.getElementById("client-panel");
+        const prizeBox = document.getElementById("prize-box");
+        const btnDeliverPrize = document.getElementById("btn-deliver-prize");
+
+        function renderClientPanel(clienteId, pontos, premiosPendentes) {
+            panelClienteId = clienteId;
+            const meta = metaConfig.metaPontos || 10;
+            if (clientPanel) clientPanel.classList.remove("hidden");
+            const elP = document.getElementById("client-points");
+            const elM = document.getElementById("client-meta");
+            if (elP && pontos != null) elP.innerText = pontos;
+            if (elM) elM.innerText = meta;
+            updatePrizeBox(premiosPendentes);
+        }
+
+        function updatePrizeBox(premiosPendentes) {
+            if (!prizeBox) return;
+            if (premiosPendentes != null && premiosPendentes > 0) {
+                prizeBox.classList.remove("hidden");
+                prizeBox.classList.add("flex");
+                const txt = document.getElementById("prize-count-text");
+                if (txt) txt.innerText = `${premiosPendentes} prêmio(s) a entregar`;
+                if (btnDeliverPrize) btnDeliverPrize.disabled = false;
+            } else if (premiosPendentes != null) {
+                prizeBox.classList.add("hidden");
+                prizeBox.classList.remove("flex");
+            }
+        }
+
+        if (btnDeliverPrize) {
+            btnDeliverPrize.addEventListener("click", async () => {
+                if (!panelClienteId) return;
+                btnDeliverPrize.disabled = true; // idempotência: trava no clique
+                try {
+                    const r = await deliverPrize({ empresaId, clienteId: panelClienteId });
+                    showAlert("win", "Prêmio entregue!", `Restam ${r.premiosPendentes} prêmio(s) pendente(s).`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                    updatePrizeBox(r.premiosPendentes);
+                } catch (err) {
+                    console.error("Erro ao entregar prêmio:", err);
+                    const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
+                    if (isInativa) {
+                        showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
+                    } else {
+                        showAlert("error", "Erro ao entregar", err.message || "Falha ao entregar o prêmio.");
+                    }
+                    playSound("error");
+                    btnDeliverPrize.disabled = false;
+                }
+            });
         }
         // Visual Emoji Feedback for Vendor
         function showEmojiFeedback(qty) {
