@@ -3,7 +3,7 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-16.
+> Última atualização: 2026-06-17.
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -21,28 +21,73 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 6. **`docs/PLANO_ACAO.md`** — plano antigo de refatoração de pontos (histórico, concluído;
    restam só itens de segurança: App Check e expor branding público — ver §6 dele).
 
-> **Próxima sessão — onde retomar:** as **5 decisões do CEO foram respondidas** (registradas
-> em `docs/PLANO_EXECUCAO.md §0`): preço **R$ 19,90/mês + 1º mês grátis**; logo **on hold**
-> (padronizar placeholder atual, tarefa do logo em aberto); tema **claro** (paleta a decidir);
-> auth **só Google + e-mail** (+ pedido de um meio de testar cadastro sem criar e-mail novo —
-> `T-DEV`, baixa prioridade); cartão do cliente **mínimo de movimentos**. Mandato-mestra do CEO:
-> *"MVP mínimo e completo funcional antes de luxos."*
->
-> **Onda 0 (bugs P0) CONCLUÍDA e deployada** (B-01, B-02, B-03, B-04, $-04, B-07). CEO testou:
-> **B-02 confirmado OK**; trouxe feedback → **Rodada 2 CONCLUÍDA e deployada** (commit `2b64b3b`):
-> - **VEND-07**: scan do vendedor agora é deliberado (1 leitura → painel via `getCard` → ações).
-> - **B-08**: cadastro com e-mail já existente não sobrescreve mais (redireciona ao dashboard / CTA login).
-> - **O-01**: botão Voltar no onboarding (passo 3→2). **TRIAL-01**: card das condições do trial.
-> - **VEND-08**: QR de acesso do vendedor na aba Equipe do dashboard.
->
-> Tudo verificado por syntax-check (`node --check`) e confirmado no ar. **Falta teste runtime** do
-> CEO na Rodada 2. Branch: `fix/onda-0-bugs-p0` (Onda 0 + Rodada 2). **Push:** o osxkeychain trava;
-> usar o helper do gh (ver memória `git-push-via-gh-helper`).
->
-> **Próximo (aguardando feedback do CEO sobre a Rodada 2):** **Fase B = preço R$ 19,90** — inclui
-> `functions/billing.js` (hoje `value:10.0`) e o CEO já definiu `nextDueDate = trialEndDate` (mês pago
-> só vale após os 30 dias). Depois Onda 1 (mobile). Pendências menores: TRIAL-01 falta o aviso real
-> de 7 dias antes (notificação/e-mail). Sequência completa em `docs/PLANO_EXECUCAO.md`.
+---
+
+## 📍 ESTADO ATUAL — leia isto primeiro (atualizado 2026-06-17)
+
+### Decisões do CEO (já respondidas — detalhe em `docs/PLANO_EXECUCAO.md §0`)
+- **Preço:** R$ 19,90/mês + **1º mês grátis** (o trial de 30 dias É o mês grátis). Pagar antes
+  do fim do trial é permitido, mas o **mês pago só começa a valer ao fim dos 30 dias**
+  → no billing: `createSubscription.nextDueDate = trialEndDate`.
+- **Logo:** ON HOLD — padronizar o **placeholder atual**; tarefa do logo definitivo fica aberta.
+- **Tema do app:** **claro** (paleta ainda a decidir → usar paleta clara neutra como placeholder).
+- **Auth:** só **Google + e-mail/senha** (Apple/Facebook fora do MVP).
+- **Cartão do cliente:** mínimo de movimentos pra contabilizar o ponto.
+- **Mandato-mestra:** *"MVP mínimo e completo funcional antes de luxos."*
+
+### ✅ Concluído e DEPLOYADO em produção (`tempontinho.com`)
+Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2; **ainda NÃO mergeado em `main`**).
+Commits: `9b673ed` (Onda 0) · `2b64b3b` (Rodada 2) · `157181c` (docs).
+
+- **Onda 0 — bugs P0:** B-01 (cadastro/permissions), B-02 (câmera relogar), B-03 (caixa de
+  prêmio), B-04 (deleteDoc), $-04 (paywall vaza escritas), B-07 (confetti duplicado).
+- **Rodada 2 — feedback do CEO pós-teste:** VEND-07 (scan deliberado do vendedor via `getCard`),
+  B-08 (anti-overwrite de cadastro), O-01 (botão Voltar onboarding), TRIAL-01 (card de condições
+  do trial), VEND-08 (QR de acesso do vendedor na aba Equipe).
+- Verificação: análise de regras + `node --check` nos módulos + curl confirmando no ar.
+  **Falta teste runtime** (câmera/scan/cadastro) — o CEO está testando agora.
+
+### ⏸️ ONDE PAREI EXATAMENTE
+**M-01 (navegação mobile do dashboard) — NÃO iniciado.** Só explorei o layout, **nenhuma edição feita**.
+- Problema: `dashboard.html:81` o `<aside>` é `hidden md:flex` → **no celular não há como trocar de
+  aba** (nem chegar na Equipe pra testar o VEND-08 no mobile).
+- `switchTab(tabName)` já existe (~`dashboard.html:1571`) e funciona; as 4 abas são
+  `dashboard` (Visão Geral), `clientes`, `equipe`, `stripe` (Assinatura).
+- **Próxima ação concreta:** adicionar uma **barra de navegação inferior** fixa visível só no mobile
+  (`md:hidden`) com as 4 abas chamando `switchTab(...)`, e dar `padding-bottom` ao `<main>`
+  (`dashboard.html:147`) pra não cobrir o conteúdo. É aditivo (desktop não muda).
+
+### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
+1. **Testar Onda 0 + Rodada 2** (em andamento) → dar feedback (ajustes) ou **bandeira verde**.
+2. **Rotacionar a `ASAAS_API_KEY`** (foi exposta) e me mandar a nova chave — instruções completas
+   já passadas ao CEO (gerar nova no painel Asaas → Configurações → Integrações → Chave de API;
+   a antiga invalida na hora; **não** colar em arquivo, só mandar na conversa). Depois EU faço:
+   `firebase functions:secrets:set ASAAS_API_KEY` + `firebase deploy --only functions` + teste PIX.
+3. **Bandeira verde para a Fase B (preço R$ 19,90)** — ela mexe em `functions/billing.js` e exige
+   **deploy de Functions** (Asaas real, ação sensível). Não fazer sem o OK.
+4. (Antigos, ainda abertos) configurar o **webhook no painel Asaas**; testar **login Google no mobile**.
+
+### ▶️ PRÓXIMOS PASSOS (quando liberado) — ordem sugerida
+1. Retomar **M-01** (acima) → resto da **Onda 1 (mobile):** M-02 (reflow/tabela em cards),
+   M-03 (overflow horizontal da home), M-04, M-05. Tudo frontend, sem deploy sensível.
+2. **Fase B — preço R$ 19,90** (com green flag): `functions/billing.js` (`value:10.0`→`19.90`,
+   `nextDueDate=trialEndDate`) + copy `$-03` (`index.html`, `dashboard.html` modal PIX R$10,
+   `master-admin.html` MRR `*49`). Deploy hosting é seguro; deploy de Functions só com OK.
+3. **Onda 2 — marca/tema:** placeholder padronizado + migrar telas logadas pro **tema claro**
+   (V-03) — **parcialmente bloqueada na paleta** (CEO ainda vai decidir). V-02 (fonte Outfit) e
+   V-06 (jargão) podem ir.
+4. Pendência da TRIAL-01: implementar o **aviso real de 7 dias antes** (notificação/e-mail).
+
+### 🔧 Notas operacionais
+- **Git push trava** no `git-credential-osxkeychain` neste ambiente. Use o helper do gh:
+  `git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin HEAD:<branch>`
+  (ver memória `git-push-via-gh-helper`). O `gh` está autenticado com escopo `repo`.
+- **Versionamento:** commitar padronizado (conventional + IDs do plano) ao fechar cada bloco
+  (preferência permanente do CEO — ver memória `versioning-on-block-completion`).
+- Deploys feitos na sessão: vários `firebase deploy --only hosting` (frontend). Nenhum deploy de
+  Functions feito ainda nesta fase.
+
+---
 
 > **⚠️ Segurança de hosting (corrigido nesta sessão):** o `firebase.json` usava
 > `"public": "."` e servia a raiz inteira — `HANDOFF.md` e outros `.md` ficavam
@@ -158,8 +203,14 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 ## TODO LIST
 
 ### Do lado do DONO/SÓCIO (humano)
-- [ ] **Testar login Google no MOBILE** em `tempontinho.com` (era o último item em
-      aberto; o redirect URI foi corrigido — confirmar que loga e PERMANECE logado).
+- [~] **Testar Onda 0 + Rodada 2 em produção** (EM ANDAMENTO — 2026-06-17). Roteiro nos
+      relatórios; dar **feedback (ajustes)** ou **bandeira verde** para liberar o próximo bloco.
+      Fazer **hard refresh** antes de testar (cache de HTML do navegador).
+- [ ] **Rotacionar a `ASAAS_API_KEY`** (foi exposta) — instruções já passadas: painel Asaas →
+      Configurações → Integrações → Chave de API → gerar nova (a antiga invalida na hora) →
+      **mandar a nova chave na conversa** (não colar em arquivo). O Claude faz o resto.
+- [ ] **Testar login Google no MOBILE** em `tempontinho.com` (o redirect URI foi corrigido —
+      confirmar que loga e PERMANECE logado).
 - [ ] **Configurar o webhook no painel Asaas** (responsável: sócio). Em
       Configurações → Integrações → Webhooks:
       URL = `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`;
@@ -186,9 +237,14 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       desejado), redeploy. Testar que o app continua logando.
 - [ ] **Limpeza:** apagar imagens de build do GCR que geram aviso de custo
       (`https://console.cloud.google.com/gcr/images/nice-dreamks-fidelidade/us/gcf`).
-- [ ] **Executar o roadmap de design/produto:** seguir `docs/PLANO_EXECUCAO.md` por ondas
-      (começar pela Onda 0 — bugs P0, incl. `B-01`/CAD-05). Marcar progresso em
-      `docs/TAREFAS_CEO.md`.
+- [~] **Executar o roadmap de design/produto** (`docs/PLANO_EXECUCAO.md`), marcando progresso
+      em `docs/TAREFAS_CEO.md`:
+      - [x] **Onda 0** (bugs P0) — feita e deployada.
+      - [x] **Rodada 2** (feedback do CEO: VEND-07, B-08, O-01, TRIAL-01, VEND-08) — feita e deployada.
+      - [ ] **Onda 1 (mobile)** — **PRÓXIMO**. Parado no **M-01** (nav mobile do dashboard), não
+            iniciado (ver "ONDE PAREI" no topo). Depois M-02/M-03/M-04/M-05.
+      - [ ] **Fase B (preço R$ 19,90)** — só com bandeira verde (deploy de Functions/Asaas).
+      - [ ] **Onda 2 (marca/tema claro)** — parcialmente bloqueada na paleta (CEO decide).
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
