@@ -28,11 +28,21 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 > `T-DEV`, baixa prioridade); cartão do cliente **mínimo de movimentos**. Mandato-mestra do CEO:
 > *"MVP mínimo e completo funcional antes de luxos."*
 >
-> **A Onda 0 (bugs P0) está CONCLUÍDA nesta sessão** (B-01, B-02, B-03, B-04, $-04, B-07 — ver
-> `docs/TAREFAS_CEO.md` e `docs/PLANO_EXECUCAO.md`). Verificada por análise de regras + syntax-check
-> dos módulos. **Falta:** teste runtime ponta a ponta (câmera/scan/re-signup) — depende do `T-DEV`.
-> **Próximo:** Fase B = reconciliar preço para R$ 19,90 (inclui `functions/billing.js`, hoje R$10),
-> depois Onda 1 (mobile). Sequência completa em `docs/PLANO_EXECUCAO.md`.
+> **Onda 0 (bugs P0) CONCLUÍDA e deployada** (B-01, B-02, B-03, B-04, $-04, B-07). CEO testou:
+> **B-02 confirmado OK**; trouxe feedback → **Rodada 2 CONCLUÍDA e deployada** (commit `2b64b3b`):
+> - **VEND-07**: scan do vendedor agora é deliberado (1 leitura → painel via `getCard` → ações).
+> - **B-08**: cadastro com e-mail já existente não sobrescreve mais (redireciona ao dashboard / CTA login).
+> - **O-01**: botão Voltar no onboarding (passo 3→2). **TRIAL-01**: card das condições do trial.
+> - **VEND-08**: QR de acesso do vendedor na aba Equipe do dashboard.
+>
+> Tudo verificado por syntax-check (`node --check`) e confirmado no ar. **Falta teste runtime** do
+> CEO na Rodada 2. Branch: `fix/onda-0-bugs-p0` (Onda 0 + Rodada 2). **Push:** o osxkeychain trava;
+> usar o helper do gh (ver memória `git-push-via-gh-helper`).
+>
+> **Próximo (aguardando feedback do CEO sobre a Rodada 2):** **Fase B = preço R$ 19,90** — inclui
+> `functions/billing.js` (hoje `value:10.0`) e o CEO já definiu `nextDueDate = trialEndDate` (mês pago
+> só vale após os 30 dias). Depois Onda 1 (mobile). Pendências menores: TRIAL-01 falta o aviso real
+> de 7 dias antes (notificação/e-mail). Sequência completa em `docs/PLANO_EXECUCAO.md`.
 
 > **⚠️ Segurança de hosting (corrigido nesta sessão):** o `firebase.json` usava
 > `"public": "."` e servia a raiz inteira — `HANDOFF.md` e outros `.md` ficavam
