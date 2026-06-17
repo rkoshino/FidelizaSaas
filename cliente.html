@@ -16,13 +16,14 @@
                         space: ['Space Grotesk', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                         bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QRCode.js CDN -->
@@ -178,7 +179,7 @@
 
     <!-- Footer -->
     <footer class="w-full text-center text-[9px] text-white/40 pb-2">
-        <p>&copy; Tem Pontinho. Alimentado por White Label.</p>
+        <p>&copy; Tem Pontinho · seu cartão fidelidade no celular.</p>
     </footer>
 
     <!-- Firebase SDK Logic -->
@@ -301,7 +302,7 @@
                     });
                 } else {
                     document.getElementById("login-welcome-title").innerText = "Link Inválido";
-                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-400 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Parâmetro de link ausente!</span> Por favor, use o link completo gerado no onboarding (ex: <code>cliente.html?link=nome-da-empresa</code>).`;
+                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-400 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Link inválido</span> Abra o cartão pelo link que a loja compartilhou com você.`;
                     // Oculta botões de login
                     const btnContainer = document.querySelector("#login-screen div.flex-col");
                     if (btnContainer) btnContainer.classList.add("hidden");
