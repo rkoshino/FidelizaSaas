@@ -150,7 +150,7 @@
                 <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400" id="user-avatar">E</div>
                 <div class="overflow-hidden">
                     <p class="text-xs font-semibold text-white truncate" id="user-display-name">Empresário</p>
-                    <p class="text-[10px] text-slate-500 truncate" id="user-email">email@empresa.com</p>
+                    <p class="text-[10px] text-slate-400 truncate" id="user-email">email@empresa.com</p>
                 </div>
             </div>
             <button id="btn-logout" class="w-full py-2.5 bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-900/50 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-400 transition flex items-center justify-center gap-2">
@@ -352,7 +352,7 @@
                             </button>
                         </div>
                         <div class="relative w-full sm:max-w-xs flex-1 mt-3 md:mt-0">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-500 text-xs"></i>
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
                             <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-slate-300">
                         </div>
                     </div>
@@ -383,7 +383,7 @@
                             </thead>
                             <tbody id="clientes-table-body" class="divide-y divide-slate-900 text-slate-300">
                                 <tr>
-                                    <td colspan="5" class="py-8 text-center text-slate-500">
+                                    <td colspan="5" class="py-8 text-center text-slate-400">
                                         <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando clientes cadastrados...
                                     </td>
                                 </tr>
@@ -398,7 +398,7 @@
                 <div class="flex justify-between items-center gap-4 flex-wrap">
                     <div>
                         <h3 class="font-bold text-lg text-white font-outfit">Equipe de Atendimento</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
                     </div>
                     <div class="flex items-center gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
                         <div class="flex items-center">
@@ -431,7 +431,7 @@
 
                 <!-- Vendedores Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-slate-500 col-span-full">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-slate-400 col-span-full">
                         <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando equipe...
                     </div>
                 </div>
@@ -462,16 +462,16 @@
                             <label for="config-company-slug" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Personalizado</label>
                             <div class="flex gap-2">
                                 <div class="flex-1 flex items-center bg-slate-900 border border-slate-800 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
-                                    <span class="text-slate-500 text-xs px-3 py-2.5 border-r border-slate-800 bg-slate-950">/cliente.html?link=</span>
+                                    <span class="text-slate-400 text-xs px-3 py-2.5 border-r border-slate-800 bg-slate-950">/cliente.html?link=</span>
                                     <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-white transition" autocomplete="off">
                                 </div>
                                 <button id="btn-save-company-slug" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar Link</button>
                             </div>
-                            <span class="text-[10px] text-slate-500">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
+                            <span class="text-[10px] text-slate-400">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail Comercial (Login)</label>
-                            <input type="text" id="config-owner-email" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-500 opacity-70 cursor-not-allowed">
+                            <input type="text" id="config-owner-email" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-400 opacity-70 cursor-not-allowed">
                         </div>
                     </div>
                 </div>
@@ -495,11 +495,11 @@
                     <!-- Free/Trial Card -->
                     <div class="glassmorphism p-6 rounded-2xl border-slate-800/80 flex flex-col gap-5 bg-slate-950/20">
                         <div class="flex flex-col gap-1">
-                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Plano Atual</span>
+                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Plano Atual</span>
                             <h4 class="text-xl font-bold text-white font-outfit">Período de Testes</h4>
                             <p class="text-slate-400 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
                         </div>
-                        <div class="text-2xl font-bold font-outfit text-white">R$ 0 <span class="text-xs font-normal text-slate-500">/ 30 dias</span></div>
+                        <div class="text-2xl font-bold font-outfit text-white">R$ 0 <span class="text-xs font-normal text-slate-400">/ 30 dias</span></div>
                         
                         <div class="h-[1px] bg-slate-900 w-full"></div>
 
@@ -520,7 +520,7 @@
                             <h4 class="text-xl font-bold text-white font-outfit">Plano Tem Pontinho</h4>
                             <p class="text-indigo-200/60 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
                         </div>
-                        <div class="text-2xl font-bold font-outfit text-white">R$ 19,90 <span class="text-xs font-normal text-slate-500">/ mensal</span></div>
+                        <div class="text-2xl font-bold font-outfit text-white">R$ 19,90 <span class="text-xs font-normal text-slate-400">/ mensal</span></div>
                         
                         <div class="h-[1px] bg-slate-900 w-full"></div>
 
@@ -548,13 +548,13 @@
         <button onclick="switchTab('dashboard')" id="mtab-btn-dashboard" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-indigo-400 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-chart-line text-lg"></i> Visão Geral
         </button>
-        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-500 font-medium text-[10px] transition-colors">
+        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-400 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-users text-lg"></i> Clientes
         </button>
-        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-500 font-medium text-[10px] transition-colors">
+        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-400 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-user-shield text-lg"></i> Equipe
         </button>
-        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-500 font-medium text-[10px] transition-colors">
+        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-400 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-qrcode text-lg"></i> Assinatura
         </button>
     </nav>
@@ -571,7 +571,7 @@
                 <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
                     <p class="text-slate-400">Cliente selecionado:</p>
                     <p class="text-white font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
-                    <p class="text-[10px] text-slate-500 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
                     <p class="text-indigo-400 font-bold mt-2">Pontuação Atual: <span id="modal-ajuste-pontos-atuais">0</span> Pontos</p>
                 </div>
 
@@ -592,11 +592,11 @@
                 <div class="flex flex-col gap-1">
                     <label for="ajuste-justificativa" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
                     <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    <span class="text-[9px] text-slate-500">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
+                    <span class="text-[9px] text-slate-400">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
                 </div>
 
                 <!-- Confirm buttons -->
-                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-slate-800 text-white disabled:text-slate-500 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-slate-800 text-white disabled:text-slate-400 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
                     Confirmar Ajuste
                 </button>
             </div>
@@ -628,7 +628,7 @@
                     </div>
                 </div>
                 
-                <p class="text-[10px] text-slate-500 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
+                <p class="text-[10px] text-slate-400 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
             </div>
         </div>
     </div>
@@ -650,7 +650,7 @@
                 <div class="flex flex-col gap-1">
                     <label for="vendedor-email" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">E-mail de Acesso</label>
                     <input type="email" id="vendedor-email" placeholder="joao@vendedor.com" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    <span class="text-[9px] text-slate-500">O vendedor utilizará este e-mail para logar no scanner do celular.</span>
+                    <span class="text-[9px] text-slate-400">O vendedor utilizará este e-mail para logar no scanner do celular.</span>
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
@@ -671,7 +671,7 @@
             </div>
             
             <div id="historico-lista" class="flex flex-col gap-3 mt-2">
-                <div class="text-center text-slate-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+                <div class="text-center text-slate-400 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
             </div>
         </div>
     </div>
@@ -723,7 +723,7 @@
                 <div class="flex flex-col gap-1.5 relative">
                     <label for="edit-theme-emoji" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
                     <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition text-center text-xl">
-                    <p class="text-[10px] text-slate-500 mt-1">Use o teclado para inserir 1 emoji.</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Use o teclado para inserir 1 emoji.</p>
                 </div>
 
                 <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
@@ -756,10 +756,10 @@
                         <!-- Informações em baixo de forma simples -->
                         <div class="flex flex-col items-center gap-1">
                             <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
-                            <p class="text-[9px] uppercase tracking-widest text-slate-500 font-semibold mb-1">Clube de Fidelidade</p>
+                            <p class="text-[9px] uppercase tracking-widest text-slate-400 font-semibold mb-1">Clube de Fidelidade</p>
                             
                             <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
-                            <p class="text-[10px] text-slate-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                            <p class="text-[10px] text-slate-400 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
                         </div>
                     </div>
 
@@ -791,7 +791,7 @@
             <button onclick="closeProFeatureModal(); switchTab('stripe');" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95">
                 Ver Planos de Assinatura
             </button>
-            <button onclick="closeProFeatureModal()" class="text-xs text-slate-500 hover:text-white mt-1">Agora não</button>
+            <button onclick="closeProFeatureModal()" class="text-xs text-slate-400 hover:text-white mt-1">Agora não</button>
         </div>
     </div>
 
@@ -833,14 +833,14 @@
                     <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-400">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label for="pix-telefone" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Telefone <span class="text-slate-500">(opcional)</span></label>
+                    <label for="pix-telefone" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Telefone <span class="text-slate-400">(opcional)</span></label>
                     <input type="text" id="pix-telefone" placeholder="Ex: 11999990000"
                         class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
                 </div>
                 <button id="btn-pix-submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-sm rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-1">
                     <i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX
                 </button>
-                <p class="text-[10px] text-slate-500 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
+                <p class="text-[10px] text-slate-400 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
             </div>
 
             <!-- Step 2: PIX Result -->
@@ -1198,7 +1198,7 @@
                 if (!hasClientes) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-slate-500">
+                            <td colspan="5" class="py-12 text-center text-slate-400">
                                 Nenhum cliente ativo registrado no seu programa ainda.<br>
                                 <span class="text-[10px] text-indigo-400 mt-2 block">Compartilhe o link do cliente para começar!</span>
                             </td>
@@ -1237,11 +1237,11 @@
                             </div>
                             <div>
                                 <h4 class="font-bold text-white text-sm leading-tight">${vended.nomeVendedor}</h4>
-                                <p class="text-[10px] text-slate-500 mt-0.5">${vended.email}</p>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${vended.email}</p>
                             </div>
                         </div>
                         <div class="flex justify-between items-center border-t border-slate-900 pt-3">
-                            <span class="text-[9px] font-bold uppercase tracking-wider ${vended.ativo ? 'text-emerald-400' : 'text-slate-500'}">
+                            <span class="text-[9px] font-bold uppercase tracking-wider ${vended.ativo ? 'text-emerald-400' : 'text-slate-400'}">
                                 ${vended.ativo ? 'Ativo' : 'Inativo'}
                             </span>
                             <button onclick="deletarVendedor('${vUid}')" class="text-[10px] text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-500/10 transition">
@@ -1254,7 +1254,7 @@
 
                 if (!hasVendedores) {
                     grid.innerHTML = `
-                        <div class="glassmorphism p-8 rounded-2xl text-center text-slate-500 col-span-full">
+                        <div class="glassmorphism p-8 rounded-2xl text-center text-slate-400 col-span-full">
                             Nenhum vendedor registrado nesta empresa.
                         </div>
                     `;
@@ -1271,7 +1271,7 @@
         window.openHistoricoModal = async function(clientId, clientName) {
             document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
             const historicoLista = document.getElementById("historico-lista");
-            historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Carregando histórico...</div>`;
+            historicoLista.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Carregando histórico...</div>`;
             document.getElementById("modal-historico").classList.remove("hidden");
 
             try {
@@ -1280,7 +1280,7 @@
                 const snap = await getDocs(logsRef);
 
                 if (snap.empty) {
-                    historicoLista.innerHTML = `<div class="text-center text-slate-500 py-6 text-xs">Nenhum registro no histórico.</div>`;
+                    historicoLista.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Nenhum registro no histórico.</div>`;
                     return;
                 }
 
@@ -1305,11 +1305,11 @@
                         <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
                             <div class="flex flex-col gap-1">
                                 <span class="text-white font-medium">${desc}</span>
-                                <span class="text-slate-500 text-[10px]">${sub}</span>
+                                <span class="text-slate-400 text-[10px]">${sub}</span>
                             </div>
                             <div class="text-right flex flex-col gap-0.5">
                                 <span class="text-slate-300">${dateStr}</span>
-                                <span class="text-slate-500 text-[10px]">${timeStr}</span>
+                                <span class="text-slate-400 text-[10px]">${timeStr}</span>
                             </div>
                         </div>
                     `;
@@ -1766,7 +1766,7 @@
                 const mBtn = document.getElementById(`mtab-btn-${t}`);
                 if (!mBtn) return;
                 mBtn.classList.toggle("text-indigo-400", t === tabName);
-                mBtn.classList.toggle("text-slate-500", t !== tabName);
+                mBtn.classList.toggle("text-slate-400", t !== tabName);
             });
 
             // Define título da página

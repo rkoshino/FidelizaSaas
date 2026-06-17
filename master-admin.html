@@ -111,7 +111,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-bold font-outfit text-white leading-tight">Super Admin</p>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest leading-tight mt-0.5">Master Control</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest leading-tight mt-0.5">Master Control</p>
                 </div>
             </div>
         </div>
@@ -146,7 +146,7 @@
                     <p id="admin-email" class="text-xs text-slate-300 font-medium truncate">–</p>
                     <p class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Super Admin</p>
                 </div>
-                <button id="btn-logout" title="Sair" class="text-slate-500 hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-400/10">
+                <button id="btn-logout" title="Sair" class="text-slate-400 hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-400/10">
                     <i class="fa-solid fa-right-from-bracket text-sm"></i>
                 </button>
             </div>
@@ -232,7 +232,7 @@
                     <i class="fa-solid fa-timeline text-slate-600 text-lg"></i>
                 </div>
                 <div id="recent-activity-list" class="divide-y divide-slate-800">
-                    <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                    <div class="px-6 py-8 text-center text-slate-400 text-sm">
                         <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Carregando…
                     </div>
                 </div>
@@ -257,7 +257,7 @@
             <!-- Toolbar: Busca + Filtros -->
             <div class="flex flex-wrap items-center gap-3 mb-5">
                 <div class="relative flex-1 min-w-[200px]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                     <input id="empresa-search" type="text" placeholder="Buscar por nome ou e-mail…"
                         class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                 </div>
@@ -286,7 +286,7 @@
                         </thead>
                         <tbody id="empresas-tbody" class="divide-y divide-slate-800">
                             <tr id="empresas-empty-row" class="hidden">
-                                <td colspan="7" class="px-5 py-12 text-center text-slate-500">
+                                <td colspan="7" class="px-5 py-12 text-center text-slate-400">
                                     <i class="fa-solid fa-building text-3xl mb-3 block text-slate-700"></i>
                                     Nenhuma empresa encontrada.
                                 </td>
@@ -331,7 +331,7 @@
             <!-- Lista de Logs -->
             <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
                 <div id="logs-list" class="divide-y divide-slate-800 max-h-[60vh] overflow-y-auto">
-                    <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                    <div class="px-6 py-8 text-center text-slate-400 text-sm">
                         <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Aguardando eventos…
                     </div>
                 </div>
@@ -400,7 +400,7 @@
                         <p class="text-slate-400 text-xs mt-0.5">Últimos 20 comunicados globais</p>
                     </div>
                     <div id="comunicados-list" class="flex-1 divide-y divide-slate-800 overflow-y-auto max-h-[520px]">
-                        <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                        <div class="px-6 py-8 text-center text-slate-400 text-sm">
                             <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Carregando…
                         </div>
                     </div>
@@ -644,7 +644,7 @@ async function loadDashboard() {
     } catch (e) {
         console.error("Erro ao carregar atividade recente:", e);
         document.getElementById("recent-activity-list").innerHTML =
-            `<div class="px-6 py-8 text-center text-slate-500 text-sm">Erro ao carregar eventos.</div>`;
+            `<div class="px-6 py-8 text-center text-slate-400 text-sm">Erro ao carregar eventos.</div>`;
     }
 }
 
@@ -652,7 +652,7 @@ function renderRecentActivity(docs) {
     const container = document.getElementById("recent-activity-list");
 
     if (!docs || docs.length === 0) {
-        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
+        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-400 text-sm">
             <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
             Nenhum evento registrado.
         </div>`;
@@ -681,7 +681,7 @@ function renderRecentActivity(docs) {
             </div>
             <div class="flex-1 min-w-0">
                 <p class="text-sm text-slate-200 leading-snug">${msg}${uid}</p>
-                <p class="text-xs text-slate-500 mt-1">${ts}</p>
+                <p class="text-xs text-slate-400 mt-1">${ts}</p>
             </div>
         </div>`;
     });
@@ -747,7 +747,7 @@ function renderEmpresas() {
             trial:     `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>Trial</span>`,
             bloqueado: `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/20"><span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>Bloqueado</span>`,
         };
-        return map[n] || `<span class="text-slate-500 text-xs">${escapeHtml(s)}</span>`;
+        return map[n] || `<span class="text-slate-400 text-xs">${escapeHtml(s)}</span>`;
     };
 
     filtered.forEach((emp, idx) => {
@@ -764,7 +764,7 @@ function renderEmpresas() {
         const link        = emp.linkUnicoCliente || "";
 
         tr.innerHTML = `
-            <td class="px-5 py-4 text-slate-500 text-xs">${idx + 1}</td>
+            <td class="px-5 py-4 text-slate-400 text-xs">${idx + 1}</td>
             <td class="px-5 py-4">
                 <p class="text-sm text-white font-medium leading-snug"></p>
             </td>
@@ -890,7 +890,7 @@ function renderLogs() {
         : allLogs.filter(l => l.level === currentLogLevel);
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
+        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-400 text-sm">
             <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
             Nenhum log encontrado.
         </div>`;
@@ -916,7 +916,7 @@ function renderLogs() {
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap mb-0.5">
                     <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${cfg.badge}">${escapeHtml(level)}</span>
-                    <span class="text-xs text-slate-500">${formatDateTime(log.timestamp)}</span>
+                    <span class="text-xs text-slate-400">${formatDateTime(log.timestamp)}</span>
                     ${log.uid ? `<span class="text-[10px] text-slate-600 font-mono bg-slate-800 px-1.5 py-0.5 rounded">${escapeHtml(String(log.uid).substring(0,14))}…</span>` : ""}
                 </div>
                 <p class="text-sm text-slate-300 leading-snug break-words"></p>
@@ -1001,7 +1001,7 @@ function renderComunicados(docs) {
     const container = document.getElementById("comunicados-list");
 
     if (!docs || docs.length === 0) {
-        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
+        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-400 text-sm">
             <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
             Nenhum comunicado enviado.
         </div>`;
@@ -1022,7 +1022,7 @@ function renderComunicados(docs) {
                     <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${tipo.class} flex items-center gap-1">
                         <i class="fa-solid ${tipo.icon} text-[10px]"></i>${escapeHtml(tipo.label)}
                     </span>
-                    <span class="text-xs text-slate-500">${formatDateTime(com.dataCriacao)}</span>
+                    <span class="text-xs text-slate-400">${formatDateTime(com.dataCriacao)}</span>
                 </div>
                 <p class="text-sm font-semibold text-white mb-1"></p>
                 <p class="text-xs text-slate-400 leading-relaxed line-clamp-2"></p>
