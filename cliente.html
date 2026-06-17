@@ -44,6 +44,15 @@
             0%, 100% { border-color: rgba(255, 255, 255, 0.2); }
             50% { border-color: rgba(255, 255, 255, 0.6); }
         }
+        /* X-07: respeita prefers-reduced-motion — neutraliza animações/transições. */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #0b0f19;">
@@ -161,6 +170,12 @@
                 <p class="text-[11px] text-white font-medium">Mostre esta tela (o QR acima) ao vendedor para retirar.</p>
             </div>
 
+            <!-- C-06: Empty state acolhedor para o cliente novo (0 carimbos, nenhum prêmio) -->
+            <div id="welcome-banner" class="hidden p-4 rounded-2xl border border-white/15 bg-white/5 text-white flex flex-col items-center gap-1 text-center">
+                <h4 class="font-bold text-sm"><i class="fa-solid fa-hand-sparkles mr-1.5 text-yellow-300"></i>Bem-vindo(a)!</h4>
+                <p class="text-[11px] text-white/80 font-medium">Seu primeiro carimbo está a um pedido de distância. Mostre seu QR no balcão e comece a juntar pontos.</p>
+            </div>
+
             <!-- Profile Info Footer / Logged user info -->
             <div class="flex items-center justify-between px-3 text-[11px] text-white/70 mt-2">
                 <span id="client-name">Cliente</span>
@@ -215,6 +230,9 @@
         let qrCodeInstance = null;
         let unsubscribeListener = null;
         let brandEmoji = "⭐";
+
+        // X-07: usuários que pedem menos movimento não recebem confete/voo de emoji.
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         // Recupera slug/empresaId pelos parâmetros de URL com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
@@ -309,11 +327,38 @@
                 }
             } catch (err) {
                 console.error("Erro ao carregar branding da empresa: ", err);
+                // X-05: erro de rede deixava o título em "Carregando…" para sempre.
+                showLoadError();
             }
         }
 
-        // Executa branding
-        await fetchCompanyBranding();
+        // X-05: estado de erro/offline na tela inicial (corrige "Carregando…" eterno, B-06).
+        function showLoadError() {
+            const title = document.getElementById("login-welcome-title");
+            const desc = document.getElementById("login-welcome-desc");
+            const offline = !navigator.onLine;
+            title.innerText = offline ? "Você está sem conexão" : "Não foi possível carregar";
+            desc.innerHTML = `<span class="text-amber-400 font-bold block mb-2"><i class="fa-solid fa-wifi mr-1"></i> ${offline ? "Sem internet" : "Erro de rede"}</span> ${offline ? "Verifique sua conexão e tente de novo." : "Tente novamente em instantes."} <button id="btn-retry-load" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button>`;
+            const btnContainer = document.querySelector("#login-screen div.flex-col");
+            if (btnContainer) btnContainer.classList.add("hidden");
+            document.getElementById("btn-retry-load")?.addEventListener("click", () => window.location.reload());
+        }
+
+        // X-05: se já abrir offline, não fica preso no "Carregando…".
+        if (!navigator.onLine) {
+            showLoadError();
+        } else {
+            // Executa branding
+            await fetchCompanyBranding();
+        }
+
+        // X-05: recupera automaticamente quando a conexão volta.
+        window.addEventListener("online", () => {
+            const title = document.getElementById("login-welcome-title");
+            if (title && (title.innerText === "Você está sem conexão" || title.innerText === "Não foi possível carregar")) {
+                window.location.reload();
+            }
+        });
 
         // Finaliza o fluxo de redirect do mobile (se houver)
         try {
@@ -405,6 +450,10 @@
                     banner.classList.add("hidden");
                 }
 
+                // C-06: cliente novo (sem carimbos e sem prêmio) vê uma mensagem de boas-vindas.
+                const welcome = document.getElementById("welcome-banner");
+                if (welcome) welcome.classList.toggle("hidden", !(pontos === 0 && premios === 0));
+
                 lastPoints = pontos;
                 lastPremios = premios;
                 firstLoad = false;
@@ -413,6 +462,8 @@
 
         // Animação de Pouso Rápido do Ponto
         function playLandingAnimation(pointIndex) {
+            // X-07: sem movimento — renderStamps() já desenhou o carimbo, então não anima.
+            if (prefersReducedMotion) return;
             const giantEmoji = document.createElement("div");
             giantEmoji.innerText = brandEmoji;
             giantEmoji.style.position = "fixed";
@@ -495,6 +546,8 @@
 
         // Confetes Interativos de Sucesso com Emojis da Empresa
         function fireVictoryConfetti() {
+            // X-07: sem confete quando o usuário pede menos movimento (o banner de vitória já comunica).
+            if (prefersReducedMotion) return;
             try {
                 var scalar = 3;
                 var emojiShape = confetti.shapeFromText({ text: brandEmoji, scalar });
