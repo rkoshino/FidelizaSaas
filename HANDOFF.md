@@ -3,7 +3,8 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-17 (sessão: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
+> Última atualização: 2026-06-18 (sessão: **X-01 modais** em dashboard/cliente/vendedor + **PR #2 aberto**
+> p/ main com toda a branch. Antes: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
 > Depois: V-03 paleta v2 amendoado+teal na landing — DEPLOYADO; **A-02 (provedores Firebase) FEITO pelo
 > dono; webhook Asaas CONFIGURADO pelo dono (token existente, sequencial, ativo)**. TRIAL-01 backend
 > reescrito (avisos 15/7/3/1 dias às 10h BRT) — NÃO deployado, aguarda secret RESEND_API_KEY).
@@ -108,10 +109,15 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
 2. **V-03 (tema claro)** — única peça bloqueada: depende da **paleta** (CEO decide; D3 autoriza
    placeholder neutro). Maior mudança visual restante; fazer junto do logo definitivo (ON HOLD).
 3. ~~A-01~~ ✅ FEITA (2026-06-17). Falta só **A-02** (provedores no console Firebase — tarefa de console).
-4. **Onda 5 restante:** só **X-01** (modais no lugar de alert/confirm — adiado de propósito, refactor
-   amplo em fluxos destrutivos) e o **X-02 sweep completo** (acompanha V-03/tema claro).
+4. **Onda 5 restante:** só **X-02 sweep completo** (acompanha V-03/tema claro). **X-01 ✅ FEITA
+   (2026-06-18)**: `alert/confirm/prompt` nativos substituídos por `showToast`(success/error/warn) +
+   `confirmDialog` (modal promise-based, com variante `danger` e `keyword` p/ a exclusão por palavra
+   "APAGAR") em **dashboard, cliente e vendedor** (commit `cf05bb4`). **Ainda NÃO deployado** (aguarda
+   `firebase deploy --only hosting`).
    ✅ Feitas E DEPLOYADAS em 2026-06-17: X-02 (parcial telas escuras), X-03, X-05, X-07, C-06, **C-01**
    (prévia de valor antes do login + Google 1-tap primário + FB/Apple escondidos por D4).
+   📦 **PR aberto:** `fix/onda-0-bugs-p0` → `main` = https://github.com/rkoshino/FidelizaSaas/pull/2
+   (33 commits; Ondas 0→5 + Fase B + X-01).
 5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO (`functions/notifications.js`,
    `subscriptionReminderCron` onSchedule **10:00 BRT**, avisos em **15/7/3/1 dias antes do vencimento**
    (trialEndDate p/ trial, proximoVencimento p/ active), dedupe em `lembretesVencimentoEnviados`).
