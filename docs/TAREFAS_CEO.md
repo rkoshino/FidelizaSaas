@@ -99,10 +99,8 @@
   Exibir os termos de segurança no login com Google, Apple e Facebook.
   **Aceite:** aceite/sinalização de termos presente antes de concluir login via provedor social.
 
-- [~] **CAD-02 (A-01/A-02) · 🔒 P1 — Provedores independentes + verificação de e-mail** — `config.js` já exporta `sendEmailVerification`/`sendPasswordResetEmail`. **Pendente:** plugar `sendEmailVerification` no fluxo de signup (A-01) e configurar provedores no **console Firebase** (A-02, não dá por código).
-  Configurar login Google/Apple/Facebook e e-mail de forma independente, e criar cadastro por e-mail que **exija confirmação de e-mail**.
-  **Aceite:** providers funcionam isoladamente; cadastro por e-mail dispara verificação e só libera após confirmar.
-  _[?] Confirmar com CEO se Apple/Facebook são realmente para o MVP (custo/config de provider)._
+- [x] **CAD-02 (A-01/A-02) · 🔒 P1 — Provedores independentes + verificação de e-mail** ✅ 2026-06-17 — **A-01** plugado: signup por e-mail dispara `sendEmailVerification` e o dashboard cobra a confirmação (banner + reenviar). **A-02** configurado pelo dono no console Firebase: **Google + E-mail/senha** ativos (Apple/Facebook fora do MVP por D4).
+  **Aceite atendido:** providers funcionam isoladamente; cadastro por e-mail dispara verificação.
 
 ### Parte 2 do cadastro
 - [x] **CAD-03 (O-02) · 📝 P3 — Copy da etapa 2** ✅ 2026-06-17 — `onboarding.html`: "Configuração do Cartão de Pontos — Defina o prêmio, quantos pontos para ganhar e o link do seu cartão."
@@ -146,7 +144,7 @@
 ## 5. Itens a esclarecer com o CEO ([?])
 
 - **MP-02** — a copy nova substitui a headline atual ou é seção adicional?
-- **CAD-02** — Apple e Facebook entram no MVP? (custo/burocracia de provider)
+- ~~**CAD-02** — Apple e Facebook entram no MVP?~~ ✅ RESOLVIDO (D4): **não** — só Google + e-mail/senha no MVP.
 - **CAD-09** — qual exatamente o problema do emoji no celular (mensagem veio truncada).
 
 ---
@@ -168,7 +166,7 @@
   Repro: criar empresa X com um e-mail; recriar com o **mesmo e-mail** e link Y → ao logar aparece **Y** (sobrescreveu X). O e-mail (entidade) se sobrepõe ao link do cartão.
   **Desejado (produção):** se o e-mail/conta já tem empresa cadastrada → **feedback visual "e-mail já cadastrado" + CTA "fazer login"**; **não** permitir re-onboarding que sobrescreve. _(Ajuste de produto sobre B-01: o B-01 tirou o crash; falta impedir o overwrite no signup.)_
 
-- [x] **TRIAL-01 · 📝🎨 P1 — Condições do trial de forma lúdica/minimalista (1 CTA)** ✅ 2026-06-16 (card) + ✅ 2026-06-17 (billing) — card no passo 1 do onboarding; **`nextDueDate = trialEndDate` JÁ no billing e deployado** (Fase B). **Pendente só:** o aviso real de 7 dias antes (notificação/e-mail).
+- [x] **TRIAL-01 · 📝🎨 P1 — Condições do trial de forma lúdica/minimalista (1 CTA)** ✅ 2026-06-16 (card) + ✅ 2026-06-17 (billing) + ✅ 2026-06-17 (aviso por e-mail) — card no passo 1 do onboarding; **`nextDueDate = trialEndDate` JÁ no billing e deployado** (Fase B); **aviso por e-mail LIVE** via Resend (`subscriptionReminderCron`, 10h BRT, em **15/7/3/1 dias** antes do vencimento — superou o "7 dias antes" original).
   No onboarding (e onde fizer sentido), explicar com **1 movimento de CTA**: **1 mês grátis**, **sem cartão de crédito**, **avisamos 1 semana antes** perguntando se quer fechar o premium, **o acesso encerra ao fim do trial** salvo pagamento, e o **pagamento pode ser feito antes** — o **mês pago só começa a valer ao fim dos 30 dias** garantidos.
   **Aceite:** mensagem clara, didática e enxuta; usuário entende o trial sem fricção. _(Impacta billing: `createSubscription.nextDueDate = trialEndDate`, não hoje — ver Fase B.)_
 

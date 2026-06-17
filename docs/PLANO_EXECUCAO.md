@@ -4,6 +4,11 @@
 > **Base:** `RELATORIO_FINAL.md` (mapa master) · **Companion:** `TAREFAS_CEO.md`, `RELATORIO_DESIGN.md`
 > **Data:** 2026-06-16 · **Status:** pronto para execução
 > **Rastreabilidade:** mantém os IDs do relatório final (`B-01`, `M-01`, `$-03`…). Cite em commits/PRs: `fix(B-01): ...`.
+>
+> ⚠️ **Este é o PLANO (estático). O estado atual de cada item vive no `../HANDOFF.md`** (checklist por onda,
+> atualizado a cada bloco) e no `TAREFAS_CEO.md`. Não leia as tabelas abaixo como "o que falta" — em
+> 2026-06-17 já estão concluídas Ondas 0–4, Fase B, billing/webhook/auth/Resend e a maior parte da Onda 5;
+> restam V-03 (tema claro nas telas logadas), X-01 (modais) e X-02 (sweep de contraste).
 
 ---
 
