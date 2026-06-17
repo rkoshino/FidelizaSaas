@@ -4,8 +4,9 @@
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
 > Última atualização: 2026-06-17 (sessão: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
-> Depois: V-03 teste de paleta creme/verde/laranja na landing — DEPLOYADO; TRIAL-01 backend pronto —
-> NÃO deployado, aguarda secret RESEND_API_KEY).
+> Depois: V-03 paleta v2 amendoado+teal na landing — DEPLOYADO; **A-02 (provedores Firebase) FEITO pelo
+> dono; webhook Asaas CONFIGURADO pelo dono (token existente, sequencial, ativo)**. TRIAL-01 backend
+> reescrito (avisos 15/7/3/1 dias às 10h BRT) — NÃO deployado, aguarda secret RESEND_API_KEY).
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -86,35 +87,21 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
 2. ✅ **`ASAAS_API_KEY` rotacionada** (versão 2) e Functions redeployadas em 2026-06-17 — a versão antiga
    foi destruída no mesmo fluxo. Nada pendente aqui.
 3. ✅ **Fase B (preço R$ 19,90) DEPLOYADA** — billing.js no ar com value 19.90 + nextDueDate=trialEndDate.
-4. **Configurar o webhook no painel Asaas** (PENDENTE, tarefa do dono):
-   - URL: `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`
-   - Token: valor de `ASAAS_WEBHOOK_TOKEN` (NÃO mudou na rotação; `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`)
-   - Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/inativação.
-   Sem isso, pagamento confirmado não vira `statusAssinatura: active` e o paywall não some sozinho.
+4. ✅ **Webhook Asaas CONFIGURADO** (2026-06-17, pelo dono): URL do `asaasWebhook`, token = valor
+   EXISTENTE do secret `ASAAS_WEBHOOK_TOKEN` (sem regenerar → sem redeploy), tipo de envio **Sequencial**,
+   webhook **ativo**, fila de sincronização ativada, eventos `PAYMENT_CONFIRMED`/`PAYMENT_RECEIVED`/
+   `PAYMENT_OVERDUE` (+ assinatura cancelada/inativada). **Falta só o teste PIX ponta-a-ponta.**
 
-   **Passo a passo (painel Asaas):** Menu → **Integrações** → **Webhooks** → **Adicionar/Novo webhook**.
-   Cole a URL acima; em **Token de autenticação** cole o valor do secret (rode no terminal do projeto
-   `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`); marque os eventos `PAYMENT_CONFIRMED`,
-   `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` e os de cancelamento/inativação de assinatura; deixe ativo e salve.
-   O webhook responde **401 sem token** (esperado) — o Asaas envia o header `asaas-access-token`.
+5. ✅ **A-02 — Provedores de login CONFIGURADOS** (2026-06-17, pelo dono): Google + E-mail/senha ativos
+   no Console Firebase (Apple/Facebook fora por D4). A-01 (verificação) e B-05 (reset) já operam.
 
-6. **A-02 — Provedores de login no Console Firebase** (tarefa de console do dono):
-   Console Firebase → projeto `nice-dreamks-fidelidade` → **Authentication** → aba **Sign-in method**.
-   - **Email/senha:** Adicionar provedor → "E-mail/senha" → **Ativar** (deixe "link por e-mail" desligado) → Salvar.
-   - **Google:** Adicionar provedor → "Google" → **Ativar** → escolher o e-mail de suporte do projeto → Salvar.
-   - Em **Authorized domains** confirme que constam `tempontinho.com` e `www.tempontinho.com`.
-   - (Apple/Facebook ficam **fora do MVP** por D4 — não ativar.)
-   Pronto: a verificação de e-mail (A-01) e o reset de senha (B-05) já usam esses provedores.
-
-7. **TRIAL-01 — Resend (e-mail de fim de trial)** — passo a passo do dono + 1 comando do Claude:
-   1. Criar conta grátis em **https://resend.com** (plano free: ~3.000 e-mails/mês).
-   2. **Domains** → **Add Domain** → `tempontinho.com`. O Resend mostra registros **DNS** (TXT do SPF,
-      `resend._domainkey` do DKIM e, opcional, DMARC). Adicione-os no painel de DNS do domínio e clique
-      **Verify** (pode levar alguns minutos). Sem domínio verificado o envio falha.
-   3. **API Keys** → **Create API Key** (permissão "Sending access") → copiar a chave `re_...`.
-   4. Passar a chave para o Claude rodar `firebase functions:secrets:set RESEND_API_KEY` e então
-      `firebase deploy --only functions` (sobe o cron `trialReminderCron`). O remetente configurado é
-      `avisos@tempontinho.com` (ajustável em `functions/notifications.js`).
+6. **TRIAL-01 — Resend (e-mail de vencimento)** — ⏳ em verificação de domínio:
+   1. ✅ Conta Resend criada; ✅ DNS (DKIM/SPF-MX/SPF-TXT/DMARC) adicionado no Squarespace (DNS do
+      `tempontinho.com`; hosting é Google/Firebase). Falta o Resend marcar o domínio como **Verified**.
+   2. Depois: **API Keys → Create** (Sending access) → mandar a chave `re_...` para o Claude.
+   3. Claude roda `firebase functions:secrets:set RESEND_API_KEY` + `firebase deploy --only functions`
+      (sobe o cron `subscriptionReminderCron`). Remetente: `avisos@tempontinho.com`
+      (ajustável em `functions/notifications.js`).
 5. (Antigo) testar **login Google no mobile**.
 
 ### ▶️ PRÓXIMOS PASSOS — o que sobrou
@@ -128,17 +115,17 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    ✅ Feitas E DEPLOYADAS em 2026-06-17: X-02 (parcial telas escuras), X-03, X-05, X-07, C-06, **C-01**
    (prévia de valor antes do login + Google 1-tap primário + FB/Apple escondidos por D4).
 5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO (`functions/notifications.js`,
-   `trialReminderCron` onSchedule diário 12:00 BRT, e-mail via Resend, marca `trialReminder7Sent`).
-   **Falta:** criar conta Resend + verificar domínio + `firebase functions:secrets:set RESEND_API_KEY`
-   e então `firebase deploy --only functions`. Passo a passo abaixo em "AÇÕES DO CEO".
+   `subscriptionReminderCron` onSchedule **10:00 BRT**, avisos em **15/7/3/1 dias antes do vencimento**
+   (trialEndDate p/ trial, proximoVencimento p/ active), dedupe em `lembretesVencimentoEnviados`).
+   **Falta:** domínio Resend verificar + `firebase functions:secrets:set RESEND_API_KEY` + `firebase
+   deploy --only functions`. Conta Resend criada e DNS já adicionado (passo a passo em "AGUARDANDO O CEO").
 6. **V-03 tema claro** — teste de paleta na **landing** (`index.html`) via tokens no `tailwind.config`.
    v1 (creme/verde/laranja) REPROVADA. **v2 ATUAL: off-white amendoado `#F2EBDE` + tinta espresso
    `#2A2520` + contraste único teal `#0E6E63`, 3 cores, SEM degradê.** DEPLOYADO. Aguarda OK do CEO
    antes de migrar as telas logadas escuras (dashboard/vendedor/onboarding/master-admin/cliente) — o
    grosso restante do V-03. Obs.: o logo SVG (pássaro) ainda tem degradê azul, mas é ON HOLD (logo
    definitivo é tarefa à parte).
-5. Pendência da TRIAL-01: **aviso real de 7 dias antes** (notificação/e-mail).
-6. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
+7. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
 
 ### 🔧 Notas operacionais
 - **Git push trava** no `git-credential-osxkeychain` neste ambiente. Use o helper do gh:
@@ -273,12 +260,11 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       `firebase functions:secrets:set ASAAS_API_KEY` (versão 2; antiga destruída no redeploy).
 - [ ] **Testar login Google no MOBILE** em `tempontinho.com` (o redirect URI foi corrigido —
       confirmar que loga e PERMANECE logado).
-- [ ] **Configurar o webhook no painel Asaas** (responsável: sócio) — **AINDA NÃO feito**. Em
-      Configurações → Integrações → Webhooks:
-      URL = `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`;
-      Token = valor de `ASAAS_WEBHOOK_TOKEN` (rodar `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`);
-      Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/
-      inativação de assinatura.
+- [x] **Configurar o webhook no painel Asaas** ✅ 2026-06-17 — token existente, Sequencial, ativo,
+      eventos de cobrança/assinatura marcados. (Falta só o teste PIX ponta-a-ponta — lado do Claude.)
+- [x] **A-02 — Provedores Google + E-mail/senha no Console Firebase** ✅ 2026-06-17.
+- [~] **TRIAL-01 / Resend** — conta criada e DNS adicionado no Squarespace; aguardando o domínio
+      verificar e a geração da API Key (`re_...`) p/ passar ao Claude.
 - [ ] **(Se for ativar App Check)** registrar um site key reCAPTCHA v3 no console e
       passar o valor para o Claude.
 
@@ -306,7 +292,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
             Functions redeployadas com a chave nova). Frontend e backend consistentes em R$19,90.
       - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
       - [~] **Onda 2 (marca/tema)** — V-02 (Outfit) e V-06 (jargão) feitas; V-01 placeholder já
-            consistente. **V-03 (tema claro) PENDENTE** — bloqueada na paleta (CEO decide).
+            consistente. **V-03 (tema claro):** paleta v2 (amendoado+teal) aplicada como TESTE na landing
+            e deployada; aguardando OK do CEO ("paleta em breve falaremos mais") antes de migrar as telas
+            logadas escuras (o grosso restante).
       - [~] **Onda 4 (cadastro/auth)** — feitas: C-02/C-03/C-04 (vendedor: QR do cliente,
             reordenação, atalho painel), B-05 (reset de senha) + A-03 (termos no login), O-02/O-03/O-04/O-06
             (onboarding: copy, título pré-preenchido, validação por campo, aviso conta vendedor),
