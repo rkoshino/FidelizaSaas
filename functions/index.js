@@ -315,3 +315,9 @@ exports.deleteMyData = onCall(async (request) => {
 /*  Nomes exportados: createSubscription, asaasWebhook                 */
 /* ------------------------------------------------------------------ */
 Object.assign(exports, require("./billing"));
+
+/* ------------------------------------------------------------------ */
+/*  Notificações por e-mail (TRIAL-01) — módulo notifications.js       */
+/*  Nomes exportados: trialReminderCron (onSchedule)                   */
+/* ------------------------------------------------------------------ */
+Object.assign(exports, require("./notifications"));
