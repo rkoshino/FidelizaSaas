@@ -95,13 +95,11 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
 5. ✅ **A-02 — Provedores de login CONFIGURADOS** (2026-06-17, pelo dono): Google + E-mail/senha ativos
    no Console Firebase (Apple/Facebook fora por D4). A-01 (verificação) e B-05 (reset) já operam.
 
-6. **TRIAL-01 — Resend (e-mail de vencimento)** — ⏳ em verificação de domínio:
-   1. ✅ Conta Resend criada; ✅ DNS (DKIM/SPF-MX/SPF-TXT/DMARC) adicionado no Squarespace (DNS do
-      `tempontinho.com`; hosting é Google/Firebase). Falta o Resend marcar o domínio como **Verified**.
-   2. Depois: **API Keys → Create** (Sending access) → mandar a chave `re_...` para o Claude.
-   3. Claude roda `firebase functions:secrets:set RESEND_API_KEY` + `firebase deploy --only functions`
-      (sobe o cron `subscriptionReminderCron`). Remetente: `avisos@tempontinho.com`
-      (ajustável em `functions/notifications.js`).
+6. ✅ **TRIAL-01 — Resend LIVE** (2026-06-17): domínio `tempontinho.com` Verified (região sa-east-1),
+   secret `RESEND_API_KEY` criado e `subscriptionReminderCron` DEPLOYADO (avisos 15/7/3/1 dias às 10h BRT).
+   Remetente `avisos@tempontinho.com`. **Pendência de segurança:** a API key foi colada no chat — o dono
+   deve **rotacioná-la** no Resend (criar outra, `firebase functions:secrets:set RESEND_API_KEY` com a
+   nova, redeploy de functions, revogar a antiga). **Falta testar** o envio real (ver lado do Claude).
 5. (Antigo) testar **login Google no mobile**.
 
 ### ▶️ PRÓXIMOS PASSOS — o que sobrou
@@ -133,8 +131,13 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
   (ver memória `git-push-via-gh-helper`). O `gh` está autenticado com escopo `repo`.
 - **Versionamento:** commitar padronizado (conventional + IDs do plano) ao fechar cada bloco
   (preferência permanente do CEO — ver memória `versioning-on-block-completion`).
-- Deploys feitos na sessão: vários `firebase deploy --only hosting` (frontend). Nenhum deploy de
-  Functions feito ainda nesta fase.
+- Deploys de hosting: `firebase deploy --only hosting` (global CLI 13.6.0 serve).
+- ⚠️ **Deploy de FUNCTIONS exige node ≥20**: o `firebase` global é 13.6.0 sobre **node v18** e RECUSA
+  o runtime `nodejs22` ("Cannot deploy function with runtime nodejs22"). Use o node do Homebrew (v23):
+  `cd functions/.. && PATH="/opt/homebrew/bin:$PATH" npx -y firebase-tools@latest deploy --only functions`.
+  (firebase-tools 15 precisa de node ≥20; o node padrão do shell é v18 — por isso o prefixo de PATH.)
+- Política de limpeza do Artifact Registry (gcf-artifacts) ativada em southamerica-east1: remove imagens
+  com +3 dias (resolve o aviso de custo). Comando: `... functions:artifacts:setpolicy --location southamerica-east1 --days 3 --force`.
 
 ---
 
@@ -263,8 +266,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] **Configurar o webhook no painel Asaas** ✅ 2026-06-17 — token existente, Sequencial, ativo,
       eventos de cobrança/assinatura marcados. (Falta só o teste PIX ponta-a-ponta — lado do Claude.)
 - [x] **A-02 — Provedores Google + E-mail/senha no Console Firebase** ✅ 2026-06-17.
-- [~] **TRIAL-01 / Resend** — conta criada e DNS adicionado no Squarespace; aguardando o domínio
-      verificar e a geração da API Key (`re_...`) p/ passar ao Claude.
+- [x] **TRIAL-01 / Resend** ✅ 2026-06-17 — domínio verificado, secret criado, cron deployado.
+      **Falta:** rotacionar a API key (foi colada no chat) e testar um envio real.
+- [x] **Limpeza GCR/Artifact Registry** ✅ 2026-06-17 — política de retenção de 3 dias ativada.
 - [ ] **(Se for ativar App Check)** registrar um site key reCAPTCHA v3 no console e
       passar o valor para o Claude.
 
@@ -281,8 +285,8 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [ ] **App Check** (quando o dono fornecer o site key): preencher `APP_CHECK_SITE_KEY`
       em `config.js`, `enforceAppCheck: true` em `functions/index.js` (e billing.js se
       desejado), redeploy. Testar que o app continua logando.
-- [ ] **Limpeza:** apagar imagens de build do GCR que geram aviso de custo
-      (`https://console.cloud.google.com/gcr/images/nice-dreamks-fidelidade/us/gcf`).
+- [x] **Limpeza:** política de retenção (3 dias) no Artifact Registry `gcf-artifacts` ✅ 2026-06-17
+      (some o aviso de custo; imagens antigas são apagadas automaticamente).
 - [~] **Executar o roadmap de design/produto** (`docs/PLANO_EXECUCAO.md`), marcando progresso
       em `docs/TAREFAS_CEO.md`:
       - [x] **Onda 0** (bugs P0) — feita e deployada.
