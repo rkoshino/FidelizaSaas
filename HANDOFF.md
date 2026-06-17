@@ -36,26 +36,35 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 - **Mandato-mestra:** *"MVP mínimo e completo funcional antes de luxos."*
 
 ### ✅ Concluído e DEPLOYADO em produção (`tempontinho.com`)
-Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2; **ainda NÃO mergeado em `main`**).
-Commits: `9b673ed` (Onda 0) · `2b64b3b` (Rodada 2) · `157181c` (docs).
+Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + Onda 3 + Fase B(código);
+**ainda NÃO mergeado em `main`**). Commits: `9b673ed` (Onda 0) · `2b64b3b` (Rodada 2) · `157181c` (docs)
+· **Onda 1** (mobile) · **Fase B + Onda 3** (preço/trial) · **Onda 2 parcial** (Outfit/jargão).
 
-- **Onda 0 — bugs P0:** B-01 (cadastro/permissions), B-02 (câmera relogar), B-03 (caixa de
-  prêmio), B-04 (deleteDoc), $-04 (paywall vaza escritas), B-07 (confetti duplicado).
-- **Rodada 2 — feedback do CEO pós-teste:** VEND-07 (scan deliberado do vendedor via `getCard`),
-  B-08 (anti-overwrite de cadastro), O-01 (botão Voltar onboarding), TRIAL-01 (card de condições
-  do trial), VEND-08 (QR de acesso do vendedor na aba Equipe).
-- Verificação: análise de regras + `node --check` nos módulos + curl confirmando no ar.
-  **Falta teste runtime** (câmera/scan/cadastro) — o CEO está testando agora.
+- **Onda 0 — bugs P0:** B-01, B-02, B-03, B-04, $-04, B-07.
+- **Rodada 2 — feedback do CEO:** VEND-07, B-08, O-01, TRIAL-01, VEND-08.
+- **Onda 1 — mobile (NOVO):** M-01 (barra de nav inferior no dashboard), M-02 (stats grid-cols-2,
+  tabela de clientes vira cards via CSS+data-label, header desapertado, logout mobile), M-03/M-04
+  (home sem overflow-x, Login sempre visível, cards flutuantes escondidos < sm), M-05 (alvos ≥44px).
+- **Fase B + Onda 3 — preço/trial (NOVO):** $-03 (landing vira plano ÚNICO R$19,90/mês + 1º mês grátis,
+  plano anual fictício REMOVIDO; dashboard e modal PIX R$19,90), $-05 (MRR = ativas×19.90), $-02
+  (banner de contagem no dashboard DURANTE o trial), $-01 (banner de trial no vendedor).
+  ⚠️ **`functions/billing.js` também foi alterado (value 19.90 + nextDueDate=trialEndDate) mas NÃO
+  deployado** — deploy de Functions está GATED no OK do CEO + chave nova (ver abaixo).
+- **Onda 2 parcial (NOVO):** V-02 (fonte Outfit carregada em dashboard/onboarding/cliente/vendedor —
+  antes `font-outfit` não renderizava), V-06 (jargão removido: White Label, empresaId, instrução de
+  dev no erro de link), V-01 (placeholder de logo já consistente no app; logo definitivo ON HOLD).
+- Verificação: `node --check billing.js` + curl confirmando no ar (preço, nav mobile, Outfit, .md→404).
+  **Falta teste runtime** (o CEO vai testar amanhã e dar o OK).
 
 ### ⏸️ ONDE PAREI EXATAMENTE
-**M-01 (navegação mobile do dashboard) — NÃO iniciado.** Só explorei o layout, **nenhuma edição feita**.
-- Problema: `dashboard.html:81` o `<aside>` é `hidden md:flex` → **no celular não há como trocar de
-  aba** (nem chegar na Equipe pra testar o VEND-08 no mobile).
-- `switchTab(tabName)` já existe (~`dashboard.html:1571`) e funciona; as 4 abas são
-  `dashboard` (Visão Geral), `clientes`, `equipe`, `stripe` (Assinatura).
-- **Próxima ação concreta:** adicionar uma **barra de navegação inferior** fixa visível só no mobile
-  (`md:hidden`) com as 4 abas chamando `switchTab(...)`, e dar `padding-bottom` ao `<main>`
-  (`dashboard.html:147`) pra não cobrir o conteúdo. É aditivo (desktop não muda).
+Onda 1, Onda 2 (parcial), Onda 3 e Fase B (código) **concluídas e deployadas em hosting**. Pendências:
+1. **Deploy de Functions** (preço R$19,90 + chave Asaas nova) — GATED no OK do CEO. Enquanto não rodar,
+   a produção AINDA cobra R$10 no Asaas, embora o frontend mostre R$19,90. **Não completar PIX real
+   no teste antes desse deploy.**
+2. **V-03 (tema claro)** — NÃO iniciado. Migrar telas logadas (escuro) p/ tema claro. Bloqueado na
+   **paleta** (CEO ainda vai decidir; D3 autoriza paleta clara neutra como placeholder). É a maior
+   mudança visual restante — fazer junto com o logo definitivo (também ON HOLD) faz sentido.
+3. **Onda 4 (cadastro/auth)** e **Onda 5 (polimento)** — não iniciadas (todas frontend, sem bloqueio).
 
 ### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
 1. **Testar Onda 0 + Rodada 2** (em andamento) → dar feedback (ajustes) ou **bandeira verde**.
@@ -98,7 +107,8 @@ Commits: `9b673ed` (Onda 0) · `2b64b3b` (Rodada 2) · `157181c` (docs).
 ## O que é o projeto
 
 **Tem Pontinho** — SaaS de cartão fidelidade digital (pontos/carimbos) para
-pequenos comércios. Filosofia: mínimo e sólido, barato (assinatura **R$ 10/mês**).
+pequenos comércios. Filosofia: mínimo e sólido, barato (assinatura **R$ 19,90/mês**,
+1º mês grátis — código já em R$19,90; deploy de Functions pendente do OK do CEO).
 O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 - **Repo local:** `/Users/claytonborges/WORK/FidelizaSaas` (NÃO é o portfólio em
@@ -133,8 +143,10 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 - `functions/billing.js`:
   - `createSubscription({ empresaId, cpfCnpj, telefone })` — cria cliente +
-    assinatura PIX R$10/mês no Asaas, devolve QR + copia-e-cola (com retry p/
-    latência). Auth: só o dono.
+    assinatura PIX **R$19,90/mês** no Asaas (`nextDueDate=trialEndDate`: o mês pago
+    só começa ao fim do trial), devolve QR + copia-e-cola (com retry p/ latência).
+    Auth: só o dono. ⚠️ Código já em R$19,90 mas **NÃO deployado** (deploy de Functions
+    pendente do OK do CEO + chave nova; produção ainda roda R$10 até lá).
   - `asaasWebhook` (HTTP) — valida header `asaas-access-token` e atualiza
     `statusAssinatura` nos eventos de pagamento.
     **URL:** `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`
@@ -241,10 +253,13 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       em `docs/TAREFAS_CEO.md`:
       - [x] **Onda 0** (bugs P0) — feita e deployada.
       - [x] **Rodada 2** (feedback do CEO: VEND-07, B-08, O-01, TRIAL-01, VEND-08) — feita e deployada.
-      - [ ] **Onda 1 (mobile)** — **PRÓXIMO**. Parado no **M-01** (nav mobile do dashboard), não
-            iniciado (ver "ONDE PAREI" no topo). Depois M-02/M-03/M-04/M-05.
-      - [ ] **Fase B (preço R$ 19,90)** — só com bandeira verde (deploy de Functions/Asaas).
-      - [ ] **Onda 2 (marca/tema claro)** — parcialmente bloqueada na paleta (CEO decide).
+      - [x] **Onda 1 (mobile)** — M-01..M-05 feitas e deployadas (hosting).
+      - [x] **Fase B (preço R$ 19,90)** — CÓDIGO feito (billing.js + copy). **Deploy de Functions
+            PENDENTE** (gated no OK do CEO + chave nova). Copy/preço já no ar via hosting.
+      - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
+      - [~] **Onda 2 (marca/tema)** — V-02 (Outfit) e V-06 (jargão) feitas; V-01 placeholder já
+            consistente. **V-03 (tema claro) PENDENTE** — bloqueada na paleta (CEO decide).
+      - [ ] **Onda 4 (cadastro/auth)** e **Onda 5 (polimento)** — não iniciadas (frontend, sem bloqueio).
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
