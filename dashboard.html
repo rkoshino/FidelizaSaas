@@ -73,6 +73,40 @@
                 display: none !important;
             }
         }
+
+        /* M-02: tabela de clientes vira cards no mobile (< md) */
+        @media (max-width: 767px) {
+            #tab-content-clientes thead { display: none; }
+            #clientes-table-body, #clientes-table-body tr, #clientes-table-body td { display: block; width: 100%; }
+            #clientes-table-body tr {
+                position: relative;
+                border: 1px solid rgb(15 23 42);
+                border-radius: 1rem;
+                margin-bottom: 0.75rem;
+                padding: 0.25rem 0;
+            }
+            #clientes-table-body td {
+                padding: 0.4rem 1rem !important;
+                text-align: left !important;
+            }
+            #clientes-table-body td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: rgb(100 116 139);
+                margin-bottom: 2px;
+            }
+            #clientes-table-body td.col-check {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                width: auto;
+                padding: 0.5rem !important;
+            }
+            #clientes-table-body td.col-actions .flex { justify-content: flex-start !important; }
+        }
     </style>
 </head>
 <body class="h-full flex bg-slate-950">
@@ -121,30 +155,34 @@
     <!-- Main Container -->
     <div class="flex-1 flex flex-col overflow-y-auto">
         <!-- Top bar -->
-        <header class="h-16 border-b border-slate-900 px-6 flex items-center justify-between glassmorphism sticky top-0 z-30">
-            <div class="flex items-center gap-2">
-                <h1 class="text-lg font-bold font-outfit text-white" id="page-title">Visão Geral</h1>
-                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden" id="trial-badge">Período de Teste</span>
-                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden" id="active-badge">Pro Ativo</span>
+        <header class="h-16 border-b border-slate-900 px-4 md:px-6 flex items-center justify-between gap-2 glassmorphism sticky top-0 z-30">
+            <div class="flex items-center gap-2 min-w-0">
+                <h1 class="text-base md:text-lg font-bold font-outfit text-white truncate" id="page-title">Visão Geral</h1>
+                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="trial-badge">Período de Teste</span>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="active-badge">Pro Ativo</span>
             </div>
-            
-            <div class="flex items-center gap-2">
-                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-xl transition flex items-center gap-1.5" title="Abrir Cartão Digital">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-xl transition flex items-center gap-1.5 min-h-[40px]" title="Abrir Cartão Digital">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden lg:inline">Página do Cliente</span>
                 </button>
                 <div class="flex items-center">
-                    <button id="btn-header-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
-                        <i class="fa-solid fa-camera"></i> Câmera do Vendedor
+                    <button id="btn-header-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0 min-h-[40px]">
+                        <i class="fa-solid fa-camera"></i> <span class="hidden lg:inline">Câmera do Vendedor</span><span class="lg:hidden">Câmera</span>
                     </button>
-                    <button id="btn-header-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link da Câmera">
-                        <i class="fa-regular fa-copy"></i> Copiar Link
+                    <button id="btn-header-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2 rounded-r-xl transition flex items-center gap-1.5 min-h-[40px]" title="Copiar link da Câmera">
+                        <i class="fa-regular fa-copy"></i> <span class="hidden lg:inline">Copiar Link</span>
                     </button>
                 </div>
+                <!-- Logout (somente mobile; no desktop fica na sidebar) -->
+                <button id="btn-logout-mobile" class="md:hidden text-xs font-semibold bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-900/50 text-slate-400 hover:text-red-400 w-10 h-10 rounded-xl transition flex items-center justify-center shrink-0" title="Sair do Painel" aria-label="Sair do Painel">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </header>
 
         <!-- Dynamic Content Area -->
-        <main class="flex-grow p-6 md:p-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
+        <main class="flex-grow p-6 md:p-8 pb-28 md:pb-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
 
             <!-- Banner Informativo de Trial -->
             <div id="trial-alert" class="hidden p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex items-center justify-between gap-4">
@@ -163,7 +201,7 @@
             <!-- TAB 1: VISÃO GERAL -->
             <div id="tab-content-dashboard" class="flex flex-col gap-6">
                 <!-- Stats Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                     <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
                         <div class="flex flex-col gap-1.5">
                             <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Clientes Cadastrados</span>
@@ -485,6 +523,22 @@
 
         </main>
     </div>
+
+    <!-- Barra de Navegação Inferior (somente mobile) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur border-t border-slate-900 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
+        <button onclick="switchTab('dashboard')" id="mtab-btn-dashboard" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-indigo-400 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-chart-line text-lg"></i> Visão Geral
+        </button>
+        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-users text-lg"></i> Clientes
+        </button>
+        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-user-shield text-lg"></i> Equipe
+        </button>
+        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-qrcode text-lg"></i> Assinatura
+        </button>
+    </nav>
 
     <!-- MODAL 1: AJUSTAR PONTOS -->
     <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -892,10 +946,12 @@
         });
 
         // Efetua Logout
-        document.getElementById("btn-logout").addEventListener("click", async () => {
+        const handleLogout = async () => {
             await logoutUser();
             window.location.href = "./login.html";
-        });
+        };
+        document.getElementById("btn-logout").addEventListener("click", handleLogout);
+        document.getElementById("btn-logout-mobile")?.addEventListener("click", handleLogout);
 
         // Carrega dados da empresa no Firestore
         async function loadEmpresaData() {
@@ -1057,11 +1113,11 @@
                     const tr = document.createElement("tr");
                     tr.className = "hover:bg-slate-900/30 transition duration-150";
                     tr.innerHTML = `
-                        <td class="py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
-                        <td class="py-4 px-6 font-medium text-white">${nome}</td>
-                        <td class="py-4 px-6 text-slate-400">${client.email || ""}</td>
-                        <td class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
-                        <td class="py-4 px-6 text-center">
+                        <td class="col-check py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
+                        <td data-label="Nome" class="py-4 px-6 font-medium text-white">${nome}</td>
+                        <td data-label="E-mail" class="py-4 px-6 text-slate-400">${client.email || ""}</td>
+                        <td data-label="Pontuação" class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
+                        <td data-label="Status" class="py-4 px-6 text-center">
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
                                 isWin
                                     ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -1070,15 +1126,15 @@
                                 ${isWin ? `${premios} prêmio(s) a entregar` : "Acumulando"}
                             </span>
                         </td>
-                        <td class="py-4 px-6 text-right">
+                        <td data-label="Ações" class="col-actions py-4 px-6 text-right">
                             <div class="flex gap-2 justify-end">
-                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition" title="Ver Histórico">
+                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-3 py-1.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg border border-slate-800 transition" title="Ver Histórico">
                                     <i class="fa-solid fa-list-ul"></i>
                                 </button>
-                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-slate-800 transition">
                                     Ajustar
                                 </button>
-                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-2 py-1.5 rounded-lg border border-slate-800 transition">
+                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-slate-800 transition">
                                     Zerar
                                 </button>
                             </div>
@@ -1645,6 +1701,14 @@
             // Define conteúdo ativo
             const activeContent = document.getElementById(`tab-content-${tabName}`);
             activeContent.classList.remove("hidden");
+
+            // Sincroniza a barra de navegação inferior (mobile)
+            ["dashboard", "clientes", "equipe", "stripe"].forEach(t => {
+                const mBtn = document.getElementById(`mtab-btn-${t}`);
+                if (!mBtn) return;
+                mBtn.classList.toggle("text-indigo-400", t === tabName);
+                mBtn.classList.toggle("text-slate-500", t !== tabName);
+            });
 
             // Define título da página
             const pageTitle = document.getElementById("page-title");
