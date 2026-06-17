@@ -197,6 +197,18 @@
                 <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
             </div>
 
+            <!-- A-01: Banner de verificação de e-mail (cadastro por e-mail/senha não confirmado) -->
+            <div id="verify-email-alert" class="hidden p-4 rounded-2xl border border-sky-500/20 bg-sky-500/5 flex items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shrink-0"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Confirme seu e-mail</h4>
+                        <p class="text-slate-400 text-xs mt-0.5">Enviamos um link de confirmação para <span id="verify-email-address" class="text-slate-200 font-semibold"></span>. Confirme para manter o acesso seguro à sua conta.</p>
+                    </div>
+                </div>
+                <button id="btn-resend-verification" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/15 transition shrink-0 active:scale-95">Reenviar</button>
+            </div>
+
             <!-- TABS CONTENT -->
 
             <!-- TAB 1: VISÃO GERAL -->
@@ -877,7 +889,8 @@
             getDocs, 
             logoutUser,
             onSnapshot,
-            deleteDoc
+            deleteDoc,
+            sendEmailVerification
         } from "./config.js?v=2";
         import { setPoints, awardPoints, removePoint, createSubscription } from "./points-api.js?v=2";
 
@@ -934,6 +947,9 @@
                 document.getElementById("user-email").innerText = user.email;
                 document.getElementById("user-avatar").innerText = (user.displayName || "E").charAt(0).toUpperCase();
 
+                // A-01: cobra confirmação de e-mail para contas criadas por e-mail/senha.
+                checkEmailVerification(user);
+
                 // Busca dados da empresa
                 await loadEmpresaData();
                 // Assina escuta em tempo real dos clientes e vendedores
@@ -943,6 +959,35 @@
             } else {
                 // Redireciona se não estiver logado
                 window.location.href = "./login.html";
+            }
+        });
+
+        // A-01: banner de verificação de e-mail (só para login por e-mail/senha não confirmado).
+        function checkEmailVerification(user) {
+            const alertEl = document.getElementById("verify-email-alert");
+            if (!alertEl) return;
+            const isPasswordUser = (user.providerData || []).some(p => p.providerId === "password");
+            if (isPasswordUser && !user.emailVerified) {
+                document.getElementById("verify-email-address").innerText = user.email || "";
+                alertEl.classList.remove("hidden");
+            } else {
+                alertEl.classList.add("hidden");
+            }
+        }
+        document.getElementById("btn-resend-verification")?.addEventListener("click", async (e) => {
+            const btn = e.currentTarget;
+            btn.disabled = true;
+            const original = btn.innerText;
+            btn.innerText = "Enviando...";
+            try {
+                await sendEmailVerification(auth.currentUser);
+                showToast("Link de confirmação reenviado. Confira sua caixa de entrada.");
+            } catch (err) {
+                console.error(err);
+                showToast("Não foi possível reenviar agora. Tente novamente em instantes.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = original;
             }
         });
 

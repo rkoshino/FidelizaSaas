@@ -545,8 +545,9 @@
             query,
             where,
             getDocs,
-            createUserWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
+            sendEmailVerification,
             loginWithGoogle,
             loginWithFacebook,
             loginWithApple 
@@ -945,8 +946,15 @@
                     // Cadastro
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     loggedUser = cred.user;
+                    // A-01: dispara e-mail de verificação no cadastro por e-mail/senha
+                    // (não bloqueia o onboarding — avisa e segue; o dashboard cobra a confirmação).
+                    try {
+                        await sendEmailVerification(cred.user);
+                    } catch (verErr) {
+                        console.error("Falha ao enviar verificação de e-mail:", verErr);
+                    }
                     await setupCompanyDraft(loggedUser.uid, companyName || "Minha Empresa", email);
-                    showToast("Conta criada e trial de 30 dias iniciado!");
+                    showToast("Conta criada! Enviamos um link de confirmação para " + email + ".");
                     setStep(2);
                 } else {
                     // Login
