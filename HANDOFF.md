@@ -64,7 +64,12 @@ Onda 1, Onda 2 (parcial), Onda 3 e Fase B (código) **concluídas e deployadas e
 2. **V-03 (tema claro)** — NÃO iniciado. Migrar telas logadas (escuro) p/ tema claro. Bloqueado na
    **paleta** (CEO ainda vai decidir; D3 autoriza paleta clara neutra como placeholder). É a maior
    mudança visual restante — fazer junto com o logo definitivo (também ON HOLD) faz sentido.
-3. **Onda 4 (cadastro/auth)** e **Onda 5 (polimento)** — não iniciadas (todas frontend, sem bloqueio).
+3. **Onda 4** — feita quase toda e deployada (vendedor QR/atalho, reset de senha, termos, validação
+   por campo, pickers, share wa.me, reforço home). Faltam só **A-01** (verificação de e-mail — código
+   pronto via `config.js`, falta ativar/usar) e **A-02** (config de provedores no console Firebase).
+4. **Onda 5** — só itens leves feitos (X-06 confirmação, X-04 parcial aria). **X-01** (modais no lugar
+   de alert/confirm) foi ADIADO de propósito (refactor amplo em fluxos destrutivos). Resto de polimento
+   (contraste, foco, loading/offline, empty states) pendente.
 
 ### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
 1. **Testar Onda 0 + Rodada 2** (em andamento) → dar feedback (ajustes) ou **bandeira verde**.
@@ -259,7 +264,17 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
       - [~] **Onda 2 (marca/tema)** — V-02 (Outfit) e V-06 (jargão) feitas; V-01 placeholder já
             consistente. **V-03 (tema claro) PENDENTE** — bloqueada na paleta (CEO decide).
-      - [ ] **Onda 4 (cadastro/auth)** e **Onda 5 (polimento)** — não iniciadas (frontend, sem bloqueio).
+      - [~] **Onda 4 (cadastro/auth)** — feitas e deployadas: C-02/C-03/C-04 (vendedor: QR do cliente,
+            reordenação, atalho painel), B-05 (reset de senha) + A-03 (termos no login), O-02/O-03/O-04/O-06
+            (onboarding: copy, título pré-preenchido, validação por campo, aviso conta vendedor),
+            O-05 (botão wa.me), V-04 (paleta curada), V-05 (emoji picker já existia), C-05 (reforço na home).
+            **Faltam:** A-01 (verificação de e-mail — config.js já exporta sendEmailVerification), A-02
+            (config de provedores no console Firebase), O-01 (botão Voltar — já existia).
+      - [~] **Onda 5 (polimento)** — feitas: X-06 (confirmação ao bloquear no master-admin), X-04 parcial
+            (aria-label nos botões de fechar do dashboard). **Faltam:** X-01 (trocar alert/confirm nativos
+            por modais — refactor amplo, mexe em fluxos destrutivos; ADIADO de propósito), X-02 (contraste),
+            X-03 (foco de teclado), X-05 (loading/offline no cliente), X-07 (prefers-reduced-motion),
+            C-01/C-06 (fricção/empty states).
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
