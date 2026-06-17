@@ -2,8 +2,9 @@
  * notifications.js — Tem Pontinho (avisos por e-mail)
  *
  * Exporta:
- *   trialReminderCron (onSchedule) — roda 1x/dia e avisa os donos cujo trial
- *     termina em ~7 dias (TRIAL-01). Marca `trialReminder7Sent` para não repetir.
+ *   trialReminderCron (onSchedule) — roda às 12:00 e às 18:00 (BRT) e avisa os donos
+ *     cujo trial termina em ~7 dias (TRIAL-01). Marca `trialReminder7Sent` p/ não repetir
+ *     (idempotente: rodar 2x/dia só antecipa o envio para quem acabou de entrar na janela).
  *
  * Secrets (Cloud Secret Manager):
  *   RESEND_API_KEY — chave da API do Resend (https://resend.com) p/ envio transacional.
@@ -71,7 +72,7 @@ function buildTrialReminderEmail({ nomeEmpresa, diasRestantes }) {
 /* ------------------------------------------------------------------ */
 exports.trialReminderCron = onSchedule(
   {
-    schedule: "every day 12:00",
+    schedule: "0 12,18 * * *", // todos os dias às 12:00 e às 18:00
     timeZone: "America/Sao_Paulo",
     region: "southamerica-east1",
     secrets: [RESEND_API_KEY],
