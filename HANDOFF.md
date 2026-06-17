@@ -3,7 +3,9 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-17 (sessão: A-01 + Onda 5 X-02 parcial/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO em hosting).
+> Última atualização: 2026-06-17 (sessão: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
+> Depois: V-03 teste de paleta creme/verde/laranja na landing — DEPLOYADO; TRIAL-01 backend pronto —
+> NÃO deployado, aguarda secret RESEND_API_KEY).
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -89,6 +91,30 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    - Token: valor de `ASAAS_WEBHOOK_TOKEN` (NÃO mudou na rotação; `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`)
    - Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/inativação.
    Sem isso, pagamento confirmado não vira `statusAssinatura: active` e o paywall não some sozinho.
+
+   **Passo a passo (painel Asaas):** Menu → **Integrações** → **Webhooks** → **Adicionar/Novo webhook**.
+   Cole a URL acima; em **Token de autenticação** cole o valor do secret (rode no terminal do projeto
+   `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`); marque os eventos `PAYMENT_CONFIRMED`,
+   `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` e os de cancelamento/inativação de assinatura; deixe ativo e salve.
+   O webhook responde **401 sem token** (esperado) — o Asaas envia o header `asaas-access-token`.
+
+6. **A-02 — Provedores de login no Console Firebase** (tarefa de console do dono):
+   Console Firebase → projeto `nice-dreamks-fidelidade` → **Authentication** → aba **Sign-in method**.
+   - **Email/senha:** Adicionar provedor → "E-mail/senha" → **Ativar** (deixe "link por e-mail" desligado) → Salvar.
+   - **Google:** Adicionar provedor → "Google" → **Ativar** → escolher o e-mail de suporte do projeto → Salvar.
+   - Em **Authorized domains** confirme que constam `tempontinho.com` e `www.tempontinho.com`.
+   - (Apple/Facebook ficam **fora do MVP** por D4 — não ativar.)
+   Pronto: a verificação de e-mail (A-01) e o reset de senha (B-05) já usam esses provedores.
+
+7. **TRIAL-01 — Resend (e-mail de fim de trial)** — passo a passo do dono + 1 comando do Claude:
+   1. Criar conta grátis em **https://resend.com** (plano free: ~3.000 e-mails/mês).
+   2. **Domains** → **Add Domain** → `tempontinho.com`. O Resend mostra registros **DNS** (TXT do SPF,
+      `resend._domainkey` do DKIM e, opcional, DMARC). Adicione-os no painel de DNS do domínio e clique
+      **Verify** (pode levar alguns minutos). Sem domínio verificado o envio falha.
+   3. **API Keys** → **Create API Key** (permissão "Sending access") → copiar a chave `re_...`.
+   4. Passar a chave para o Claude rodar `firebase functions:secrets:set RESEND_API_KEY` e então
+      `firebase deploy --only functions` (sobe o cron `trialReminderCron`). O remetente configurado é
+      `avisos@tempontinho.com` (ajustável em `functions/notifications.js`).
 5. (Antigo) testar **login Google no mobile**.
 
 ### ▶️ PRÓXIMOS PASSOS — o que sobrou
@@ -101,8 +127,14 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    amplo em fluxos destrutivos) e o **X-02 sweep completo** (acompanha V-03/tema claro).
    ✅ Feitas E DEPLOYADAS em 2026-06-17: X-02 (parcial telas escuras), X-03, X-05, X-07, C-06, **C-01**
    (prévia de valor antes do login + Google 1-tap primário + FB/Apple escondidos por D4).
-5. **TRIAL-01 aviso 7 dias antes** — NÃO iniciado; exige Cloud Function agendada + provedor de e-mail/
-   notificação (decisão pendente de qual canal). Bloqueado em definição, não em código.
+5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO (`functions/notifications.js`,
+   `trialReminderCron` onSchedule diário 12:00 BRT, e-mail via Resend, marca `trialReminder7Sent`).
+   **Falta:** criar conta Resend + verificar domínio + `firebase functions:secrets:set RESEND_API_KEY`
+   e então `firebase deploy --only functions`. Passo a passo abaixo em "AÇÕES DO CEO".
+6. **V-03 tema claro** — teste de paleta **creme/verde/laranja** aplicado na **landing** (`index.html`)
+   via tokens centralizados no `tailwind.config` (escala `indigo` remapeada p/ verde). DEPLOYADO.
+   Aguarda OK do CEO sobre a direção antes de migrar as telas logadas escuras (dashboard/vendedor/
+   onboarding/master-admin/cliente) — esse é o grosso restante do V-03.
 5. Pendência da TRIAL-01: **aviso real de 7 dias antes** (notificação/e-mail).
 6. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
 
