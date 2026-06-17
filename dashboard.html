@@ -546,7 +546,7 @@
         <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-lg text-white font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
-                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <div class="flex flex-col gap-4">
@@ -590,7 +590,7 @@
         <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-lg text-white font-outfit">Links de Divulgação</h3>
-                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <div class="flex flex-col gap-4 text-xs">
@@ -620,7 +620,7 @@
         <div class="glassmorphism rounded-2xl max-w-sm w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-lg text-white font-outfit">Cadastrar Vendedor</h3>
-                <button onclick="closeAddVendedorModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeAddVendedorModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <form id="vendedor-form" class="flex flex-col gap-4">
@@ -649,7 +649,7 @@
                     <h3 class="font-bold text-lg text-white font-outfit">Histórico de Carimbos</h3>
                     <p class="text-[10px] text-slate-400 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-white font-medium">...</span></p>
                 </div>
-                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <div id="historico-lista" class="flex flex-col gap-3 mt-2">
@@ -662,7 +662,7 @@
         <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-lg text-white font-outfit">Editar Página</h3>
-                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
@@ -722,7 +722,7 @@
                 <h3 class="font-bold text-lg text-white font-outfit">Flyer de Divulgação</h3>
                 <div class="flex gap-2">
                     <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
-                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
             </div>
             
@@ -803,7 +803,7 @@
                     <h3 class="font-bold text-lg text-white font-outfit">Assinar — Plano Tem Pontinho</h3>
                     <p class="text-xs text-slate-400 mt-0.5">R$ 19,90 / mês via PIX</p>
                 </div>
-                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
 
             <!-- Step 1: Form -->

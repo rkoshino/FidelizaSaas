@@ -807,6 +807,11 @@ function renderEmpresas() {
 }
 
 async function toggleStatus(empresaId, nomeEmpresa, novoStatus) {
+    // X-06: confirmação antes de bloquear um lojista (ação sensível)
+    if (novoStatus === "bloqueado") {
+        const ok = confirm(`Bloquear "${nomeEmpresa}"?\n\nO lojista perde o acesso de escrita (não consegue dar pontos nem gerenciar) até ser desbloqueado.`);
+        if (!ok) return;
+    }
     try {
         await updateDoc(doc(db, "empresas", empresaId), {
             statusAssinatura: novoStatus
