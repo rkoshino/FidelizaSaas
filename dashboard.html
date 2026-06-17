@@ -909,6 +909,8 @@
             toast.id = "toast-notification";
             const colorClass = type === "error"
                 ? "bg-red-900/90 border-red-500/40 text-red-200"
+                : type === "warn"
+                ? "bg-amber-900/90 border-amber-500/40 text-amber-100"
                 : "bg-slate-800/90 border-slate-700/60 text-slate-100";
             toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-xl border backdrop-blur-md text-sm font-medium shadow-2xl transition-all duration-300 opacity-0 translate-y-2 ${colorClass}`;
             toast.innerText = message;
@@ -924,6 +926,34 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         };
+
+        // --- Modal de confirmação (substitui confirm/prompt nativos) ---
+        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
+          return new Promise((resolve) => {
+            const modal = document.getElementById("modal-confirm");
+            const elTitle = document.getElementById("confirm-title");
+            const elMsg = document.getElementById("confirm-message");
+            const elInput = document.getElementById("confirm-input");
+            const btnOk = document.getElementById("confirm-ok");
+            const btnCancel = document.getElementById("confirm-cancel");
+            const iconWrap = document.getElementById("confirm-icon-wrap");
+            const icon = document.getElementById("confirm-icon");
+            elTitle.textContent = title; elMsg.textContent = message;
+            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
+            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"}`;
+            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
+            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
+            modal.classList.remove("hidden");
+            if (keyword) setTimeout(() => elInput.focus(), 50);
+            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
+            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
+            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
+            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
+            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
+            document.addEventListener("keydown", onKey);
+          });
+        }
 
         // Variáveis Locais
         let empresaId = "";
@@ -1445,14 +1475,14 @@
                         const atual = (window.clientesDataMap?.[cid]?.pontos) || 0;
                         await aplicarAjusteCliente(cid, atual);
                     }
-                    alert("Pontuação ajustada com sucesso para os clientes selecionados!");
+                    showToast("Pontuação ajustada com sucesso para os clientes selecionados!", "success");
                     const allCheckbox = document.getElementById("select-all-clients");
                     if (allCheckbox) allCheckbox.checked = false;
                     toggleSelectAll(allCheckbox);
                 } else {
                     const atual = (window.clientesDataMap?.[targetClienteId]?.pontos) || 0;
                     await aplicarAjusteCliente(targetClienteId, atual);
-                    alert("Pontuação ajustada com sucesso!");
+                    showToast("Pontuação ajustada com sucesso!", "success");
 
                     if (currentAjusteAction === "add") {
                         const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
@@ -1462,7 +1492,7 @@
                 closeAjustarModal();
             } catch (err) {
                 console.error(err);
-                alert("Erro ao ajustar pontos: " + err.message);
+                showToast("Erro ao ajustar pontos: " + err.message, "error");
             } finally {
                 btnConfirm.disabled = false;
                 btnConfirm.innerText = "Confirmar Ajuste";
@@ -1499,30 +1529,29 @@
                     ativo: true
                 });
 
-                alert("Vendedor autorizado com sucesso!");
+                showToast("Vendedor autorizado com sucesso!", "success");
                 closeAddVendedorModal();
             } catch (err) {
                 console.error(err);
-                alert("Erro ao cadastrar vendedor: " + err.message);
+                showToast("Erro ao cadastrar vendedor: " + err.message, "error");
             }
         });
 
         // Exclusão/Desativação de Vendedor
         window.deletarVendedor = async function(vUid) {
-            if (confirm("Deseja realmente remover a autorização deste vendedor? Ele não conseguirá mais carimbar cartões.")) {
-                try {
-                    const docRef = doc(db, "vendedores", vUid);
-                    await docRef.delete ? await docRef.delete() : await updateDoc(docRef, { ativo: false }); // Ou deletar direto
-                    // Deletando diretamente:
-                    // Se não tiver suporte .delete() no compat:
-                    // Utilizando a importação deleteDoc:
-                    // Para simplificar, usamos updateDoc ativo = false
-                    await updateDoc(docRef, { ativo: false });
-                    alert("Vendedor desativado.");
-                } catch (err) {
-                    console.error(err);
-                    alert("Erro ao desativar vendedor: " + err.message);
-                }
+            if (!(await confirmDialog({ title: "Remover vendedor", message: "Deseja realmente remover a autorização deste vendedor? Ele não conseguirá mais carimbar cartões.", confirmText: "Remover", danger: true }))) return;
+            try {
+                const docRef = doc(db, "vendedores", vUid);
+                await docRef.delete ? await docRef.delete() : await updateDoc(docRef, { ativo: false }); // Ou deletar direto
+                // Deletando diretamente:
+                // Se não tiver suporte .delete() no compat:
+                // Utilizando a importação deleteDoc:
+                // Para simplificar, usamos updateDoc ativo = false
+                await updateDoc(docRef, { ativo: false });
+                showToast("Vendedor desativado.", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao desativar vendedor: " + err.message, "error");
             }
         };
 
@@ -1538,7 +1567,7 @@
         window.copyPromoUrl = function(inputId) {
             const urlInput = document.getElementById(inputId);
             navigator.clipboard.writeText(urlInput.value);
-            alert("URL copiada!");
+            showToast("URL copiada!", "success");
         };
 
         // --- Checkout PIX (createSubscription) ---
@@ -1826,39 +1855,37 @@
             const checkboxes = document.querySelectorAll(".client-checkbox:checked");
             const ids = Array.from(checkboxes).map(cb => cb.getAttribute("data-id"));
             
-            if (confirm(`Deseja realmente zerar a pontuação de ${ids.length} clientes selecionados nesta empresa?`)) {
-                try {
-                    for (const cid of ids) {
-                        await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo: "Zerado em massa pelo painel" });
-                    }
-                    alert("Pontuação dos clientes selecionados zerada com sucesso!");
-                    const allCheckbox = document.getElementById("select-all-clients");
-                    if (allCheckbox) allCheckbox.checked = false;
-                    toggleSelectAll(allCheckbox);
-                } catch (err) {
-                    console.error(err);
-                    alert("Erro ao zerar pontuação: " + err.message);
+            if (!(await confirmDialog({ title: "Zerar pontuação", message: `Deseja realmente zerar a pontuação de ${ids.length} clientes selecionados nesta empresa?`, confirmText: "Zerar", danger: true }))) return;
+            try {
+                for (const cid of ids) {
+                    await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo: "Zerado em massa pelo painel" });
                 }
+                showToast("Pontuação dos clientes selecionados zerada com sucesso!", "success");
+                const allCheckbox = document.getElementById("select-all-clients");
+                if (allCheckbox) allCheckbox.checked = false;
+                toggleSelectAll(allCheckbox);
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao zerar pontuação: " + err.message, "error");
             }
         };
 
         // --- Resetar/Zerar Pontos de Cliente ---
         window.resetClientePontos = async function(clientId, clientName) {
-            if (confirm(`Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`)) {
-                try {
-                    await setPoints({ empresaId, clienteId: clientId, pontos: 0, motivo: "Zerado pelo painel" });
-                    alert("Pontuação zerada com sucesso!");
-                } catch (err) {
-                    console.error(err);
-                    alert("Erro ao zerar pontuação: " + err.message);
-                }
+            if (!(await confirmDialog({ title: "Zerar pontuação", message: `Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`, confirmText: "Zerar", danger: true }))) return;
+            try {
+                await setPoints({ empresaId, clienteId: clientId, pontos: 0, motivo: "Zerado pelo painel" });
+                showToast("Pontuação zerada com sucesso!", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao zerar pontuação: " + err.message, "error");
             }
         };
 
         // --- Modals da Campanha ---
         window.openEditarCampanhaModal = function() {
             if (!fullEmpresaData) {
-                alert("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.");
+                showToast("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.", "warn");
                 return;
             }
             document.getElementById("edit-theme-title").value = fullEmpresaData.visualConfig?.tituloPagina || "";
@@ -1892,35 +1919,34 @@
         // Submit edit campaign rules
         document.getElementById("edit-campanha-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            if (confirm("Tem certeza que quer mudar? Isso atualizará a campanha e a identidade visual sem resetar os carimbos existentes de seus clientes.")) {
-                try {
-                    const docRef = doc(db, "empresas", empresaId);
-                    await updateDoc(docRef, {
-                        metaConfig: {
-                            metaPontos: parseInt(document.getElementById("edit-meta-pontos").value) || 10,
-                            descriçãoPremio: document.getElementById("edit-premio-desc").value.trim()
-                        },
-                        visualConfig: {
-                            tituloPagina: document.getElementById("edit-theme-title").value.trim(),
-                            corFundo: document.getElementById("edit-theme-color").value,
-                            fonte: document.getElementById("edit-theme-font").value,
-                            emoji: document.getElementById("edit-theme-emoji").value
-                        }
-                    });
-                    alert("Campanha atualizada com sucesso!");
-                    closeEditarCampanhaModal();
-                    await loadEmpresaData();
-                } catch (err) {
-                    console.error(err);
-                    alert("Erro ao salvar campanha: " + err.message);
-                }
+            if (!(await confirmDialog({ title: "Mudar campanha", message: "Tem certeza que quer mudar? Isso atualizará a campanha e a identidade visual sem resetar os carimbos existentes de seus clientes.", confirmText: "Mudar", danger: false }))) return;
+            try {
+                const docRef = doc(db, "empresas", empresaId);
+                await updateDoc(docRef, {
+                    metaConfig: {
+                        metaPontos: parseInt(document.getElementById("edit-meta-pontos").value) || 10,
+                        descriçãoPremio: document.getElementById("edit-premio-desc").value.trim()
+                    },
+                    visualConfig: {
+                        tituloPagina: document.getElementById("edit-theme-title").value.trim(),
+                        corFundo: document.getElementById("edit-theme-color").value,
+                        fonte: document.getElementById("edit-theme-font").value,
+                        emoji: document.getElementById("edit-theme-emoji").value
+                    }
+                });
+                showToast("Campanha atualizada com sucesso!", "success");
+                closeEditarCampanhaModal();
+                await loadEmpresaData();
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao salvar campanha: " + err.message, "error");
             }
         });
 
         // --- Flyer Modals ---
         window.openFlyerModal = function() {
             if (!fullEmpresaData) {
-                alert("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.");
+                showToast("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.", "warn");
                 return;
             }
             
@@ -1968,7 +1994,7 @@
                 link.click();
             } catch (err) {
                 console.error(err);
-                alert("Erro ao gerar a imagem do Flyer.");
+                showToast("Erro ao gerar a imagem do Flyer.", "error");
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2001,17 +2027,17 @@
         if (btnSaveCompany) {
             btnSaveCompany.addEventListener("click", async () => {
                 const newName = document.getElementById("config-company-name").value.trim();
-                if (!newName) return alert("O nome não pode ser vazio.");
+                if (!newName) { showToast("O nome não pode ser vazio.", "warn"); return; }
                 
                 const oldText = btnSaveCompany.innerText;
                 btnSaveCompany.innerText = "Salvando...";
                 try {
                     const empRef = doc(db, "empresas", empresaId);
                     await updateDoc(empRef, { nomeEmpresa: newName });
-                    alert("Nome da empresa atualizado!");
+                    showToast("Nome da empresa atualizado!", "success");
                     await loadEmpresaData(); // Reload UI
                 } catch (e) {
-                    alert("Erro ao salvar: " + e.message);
+                    showToast("Erro ao salvar: " + e.message, "error");
                 } finally {
                     btnSaveCompany.innerText = oldText;
                 }
@@ -2026,7 +2052,7 @@
 
             btnSaveSlug.addEventListener("click", async () => {
                 const newSlug = document.getElementById("config-company-slug").value.trim();
-                if (!newSlug) return alert("O link não pode ser vazio.");
+                if (!newSlug) { showToast("O link não pode ser vazio.", "warn"); return; }
                 
                 const oldText = btnSaveSlug.innerText;
                 btnSaveSlug.innerText = "Verificando...";
@@ -2043,7 +2069,7 @@
                     snap2.forEach(d => { if (d.id !== empresaId) isTaken = true; });
 
                     if (isTaken) {
-                        alert("Este link já está em uso por outra empresa. Escolha outro.");
+                        showToast("Este link já está em uso por outra empresa. Escolha outro.", "warn");
                         return;
                     }
 
@@ -2060,13 +2086,13 @@
                             linkUnicoCliente: newSlug,
                             slugsAntigos: aliases
                         });
-                        alert("Link atualizado com sucesso! Códigos QR antigos funcionarão normalmente.");
+                        showToast("Link atualizado com sucesso! Códigos QR antigos funcionarão normalmente.", "success");
                         await loadEmpresaData(); // Isso também regera os links exibidos e o Flyer!
                     } else {
-                        alert("Este já é o seu link atual.");
+                        showToast("Este já é o seu link atual.", "warn");
                     }
                 } catch (e) {
-                    alert("Erro ao salvar link: " + e.message);
+                    showToast("Erro ao salvar link: " + e.message, "error");
                 } finally {
                     btnSaveSlug.innerText = oldText;
                 }
@@ -2077,11 +2103,8 @@
         if (btnDeleteController) {
             btnDeleteController.addEventListener("click", async () => {
                 const confirmMsg = "ATENÇÃO CONTROLADOR (LGPD):\n\nVocê está prestes a apagar todos os dados da sua empresa. Isso removerá o programa de fidelidade e impedirá o acesso aos dados dos seus clientes.\n\nEsta ação é IRREVERSÍVEL. Digite 'APAGAR' para confirmar:";
-                const userResponse = prompt(confirmMsg);
-                if (userResponse !== "APAGAR") {
-                    if (userResponse !== null) alert("Ação cancelada. Palavra-chave incorreta.");
-                    return;
-                }
+                const ok = await confirmDialog({ title: "Excluir conta", message: confirmMsg, confirmText: "Excluir", danger: true, keyword: "APAGAR" });
+                if (!ok) { showToast("Ação cancelada.", "warn"); return; }
 
                 btnDeleteController.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
                 try {
@@ -2094,15 +2117,34 @@
                         console.warn("Auth user não deletado. Os dados públicos foram apagados.");
                     }
                     
-                    alert("Sua conta e dados foram removidos permanentemente.");
+                    showToast("Sua conta e dados foram removidos permanentemente.", "success");
                     await logoutUser();
                 } catch (e) {
-                    alert("Erro ao apagar conta: " + e.message);
+                    showToast("Erro ao apagar conta: " + e.message, "error");
                     btnDeleteController.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados';
                 }
             });
         }
 
     </script>
+
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-start gap-3">
+          <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+            <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 id="confirm-title" class="font-bold text-lg text-white font-outfit">Confirmar</h3>
+            <p id="confirm-message" class="text-sm text-slate-300 mt-1 whitespace-pre-line"></p>
+            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-slate-600 text-slate-200 font-semibold hover:bg-slate-700 transition">Cancelar</button>
+          <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+        </div>
+      </div>
+    </div>
 </body>
 </html>

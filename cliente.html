@@ -63,6 +63,11 @@
 </head>
 <body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #0b0f19;">
 
+<div id="toast" class="fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none" style="opacity:0;transform:translateY(-8px);transition:all .3s">
+  <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
+  <span id="toast-text"></span>
+</div>
+
     <!-- Main Container -->
     <main class="flex-grow flex items-center justify-center py-6 w-full max-w-sm mx-auto">
         
@@ -236,6 +241,52 @@
         } from "./config.js?v=2";
         import { ensureClientCard, listenCard, deleteMyData } from "./points-api.js?v=2";
 
+        // Toast não-bloqueante (substitui alert) + modal de confirmação (substitui confirm)
+        function showToast(message, type = "success") {
+          const toast = document.getElementById("toast");
+          const toastText = document.getElementById("toast-text");
+          const toastIcon = document.getElementById("toast-icon");
+          toastText.textContent = message;
+          const configs = {
+            success: { bg: "bg-indigo-600", icon: "fa-circle-check" },
+            error:   { bg: "bg-red-600",    icon: "fa-circle-xmark" },
+            warn:    { bg: "bg-amber-500",  icon: "fa-triangle-exclamation" },
+          };
+          const cfg = configs[type] || configs.success;
+          toast.className = `fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white ${cfg.bg}`;
+          toastIcon.className = `fa-solid ${cfg.icon} text-base`;
+          toast.style.opacity = "1"; toast.style.transform = "translateY(0)"; toast.style.pointerEvents = "auto";
+          clearTimeout(toast._hideTimer);
+          toast._hideTimer = setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(-8px)"; toast.style.pointerEvents = "none"; }, 3500);
+        }
+
+        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
+          return new Promise((resolve) => {
+            const modal = document.getElementById("modal-confirm");
+            const elTitle = document.getElementById("confirm-title");
+            const elMsg = document.getElementById("confirm-message");
+            const elInput = document.getElementById("confirm-input");
+            const btnOk = document.getElementById("confirm-ok");
+            const btnCancel = document.getElementById("confirm-cancel");
+            const iconWrap = document.getElementById("confirm-icon-wrap");
+            const icon = document.getElementById("confirm-icon");
+            elTitle.textContent = title; elMsg.textContent = message;
+            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
+            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"}`;
+            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
+            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
+            modal.classList.remove("hidden");
+            if (keyword) setTimeout(() => elInput.focus(), 50);
+            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
+            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
+            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
+            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
+            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
+            document.addEventListener("keydown", onKey);
+          });
+        }
+
         // Variáveis Locais do Sistema
         let slugEmpresa = "";
         let idEmpresa = "";
@@ -402,7 +453,7 @@
             await getRedirectResult(auth);
         } catch (err) {
             console.error("Erro ao recuperar resultado do redirecionamento:", err);
-            alert("Erro no login: " + err.message);
+            showToast("Erro no login: " + err.message, "error");
         }
 
         // 2. Controla o estado de Autenticação do Usuário (Cliente)
@@ -664,10 +715,10 @@
                         try {
                             await createUserWithEmailAndPassword(auth, email, password);
                         } catch (createErr) {
-                            alert("Erro ao criar conta de cliente: " + createErr.message);
+                            showToast("Erro ao criar conta de cliente: " + createErr.message, "error");
                         }
                     } else {
-                        alert("Erro de autenticação: " + err.message);
+                        showToast("Erro de autenticação: " + err.message, "error");
                     }
                 } finally {
                     btn.disabled = false;
@@ -701,7 +752,7 @@
                 const confirmMessage = "ATENÇÃO: Você vai excluir TODOS os seus dados da plataforma " +
                     "(Direito ao Esquecimento - LGPD): seus pontos e cartões de fidelidade em todas as lojas.\n\n" +
                     "Esta ação é IRREVERSÍVEL. Deseja continuar?";
-                if (!confirm(confirmMessage)) return;
+                if (!(await confirmDialog({ title: "Excluir meus dados", message: confirmMessage, confirmText: "Excluir", danger: true }))) return;
 
                 try {
                     btnDeleteAccount.disabled = true;
@@ -713,20 +764,20 @@
                     // 2. Tenta remover a conta de autenticação (pode exigir re-login recente).
                     try {
                         await user.delete();
-                        alert("Seus dados e sua conta foram removidos permanentemente.");
+                        showToast("Seus dados e sua conta foram removidos permanentemente.", "success");
                     } catch (e) {
                         if (e && e.code === "auth/requires-recent-login") {
-                            alert("Seus dados (pontos e cartões) foram apagados. Para remover também o login, " +
-                                "entre novamente e repita a exclusão. Você será desconectado agora.");
+                            showToast("Seus dados (pontos e cartões) foram apagados. Para remover também o login, " +
+                                "entre novamente e repita a exclusão. Você será desconectado agora.", "success");
                         } else {
                             console.warn("Auth não removida:", e);
-                            alert("Seus dados foram apagados. Sua conta de login será encerrada agora.");
+                            showToast("Seus dados foram apagados. Sua conta de login será encerrada agora.", "success");
                         }
                     }
                     await logoutUser();
                 } catch (err) {
                     console.error("Erro ao apagar dados:", err);
-                    alert("Ocorreu um erro ao processar sua solicitação. Tente novamente.");
+                    showToast("Ocorreu um erro ao processar sua solicitação. Tente novamente.", "error");
                     btnDeleteAccount.disabled = false;
                     btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)';
                 }
@@ -734,5 +785,24 @@
         }
 
     </script>
+
+<div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+  <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+    <div class="flex items-start gap-3">
+      <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+        <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h3 id="confirm-title" class="font-bold text-lg text-white font-outfit">Confirmar</h3>
+        <p id="confirm-message" class="text-sm text-slate-300 mt-1 whitespace-pre-line"></p>
+        <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+      </div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-slate-600 text-slate-200 font-semibold hover:bg-slate-700 transition">Cancelar</button>
+      <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
