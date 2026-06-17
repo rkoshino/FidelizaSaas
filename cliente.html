@@ -74,21 +74,30 @@
                 </div>
                 <h2 id="login-welcome-title" class="text-xl font-bold font-outfit text-white">Carregando Programa...</h2>
                 <p id="login-welcome-desc" class="text-slate-300 text-xs px-2 leading-relaxed">
-                    Entre com uma de suas contas de rede social para começar a acumular carimbos e resgatar prêmios incríveis!
+                    Entre para começar a acumular carimbos e resgatar seu prêmio!
                 </p>
             </div>
 
-            <!-- Social Authentication Buttons -->
+            <!-- C-01: prévia de valor (loja/prêmio/progresso) ANTES da barreira de login -->
+            <div id="reward-preview" class="rounded-2xl border border-white/10 bg-black/25 p-4 flex flex-col items-center gap-2.5 text-center">
+                <div id="preview-stamps" class="flex items-center justify-center gap-1 flex-wrap"></div>
+                <p class="text-xs text-white/90 font-medium leading-relaxed">
+                    Junte <span id="preview-meta" class="font-bold text-white">10</span> carimbos e ganhe
+                </p>
+                <p id="preview-prize" class="text-sm font-bold text-yellow-300">seu prêmio</p>
+            </div>
+
+            <!-- Authentication Buttons (C-01: Google 1-tap como primário; e-mail como alternativa) -->
             <div class="flex flex-col gap-3" id="social-login-container">
-                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98]">
-                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
-                    <span>Logar com Google</span>
+                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white hover:bg-slate-100 text-slate-900 border border-white rounded-2xl transition font-semibold text-sm active:scale-[0.98] shadow-lg shadow-black/10">
+                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="">
+                    <span>Continuar com Google</span>
                 </button>
-                <button id="btn-login-facebook" class="flex items-center justify-center gap-3 w-full py-3.5 bg-[#1877F2] hover:bg-[#166fe5] rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                <button id="btn-login-facebook" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-[#1877F2] hover:bg-[#166fe5] rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
                     <i class="fa-brands fa-facebook text-lg"></i>
                     <span>Logar com Facebook</span>
                 </button>
-                <button id="btn-login-apple" class="flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-slate-800 hover:bg-slate-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                <button id="btn-login-apple" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-slate-800 hover:bg-slate-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
                     <i class="fa-brands fa-apple text-lg"></i>
                     <span>Logar com Apple</span>
                 </button>
@@ -315,6 +324,23 @@
                             // Configura os textos de boas-vindas da tela de login
                             document.getElementById("login-welcome-title").innerText = `Fidelidade - ${pageTitle}`;
                             document.getElementById("login-welcome-desc").innerText = `Entre e comece a acumular pontos para ganhar: ${companyData.metaConfig?.descriçãoPremio || "um prêmio especial"}`;
+
+                            // C-01: prévia de valor antes do login (meta, prêmio e carimbos vazios).
+                            const previewMeta = document.getElementById("preview-meta");
+                            const previewPrize = document.getElementById("preview-prize");
+                            const previewStamps = document.getElementById("preview-stamps");
+                            if (previewMeta) previewMeta.innerText = metaPontos;
+                            if (previewPrize) previewPrize.innerText = companyData.metaConfig?.descriçãoPremio || "um prêmio especial";
+                            if (previewStamps) {
+                                // Mostra até 5 slots de carimbo (resumo visual do cartão) + "…" se a meta for maior.
+                                const shown = Math.min(metaPontos, 5);
+                                let html = "";
+                                for (let i = 0; i < shown; i++) {
+                                    html += `<span class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center text-[11px] text-white/40">${brandEmoji}</span>`;
+                                }
+                                if (metaPontos > shown) html += `<span class="text-white/50 text-xs px-1">+${metaPontos - shown}</span>`;
+                                previewStamps.innerHTML = html;
+                            }
                             
                             // Se o usuário já estiver logado, forçar um re-render dos carimbos com a nova meta/emoji
                             if (loggedUser) {
@@ -327,15 +353,21 @@
                 } else {
                     document.getElementById("login-welcome-title").innerText = "Link Inválido";
                     document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-400 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Link inválido</span> Abra o cartão pelo link que a loja compartilhou com você.`;
-                    // Oculta botões de login
-                    const btnContainer = document.querySelector("#login-screen div.flex-col");
-                    if (btnContainer) btnContainer.classList.add("hidden");
+                    // Oculta entradas de login (mantém o header com a mensagem de erro)
+                    hideLoginInputs();
                 }
             } catch (err) {
                 console.error("Erro ao carregar branding da empresa: ", err);
                 // X-05: erro de rede deixava o título em "Carregando…" para sempre.
                 showLoadError();
             }
+        }
+
+        // Esconde botões/form/prévia de login, preservando o header (e sua mensagem).
+        function hideLoginInputs() {
+            ["social-login-container", "email-login-form", "reward-preview"].forEach(id => {
+                document.getElementById(id)?.classList.add("hidden");
+            });
         }
 
         // X-05: estado de erro/offline na tela inicial (corrige "Carregando…" eterno, B-06).
@@ -345,8 +377,7 @@
             const offline = !navigator.onLine;
             title.innerText = offline ? "Você está sem conexão" : "Não foi possível carregar";
             desc.innerHTML = `<span class="text-amber-400 font-bold block mb-2"><i class="fa-solid fa-wifi mr-1"></i> ${offline ? "Sem internet" : "Erro de rede"}</span> ${offline ? "Verifique sua conexão e tente de novo." : "Tente novamente em instantes."} <button id="btn-retry-load" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button>`;
-            const btnContainer = document.querySelector("#login-screen div.flex-col");
-            if (btnContainer) btnContainer.classList.add("hidden");
+            hideLoginInputs();
             document.getElementById("btn-retry-load")?.addEventListener("click", () => window.location.reload());
         }
 
