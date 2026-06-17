@@ -17,38 +17,39 @@
 
 ## 🔥 Críticos primeiro (P0/P1) — visão rápida
 
-| ID | Tipo | O quê | Arquivo |
-|----|------|-------|---------|
-| **CAD-05** | ⚙️ P0 | "Erro ao salvar, missing or insufficient permissions" ao finalizar o cadastro | `onboarding.html` + `firestore.rules` |
-| **VEND-04** | 🐛 P1 | Câmera fica escura ao logar de novo no painel do vendedor | `vendedor.html` |
-| **VEND-03** | 🐛 P1 | Caixa "você tem prêmios" não some após escanear e pontuar | `vendedor.html` |
-| **DASH-01** | 🐛 P1 | No celular não há como chegar na aba de Vendedores/Equipe | `dashboard.html` 🔗 |
-| **MP-01** | 🐛 P1 | Página principal scrolla pro lado no celular (botão "Cadastro Grátis" no header) | `index.html` 🔗 |
+> **Todos os P0/P1 críticos abaixo já estão RESOLVIDOS e deployados em hosting** (faltam só testes runtime do CEO).
+
+| ID | Status | Tipo | O quê | Arquivo |
+|----|--------|------|-------|---------|
+| **CAD-05** | ✅ | ⚙️ P0 | "Erro ao salvar, missing or insufficient permissions" ao finalizar o cadastro | `onboarding.html` + `firestore.rules` |
+| **VEND-04** | ✅ | 🐛 P1 | Câmera fica escura ao logar de novo no painel do vendedor | `vendedor.html` |
+| **VEND-03** | ✅ | 🐛 P1 | Caixa "você tem prêmios" não some após escanear e pontuar | `vendedor.html` |
+| **DASH-01** | ✅ | 🐛 P1 | No celular não há como chegar na aba de Vendedores/Equipe | `dashboard.html` 🔗 |
+| **MP-01** | ✅ | 🐛 P1 | Página principal scrolla pro lado no celular (botão "Cadastro Grátis" no header) | `index.html` 🔗 |
 
 ---
 
 ## 1. MAIN PAGE (`index.html`)
 
-- [ ] **MP-01 · 🐛 P1 — Scroll horizontal no mobile** 🔗
+- [x] **MP-01 (M-03) · 🐛 P1 — Scroll horizontal no mobile** 🔗 ✅ 2026-06-17 — `index.html`: `overflow-x-hidden` na raiz, header responsivo (logo/botão encolhem) e cards flutuantes do mockup escondidos < sm.
   No celular dá pra arrastar a página pro lado por causa do botão "Cadastro Grátis" no canto direito do cabeçalho.
   **Aceite:** sem overflow horizontal em telas 320–430px; header não estoura a largura.
 
-- [ ] **MP-02 · 📝 P2 — Reforçar a proposta de valor na home**
+- [x] **MP-02 (C-05) · 📝 P2 — Reforçar a proposta de valor na home** ✅ 2026-06-17 — `index.html`: feature card "O cliente nunca perde" ("igual ao cartão de papel, mas não perde e sempre volta"). Entrou como seção adicional (não substituiu a headline).
   Incluir/ajustar copy: **"Cartão de pontos para celular"** e o mote **"Igual ao cartão de papel, só que o cliente não perde por aí! Sempre volta."**
   **Aceite:** mensagem aparece com destaque na main page (hero ou seção de features), no tom popular já usado.
-  _[?] Confirmar com CEO se substitui a headline atual ou entra como subtítulo/seção._
 
 ---
 
 ## 2. PÁGINA DO VENDEDOR (`vendedor.html`)
 
-- [ ] **VEND-01 · ✨ P2 — QR code da página do cliente no painel do vendedor**
+- [x] **VEND-01 (C-02) · ✨ P2 — QR code da página do cliente no painel do vendedor** ✅ 2026-06-17 — `vendedor.html`: card de QR no rodapé (qrcodejs) apontando para `cliente.html?link=<slug>`, com link clicável.
   Exibir um QR code que leva à página do cliente, na **parte de baixo** da tela do vendedor.
   **Aceite:** QR visível no rodapé do painel; ao escanear, abre a página do cliente correta.
 
-- [ ] **VEND-02 · 🎨 P2 — Reposicionar a caixa de "ganhou prêmio"**
+- [x] **VEND-02 (C-03) · 🎨 P2 — Reposicionar a caixa de "ganhou prêmio"** ✅ 2026-06-17 — `vendedor.html`: caixa de prêmio reordenada para antes do progresso/pontos no painel do cliente.
   A caixa de prêmio deve aparecer **entre o QR code e os pontos**.
-  **Aceite:** ordem visual = QR → caixa de prêmio → pontos. _(Depende de VEND-01.)_
+  **Aceite:** ordem visual = QR → caixa de prêmio → pontos.
 
 - [x] **VEND-03 (B-03) · 🐛 P1 — Caixa de prêmio não some após pontuar** ✅ 2026-06-16
   Repro do CEO: completei 1 cartão → mensagem de prêmio apareceu → li o QR → cartão ganhou pontos → **a caixa não sumiu**.
@@ -60,11 +61,11 @@
   **Aceite:** reabrir/relogar reinicia o stream da câmera corretamente; sem tela preta.
   **Resolução:** `vendedor.html`: nova `teardownScanner()` (stop + clear + libera instância) chamada no logout, no estado deslogado e antes de recriar o `Html5Qrcode` no login. Antes recriávamos sobre um `#reader` com vídeo/canvas órfãos → tela preta. _Verificado: sintaxe OK; teste em device com câmera pendente._
 
-- [ ] **VEND-05 · ✨ P1 — Aviso de fim do mês grátis (vendedor)**
+- [x] **VEND-05 ($-01) · ✨ P1 — Aviso de fim do mês grátis (vendedor)** ✅ 2026-06-17 — `vendedor.html`: banner "Faltam N dias do mês grátis" (de `trialEndDate`) + CTA "Assinar".
   Mensagem mostrando **quantos dias faltam** para o mês grátis acabar, **com link para comprar o plano**.
   **Aceite:** banner com contagem de dias (baseado em `trialEndDate`) + CTA para a página/fluxo de assinatura. _(Mesma fonte de dados do DASH-04.)_
 
-- [ ] **VEND-06 · ✨ P2 — Botão de acesso ao dashboard da empresa**
+- [x] **VEND-06 (C-04) · ✨ P2 — Botão de acesso ao dashboard da empresa** ✅ 2026-06-17 — `vendedor.html`: botão "Painel" no header abre `dashboard.html`.
   Criar botão no painel do vendedor para abrir a área de administração (dashboard).
   **Aceite:** botão visível leva ao `dashboard.html` (respeitando login da mesma conta).
 
@@ -72,20 +73,20 @@
 
 ## 3. DASHBOARD (`dashboard.html`)
 
-- [ ] **DASH-01 · 🐛 P1 — Aba de Vendedores inacessível no mobile** 🔗
+- [x] **DASH-01 (M-01) · 🐛 P1 — Aba de Vendedores inacessível no mobile** 🔗 ✅ 2026-06-17 — `dashboard.html`: barra de navegação inferior fixa (md:hidden) com as 4 abas via `switchTab`.
   No celular não há como chegar na página dos vendedores nem em nenhuma aba.
   **Aceite:** todas as abas (Visão Geral, Clientes, Equipe/Vendedores, Assinatura) acessíveis no celular.
 
-- [ ] **DASH-02 · 🎨 P1 — Cabeçalho mobile apertado**
+- [x] **DASH-02 (M-02) · 🎨 P1 — Cabeçalho mobile apertado** ✅ 2026-06-17 — `dashboard.html`: header desapertado (labels só em lg, padding menor, título truncado) + logout acessível no mobile.
   Cabeçalho do dashboard no celular está "estranho, tudo muito apertado".
   **Aceite:** header legível e espaçado em 320–430px.
 
-- [ ] **DASH-03 · 🎨 P1 — Layout mobile do dashboard (epic)**
+- [x] **DASH-03 (M-02) · 🎨 P1 — Layout mobile do dashboard (epic)** ✅ 2026-06-17 — `dashboard.html`: stats grid-cols-2 e tabela de clientes vira cards no mobile (CSS + data-label), mantendo paridade de dados.
   Criar uma lógica de layout pensada para celular, **mantendo todos os dados** do dashboard de computador.
   **Aceite:** paridade de informação desktop↔mobile; navegação e tabelas usáveis no celular (ex.: tabela de clientes em cards).
   _(Guarda-chuva que engloba DASH-01 e DASH-02.)_
 
-- [ ] **DASH-04 · ✨ P1 — Aviso de fim do mês grátis (dashboard)**
+- [x] **DASH-04 ($-02) · ✨ P1 — Aviso de fim do mês grátis (dashboard)** ✅ 2026-06-17 — `dashboard.html`: banner de contagem aparece DURANTE o trial (não só ao expirar) + CTA "Assinar agora".
   Mensagem **abaixo do cabeçalho** com quantos dias faltam para o mês grátis acabar.
   **Aceite:** banner com contagem de dias (de `trialEndDate`) + CTA de assinatura. _(Mesma lógica do VEND-05.)_
 
@@ -94,17 +95,17 @@
 ## 4. PÁGINA DE CADASTRO (`onboarding.html`) + Auth (`login.html` / `config.js`)
 
 ### Autenticação / segurança
-- [ ] **CAD-01 · 🔒 P2 — Termos de segurança no login social**
+- [~] **CAD-01 (A-03) · 🔒 P2 — Termos de segurança no login social** ✅ login feito 2026-06-17 — `login.html`: aviso de Termos de Uso + Política de Privacidade. **Pendente:** repetir no onboarding (que ainda tem botões Google/Apple/Facebook sem o aviso).
   Exibir os termos de segurança no login com Google, Apple e Facebook.
   **Aceite:** aceite/sinalização de termos presente antes de concluir login via provedor social.
 
-- [ ] **CAD-02 · 🔒 P1 — Provedores independentes + verificação de e-mail**
+- [~] **CAD-02 (A-01/A-02) · 🔒 P1 — Provedores independentes + verificação de e-mail** — `config.js` já exporta `sendEmailVerification`/`sendPasswordResetEmail`. **Pendente:** plugar `sendEmailVerification` no fluxo de signup (A-01) e configurar provedores no **console Firebase** (A-02, não dá por código).
   Configurar login Google/Apple/Facebook e e-mail de forma independente, e criar cadastro por e-mail que **exija confirmação de e-mail**.
   **Aceite:** providers funcionam isoladamente; cadastro por e-mail dispara verificação e só libera após confirmar.
   _[?] Confirmar com CEO se Apple/Facebook são realmente para o MVP (custo/config de provider)._
 
 ### Parte 2 do cadastro
-- [ ] **CAD-03 · 📝 P3 — Copy da etapa 2**
+- [x] **CAD-03 (O-02) · 📝 P3 — Copy da etapa 2** ✅ 2026-06-17 — `onboarding.html`: "Configuração do Cartão de Pontos — Defina o prêmio, quantos pontos para ganhar e o link do seu cartão."
   Atualizar para: **"Configuração do Cartão de Pontos — Defina qual o prêmio e quantos pontos precisam para ganhar."**
   **Aceite:** título/descrição da etapa 2 com esse texto.
 
@@ -115,28 +116,28 @@
   **Causa raiz:** `onboarding.html:975` gravava `statusAssinatura`/`trialEndDate` (campos protegidos por `camposProtegidosIntactos`) **incondicionalmente** com `setDoc(merge)`. No 1º signup o doc não existe → `create` (permitido). Mas ao **reentrar** (login com conta já existente ou re-onboarding — justamente o que acontece ao testar repetidamente com o mesmo e-mail) o doc já existe → vira `update` que reescreve `trialEndDate` → **negado**. O doc ID já era o `uid` (hipótese do slug descartada).
   **Resolução:** só grava os campos de billing quando `isFirstCreate` (doc inexistente); no update, omite-os. Sem necessidade de deploy de Functions. _Verificado: rules + imports OK; teste runtime de re-signup depende do T-DEV (e-mail reutilizável)._
 
-- [ ] **CAD-06 · 🎨 P2 — Pré-preencher "Título da Página" com o nome da empresa**
+- [x] **CAD-06 (O-03) · 🎨 P2 — Pré-preencher "Título da Página" com o nome da empresa** ✅ 2026-06-17 — `onboarding.html`: ao avançar p/ etapa 3, o título vem com o nome da empresa (flag de edição manual respeita o que o dono digitar).
   O campo já deve vir com o nome da empresa; a pessoa muda se quiser.
   **Aceite:** campo "Título da Página" inicia com o nome informado, editável.
 
-- [ ] **CAD-07 · 🎨 P1 — Seletor de cores no celular**
+- [x] **CAD-07 (V-04) · 🎨 P1 — Seletor de cores no celular** ✅ 2026-06-17 — `onboarding.html`: paleta curada de 8 swatches (toque rápido) + input custom; swatch selecionado destacado.
   No mobile abre um menu com cores feias; há botões demais e é confuso de achar onde escolher a cor.
   **Aceite:** picker de cores simples e bonito no celular (paleta curada de poucas opções), fácil de localizar.
 
-- [ ] **CAD-08 · 🐛 P1 — Seletor de emoji no desktop**
+- [x] **CAD-08 (V-05) · 🐛 P1 — Seletor de emoji no desktop** ✅ (já existia) — `onboarding.html`: emoji picker embutido (grid clicável com categorias), funciona no desktop sem teclado do SO.
   No computador é um campo de texto e o teclado não tem emojis instalados → difícil escolher.
   **Aceite:** picker de emojis embutido (grid clicável), funciona no desktop sem depender do teclado do SO.
 
-- [ ] **CAD-09 · 🐛 P2 — Seletor de emoji no celular** ⚠️ descrição truncada
+- [x] **CAD-09 (V-05) · 🐛 P2 — Seletor de emoji no celular** ✅ resolvido pelo picker próprio do CAD-08 (grid clicável funciona em qualquer dispositivo, sem depender do teclado de emoji do SO).
   CEO: "no menu do celular, onde o teclado tem emojis, não está de…" (mensagem cortada).
-  **Aceite:** _[?] confirmar com CEO o problema exato no mobile (provável: o teclado de emoji não abre / não preenche o campo). Tratar junto do CAD-08 com um picker próprio resolve ambos._
+  **Aceite:** picker próprio embutido resolve mobile e desktop.
 
 ### Parte 4 do cadastro (tela de sucesso)
-- [ ] **CAD-10 · ✨ P1 — Passo 1: compartilhar link + QR**
+- [x] **CAD-10 (O-05) · ✨ P1 — Passo 1: compartilhar link + QR** ✅ 2026-06-17 — `onboarding.html`: copiar link do cliente, **botão "Enviar no WhatsApp" (wa.me)** com mensagem pronta, QR com download para impressão (já havia copiar + QR; faltava o wa.me direto).
   "Mande o link para seus clientes ou mostre este QR code."
   **Aceite:** botão de **copiar link** e **compartilhar** (mensagem pronta de WhatsApp ou similar) + link para gerar/imprimir o arquivo do QR code.
 
-- [ ] **CAD-11 · 📝 P3 — Passo 2: link para a Página do Vendedor**
+- [x] **CAD-11 (O-06) · 📝 P3 — Passo 2: link para a Página do Vendedor** ✅ 2026-06-17 — `onboarding.html`: aviso de que o link do vendedor usa o **mesmo e-mail e senha** deste cadastro.
   "Clique aqui para dar pontos aos clientes (Página do Vendedor)." CEO confirma que **já funciona** (basta logar com a mesma conta).
   **Aceite:** texto/explicação claros de que é a mesma conta; link presente. _(Tarefa de copy/validação; sem mudança funcional.)_
 
