@@ -3,7 +3,7 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-17.
+> Última atualização: 2026-06-17 (sessão: A-01 + Onda 5 X-02 parcial/X-03/X-05/X-07/C-06 — NÃO deployado ainda).
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -67,11 +67,17 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    **paleta** (CEO ainda vai decidir; D3 autoriza paleta clara neutra como placeholder). É a maior
    mudança visual restante — fazer junto com o logo definitivo (também ON HOLD) faz sentido.
 3. **Onda 4** — feita quase toda e deployada (vendedor QR/atalho, reset de senha, termos, validação
-   por campo, pickers, share wa.me, reforço home). Faltam só **A-01** (verificação de e-mail — código
-   pronto via `config.js`, falta ativar/usar) e **A-02** (config de provedores no console Firebase).
-4. **Onda 5** — só itens leves feitos (X-06 confirmação, X-04 parcial aria). **X-01** (modais no lugar
-   de alert/confirm) foi ADIADO de propósito (refactor amplo em fluxos destrutivos). Resto de polimento
-   (contraste, foco, loading/offline, empty states) pendente.
+   por campo, pickers, share wa.me, reforço home). **A-01 IMPLEMENTADA** (2026-06-17): onboarding dispara
+   `sendEmailVerification` no cadastro por e-mail e o dashboard mostra banner cobrando confirmação +
+   botão reenviar (só para provider `password` não verificado). **Falta só A-02** (config de provedores
+   no console Firebase — tarefa de console).
+4. **Onda 5** — feitas: X-06 confirmação, X-04 parcial aria, **X-03 (foco-visível global), X-05
+   (loading/offline/erro no cliente), X-07 (reduced-motion), C-06 (empty state cliente novo) e X-02
+   parcial (contraste nas telas escuras)** — todas em 2026-06-17. **X-01** (modais no lugar de
+   alert/confirm) segue ADIADO de propósito (refactor amplo em fluxos destrutivos). **X-02 sweep
+   completo** (contraste/tamanho de fonte em onboarding/index/login) foi deixado para acompanhar a
+   V-03 (tema claro) e evitar retrabalho. **Tudo de 2026-06-17 ainda NÃO deployado** (aguardando
+   `firebase deploy --only hosting`).
 
 ### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
 1. **Testar a build atual** (Onda 0→5 + Fase B) em produção e dar feedback/ajustes. Fazer **hard refresh**.
@@ -90,10 +96,11 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    (createSubscription → pagar → webhook vira `active` → paywall some). Já dá pra fechar PIX real.
 2. **V-03 (tema claro)** — única peça bloqueada: depende da **paleta** (CEO decide; D3 autoriza
    placeholder neutro). Maior mudança visual restante; fazer junto do logo definitivo (ON HOLD).
-3. **A-01** (plugar `sendEmailVerification` no signup) e **A-02** (provedores no console Firebase).
-4. **Onda 5 restante:** X-01 (modais no lugar de alert/confirm — adiado, refactor amplo), X-02
-   (contraste), X-03 (foco teclado), X-05 (loading/offline cliente), X-07 (reduced-motion),
-   C-01/C-06 (fricção/empty states).
+3. ~~A-01~~ ✅ FEITA (2026-06-17). Falta só **A-02** (provedores no console Firebase — tarefa de console).
+4. **Onda 5 restante:** X-01 (modais no lugar de alert/confirm — adiado, refactor amplo) e **C-01**
+   (reduzir fricção do cartão do cliente — mostrar valor antes do login; experimento "L", reversível).
+   ✅ Já feitas em 2026-06-17: X-02 (parcial), X-03, X-05, X-07, C-06.
+   **Deployar (`firebase deploy --only hosting`)** as mudanças de 2026-06-17.
 5. Pendência da TRIAL-01: **aviso real de 7 dias antes** (notificação/e-mail).
 6. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
 
@@ -264,17 +271,18 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
       - [~] **Onda 2 (marca/tema)** — V-02 (Outfit) e V-06 (jargão) feitas; V-01 placeholder já
             consistente. **V-03 (tema claro) PENDENTE** — bloqueada na paleta (CEO decide).
-      - [~] **Onda 4 (cadastro/auth)** — feitas e deployadas: C-02/C-03/C-04 (vendedor: QR do cliente,
+      - [~] **Onda 4 (cadastro/auth)** — feitas: C-02/C-03/C-04 (vendedor: QR do cliente,
             reordenação, atalho painel), B-05 (reset de senha) + A-03 (termos no login), O-02/O-03/O-04/O-06
             (onboarding: copy, título pré-preenchido, validação por campo, aviso conta vendedor),
-            O-05 (botão wa.me), V-04 (paleta curada), V-05 (emoji picker já existia), C-05 (reforço na home).
-            **Faltam:** A-01 (verificação de e-mail — config.js já exporta sendEmailVerification), A-02
-            (config de provedores no console Firebase), O-01 (botão Voltar — já existia).
+            O-05 (botão wa.me), V-04 (paleta curada), V-05 (emoji picker já existia), C-05 (reforço na home),
+            **A-01 (verificação de e-mail — 2026-06-17, falta deploy).** **Falta:** A-02
+            (config de provedores no console Firebase).
       - [~] **Onda 5 (polimento)** — feitas: X-06 (confirmação ao bloquear no master-admin), X-04 parcial
-            (aria-label nos botões de fechar do dashboard). **Faltam:** X-01 (trocar alert/confirm nativos
-            por modais — refactor amplo, mexe em fluxos destrutivos; ADIADO de propósito), X-02 (contraste),
-            X-03 (foco de teclado), X-05 (loading/offline no cliente), X-07 (prefers-reduced-motion),
-            C-01/C-06 (fricção/empty states).
+            (aria-label nos botões de fechar do dashboard), **X-03 (foco-visível global), X-05 (loading/
+            offline/erro no cliente), X-07 (reduced-motion), C-06 (empty state cliente novo), X-02 parcial
+            (contraste telas escuras) — todas 2026-06-17, falta deploy.** **Faltam:** X-01 (trocar
+            alert/confirm nativos por modais — refactor amplo, ADIADO de propósito), X-02 sweep completo
+            (com V-03), C-01 (reduzir fricção do cartão do cliente — experimento "L").
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
