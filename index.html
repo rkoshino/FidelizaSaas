@@ -27,30 +27,29 @@
                         sans: ['Inter', 'sans-serif'],
                         outfit: ['Outfit', 'sans-serif'],
                     },
-                    // === PALETA DE TESTE (creme / verde / laranja) ===========================
-                    // Centralizada: a escala `indigo` foi remapeada para VERDE, então toda
-                    // classe indigo-* existente passa a renderizar verde sem mexer no markup.
-                    // `brand.orange/cream/green` ficam disponíveis para acentos novos.
-                    // Para trocar a paleta depois, basta editar estes valores aqui.
+                    // === PALETA DE TESTE 2 (off-white amendoado + teal de contraste) ==========
+                    // 3 cores, SEM degradê. Neutro quente (papel) + tinta espresso + 1 contraste (teal).
+                    // Centralizada: a escala `indigo` foi remapeada para TEAL, então toda classe
+                    // indigo-* existente vira teal sem mexer no markup. Trocar = editar só aqui.
                     colors: {
                         indigo: {
-                            50:  '#eef9f1',
-                            100: '#d3f0dd',
-                            200: '#a8e0bd',
-                            300: '#74cd98',
-                            400: '#45b577',
-                            500: '#259d5d',
-                            600: '#1c8b50',
-                            700: '#166f41',
-                            800: '#125837',
-                            900: '#0f4a2f',
+                            50:  '#e6f2f0',
+                            100: '#c2e0db',
+                            200: '#93c9c1',
+                            300: '#5aaaa0',
+                            400: '#2c8c81',
+                            500: '#137468',
+                            600: '#0E6E63',
+                            700: '#0b574e',
+                            800: '#094640',
+                            900: '#073a35',
                         },
                         brand: {
-                            cream: '#FBF6EC',
-                            green: '#1c8b50',
-                            'green-dark': '#166f41',
-                            orange: '#F2860D',
-                            'orange-dark': '#DB7406',
+                            paper: '#F2EBDE',     // off-white amendoado (fundo)
+                            card: '#FBF7F0',      // superfície (mesma família, mais clara)
+                            ink: '#2A2520',       // espresso quente (texto/escuros)
+                            accent: '#0E6E63',    // teal — única cor de contraste
+                            'accent-dark': '#0b574e',
                         },
                     },
                     animation: {
@@ -71,37 +70,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #FBF6EC; /* creme */
-            color: #334155;
+            background-color: #F2EBDE; /* off-white amendoado */
+            color: #2A2520; /* espresso */
             overflow-x: hidden;
         }
         .glassmorphism {
-            background: rgba(251, 246, 236, 0.85); /* creme translúcido */
+            background: rgba(242, 235, 222, 0.85); /* papel translúcido */
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(42, 37, 32, 0.08);
         }
+        /* hero-glow removido: SEM degradê. Bloco vira um realce sólido sutil. */
         .hero-glow {
             position: absolute;
-            width: 1000px;
-            height: 1000px;
-            background: radial-gradient(circle, rgba(28,139,80,0.10) 0%, rgba(251,246,236,0) 70%); /* glow verde */
-            top: -200px;
+            width: 600px;
+            height: 600px;
+            background: #EBE2D2; /* tom amendoado um pouco mais quente, sólido */
+            border-radius: 9999px;
+            filter: blur(120px);
+            opacity: 0.6;
+            top: -160px;
             left: 50%;
             transform: translateX(-50%);
             z-index: -1;
             pointer-events: none;
         }
         .feature-card {
-            background: #fffdf8;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            background: #FBF7F0;
+            border: 1px solid rgba(42, 37, 32, 0.08);
+            box-shadow: 0 4px 20px rgba(42,37,32,0.04);
             transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .feature-card:hover {
             transform: translateY(-5px);
-            border-color: rgba(28, 139, 80, 0.3); /* verde */
-            box-shadow: 0 10px 30px rgba(242,134,13,0.12); /* sombra laranja suave */
+            border-color: rgba(14, 110, 99, 0.35); /* teal */
+            box-shadow: 0 10px 30px rgba(14,110,99,0.10);
         }
         /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
         :focus-visible {
@@ -148,7 +151,7 @@
             <!-- Navigation Actions -->
             <div class="flex items-center gap-3 md:gap-4 shrink-0">
                 <a href="login.html" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">Login</a>
-                <a href="onboarding.html" class="px-4 md:px-5 py-2.5 rounded-full bg-brand-orange text-white font-bold text-xs md:text-sm hover:bg-brand-orange-dark transition-colors shadow-lg whitespace-nowrap">Cadastrar Grátis</a>
+                <a href="onboarding.html" class="px-4 md:px-5 py-2.5 rounded-full bg-brand-accent text-white font-bold text-xs md:text-sm hover:bg-brand-accent-dark transition-colors shadow-lg whitespace-nowrap">Cadastrar Grátis</a>
             </div>
         </div>
     </header>
@@ -168,7 +171,7 @@
                 </div>
 
                 <h1 class="text-5xl md:text-7xl font-extrabold font-outfit leading-[1.1] tracking-tight text-slate-900">
-                    O fim dos cartõezinhos de <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 line-through decoration-slate-400">papel</span>.
+                    O fim dos cartõezinhos de <span class="text-brand-ink/40 line-through decoration-brand-ink/30">papel</span>.
                 </h1>
                 
                 <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
@@ -176,7 +179,7 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center lg:justify-start">
-                    <a href="onboarding.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-brand-orange to-brand-orange-dark hover:brightness-105 text-white font-bold text-lg transition-all shadow-[0_4px_20px_rgba(242,134,13,0.4)] transform hover:-translate-y-1">
+                    <a href="onboarding.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-accent hover:bg-brand-accent-dark text-white font-bold text-lg transition-all shadow-[0_4px_20px_rgba(14,110,99,0.30)] transform hover:-translate-y-1">
                         Criar Conta Grátis
                     </a>
                     <a href="login.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-lg transition-all shadow-sm">
@@ -186,10 +189,10 @@
 
                 <div class="flex items-center justify-center lg:justify-start gap-6 mt-4">
                     <div class="flex items-center gap-2 text-sm font-medium text-slate-500">
-                        <i class="fa-solid fa-check text-emerald-500"></i> Setup em 2 min
+                        <i class="fa-solid fa-check text-brand-accent"></i> Setup em 2 min
                     </div>
                     <div class="flex items-center gap-2 text-sm font-medium text-slate-500">
-                        <i class="fa-solid fa-check text-emerald-500"></i> Sem cartão de crédito
+                        <i class="fa-solid fa-check text-brand-accent"></i> Sem cartão de crédito
                     </div>
                 </div>
             </div>
@@ -197,7 +200,7 @@
             <!-- Right Visual Mockup (Smartphone) -->
             <div class="relative w-full max-w-lg mx-auto lg:ml-auto z-10 animate-float">
                 <!-- Abstract blobs -->
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-indigo-200 to-cyan-100 rounded-full blur-3xl -z-10"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100 rounded-full blur-3xl -z-10"></div>
                 
                 <!-- Phone Mockup -->
                 <div class="relative bg-slate-900 border-[8px] border-slate-800 rounded-[3rem] shadow-2xl overflow-hidden aspect-[9/19] w-3/4 mx-auto rotate-[-2deg] transform transition hover:rotate-0 duration-500">
@@ -282,7 +285,7 @@
 
                     <!-- Feature 2 -->
                     <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
-                        <div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl shrink-0">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
                             <i class="fa-solid fa-palette"></i>
                         </div>
                         <div>
@@ -293,7 +296,7 @@
 
                     <!-- Feature 3 -->
                     <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div>
@@ -304,7 +307,7 @@
 
                     <!-- Feature 4 -->
                     <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
                             <i class="fa-solid fa-heart"></i>
                         </div>
                         <div>
@@ -333,7 +336,7 @@
     <section class="py-24 relative bg-slate-50" id="pricing">
         <div class="max-w-7xl mx-auto px-6">
             <div class="text-center max-w-2xl mx-auto mb-16">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-semibold uppercase tracking-wider w-fit mx-auto mb-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider w-fit mx-auto mb-4">
                     Investimento
                 </div>
                 <h2 class="text-3xl md:text-5xl font-bold font-outfit text-slate-900 mb-6">Mais barato que a gráfica.</h2>
@@ -342,8 +345,8 @@
 
             <div class="max-w-md mx-auto">
                 <!-- Plano Único -->
-                <div class="feature-card rounded-3xl p-8 flex flex-col relative border-indigo-200 shadow-[0_10px_40px_rgba(79,70,229,0.1)]">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
+                <div class="feature-card rounded-3xl p-8 flex flex-col relative border-indigo-200 shadow-[0_10px_40px_rgba(14,110,99,0.10)]">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-accent text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
                         1º mês grátis
                     </div>
                     <h3 class="text-xl font-bold text-slate-900 mb-2 font-outfit">Plano Único</h3>
@@ -352,14 +355,14 @@
                         <span class="text-5xl font-extrabold text-slate-900">R$ 19,90</span>
                         <span class="text-slate-500 text-sm">/mês</span>
                     </div>
-                    <p class="text-emerald-600 text-sm font-semibold mb-8"><i class="fa-solid fa-gift"></i> O 1º mês é por nossa conta — sem cartão de crédito.</p>
+                    <p class="text-brand-accent text-sm font-semibold mb-8"><i class="fa-solid fa-gift"></i> O 1º mês é por nossa conta — sem cartão de crédito.</p>
                     <ul class="flex flex-col gap-4 text-slate-600 text-sm mb-8 flex-grow">
                         <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Clientes Ilimitados</li>
                         <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Vendedores Ilimitados</li>
                         <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Auto-Atendimento (Tutoriais)</li>
                         <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Pagamento via PIX, cancele quando quiser</li>
                     </ul>
-                    <a href="onboarding.html" class="w-full py-4 rounded-xl bg-gradient-to-r from-brand-orange to-brand-orange-dark hover:brightness-105 text-white font-bold text-center transition shadow-lg transform hover:scale-[1.02]">Começar Grátis</a>
+                    <a href="onboarding.html" class="w-full py-4 rounded-xl bg-brand-accent hover:bg-brand-accent-dark text-white font-bold text-center transition shadow-lg transform hover:scale-[1.02]">Começar Grátis</a>
                 </div>
             </div>
         </div>
