@@ -318,6 +318,6 @@ Object.assign(exports, require("./billing"));
 
 /* ------------------------------------------------------------------ */
 /*  Notificações por e-mail (TRIAL-01) — módulo notifications.js       */
-/*  Nomes exportados: trialReminderCron (onSchedule)                   */
+/*  Nomes exportados: subscriptionReminderCron (onSchedule 10h BRT)    */
 /* ------------------------------------------------------------------ */
 Object.assign(exports, require("./notifications"));
