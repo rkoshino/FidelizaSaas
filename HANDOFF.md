@@ -131,10 +131,12 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    `trialReminderCron` onSchedule diário 12:00 BRT, e-mail via Resend, marca `trialReminder7Sent`).
    **Falta:** criar conta Resend + verificar domínio + `firebase functions:secrets:set RESEND_API_KEY`
    e então `firebase deploy --only functions`. Passo a passo abaixo em "AÇÕES DO CEO".
-6. **V-03 tema claro** — teste de paleta **creme/verde/laranja** aplicado na **landing** (`index.html`)
-   via tokens centralizados no `tailwind.config` (escala `indigo` remapeada p/ verde). DEPLOYADO.
-   Aguarda OK do CEO sobre a direção antes de migrar as telas logadas escuras (dashboard/vendedor/
-   onboarding/master-admin/cliente) — esse é o grosso restante do V-03.
+6. **V-03 tema claro** — teste de paleta na **landing** (`index.html`) via tokens no `tailwind.config`.
+   v1 (creme/verde/laranja) REPROVADA. **v2 ATUAL: off-white amendoado `#F2EBDE` + tinta espresso
+   `#2A2520` + contraste único teal `#0E6E63`, 3 cores, SEM degradê.** DEPLOYADO. Aguarda OK do CEO
+   antes de migrar as telas logadas escuras (dashboard/vendedor/onboarding/master-admin/cliente) — o
+   grosso restante do V-03. Obs.: o logo SVG (pássaro) ainda tem degradê azul, mas é ON HOLD (logo
+   definitivo é tarefa à parte).
 5. Pendência da TRIAL-01: **aviso real de 7 dias antes** (notificação/e-mail).
 6. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
 
