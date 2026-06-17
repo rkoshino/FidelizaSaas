@@ -358,6 +358,20 @@
                     </div>
                 </div>
 
+                <!-- VEND-08: QR de acesso rápido do vendedor -->
+                <div class="glassmorphism rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5 border border-slate-800">
+                    <div class="bg-white p-3 rounded-xl shrink-0 shadow-lg shadow-black/20">
+                        <div id="vendor-access-qrcode" class="w-[120px] h-[120px] flex items-center justify-center text-slate-300"><i class="fa-solid fa-qrcode text-4xl"></i></div>
+                    </div>
+                    <div class="flex flex-col gap-2 text-center sm:text-left">
+                        <h4 class="font-bold text-white text-sm font-outfit">Acesso rápido do vendedor</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">Peça para o funcionário <strong>escanear este QR com o celular</strong>: ele cai direto na tela de login do vendedor. Basta entrar com o e-mail já cadastrado aqui na equipe — o painel da empresa continua só com você.</p>
+                        <div class="flex gap-2 justify-center sm:justify-start mt-1">
+                            <button id="btn-vendor-qr-copy" class="text-[11px] font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-3 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-copy"></i> Copiar link</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Vendedores Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
                     <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-slate-500 col-span-full">
@@ -962,6 +976,26 @@
                     if(btnEquipeCopiar) btnEquipeCopiar.onclick = () => {
                         navigator.clipboard.writeText(vendorUrl);
                         showToast("Link da câmera copiado!");
+                    };
+
+                    // VEND-08: QR de acesso do vendedor (leva ao login do vendedor).
+                    const vendorQrBox = document.getElementById("vendor-access-qrcode");
+                    if (vendorQrBox) {
+                        vendorQrBox.innerHTML = "";
+                        vendorQrBox.className = "";
+                        new QRCode(vendorQrBox, {
+                            text: vendorUrl,
+                            width: 120,
+                            height: 120,
+                            colorDark: "#0f172a",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                    }
+                    const btnVendorQrCopy = document.getElementById("btn-vendor-qr-copy");
+                    if (btnVendorQrCopy) btnVendorQrCopy.onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link de acesso do vendedor copiado!");
                     };
 
                     // Preencher aba Sua Conta

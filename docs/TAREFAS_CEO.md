@@ -150,6 +150,33 @@
 
 ---
 
+## 4.5 Rodada 2 — feedback do CEO pós-teste da Onda 0 (2026-06-16)
+
+> Testes da Onda 0: **B-02 (câmera) confirmado OK** ✅. Novos itens abaixo.
+
+- [x] **VEND-07 · 🎨 P1 — Scan deliberado (1 leitura → painel → ações)** ⭐ ✅ 2026-06-16 — `vendedor.html`: scan chama `getCard` (read-only) e abre painel único com progresso + entregar prêmio + adicionar pontos (opções `+1/+2/+3/+⌊x/2⌋/+x`) + tirar ponto + próximo cliente. Removida a caixa "Modo do Próximo Scan".
+  Hoje, ao iniciar a câmera, o scan **auto-aplica** o "Modo do Próximo Scan" (por padrão dá +1 ponto na hora). Indesejado/superestimulante.
+  **Desejado:** escanear **uma vez** o QR do cliente → abrir um painel **minimalista** com o estado do cartão e ações explícitas: **aplicar pontos**, **ver/entregar prêmio pendente** (marcar como resgatado), **tirar ponto** (correção). Sem mutação automática no scan.
+  **Aceite:** 1 scan carrega o cliente (via `getCard`, read-only); pontuar e entregar prêmio são toques deliberados; fluxo limpo e rápido de pegar. _(Substitui a caixa "Modo do Próximo Scan"; engloba VEND-03.)_
+
+- [x] **VEND-08 · ✨ P2 — QR de acesso do vendedor no dashboard** ✅ 2026-06-16 — `dashboard.html` aba Equipe: QR para `vendedor.html?empresa=ID` + instrução + copiar link.
+  Na aba **Equipe**, junto ao QR de divulgação, um QR que leva à **página de login do vendedor** (`vendedor.html?empresa=ID`). O trabalhador (e-mail já pré-cadastrado pelo dono em Equipe) escaneia → loga → **cai direto no vendedor**. Dashboard continua só do dono.
+  **Aceite:** QR presente na aba Equipe; escanear abre o login do vendedor da empresa correta; pós-login vai para o vendedor (não para o dashboard).
+
+- [x] **B-08 · 🐛⚙️ P1 — Cadastro com e-mail já existente sobrescreve a empresa** ✅ 2026-06-16 — `onboarding.html`: login/social já cadastrado → redireciona ao dashboard (sem re-onboarding); signup com e-mail existente → toast "já cadastrado" + alterna p/ Login. Marca de "completo" = `linkUnicoCliente`.
+  Repro: criar empresa X com um e-mail; recriar com o **mesmo e-mail** e link Y → ao logar aparece **Y** (sobrescreveu X). O e-mail (entidade) se sobrepõe ao link do cartão.
+  **Desejado (produção):** se o e-mail/conta já tem empresa cadastrada → **feedback visual "e-mail já cadastrado" + CTA "fazer login"**; **não** permitir re-onboarding que sobrescreve. _(Ajuste de produto sobre B-01: o B-01 tirou o crash; falta impedir o overwrite no signup.)_
+
+- [x] **TRIAL-01 · 📝🎨 P1 — Condições do trial de forma lúdica/minimalista (1 CTA)** ✅ 2026-06-16 (parcial) — card no passo 1 do onboarding (1 mês grátis, sem cartão, aviso 7 dias antes, paga antes mas vale após 30d, acesso encerra sem pagamento). **Pendente:** o aviso real de 7 dias antes (notificação/e-mail) e `nextDueDate = trialEndDate` no billing (Fase B).
+  No onboarding (e onde fizer sentido), explicar com **1 movimento de CTA**: **1 mês grátis**, **sem cartão de crédito**, **avisamos 1 semana antes** perguntando se quer fechar o premium, **o acesso encerra ao fim do trial** salvo pagamento, e o **pagamento pode ser feito antes** — o **mês pago só começa a valer ao fim dos 30 dias** garantidos.
+  **Aceite:** mensagem clara, didática e enxuta; usuário entende o trial sem fricção. _(Impacta billing: `createSubscription.nextDueDate = trialEndDate`, não hoje — ver Fase B.)_
+
+- [x] **O-01 · 🎨 P1 — Botão Voltar entre etapas do onboarding** (CEO confirmou prioridade) ✅ 2026-06-16 — botão "Voltar" no passo 3 → passo 2 (preserva dados). Passo 1 é auth (sem voltar).
+  Poder voltar a um passo anterior (ex.: do passo 3 visual para o passo 2 regras) antes de finalizar.
+  **Aceite:** navegação para etapas anteriores disponível; dados preservados.
+
+---
+
 ## 6. Relação com a auditoria de design (evitar retrabalho)
 
 | Item CEO | Item Design | Observação |

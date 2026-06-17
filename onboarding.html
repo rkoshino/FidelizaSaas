@@ -221,6 +221,17 @@
                         </label>
                     </div>
 
+                    <!-- TRIAL-01: condições do trial, lúdico e minimalista (CTA único = botão abaixo) -->
+                    <div id="trial-terms-card" class="mt-1 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex flex-col gap-2">
+                        <p class="text-sm font-bold text-emerald-300 flex items-center gap-2"><i class="fa-solid fa-gift"></i> 1 mês grátis pra testar</p>
+                        <ul class="text-[11px] text-slate-300 leading-relaxed flex flex-col gap-1.5">
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-credit-card text-slate-500 w-3.5 mt-0.5"></i> Sem cartão de crédito agora.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-bell text-slate-500 w-3.5 mt-0.5"></i> Avisamos 1 semana antes do fim, pra você decidir com calma.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-clock text-slate-500 w-3.5 mt-0.5"></i> Pode pagar antes — o mês pago só começa a valer ao fim dos 30 dias.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-lock text-slate-500 w-3.5 mt-0.5"></i> Sem pagamento, o acesso encerra ao fim do teste.</li>
+                        </ul>
+                    </div>
+
                     <button type="submit" id="btn-submit-step1" class="mt-2 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                         Criar Conta e Iniciar Teste Grátis
                     </button>
@@ -343,9 +354,12 @@
                         </div>
                     </div>
                     
-                    <button id="btn-next-step3" class="mt-2 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200">
-                        Ativar Programa e Gerar Links
-                    </button>
+                    <div class="mt-2 flex gap-3">
+                        <button type="button" id="btn-back-step3" class="px-5 py-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold rounded-xl transition active:scale-95 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                        <button id="btn-next-step3" class="flex-1 py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200">
+                            Ativar Programa e Gerar Links
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -559,6 +573,9 @@
         const themeFontInput = document.getElementById("theme-font");
         const btnNextStep3 = document.getElementById("btn-next-step3");
 
+        // O-01: voltar do passo 3 (visual) para o passo 2 (regras), preservando os dados.
+        document.getElementById("btn-back-step3")?.addEventListener("click", () => setStep(2));
+
         // Outputs Step 4
         const linkClienteUrlInput = document.getElementById("link-cliente-url");
         const linkVendedorUrlInput = document.getElementById("link-vendedor-url");
@@ -588,26 +605,30 @@
             const lgpdContainer = document.getElementById("lgpd-container");
             const lgpdCheckbox = document.getElementById("lgpd-consent");
 
+            const trialCard = document.getElementById("trial-terms-card");
+
             if (isSignupMode) {
                 document.querySelector("#step-panel-1 h2").innerText = "Etapa 1: Cadastro da Empresa & Trial";
                 companyNameInput.parentNode.classList.remove("hidden");
                 companyNameInput.required = true;
                 btnSubmitStep1.innerText = "Criar Conta e Iniciar Teste Grátis";
                 toggleAuthModeBtn.innerText = "Fazer Login";
-                
-                // Mostrar checkbox LGPD no cadastro
+
+                // Mostrar checkbox LGPD + condições do trial no cadastro
                 if(lgpdContainer) lgpdContainer.classList.remove("hidden");
                 if(lgpdCheckbox) lgpdCheckbox.required = true;
+                if(trialCard) trialCard.classList.remove("hidden");
             } else {
                 document.querySelector("#step-panel-1 h2").innerText = "Fazer Login no Tem Pontinho";
                 companyNameInput.parentNode.classList.add("hidden");
                 companyNameInput.required = false;
                 btnSubmitStep1.innerText = "Acessar Painel";
                 toggleAuthModeBtn.innerText = "Criar Nova Conta";
-                
-                // Esconder checkbox LGPD no login
+
+                // Esconder checkbox LGPD + condições do trial no login
                 if(lgpdContainer) lgpdContainer.classList.add("hidden");
                 if(lgpdCheckbox) lgpdCheckbox.required = false;
+                if(trialCard) trialCard.classList.add("hidden");
             }
         });
 
@@ -844,6 +865,23 @@
             step2CustomSlugInput.value = slug;
         }
 
+        // B-08: se a conta já tem uma empresa FINALIZADA (tem linkUnicoCliente), não
+        // deixamos re-rodar o onboarding (que sobrescreveria a empresa). Manda direto
+        // ao dashboard. Retorna true se redirecionou.
+        async function redirectIfAlreadyRegistered(uid) {
+            try {
+                const snap = await getDoc(doc(db, "empresas", uid));
+                if (snap.exists() && snap.data().linkUnicoCliente) {
+                    showToast("Você já tem uma empresa cadastrada. Abrindo seu painel...");
+                    setTimeout(() => { window.location.href = `./dashboard.html?empresa=${uid}`; }, 800);
+                    return true;
+                }
+            } catch (e) {
+                console.error("Erro ao checar empresa existente:", e);
+            }
+            return false;
+        }
+
         // Submissão do Formulário de Cadastro / Login por E-mail
         authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -867,14 +905,20 @@
                     const cred = await signInWithEmailAndPassword(auth, email, password);
                     loggedUser = cred.user;
                     createdCompanyId = loggedUser.uid;
+                    // B-08: já cadastrado → dashboard (não re-onboarda/sobrescreve).
+                    if (await redirectIfAlreadyRegistered(loggedUser.uid)) return;
                     showToast("Login efetuado com sucesso!");
-                    
-                    // Se fez login, vamos pular a criação e recuperar as configs
                     setStep(2);
                 }
             } catch (err) {
                 console.error(err);
-                showToast("Erro: " + err.message);
+                if (err.code === "auth/email-already-in-use") {
+                    // B-08: e-mail já cadastrado — não permitir novo cadastro; orienta login.
+                    showToast("Este e-mail já está cadastrado. Faça login para acessar sua conta.");
+                    if (isSignupMode) toggleAuthModeBtn.click(); // alterna para o modo Login
+                } else {
+                    showToast("Erro: " + err.message);
+                }
             } finally {
                 btnSubmitStep1.disabled = false;
                 btnSubmitStep1.innerText = isSignupMode ? "Criar Conta e Iniciar Teste Grátis" : "Acessar Painel";
@@ -887,7 +931,10 @@
                 const user = await providerLoginFn();
                 loggedUser = user;
                 createdCompanyId = user.uid;
-                
+
+                // B-08: já cadastrado → dashboard (não re-onboarda/sobrescreve).
+                if (await redirectIfAlreadyRegistered(user.uid)) return;
+
                 // Setup Draft e vai pro Step 2
                 await setupCompanyDraft(user.uid, user.displayName || "Minha Empresa", user.email);
                 showToast("Autenticado com sucesso!");

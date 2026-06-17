@@ -129,22 +129,6 @@
                 </div>
             </div>
 
-            <!-- Operation Mode -->
-            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Modo do Próximo Scan</span>
-                <div class="flex gap-2">
-                    <button id="btn-mode-remove" class="flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition">Tirar 1 Ponto</button>
-                    <select id="select-points-qty" class="w-32 bg-slate-900 border border-slate-800 rounded-xl px-2 py-2 text-xs text-indigo-400 focus:outline-none focus:border-indigo-500 font-bold">
-                        <option value="1" selected>+1 Ponto</option>
-                        <option value="2">+2 Pontos</option>
-                        <option value="3">+3 Pontos</option>
-                        <option value="4">+4 Pontos</option>
-                        <option value="5">+5 Pontos</option>
-                        <option value="10">+10 Pontos</option>
-                    </select>
-                </div>
-            </div>
-
             <!-- Manual Fallback box -->
             <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Carimbar Manualmente</span>
@@ -154,14 +138,38 @@
                 </div>
             </div>
 
-            <!-- Cliente escaneado / Prêmio pendente -->
-            <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-3 text-left">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cliente</span>
-                <p class="text-sm font-bold text-white"><span id="client-points">0</span><span class="text-slate-500">/<span id="client-meta">10</span> pontos</span></p>
+            <!-- Cliente escaneado: painel de ação deliberada (VEND-07) -->
+            <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-4 text-left">
+                <div class="flex justify-between items-center gap-2">
+                    <div class="min-w-0">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cliente</span>
+                        <p class="text-sm font-bold text-white truncate" id="client-name">Cliente</p>
+                    </div>
+                    <button id="btn-next-client" class="shrink-0 text-[10px] font-bold text-slate-400 hover:text-white px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Próximo</button>
+                </div>
+
+                <!-- Progresso do cartão -->
+                <div class="flex flex-col gap-1.5">
+                    <p class="text-3xl font-extrabold text-white leading-none"><span id="client-points">0</span><span class="text-lg text-slate-500">/<span id="client-meta">10</span></span></p>
+                    <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                        <div id="client-progress" class="h-full bg-indigo-500 transition-all duration-300" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- Prêmio pendente -->
                 <div id="prize-box" class="hidden flex-col gap-2 p-3 rounded-2xl bg-yellow-400/10 border-2 border-yellow-400/20">
                     <p class="text-xs font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-gift"></i> <span id="prize-count-text">1 prêmio a entregar</span></p>
-                    <button id="btn-deliver-prize" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-50">Entregar prêmio</button>
+                    <button id="btn-deliver-prize" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-50">Marcar prêmio como entregue</button>
                 </div>
+
+                <!-- Ação primária: adicionar pontos -->
+                <div class="flex gap-2">
+                    <select id="select-points-qty" class="w-28 shrink-0 bg-slate-900 border border-slate-800 rounded-xl px-2 py-3 text-xs text-indigo-400 focus:outline-none focus:border-indigo-500 font-bold"></select>
+                    <button id="btn-add-points" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl active:scale-95 transition flex items-center justify-center gap-2"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                </div>
+
+                <!-- Ação secundária: correção -->
+                <button id="btn-remove-point" class="w-full py-2 bg-transparent border border-slate-800 hover:bg-slate-900 text-slate-500 hover:text-slate-300 font-semibold text-[11px] rounded-xl active:scale-95 transition">Tirar 1 ponto (correção)</button>
             </div>
 
             <!-- Feedbacks Popup Area (Dynamic states alerts) -->
@@ -527,19 +535,19 @@
         let isProcessing = false;
 
         async function onScanSuccess(decodedText) {
-            if (isProcessing) return;
+            const clientUid = decodedText.trim();
+            // VEND-07: uma leitura só carrega o cliente. Ignora re-leituras do mesmo
+            // QR enquanto ele já está no painel (a câmera continua vendo o QR).
+            if (isProcessing || clientUid === panelClienteId) return;
             isProcessing = true;
 
-            // Pausa scanner momentaneamente
-            triggerVibration(100); // Vibração simples de confirmação de captura
+            triggerVibration(100); // confirmação de captura
+            await loadClient(clientUid);
 
-            const clientUid = decodedText.trim();
-            await processPointAward(clientUid);
-
-            // Reativa leitura após 2.5 segundos de cooldown
+            // cooldown curto para não reprocessar a mesma leitura em rajada
             setTimeout(() => {
                 isProcessing = false;
-            }, 2500);
+            }, 1500);
         }
 
         function onScanFailure(error) {
@@ -586,132 +594,160 @@
                 }
             }
 
-            await processPointAward(clientUid);
+            await loadClient(clientUid);
             input.value = "";
             document.getElementById("btn-manual-submit").disabled = false;
         });
 
-        let isRemovingPoint = false;
-        
-        // Handle mode toggle UI
-        const btnModeRemove = document.getElementById("btn-mode-remove");
+        // ---- VEND-07: scan deliberado (1 leitura → painel → ações) ----
+        // Estado do cliente atualmente no painel.
+        let panelClienteId = null;
+        let currentClientName = "";
+        let currentPremios = 0;
+
         const selectPointsQty = document.getElementById("select-points-qty");
+        const clientPanel = document.getElementById("client-panel");
+        const prizeBox = document.getElementById("prize-box");
+        const btnDeliverPrize = document.getElementById("btn-deliver-prize");
+        const btnAddPoints = document.getElementById("btn-add-points");
+        const btnRemovePoint = document.getElementById("btn-remove-point");
+        const btnNextClient = document.getElementById("btn-next-client");
 
-        if (btnModeRemove) {
-            btnModeRemove.addEventListener("click", () => {
-                isRemovingPoint = !isRemovingPoint;
-                if (isRemovingPoint) {
-                    btnModeRemove.className = "flex-1 py-2 bg-red-900/40 border border-red-500/50 text-red-400 font-bold text-xs rounded-xl active:scale-95 transition";
-                    btnModeRemove.innerText = "Modo: Tirar Ponto";
-                    selectPointsQty.disabled = true;
-                    selectPointsQty.classList.add("opacity-50");
-                } else {
-                    btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
-                    btnModeRemove.innerText = "Tirar 1 Ponto";
-                    selectPointsQty.disabled = false;
-                    selectPointsQty.classList.remove("opacity-50");
-                }
-            });
-        }
+        const isInativaErr = (err) =>
+            String(err && err.message).includes("ASSINATURA_INATIVA") ||
+            String(err && err.code).includes("failed-precondition");
 
-        // Lógica de Negócio: tudo via Cloud Functions (points-api.js).
-        async function processPointAward(clientUid) {
+        // Carrega o cliente (read-only via getCard) e abre o painel — NÃO pontua.
+        async function loadClient(clientUid) {
+            if (!empresaId) {
+                showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
+                playSound("error");
+                return;
+            }
             try {
-                if (!empresaId) {
-                    showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
+                const card = await getCard({ empresaId, clienteId: clientUid });
+                if (!card || !card.exists) {
+                    resetPanel();
+                    showAlert("error", "Sem cartão", "Este cliente ainda não ativou o cartão desta loja.");
                     playSound("error");
                     return;
                 }
-                const meta = metaConfig.metaPontos || 10;
-
-                // MODO: TIRAR PONTO (correção do vendedor)
-                if (isRemovingPoint) {
-                    const r = await removePoint({ empresaId, clienteId: clientUid });
-                    renderClientPanel(clientUid, r.pontos, null);
-                    showAlert("success", "Ponto Removido", `Cliente agora tem ${r.pontos}/${meta} pontos.`);
-                    playSound("success");
-                    triggerVibration(150);
-                    resetRemoveMode();
-                    return;
-                }
-
-                // MODO: ADICIONAR PONTOS — carry-over + prêmio no MESMO scan (server-side)
-                const qtyToAdd = parseInt(selectPointsQty?.value || "1");
-                const res = await awardPoints({ empresaId, clienteId: clientUid, qtd: qtyToAdd });
-                // res: { pontos, premiosGanhos, premiosPendentes, meta }
-                renderClientPanel(clientUid, res.pontos, res.premiosPendentes);
-
-                if (res.premiosGanhos > 0) {
-                    showAlert("win", "Cartela completa!", `+${qtyToAdd} pontos · ${res.premiosGanhos} cartela(s) completa(s)! · ${res.premiosPendentes} prêmio(s) a entregar · cartão agora ${res.pontos}/${res.meta}.`);
-                    playSound("win");
-                    triggerVibration([100, 50, 100, 50, 300]);
-                } else {
-                    showAlert("success", "Pontos Adicionados!", `+${qtyToAdd} · cliente agora tem ${res.pontos}/${res.meta} pontos.`);
-                    playSound("success");
-                    triggerVibration(150);
-                }
-                showEmojiFeedback(qtyToAdd);
-
-                if (selectPointsQty) selectPointsQty.value = "1";
+                populateQtyOptions(metaConfig.metaPontos || 10);
+                renderClientPanel(clientUid, card.pontos, card.premiosPendentes, card.nome);
+                triggerVibration(80);
             } catch (err) {
-                console.error("Erro ao processar pontos: ", err);
-                // B-03: a leitura falhou (ex.: cliente sem cartão ativo). Limpa o painel
-                // para que a caixa de prêmio do cliente ANTERIOR não fique pendurada na tela.
-                panelClienteId = null;
-                if (clientPanel) clientPanel.classList.add("hidden");
-                updatePrizeBox(0);
-                const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
-                if (isInativa) {
-                    showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
-                } else {
-                    showAlert("error", "Erro de Processamento", err.message || "Falha ao registrar pontos.");
-                }
+                console.error("Erro ao carregar cliente:", err);
+                resetPanel();
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao carregar",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao carregar o cliente."));
                 playSound("error");
             }
         }
 
-        function resetRemoveMode() {
-            isRemovingPoint = false;
-            if (btnModeRemove) {
-                btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
-                btnModeRemove.innerText = "Tirar 1 Ponto";
-            }
-            if (selectPointsQty) {
-                selectPointsQty.disabled = false;
-                selectPointsQty.classList.remove("opacity-50");
-            }
+        // Opções de pontos = múltiplos relativos à meta (x): 1, 2, 3, ⌊x/2⌋, x
+        // (deduplicadas e ≤ x). O maior valor completa um cartão inteiro num scan.
+        function populateQtyOptions(meta) {
+            if (!selectPointsQty) return;
+            const opts = [...new Set([1, 2, 3, Math.floor(meta / 2), meta])]
+                .filter((n) => n >= 1 && n <= meta)
+                .sort((a, b) => a - b);
+            selectPointsQty.innerHTML = opts
+                .map((n) => `<option value="${n}">+${n}${n === meta ? " (cartão)" : ""}</option>`)
+                .join("");
+            selectPointsQty.value = "1";
         }
 
-        // Painel do cliente escaneado + entrega de prêmio
-        let panelClienteId = null;
-        const clientPanel = document.getElementById("client-panel");
-        const prizeBox = document.getElementById("prize-box");
-        const btnDeliverPrize = document.getElementById("btn-deliver-prize");
-
-        function renderClientPanel(clienteId, pontos, premiosPendentes) {
+        function renderClientPanel(clienteId, pontos, premiosPendentes, nome) {
             panelClienteId = clienteId;
+            if (nome != null) currentClientName = nome;
             const meta = metaConfig.metaPontos || 10;
             if (clientPanel) clientPanel.classList.remove("hidden");
+            const elName = document.getElementById("client-name");
+            if (elName) elName.innerText = currentClientName || "Cliente";
             const elP = document.getElementById("client-points");
             const elM = document.getElementById("client-meta");
             if (elP && pontos != null) elP.innerText = pontos;
             if (elM) elM.innerText = meta;
-            updatePrizeBox(premiosPendentes);
+            const prog = document.getElementById("client-progress");
+            if (prog && pontos != null) prog.style.width = Math.min(100, Math.round((pontos / meta) * 100)) + "%";
+            updatePrizeBox(premiosPendentes != null ? premiosPendentes : currentPremios);
         }
 
         function updatePrizeBox(premiosPendentes) {
             if (!prizeBox) return;
             if (premiosPendentes != null && premiosPendentes > 0) {
+                currentPremios = premiosPendentes;
                 prizeBox.classList.remove("hidden");
                 prizeBox.classList.add("flex");
                 const txt = document.getElementById("prize-count-text");
                 if (txt) txt.innerText = `${premiosPendentes} prêmio(s) a entregar`;
                 if (btnDeliverPrize) btnDeliverPrize.disabled = false;
             } else if (premiosPendentes != null) {
+                currentPremios = 0;
                 prizeBox.classList.add("hidden");
                 prizeBox.classList.remove("flex");
             }
         }
+
+        function resetPanel() {
+            panelClienteId = null;
+            currentClientName = "";
+            currentPremios = 0;
+            if (clientPanel) clientPanel.classList.add("hidden");
+            updatePrizeBox(0);
+        }
+
+        // Ação deliberada: adicionar pontos ao cliente carregado.
+        async function addPoints() {
+            if (!panelClienteId) return;
+            const qtyToAdd = parseInt(selectPointsQty?.value || "1");
+            if (btnAddPoints) btnAddPoints.disabled = true;
+            try {
+                const res = await awardPoints({ empresaId, clienteId: panelClienteId, qtd: qtyToAdd });
+                renderClientPanel(panelClienteId, res.pontos, res.premiosPendentes, currentClientName);
+                if (res.premiosGanhos > 0) {
+                    showAlert("win", "Cartão completo!", `+${qtyToAdd} · ${res.premiosGanhos} cartão(ões) completo(s) · ${res.premiosPendentes} prêmio(s) a entregar · agora ${res.pontos}/${res.meta}.`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                } else {
+                    showAlert("success", "Pontos adicionados", `+${qtyToAdd} · cliente agora tem ${res.pontos}/${res.meta} pontos.`);
+                    playSound("success");
+                    triggerVibration(150);
+                }
+                showEmojiFeedback(qtyToAdd);
+            } catch (err) {
+                console.error("Erro ao adicionar pontos:", err);
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao pontuar",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao registrar pontos."));
+                playSound("error");
+            } finally {
+                if (btnAddPoints) btnAddPoints.disabled = false;
+            }
+        }
+
+        // Ação deliberada: tirar 1 ponto (correção). Não altera prêmios pendentes.
+        async function removeOnePoint() {
+            if (!panelClienteId) return;
+            if (btnRemovePoint) btnRemovePoint.disabled = true;
+            try {
+                const r = await removePoint({ empresaId, clienteId: panelClienteId });
+                renderClientPanel(panelClienteId, r.pontos, currentPremios, currentClientName);
+                showAlert("success", "Ponto removido", `Cliente agora tem ${r.pontos}/${metaConfig.metaPontos || 10}.`);
+                playSound("success");
+                triggerVibration(120);
+            } catch (err) {
+                console.error("Erro ao remover ponto:", err);
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao remover",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao remover ponto."));
+                playSound("error");
+            } finally {
+                if (btnRemovePoint) btnRemovePoint.disabled = false;
+            }
+        }
+
+        if (btnAddPoints) btnAddPoints.addEventListener("click", addPoints);
+        if (btnRemovePoint) btnRemovePoint.addEventListener("click", removeOnePoint);
+        if (btnNextClient) btnNextClient.addEventListener("click", resetPanel);
 
         if (btnDeliverPrize) {
             btnDeliverPrize.addEventListener("click", async () => {
