@@ -50,6 +50,12 @@
         #toast.hide { opacity: 0; transform: translateY(-8px); pointer-events: none; }
         /* Garante que hidden sempre vence sobre flex no Tailwind CDN (v3 sem !important) */
         .hidden { display: none !important; }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #818cf8 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body class="h-full font-inter bg-slate-950 text-slate-100 overflow-hidden">

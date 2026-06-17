@@ -53,6 +53,12 @@
                 scroll-behavior: auto !important;
             }
         }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #818cf8 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #0b0f19;">

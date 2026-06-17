@@ -77,6 +77,12 @@
             border-color: rgba(99, 102, 241, 0.3);
             box-shadow: 0 10px 30px rgba(79,70,229,0.1);
         }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #818cf8 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body class="selection:bg-indigo-500 selection:text-white overflow-x-hidden">
