@@ -242,8 +242,8 @@
             <!-- STEP 2: CONFIGURAÇÃO DO PROGRAMA -->
             <div id="step-panel-2" class="hidden glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300 animate-fade-in">
                 <div>
-                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 2: Configuração da Campanha</h2>
-                    <p class="text-slate-400 text-sm mt-1">Defina como funcionará a pontuação e qual será a recompensa final do seu cliente.</p>
+                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 2: Configuração do Cartão de Pontos</h2>
+                    <p class="text-slate-400 text-sm mt-1">Defina o prêmio, quantos pontos para ganhar e o link do seu cartão.</p>
                 </div>
 
                 <div class="flex flex-col gap-4">
@@ -287,14 +287,25 @@
                 <div class="flex flex-col gap-5">
                     <div class="flex flex-col gap-1.5">
                         <label for="theme-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Título da Página</label>
-                        <input type="text" id="theme-title" value="Clube Fidelidade Gourmet" placeholder="Ex: Cartão de Fidelidade - Pizzaria" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        <input type="text" id="theme-title" value="" placeholder="Ex: Cartão de Fidelidade - Pizzaria" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5">
                             <label for="theme-color" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cor de Fundo Principal</label>
-                            <div class="flex gap-2 items-center">
-                                <input type="color" id="theme-color" value="#4f46e5" class="w-12 h-11 bg-transparent border-0 cursor-pointer rounded-xl">
+                            <!-- V-04: paleta curada (toque rápido no mobile) -->
+                            <div id="color-swatches" class="flex flex-wrap gap-2">
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#4f46e5" style="background:#4f46e5" aria-label="Índigo"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#db2777" style="background:#db2777" aria-label="Rosa"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#e11d48" style="background:#e11d48" aria-label="Vermelho"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#ea580c" style="background:#ea580c" aria-label="Laranja"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#16a34a" style="background:#16a34a" aria-label="Verde"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#0891b2" style="background:#0891b2" aria-label="Ciano"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#7c3aed" style="background:#7c3aed" aria-label="Violeta"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-white/20 transition active:scale-90" data-color="#0f172a" style="background:#0f172a" aria-label="Grafite"></button>
+                            </div>
+                            <div class="flex gap-2 items-center mt-1">
+                                <input type="color" id="theme-color" value="#4f46e5" class="w-12 h-11 bg-transparent border-0 cursor-pointer rounded-xl" title="Cor personalizada">
                                 <input type="text" id="theme-color-hex" value="#4f46e5" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3 py-3 text-sm focus:outline-none text-white uppercase transition">
                             </div>
                         </div>
@@ -392,6 +403,7 @@
                             <input type="text" readonly id="link-vendedor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-300 select-all">
                             <button id="btn-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
                         </div>
+                        <span class="text-[11px] text-slate-500 mt-0.5"><i class="fa-solid fa-circle-info mr-1"></i> No celular do balcão, abra este link e faça login com o <strong>mesmo e-mail e senha</strong> deste cadastro.</span>
                     </div>
                 </div>
 
@@ -416,6 +428,7 @@
                         <textarea readonly id="whatsapp-kit-text" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 focus:outline-none resize-none leading-relaxed select-all"></textarea>
                         <button id="btn-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Kit</button>
                     </div>
+                    <a id="btn-share-whatsapp" href="#" target="_blank" rel="noopener" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition active:scale-95 inline-flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-base"></i> Enviar no WhatsApp</a>
                 </div>
 
                 <!-- Finish wizard button -->
@@ -541,6 +554,7 @@
 
         // --- Variáveis de Estado do Wizard ---
         let currentStep = 1;
+        let themeTitleTouched = false; // O-03: marca edição manual do título da página
         let loggedUser = null;
         let createdCompanyId = "";
         let qrcodeInstance = null;
@@ -731,14 +745,47 @@
         }
 
         // Adiciona listeners para atualizações dinâmicas
-        themeTitleInput.addEventListener("input", updateSimulator);
+        themeTitleInput.addEventListener("input", () => { themeTitleTouched = true; updateSimulator(); });
         themeFontInput.addEventListener("change", updateSimulator);
         campaignPrizeInput.addEventListener("input", updateSimulator);
         campaignPointsInput.addEventListener("input", updateSimulator);
+
+        // O-04: ao digitar, remove o destaque de erro do campo
+        [step2CompanyNameInput, step2CustomSlugInput, campaignPointsInput, campaignPrizeInput].forEach(el => {
+            el.addEventListener("input", () => {
+                if (el.value.trim()) {
+                    el.classList.remove("border-red-500");
+                    el.classList.add("border-slate-800");
+                }
+            });
+        });
         themeColorInput.addEventListener("input", (e) => {
             themeColorHexInput.value = e.target.value.toUpperCase();
+            highlightSwatch(e.target.value);
             updateSimulator();
         });
+
+        // V-04: paleta curada — clique no swatch define a cor e marca o selecionado
+        const colorSwatches = document.querySelectorAll(".color-swatch");
+        function highlightSwatch(color) {
+            colorSwatches.forEach(sw => {
+                const sel = sw.dataset.color.toLowerCase() === (color || "").toLowerCase();
+                sw.classList.toggle("ring-2", sel);
+                sw.classList.toggle("ring-white", sel);
+                sw.classList.toggle("ring-offset-2", sel);
+                sw.classList.toggle("ring-offset-slate-900", sel);
+            });
+        }
+        colorSwatches.forEach(sw => {
+            sw.addEventListener("click", () => {
+                const color = sw.dataset.color;
+                themeColorInput.value = color;
+                themeColorHexInput.value = color.toUpperCase();
+                highlightSwatch(color);
+                updateSimulator();
+            });
+        });
+        highlightSwatch("#4f46e5");
         
         themeColorHexInput.addEventListener("input", (e) => {
             let val = e.target.value;
@@ -952,8 +999,23 @@
 
         // --- Lógica do Step 2: Configuração da Campanha ---
         btnNextStep2.addEventListener("click", async () => {
-            if (!step2CompanyNameInput.value || !step2CustomSlugInput.value || !campaignPointsInput.value || !campaignPrizeInput.value) {
-                showToast("Por favor, preencha todos os campos obrigatórios!");
+            // O-04: validação por campo — destaca o campo vazio e foca nele.
+            const camposObrigatorios = [
+                { el: step2CompanyNameInput, nome: "o nome da empresa" },
+                { el: step2CustomSlugInput, nome: "o link do cartão" },
+                { el: campaignPointsInput, nome: "a meta de pontos" },
+                { el: campaignPrizeInput, nome: "a descrição do prêmio" },
+            ];
+            let primeiroInvalido = null;
+            camposObrigatorios.forEach(c => {
+                const vazio = !c.el.value.trim();
+                c.el.classList.toggle("border-red-500", vazio);
+                c.el.classList.toggle("border-slate-800", !vazio);
+                if (vazio && !primeiroInvalido) primeiroInvalido = c;
+            });
+            if (primeiroInvalido) {
+                showToast(`Preencha ${primeiroInvalido.nome}.`);
+                primeiroInvalido.el.focus();
                 return;
             }
 
@@ -981,9 +1043,10 @@
                     return;
                 }
 
-                // Carrega pre-fill do titulo do Step 3
-                if (!themeTitleInput.value || themeTitleInput.value === "Fidelidade") {
-                    themeTitleInput.value = step2CompanyNameInput.value + " - Fidelidade";
+                // O-03: pré-preenche o título da página com o nome da empresa,
+                // a menos que o dono já tenha digitado algo manualmente.
+                if (!themeTitleTouched || !themeTitleInput.value.trim()) {
+                    themeTitleInput.value = step2CompanyNameInput.value.trim();
                 }
                 updateSimulator();
                 setStep(3);
@@ -1083,6 +1146,10 @@
 
                 // Prepara Kit de Mensagem do WhatsApp
                 whatsappKitTextarea.value = `🎉 Olá! Lançamos nosso sistema de fidelidade digital! Cadastre-se agora e comece a acumular pontos para ganhar ${descriçãoPremio}: ${clientUrl}`;
+
+                // O-05: botão de envio direto via wa.me com a mensagem pronta
+                const shareWhatsappBtn = document.getElementById("btn-share-whatsapp");
+                if (shareWhatsappBtn) shareWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(whatsappKitTextarea.value)}`;
 
                 showToast("Campanha ativada com sucesso!");
                 setStep(4);
