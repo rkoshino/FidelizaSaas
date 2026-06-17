@@ -36,9 +36,9 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 - **Mandato-mestra:** *"MVP mínimo e completo funcional antes de luxos."*
 
 ### ✅ Concluído e DEPLOYADO em produção (`tempontinho.com`)
-Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + Onda 3 + Fase B(código);
-**ainda NÃO mergeado em `main`**). Commits: `9b673ed` (Onda 0) · `2b64b3b` (Rodada 2) · `157181c` (docs)
-· **Onda 1** (mobile) · **Fase B + Onda 3** (preço/trial) · **Onda 2 parcial** (Outfit/jargão).
+Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + Onda 3 + **Fase B LIVE** +
+Onda 4 + Onda 5 parcial; **ainda NÃO mergeado em `main`**). Hosting deployado; **Functions também
+deployadas** (Fase B no ar com a chave Asaas nova — 2026-06-17).
 
 - **Onda 0 — bugs P0:** B-01, B-02, B-03, B-04, $-04, B-07.
 - **Rodada 2 — feedback do CEO:** VEND-07, B-08, O-01, TRIAL-01, VEND-08.
@@ -48,8 +48,9 @@ Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + O
 - **Fase B + Onda 3 — preço/trial (NOVO):** $-03 (landing vira plano ÚNICO R$19,90/mês + 1º mês grátis,
   plano anual fictício REMOVIDO; dashboard e modal PIX R$19,90), $-05 (MRR = ativas×19.90), $-02
   (banner de contagem no dashboard DURANTE o trial), $-01 (banner de trial no vendedor).
-  ⚠️ **`functions/billing.js` também foi alterado (value 19.90 + nextDueDate=trialEndDate) mas NÃO
-  deployado** — deploy de Functions está GATED no OK do CEO + chave nova (ver abaixo).
+  ✅ **`functions/billing.js` (value 19.90 + nextDueDate=trialEndDate) DEPLOYADO em produção**
+  (2026-06-17, junto com a rotação da `ASAAS_API_KEY` p/ a versão 2). Frontend e backend agora
+  cobram R$19,90 de forma consistente.
 - **Onda 2 parcial (NOVO):** V-02 (fonte Outfit carregada em dashboard/onboarding/cliente/vendedor —
   antes `font-outfit` não renderizava), V-06 (jargão removido: White Label, empresaId, instrução de
   dev no erro de link), V-01 (placeholder de logo já consistente no app; logo definitivo ON HOLD).
@@ -57,10 +58,11 @@ Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + O
   **Falta teste runtime** (o CEO vai testar amanhã e dar o OK).
 
 ### ⏸️ ONDE PAREI EXATAMENTE
-Onda 1, Onda 2 (parcial), Onda 3 e Fase B (código) **concluídas e deployadas em hosting**. Pendências:
-1. **Deploy de Functions** (preço R$19,90 + chave Asaas nova) — GATED no OK do CEO. Enquanto não rodar,
-   a produção AINDA cobra R$10 no Asaas, embora o frontend mostre R$19,90. **Não completar PIX real
-   no teste antes desse deploy.**
+Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluídas e deployadas
+(hosting + Functions). Pendências:
+1. **Configurar o webhook no painel Asaas** (tarefa do dono) — senão `PAYMENT_CONFIRMED` não vira
+   `statusAssinatura: active` e o paywall não some sozinho. URL/token/eventos na seção "AGUARDANDO O CEO".
+   Functions, preço R$19,90 e chave nova **já estão no ar** — pode fechar PIX real.
 2. **V-03 (tema claro)** — NÃO iniciado. Migrar telas logadas (escuro) p/ tema claro. Bloqueado na
    **paleta** (CEO ainda vai decidir; D3 autoriza paleta clara neutra como placeholder). É a maior
    mudança visual restante — fazer junto com o logo definitivo (também ON HOLD) faz sentido.
@@ -72,25 +74,28 @@ Onda 1, Onda 2 (parcial), Onda 3 e Fase B (código) **concluídas e deployadas e
    (contraste, foco, loading/offline, empty states) pendente.
 
 ### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
-1. **Testar Onda 0 + Rodada 2** (em andamento) → dar feedback (ajustes) ou **bandeira verde**.
-2. **Rotacionar a `ASAAS_API_KEY`** (foi exposta) e me mandar a nova chave — instruções completas
-   já passadas ao CEO (gerar nova no painel Asaas → Configurações → Integrações → Chave de API;
-   a antiga invalida na hora; **não** colar em arquivo, só mandar na conversa). Depois EU faço:
-   `firebase functions:secrets:set ASAAS_API_KEY` + `firebase deploy --only functions` + teste PIX.
-3. **Bandeira verde para a Fase B (preço R$ 19,90)** — ela mexe em `functions/billing.js` e exige
-   **deploy de Functions** (Asaas real, ação sensível). Não fazer sem o OK.
-4. (Antigos, ainda abertos) configurar o **webhook no painel Asaas**; testar **login Google no mobile**.
+1. **Testar a build atual** (Onda 0→5 + Fase B) em produção e dar feedback/ajustes. Fazer **hard refresh**.
+2. ✅ **`ASAAS_API_KEY` rotacionada** (versão 2) e Functions redeployadas em 2026-06-17 — a versão antiga
+   foi destruída no mesmo fluxo. Nada pendente aqui.
+3. ✅ **Fase B (preço R$ 19,90) DEPLOYADA** — billing.js no ar com value 19.90 + nextDueDate=trialEndDate.
+4. **Configurar o webhook no painel Asaas** (PENDENTE, tarefa do dono):
+   - URL: `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`
+   - Token: valor de `ASAAS_WEBHOOK_TOKEN` (NÃO mudou na rotação; `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`)
+   - Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/inativação.
+   Sem isso, pagamento confirmado não vira `statusAssinatura: active` e o paywall não some sozinho.
+5. (Antigo) testar **login Google no mobile**.
 
-### ▶️ PRÓXIMOS PASSOS (quando liberado) — ordem sugerida
-1. Retomar **M-01** (acima) → resto da **Onda 1 (mobile):** M-02 (reflow/tabela em cards),
-   M-03 (overflow horizontal da home), M-04, M-05. Tudo frontend, sem deploy sensível.
-2. **Fase B — preço R$ 19,90** (com green flag): `functions/billing.js` (`value:10.0`→`19.90`,
-   `nextDueDate=trialEndDate`) + copy `$-03` (`index.html`, `dashboard.html` modal PIX R$10,
-   `master-admin.html` MRR `*49`). Deploy hosting é seguro; deploy de Functions só com OK.
-3. **Onda 2 — marca/tema:** placeholder padronizado + migrar telas logadas pro **tema claro**
-   (V-03) — **parcialmente bloqueada na paleta** (CEO ainda vai decidir). V-02 (fonte Outfit) e
-   V-06 (jargão) podem ir.
-4. Pendência da TRIAL-01: implementar o **aviso real de 7 dias antes** (notificação/e-mail).
+### ▶️ PRÓXIMOS PASSOS — o que sobrou
+1. **Webhook Asaas** (tarefa do dono — ver "AGUARDANDO O CEO") + **teste PIX ponta-a-ponta**
+   (createSubscription → pagar → webhook vira `active` → paywall some). Já dá pra fechar PIX real.
+2. **V-03 (tema claro)** — única peça bloqueada: depende da **paleta** (CEO decide; D3 autoriza
+   placeholder neutro). Maior mudança visual restante; fazer junto do logo definitivo (ON HOLD).
+3. **A-01** (plugar `sendEmailVerification` no signup) e **A-02** (provedores no console Firebase).
+4. **Onda 5 restante:** X-01 (modais no lugar de alert/confirm — adiado, refactor amplo), X-02
+   (contraste), X-03 (foco teclado), X-05 (loading/offline cliente), X-07 (reduced-motion),
+   C-01/C-06 (fricção/empty states).
+5. Pendência da TRIAL-01: **aviso real de 7 dias antes** (notificação/e-mail).
+6. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
 
 ### 🔧 Notas operacionais
 - **Git push trava** no `git-credential-osxkeychain` neste ambiente. Use o helper do gh:
@@ -113,7 +118,7 @@ Onda 1, Onda 2 (parcial), Onda 3 e Fase B (código) **concluídas e deployadas e
 
 **Tem Pontinho** — SaaS de cartão fidelidade digital (pontos/carimbos) para
 pequenos comércios. Filosofia: mínimo e sólido, barato (assinatura **R$ 19,90/mês**,
-1º mês grátis — código já em R$19,90; deploy de Functions pendente do OK do CEO).
+1º mês grátis — já LIVE em produção desde 2026-06-17).
 O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 - **Repo local:** `/Users/claytonborges/WORK/FidelizaSaas` (NÃO é o portfólio em
@@ -150,8 +155,7 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
   - `createSubscription({ empresaId, cpfCnpj, telefone })` — cria cliente +
     assinatura PIX **R$19,90/mês** no Asaas (`nextDueDate=trialEndDate`: o mês pago
     só começa ao fim do trial), devolve QR + copia-e-cola (com retry p/ latência).
-    Auth: só o dono. ⚠️ Código já em R$19,90 mas **NÃO deployado** (deploy de Functions
-    pendente do OK do CEO + chave nova; produção ainda roda R$10 até lá).
+    Auth: só o dono. ✅ **R$19,90 LIVE em produção** (deployado 2026-06-17 com a chave nova).
   - `asaasWebhook` (HTTP) — valida header `asaas-access-token` e atualiza
     `statusAssinatura` nos eventos de pagamento.
     **URL:** `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`
@@ -169,9 +173,8 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 ## Secrets (Secret Manager) — já configurados
 
-- `ASAAS_API_KEY` — chave de **produção** do Asaas. ⚠️ **Foi exposta em texto puro
-  numa conversa anterior — precisa ser rotacionada** (tarefa do dono no painel Asaas;
-  depois é só rodar `firebase functions:secrets:set ASAAS_API_KEY` e redeploy das functions).
+- `ASAAS_API_KEY` — chave de **produção** do Asaas. ✅ **Rotacionada em 2026-06-17** (versão 2 no
+  Secret Manager; a versão exposta antiga foi destruída no redeploy). Functions já usam a nova.
 - `ASAAS_WEBHOOK_TOKEN` — armazenado no Secret Manager (valor REMOVIDO deste doc por
   segurança — estava em texto puro num arquivo que era servido publicamente). Para
   recuperar o valor: `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`.
@@ -223,25 +226,22 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [~] **Testar Onda 0 + Rodada 2 em produção** (EM ANDAMENTO — 2026-06-17). Roteiro nos
       relatórios; dar **feedback (ajustes)** ou **bandeira verde** para liberar o próximo bloco.
       Fazer **hard refresh** antes de testar (cache de HTML do navegador).
-- [ ] **Rotacionar a `ASAAS_API_KEY`** (foi exposta) — instruções já passadas: painel Asaas →
-      Configurações → Integrações → Chave de API → gerar nova (a antiga invalida na hora) →
-      **mandar a nova chave na conversa** (não colar em arquivo). O Claude faz o resto.
+- [x] **Rotacionar a `ASAAS_API_KEY`** ✅ 2026-06-17 — feito pelo dono via
+      `firebase functions:secrets:set ASAAS_API_KEY` (versão 2; antiga destruída no redeploy).
 - [ ] **Testar login Google no MOBILE** em `tempontinho.com` (o redirect URI foi corrigido —
       confirmar que loga e PERMANECE logado).
-- [ ] **Configurar o webhook no painel Asaas** (responsável: sócio). Em
+- [ ] **Configurar o webhook no painel Asaas** (responsável: sócio) — **AINDA NÃO feito**. Em
       Configurações → Integrações → Webhooks:
       URL = `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`;
       Token = valor de `ASAAS_WEBHOOK_TOKEN` (rodar `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`);
       Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/
-      inativação de assinatura. (Status atual: provavelmente AINDA NÃO feito.)
-- [ ] **Rotacionar a chave de produção do Asaas** (foi exposta). Gerar nova no painel
-      e avisar o Claude para atualizar o secret + redeploy.
+      inativação de assinatura.
 - [ ] **(Se for ativar App Check)** registrar um site key reCAPTCHA v3 no console e
       passar o valor para o Claude.
 
 ### Do lado do CLAUDE (assistente)
-- [ ] **Atualizar `ASAAS_API_KEY`** assim que o dono rotacionar (set secret + `firebase
-      deploy --only functions`).
+- [x] **Atualizar `ASAAS_API_KEY` + redeploy de Functions** ✅ 2026-06-17 — Fase B (R$19,90 +
+      nextDueDate=trialEndDate) foi ao ar junto com a rotação da chave; webhook verificado (401 sem token).
 - [ ] **Teste ponta-a-ponta funcional** (após webhook ativo): login vendedor + cliente,
       escanear QR, validar carry-over (ex.: 9+4→1 prêmio, cartão 3/10), entrega de
       prêmio idempotente, isolamento entre empresas, paywall com trial expirado,
@@ -259,8 +259,8 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       - [x] **Onda 0** (bugs P0) — feita e deployada.
       - [x] **Rodada 2** (feedback do CEO: VEND-07, B-08, O-01, TRIAL-01, VEND-08) — feita e deployada.
       - [x] **Onda 1 (mobile)** — M-01..M-05 feitas e deployadas (hosting).
-      - [x] **Fase B (preço R$ 19,90)** — CÓDIGO feito (billing.js + copy). **Deploy de Functions
-            PENDENTE** (gated no OK do CEO + chave nova). Copy/preço já no ar via hosting.
+      - [x] **Fase B (preço R$ 19,90)** — ✅ DEPLOYADA em 2026-06-17 (billing.js + copy no ar;
+            Functions redeployadas com a chave nova). Frontend e backend consistentes em R$19,90.
       - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
       - [~] **Onda 2 (marca/tema)** — V-02 (Outfit) e V-06 (jargão) feitas; V-01 placeholder já
             consistente. **V-03 (tema claro) PENDENTE** — bloqueada na paleta (CEO decide).

@@ -168,7 +168,7 @@
   Repro: criar empresa X com um e-mail; recriar com o **mesmo e-mail** e link Y → ao logar aparece **Y** (sobrescreveu X). O e-mail (entidade) se sobrepõe ao link do cartão.
   **Desejado (produção):** se o e-mail/conta já tem empresa cadastrada → **feedback visual "e-mail já cadastrado" + CTA "fazer login"**; **não** permitir re-onboarding que sobrescreve. _(Ajuste de produto sobre B-01: o B-01 tirou o crash; falta impedir o overwrite no signup.)_
 
-- [x] **TRIAL-01 · 📝🎨 P1 — Condições do trial de forma lúdica/minimalista (1 CTA)** ✅ 2026-06-16 (parcial) — card no passo 1 do onboarding (1 mês grátis, sem cartão, aviso 7 dias antes, paga antes mas vale após 30d, acesso encerra sem pagamento). **Pendente:** o aviso real de 7 dias antes (notificação/e-mail) e `nextDueDate = trialEndDate` no billing (Fase B).
+- [x] **TRIAL-01 · 📝🎨 P1 — Condições do trial de forma lúdica/minimalista (1 CTA)** ✅ 2026-06-16 (card) + ✅ 2026-06-17 (billing) — card no passo 1 do onboarding; **`nextDueDate = trialEndDate` JÁ no billing e deployado** (Fase B). **Pendente só:** o aviso real de 7 dias antes (notificação/e-mail).
   No onboarding (e onde fizer sentido), explicar com **1 movimento de CTA**: **1 mês grátis**, **sem cartão de crédito**, **avisamos 1 semana antes** perguntando se quer fechar o premium, **o acesso encerra ao fim do trial** salvo pagamento, e o **pagamento pode ser feito antes** — o **mês pago só começa a valer ao fim dos 30 dias** garantidos.
   **Aceite:** mensagem clara, didática e enxuta; usuário entende o trial sem fricção. _(Impacta billing: `createSubscription.nextDueDate = trialEndDate`, não hoje — ver Fase B.)_
 
