@@ -189,11 +189,11 @@
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
                     <div>
-                        <h4 class="font-bold text-white text-sm">Seu plano experimental expira em <span id="trial-days-left">30</span> dias!</h4>
-                        <p class="text-slate-400 text-xs mt-0.5">Assine o plano comercial Pro hoje mesmo para desbloquear o envio de logotipos e manter seu programa rodando.</p>
+                        <h4 class="font-bold text-white text-sm">Faltam <span id="trial-days-left">30</span> dias do seu mês grátis</h4>
+                        <p class="text-slate-400 text-xs mt-0.5">Assine por R$ 19,90/mês quando quiser — o pagamento só começa a valer no fim do período grátis, sem interromper seu programa.</p>
                     </div>
                 </div>
-                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Fazer Upgrade</button>
+                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
             </div>
 
             <!-- TABS CONTENT -->
@@ -501,7 +501,7 @@
                             <h4 class="text-xl font-bold text-white font-outfit">Fidelidade Pro (White Label)</h4>
                             <p class="text-indigo-200/60 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
                         </div>
-                        <div class="text-2xl font-bold font-outfit text-white">R$ 10,00 <span class="text-xs font-normal text-slate-500">/ mensal</span></div>
+                        <div class="text-2xl font-bold font-outfit text-white">R$ 19,90 <span class="text-xs font-normal text-slate-500">/ mensal</span></div>
                         
                         <div class="h-[1px] bg-slate-900 w-full"></div>
 
@@ -800,7 +800,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h3 class="font-bold text-lg text-white font-outfit">Assinar — Fidelidade Pro</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">R$ 10,00 / mês via PIX</p>
+                    <p class="text-xs text-slate-400 mt-0.5">R$ 19,90 / mês via PIX</p>
                 </div>
                 <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -1599,20 +1599,27 @@
                 }
 
                 // Atualizar badges
+                const trialAlert = document.getElementById("trial-alert");
                 if (status === "active") {
                     document.getElementById("active-badge").classList.remove("hidden");
                     document.getElementById("trial-badge").classList.add("hidden");
-                    document.getElementById("trial-alert").classList.add("hidden");
+                    trialAlert.classList.add("hidden");
                 } else {
                     document.getElementById("active-badge").classList.add("hidden");
                     document.getElementById("trial-badge").classList.remove("hidden");
-                    if (!isActive) {
-                        document.getElementById("trial-alert").classList.remove("hidden");
-                    }
-                    if (trialEnd) {
-                        const diffDays = Math.ceil((trialEnd - agora) / (1000 * 60 * 60 * 24));
-                        const el = document.getElementById("trial-days-left");
-                        if (el) el.innerText = diffDays > 0 ? diffDays : 0;
+
+                    const diffDays = trialEnd
+                        ? Math.max(0, Math.ceil((trialEnd - agora) / (1000 * 60 * 60 * 24)))
+                        : 0;
+                    const el = document.getElementById("trial-days-left");
+                    if (el) el.innerText = diffDays;
+
+                    // $-02: durante o trial, mostra o banner amigável de contagem.
+                    // Expirado, o paywall já assume o bloqueio — esconde o alerta.
+                    if (isActive && status === "trial") {
+                        trialAlert.classList.remove("hidden");
+                    } else {
+                        trialAlert.classList.add("hidden");
                     }
                 }
             });

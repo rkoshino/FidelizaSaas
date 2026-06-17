@@ -108,6 +108,15 @@
                 <button id="btn-logout" class="text-[11px] font-bold text-red-400 hover:text-red-300 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-slate-900 border border-slate-800 transition"><i class="fa-solid fa-power-off"></i> Sair</button>
             </div>
 
+            <!-- $-01: Banner de trial (mês grátis) -->
+            <div id="trial-banner" class="hidden items-center justify-between gap-3 p-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 text-left">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half text-xs"></i></div>
+                    <p class="text-[11px] text-amber-200/90 leading-tight">Faltam <span id="trial-banner-days" class="font-bold text-white">30</span> dias do mês grátis. Depois, R$ 19,90/mês.</p>
+                </div>
+                <a href="dashboard.html" class="shrink-0 text-[10px] font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 px-3 min-h-[40px] inline-flex items-center rounded-lg transition active:scale-95">Assinar</a>
+            </div>
+
             <!-- Camera Scanner Box -->
             <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3 relative">
                 <div class="flex justify-between items-center">
@@ -337,6 +346,19 @@
                     // Exibe nome da empresa no topo e na tela de login
                     document.getElementById("empresa-nome").innerText = data.nomeEmpresa;
                     document.getElementById("login-empresa-nome").innerText = `Atendente - ${data.nomeEmpresa}`;
+
+                    // $-01: banner de trial (mês grátis) — só durante o trial vigente.
+                    const trialEnd = data.trialEndDate
+                        ? (typeof data.trialEndDate.toDate === "function" ? data.trialEndDate.toDate() : new Date(data.trialEndDate))
+                        : null;
+                    const emTrial = (data.statusAssinatura === "trial") && trialEnd && trialEnd > new Date();
+                    if (emTrial) {
+                        const diffDays = Math.max(0, Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24)));
+                        const daysEl = document.getElementById("trial-banner-days");
+                        if (daysEl) daysEl.innerText = diffDays;
+                        const banner = document.getElementById("trial-banner");
+                        if (banner) banner.classList.replace("hidden", "flex");
+                    }
                 }
             } catch (err) {
                 console.error("Erro ao buscar dados da empresa: ", err);

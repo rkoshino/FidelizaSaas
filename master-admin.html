@@ -185,7 +185,7 @@
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded-full">MRR</span>
                     </div>
                     <p id="kpi-mrr" class="text-4xl font-bold text-white mb-1">–</p>
-                    <p class="text-slate-400 text-sm">Receita Estimada</p>
+                    <p class="text-slate-400 text-sm">Receita Estimada (ativas × R$ 19,90)</p>
                 </div>
 
                 <!-- Em Trial -->
@@ -619,7 +619,7 @@ async function loadDashboard() {
             else if (s === "bloqueado" || s === "blocked") bloqueadas++;
         });
 
-        const mrr = ativas * 49;
+        const mrr = ativas * 19.90; // preço oficial: R$ 19,90/mês
 
         document.getElementById("kpi-ativas").textContent     = ativas;
         document.getElementById("kpi-mrr").textContent        = formatMoney(mrr);
