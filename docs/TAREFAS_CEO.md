@@ -95,9 +95,8 @@
 ## 4. PÁGINA DE CADASTRO (`onboarding.html`) + Auth (`login.html` / `config.js`)
 
 ### Autenticação / segurança
-- [~] **CAD-01 (A-03) · 🔒 P2 — Termos de segurança no login social** ✅ login feito 2026-06-17 — `login.html`: aviso de Termos de Uso + Política de Privacidade. **Pendente:** onboarding ainda exibe botões Facebook/Apple apesar da decisão D4; esconder esses botões e manter só Google + e-mail/senha com aviso de termos.
-  Exibir os termos de segurança no fluxo social ativo.
-  **Aceite:** onboarding não oferece providers fora do MVP; aceite/sinalização de termos presente antes de concluir login via provedor social ativo.
+- [x] **CAD-01 (A-03) · 🔒 P2 — Termos de segurança no login social** ✅ 2026-06-18 — `login.html`: aviso de Termos de Uso + Política de Privacidade. `onboarding.html`: Facebook/Apple removidos por D4; Google mantém aviso de termos antes de continuar. `config.js`: helpers/providers fora do MVP removidos.
+  **Aceite atendido:** onboarding não oferece providers fora do MVP; aceite/sinalização de termos presente antes de concluir login via provedor social ativo.
 
 - [x] **CAD-02 (A-01/A-02) · 🔒 P1 — Provedores independentes + verificação de e-mail** ✅ 2026-06-17 — **A-01** plugado: signup por e-mail dispara `sendEmailVerification` e o dashboard cobra a confirmação (banner + reenviar). **A-02** configurado pelo dono no console Firebase: **Google + E-mail/senha** ativos (Apple/Facebook fora do MVP por D4).
   **Aceite atendido:** providers funcionam isoladamente; cadastro por e-mail dispara verificação.

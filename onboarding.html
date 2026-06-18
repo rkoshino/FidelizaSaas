@@ -184,20 +184,18 @@
                     <p class="text-stone-500 text-sm mt-1">Crie sua conta para começar seu teste gratuito de 30 dias. Não é necessário cartão de crédito.</p>
                 </div>
 
-                <!-- Social Sign-ins -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- Social Sign-ins (D4: MVP só Google + e-mail/senha) -->
+                <div class="grid grid-cols-1 gap-3">
                     <button id="btn-login-google" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition duration-200">
                         <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
-                        <span class="text-sm font-medium">Google</span>
+                        <span class="text-sm font-medium">Continuar com Google</span>
                     </button>
-                    <button id="btn-login-facebook" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition duration-200">
-                        <i class="fa-brands fa-facebook text-[#1877F2] text-xl"></i>
-                        <span class="text-sm font-medium">Facebook</span>
-                    </button>
-                    <button id="btn-login-apple" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition duration-200">
-                        <i class="fa-brands fa-apple text-stone-800 text-xl"></i>
-                        <span class="text-sm font-medium">Apple</span>
-                    </button>
+                    <p class="text-[11px] text-stone-500 leading-relaxed text-center">
+                        Ao continuar com Google, você concorda com os
+                        <a href="termos.html" target="_blank" class="text-brand-green hover:underline">Termos de Uso</a>
+                        e a
+                        <a href="privacidade.html" target="_blank" class="text-brand-green hover:underline">Política de Privacidade</a>.
+                    </p>
                 </div>
 
                 <div class="flex items-center my-2">
@@ -232,7 +230,7 @@
                     <div class="flex items-start gap-2 mt-2" id="lgpd-container">
                         <input type="checkbox" id="lgpd-consent" required class="mt-1 w-4 h-4 bg-white border-stone-300 rounded text-brand-green focus:ring-brand-green">
                         <label for="lgpd-consent" class="text-[11px] text-stone-500 leading-tight">
-                            Declaro que li e concordo com os <a href="termos.html" target="_blank" class="text-brand-green hover:underline">Termos de Uso</a> e a <a href="termos.html" target="_blank" class="text-brand-green hover:underline">Política de Privacidade</a>, aceitando os termos de processamento de dados (LGPD).
+                            Declaro que li e concordo com os <a href="termos.html" target="_blank" class="text-brand-green hover:underline">Termos de Uso</a> e a <a href="privacidade.html" target="_blank" class="text-brand-green hover:underline">Política de Privacidade</a>, aceitando os termos de processamento de dados (LGPD).
                         </label>
                     </div>
 
@@ -562,9 +560,7 @@
             createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
             sendEmailVerification,
-            loginWithGoogle,
-            loginWithFacebook,
-            loginWithApple 
+            loginWithGoogle
         } from "./config.js?v=2";
 
         // --- Variáveis de Estado do Wizard ---
@@ -1016,8 +1012,6 @@
         }
 
         document.getElementById("btn-login-google").addEventListener("click", () => handleSocialAuth(loginWithGoogle));
-        document.getElementById("btn-login-facebook").addEventListener("click", () => handleSocialAuth(loginWithFacebook));
-        document.getElementById("btn-login-apple").addEventListener("click", () => handleSocialAuth(loginWithApple));
 
         // --- Lógica do Step 2: Configuração da Campanha ---
         btnNextStep2.addEventListener("click", async () => {

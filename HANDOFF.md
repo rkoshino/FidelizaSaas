@@ -116,8 +116,9 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    (2026-06-18)**: `alert/confirm/prompt` nativos substituídos por `showToast`(success/error/warn) +
    `confirmDialog` (modal promise-based, com variante `danger` e `keyword` p/ a exclusão por palavra
    "APAGAR") em **dashboard, cliente e vendedor**. **Deployada em produção em 2026-06-18**.
-   ✅ Feitas E DEPLOYADAS em 2026-06-17: X-02 (parcial telas escuras), X-03, X-05, X-07, C-06, **C-01**
-   (prévia de valor antes do login + Google 1-tap primário + FB/Apple escondidos por D4).
+   ✅ Feitas E DEPLOYADAS em 2026-06-17/18: X-02 (parcial), X-03, X-05, X-07, C-06, **C-01**
+   (prévia de valor antes do login + Google 1-tap primário) e **D4/CAD-01 final** (Facebook/Apple removidos
+   do onboarding/cliente/config; aviso de termos do Google no onboarding).
    📦 **PR aberto:** `fix/onda-0-bugs-p0` → `main` = https://github.com/rkoshino/FidelizaSaas/pull/2
    (33 commits; Ondas 0→5 + Fase B + X-01).
 5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO E DEPLOYADO (`functions/notifications.js`,
@@ -321,8 +322,8 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
             reordenação, atalho painel), B-05 (reset de senha) + A-03 (termos no login), O-02/O-03/O-04/O-06
             (onboarding: copy, título pré-preenchido, validação por campo, aviso conta vendedor),
             O-05 (botão wa.me), V-04 (paleta curada), V-05 (emoji picker já existia), C-05 (reforço na home),
-            **A-01 (verificação de e-mail) deployada** e **A-02 feita pelo dono**. **Falta:** esconder
-            Facebook/Apple no onboarding e alinhar o aviso de termos ali (D4: só Google + e-mail/senha).
+            **A-01 (verificação de e-mail) deployada**, **A-02 feita pelo dono** e **D4/CAD-01 final**
+            concluído: Facebook/Apple removidos; onboarding mantém só Google + e-mail/senha com aviso de termos.
       - [~] **Onda 5 (polimento)** — feitas e deployadas: X-01 (modais), X-03, X-05, X-07, C-06,
             C-01 e X-02 parcial. **Falta:** X-02 sweep completo/auditoria fina de contraste e leitura
             pós-tema claro.

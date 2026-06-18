@@ -145,14 +145,6 @@
                     <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="">
                     <span>Continuar com Google</span>
                 </button>
-                <button id="btn-login-facebook" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-[#1877F2] hover:bg-[#166fe5] rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
-                    <i class="fa-brands fa-facebook text-lg"></i>
-                    <span>Logar com Facebook</span>
-                </button>
-                <button id="btn-login-apple" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-stone-800 hover:bg-stone-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
-                    <i class="fa-brands fa-apple text-lg"></i>
-                    <span>Logar com Apple</span>
-                </button>
                 <div class="flex items-center my-1">
                     <div class="h-[1px] flex-grow bg-stone-200"></div>
                     <span class="px-2 text-[10px] text-stone-400 uppercase tracking-widest">ou</span>
@@ -286,8 +278,6 @@
             onSnapshot,
             logoutUser,
             loginWithGoogleRedirect,
-            loginWithFacebookRedirect,
-            loginWithAppleRedirect,
             getRedirectResult,
             signInWithEmailAndPassword,
             createUserWithEmailAndPassword
@@ -814,8 +804,6 @@
 
         // --- Social Login Actions ---
         document.getElementById("btn-login-google").addEventListener("click", () => loginWithGoogleRedirect());
-        document.getElementById("btn-login-facebook").addEventListener("click", () => loginWithFacebookRedirect());
-        document.getElementById("btn-login-apple").addEventListener("click", () => loginWithAppleRedirect());
 
         // Alternância de Telas (Social vs E-mail)
         const socialContainer = document.getElementById("social-login-container");

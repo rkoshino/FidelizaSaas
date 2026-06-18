@@ -5,8 +5,6 @@ import {
     signInWithRedirect, 
     getRedirectResult,
     GoogleAuthProvider, 
-    FacebookAuthProvider, 
-    OAuthProvider,
     signOut,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -62,8 +60,6 @@ const db = getFirestore(app);
 
 // Provedores de Autenticação Social
 const googleProvider = new GoogleAuthProvider();
-const facebookProvider = new FacebookAuthProvider();
-const appleProvider = new OAuthProvider('apple.com');
 
 // Helpers de Login (Popup - Desktop)
 async function loginWithGoogle() {
@@ -76,50 +72,12 @@ async function loginWithGoogle() {
     }
 }
 
-async function loginWithFacebook() {
-    try {
-        const result = await signInWithPopup(auth, facebookProvider);
-        return result.user;
-    } catch (error) {
-        console.error("Erro no login com Facebook: ", error);
-        throw error;
-    }
-}
-
-async function loginWithApple() {
-    try {
-        const result = await signInWithPopup(auth, appleProvider);
-        return result.user;
-    } catch (error) {
-        console.error("Erro no login com Apple: ", error);
-        throw error;
-    }
-}
-
 // Helpers de Login (Redirect - Mobile)
 async function loginWithGoogleRedirect() {
     try {
         await signInWithRedirect(auth, googleProvider);
     } catch (error) {
         console.error("Erro no redirect do Google: ", error);
-        throw error;
-    }
-}
-
-async function loginWithFacebookRedirect() {
-    try {
-        await signInWithRedirect(auth, facebookProvider);
-    } catch (error) {
-        console.error("Erro no redirect do Facebook: ", error);
-        throw error;
-    }
-}
-
-async function loginWithAppleRedirect() {
-    try {
-        await signInWithRedirect(auth, appleProvider);
-    } catch (error) {
-        console.error("Erro no redirect da Apple: ", error);
         throw error;
     }
 }
@@ -148,11 +106,7 @@ export {
     sendPasswordResetEmail,
     sendEmailVerification,
     loginWithGoogle,
-    loginWithFacebook,
-    loginWithApple,
     loginWithGoogleRedirect,
-    loginWithFacebookRedirect,
-    loginWithAppleRedirect,
     logoutUser,
     getRedirectResult,
     increment
