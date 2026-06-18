@@ -2,3 +2,6 @@ node_modules/
 .firebase/
 firebase-debug.log
 .DS_Store
+
+# Claude Code local helpers
+.claude/
