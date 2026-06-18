@@ -1470,18 +1470,45 @@
                     }
                 };
 
+                // Cartão travado (prêmio pendente): awardPoints recusa com PREMIO_PENDENTE.
+                // No "add" tratamos isso com mensagem clara (e, no lote, pulando o cliente).
+                const isPremioPendente = (e) => String(e && (e.message || e.code) || "").includes("PREMIO_PENDENTE");
                 if (isBulkAjuste) {
+                    let ajustados = 0;
+                    const bloqueados = [];
                     for (const cid of targetClienteIds) {
                         const atual = (window.clientesDataMap?.[cid]?.pontos) || 0;
-                        await aplicarAjusteCliente(cid, atual);
+                        try {
+                            await aplicarAjusteCliente(cid, atual);
+                            ajustados++;
+                        } catch (e) {
+                            if (currentAjusteAction === "add" && isPremioPendente(e)) {
+                                bloqueados.push(window.clientesDataMap?.[cid]?.nome || "cliente");
+                            } else {
+                                throw e;
+                            }
+                        }
                     }
-                    showToast("Pontuação ajustada com sucesso para os clientes selecionados!", "success");
+                    if (bloqueados.length) {
+                        showToast(`${ajustados} ajustado(s). ${bloqueados.length} com prêmio pendente foram pulados — resgate o prêmio antes de pontuar.`, ajustados ? "warn" : "error");
+                    } else {
+                        showToast("Pontuação ajustada com sucesso para os clientes selecionados!", "success");
+                    }
                     const allCheckbox = document.getElementById("select-all-clients");
                     if (allCheckbox) allCheckbox.checked = false;
                     toggleSelectAll(allCheckbox);
                 } else {
                     const atual = (window.clientesDataMap?.[targetClienteId]?.pontos) || 0;
-                    await aplicarAjusteCliente(targetClienteId, atual);
+                    try {
+                        await aplicarAjusteCliente(targetClienteId, atual);
+                    } catch (e) {
+                        if (currentAjusteAction === "add" && isPremioPendente(e)) {
+                            showToast("Este cliente tem prêmio pendente. Resgate o prêmio antes de adicionar pontos.", "warn");
+                            closeAjustarModal();
+                            return;
+                        }
+                        throw e;
+                    }
                     showToast("Pontuação ajustada com sucesso!", "success");
 
                     if (currentAjusteAction === "add") {
@@ -1492,7 +1519,8 @@
                 closeAjustarModal();
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao ajustar pontos. Tente novamente.", "error");
+                const premioPend = String(err && (err.message || err.code) || "").includes("PREMIO_PENDENTE");
+                showToast(premioPend ? "Cliente com prêmio pendente — resgate antes de pontuar." : "Erro ao ajustar pontos. Tente novamente.", "error");
             } finally {
                 btnConfirm.disabled = false;
                 btnConfirm.innerText = "Confirmar Ajuste";
