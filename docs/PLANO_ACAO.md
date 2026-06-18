@@ -1,31 +1,35 @@
 # Plano de Ação — Tem Pontinho
 
-> Refatoração da lógica de pontos (carry-over + auto-reset), segurança Firestore e simplificação de UX.
-> Estado: **rascunho para revisão (Codex / arquitetura)** antes da execução.
+> Refatoração da lógica de pontos, segurança Firestore e simplificação de UX.
+> Estado: **executado e atualizado em 2026-06-18**. Este plano é histórico; o contrato final em produção
+> usa **carry-over postergado**: cartão trava cheio, prêmio pendente bloqueia novos pontos, e a sobra só
+> entra depois do resgate.
 
-## 1. Regra de negócio: pontos com carry-over e prêmio pendente
+## 1. Regra de negócio: carry-over postergado + prêmio pendente
 
-### Comportamento atual (com bug)
-- `vendedor.html:655-662`: ao adicionar pontos, faz `if (totalPontos > meta) totalPontos = meta` → **excedente é descartado**.
-- Resgate só ocorre num **segundo scan** (`pontosAtuais >= meta`).
-- Resultado: cliente perde pontos e o fluxo exige 2 leituras.
+### Comportamento final em produção
+Ao vendedor escanear o QR do cliente, o scan age diretamente:
+- se `premiosPendentes > 0`, o scan resgata 1 prêmio automaticamente;
+- se não há prêmio pendente, o scan credita a quantidade selecionada no leitor.
 
-### Comportamento desejado (1 scan, sem perda)
-Ao vendedor escanear e confirmar `qtd` pontos:
+Ao creditar `qtd` pontos:
 ```
 total          = pontosAtuais + qtd
 premiosGanhos  = floor(total / meta)
 pontosRestantes= total % meta
 ```
-- `pontos` do cartão passa a ser `pontosRestantes` (cartão reseta automaticamente).
-- `premiosPendentes += premiosGanhos`.
-- Se `premiosGanhos > 0`: cliente vê confete + banner "Você tem N prêmio(s)! Mostre o QR ao vendedor".
-- **Exemplo:** 9 + 4 = 13 → 1 prêmio, resta 3 → cartão mostra **3/10** + badge "1 prêmio a resgatar".
-- Suporta múltiplos prêmios numa tacada (ex.: 9 + 14 = 23 → 2 prêmios, resta 3).
+- Se `premiosGanhos == 0`: `pontos = total`.
+- Se `premiosGanhos > 0`: `pontos = meta`, `premiosPendentes += premiosGanhos` e
+  `pontosSobra = pontosRestantes`.
+- Enquanto houver prêmio pendente, o cartão fica travado cheio e `awardPoints` recusa novos pontos.
+- Quando o último prêmio pendente é resgatado, `deliverPrize` renova o cartão com `pontos = pontosSobra`
+  e limpa `pontosSobra`.
+- **Exemplo:** 9 + 4 = 13 → cartão mostra **10/10**, 1 prêmio pendente, `pontosSobra=3`; próximo scan
+  resgata o prêmio e o cliente vê o cartão novo entrar com **3/10**.
 
-### Entrega do prêmio = ação separada do vendedor
-- Ao escanear, se `premiosPendentes > 0`, a tela do vendedor destaca **"🎁 N prêmio(s) a entregar"** + botão **"Entregar prêmio"**.
-- "Entregar" → `premiosPendentes -= 1`, grava log de entrega, incrementa `empresas/{id}.totalPremiosEntregues`.
+### Entrega do prêmio = scan automático do vendedor
+- Ao escanear cliente com `premiosPendentes > 0`, `vendedor.html` chama `deliverPrize`.
+- `deliverPrize` grava log de entrega e incrementa `empresas/{id}.totalPremiosEntregues`.
 - Mantém o modo "Tirar 1 ponto" (correção de erro do vendedor).
 
 ## 2. Modelo de dados (Firestore)
@@ -95,8 +99,9 @@ Billing real (Mercado Pago/Asaas) + enforcement de trial/inadimplência · Tailw
 - Na criação do cartão pelo cliente, forçar `pontos==0 && premiosPendentes==0` (ou só via Function).
 
 **UX cliente**
-- **Gatilho de confete/banner muda para `premiosPendentes > 0`** (não mais `pontos >= meta`, que nunca mais ocorre). Banner some quando voltar a 0.
-- Listener migra de `doc(clientes/{uid})` para `onSnapshot(clientes/{uid}/cartoes/{empresaId})`.
+- **Gatilho de confete/banner usa `premiosPendentes > 0`**. Banner permanece se o cliente voltar depois com prêmio pendente.
+- No último resgate: banner de resgate, cartão rasgando, novo cartão entrando e `pontosSobra` animando ponto a ponto.
+- Listener usa `empresas/{empresaId}/clientes/{clienteId}` via `listenCard`.
 
 **LGPD (delete)**
 - Deletar o doc pai **não** apaga `cartoes/*` e `logs/*` → apagar a subcoleção explicitamente (ou Function de cleanup). Tratar `requires-recent-login` no `user.delete()` (hoje falha em silêncio).
@@ -105,4 +110,4 @@ Billing real (Mercado Pago/Asaas) + enforcement de trial/inadimplência · Tailw
 - **App Check é parte do núcleo** (não opcional): sem ele qualquer um chama a callable com a config pública (`config.js`).
 
 ## 9. Smoke tests (reforçado)
-Caminho feliz **e** bordas: múltiplos prêmios numa tacada (9+14→2 prêmios, resto 3); double-scan simultâneo; duplo-clique em "Entregar"; `qtd` fora do range via client adulterado; cartão recém-criado (`premiosPendentes` ausente → tratar como 0); meta alterada com saldo pendente; delete LGPD apagando subcoleções.
+Caminho feliz **e** bordas: 9+4→cartão 10/10 + 1 prêmio + `pontosSobra=3`, próximo scan resgata e renova com 3/10; múltiplos prêmios numa tacada; double-scan simultâneo; duplo scan de resgate; `qtd` fora do range via client adulterado; cartão recém-criado (`premiosPendentes` ausente → tratar como 0); meta alterada com saldo pendente; delete LGPD apagando subcoleções.

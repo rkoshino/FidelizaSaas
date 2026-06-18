@@ -161,6 +161,12 @@
                         <i class="fa-solid fa-stop"></i> Parar
                     </button>
                 </div>
+
+                <!-- Quantidade de pontos creditada a cada leitura (definida ANTES de escanear) -->
+                <div class="flex items-center gap-2 pt-2 border-t border-stone-200">
+                    <label for="scan-qty" class="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap">Pontos por leitura</label>
+                    <select id="scan-qty" class="flex-1 bg-white border border-stone-300 rounded-xl px-2 py-2.5 text-xs text-brand-green font-bold focus:outline-none focus:border-brand-green"></select>
+                </div>
             </div>
 
             <!-- Manual Fallback box -->
@@ -172,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- Cliente escaneado: painel de ação deliberada (VEND-07) -->
+            <!-- Cliente escaneado: painel de resultado + correção manual -->
             <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-4 text-left">
                 <div class="flex justify-between items-center gap-2">
                     <div class="min-w-0">
@@ -196,13 +202,7 @@
                     </div>
                 </div>
 
-                <!-- Ação primária: adicionar pontos -->
-                <div class="flex gap-2">
-                    <select id="select-points-qty" class="w-28 shrink-0 bg-white border border-stone-300 rounded-xl px-2 py-3 text-xs text-indigo-600 focus:outline-none focus:border-indigo-500 font-bold"></select>
-                    <button id="btn-add-points" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl active:scale-95 transition flex items-center justify-center gap-2"><i class="fa-solid fa-plus"></i> Adicionar</button>
-                </div>
-
-                <!-- Ação secundária: correção -->
+                <!-- Correção manual (o scan já credita/resgata automaticamente) -->
                 <button id="btn-remove-point" class="w-full min-h-[44px] bg-transparent border border-stone-300 hover:bg-stone-50 text-stone-600 hover:text-stone-700 font-semibold text-[11px] rounded-xl active:scale-95 transition">Tirar 1 ponto (correção)</button>
             </div>
 
@@ -419,7 +419,8 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     metaConfig = data.metaConfig;
-                    
+                    populateQtyOptions((metaConfig && metaConfig.metaPontos) || 10);
+
                     // Exibe nome da empresa no topo e na tela de login
                     document.getElementById("empresa-nome").innerText = data.nomeEmpresa;
                     document.getElementById("login-empresa-nome").innerText = `Atendente - ${data.nomeEmpresa}`;
@@ -651,18 +652,20 @@
 
         async function onScanSuccess(decodedText) {
             const clientUid = decodedText.trim();
-            // VEND-07: uma leitura só carrega o cliente. Ignora re-leituras do mesmo
-            // QR enquanto ele já está no painel (a câmera continua vendo o QR).
-            if (isProcessing || clientUid === panelClienteId) return;
+            // Trava anti-duplicação: a câmera dispara a leitura várias vezes com o QR na
+            // frente. Processa 1 vez e só libera após um cooldown (evita pontuar/resgatar
+            // em rajada na mesma aproximação).
+            if (isProcessing) return;
             isProcessing = true;
 
             triggerVibration(100); // confirmação de captura
             await loadClient(clientUid);
 
-            // cooldown curto para não reprocessar a mesma leitura em rajada
+            // Depois do cooldown, reaproximar o MESMO cliente já age de novo
+            // (ex.: completar o cartão e, na sequência, resgatar o prêmio).
             setTimeout(() => {
                 isProcessing = false;
-            }, 1500);
+            }, 2500);
         }
 
         function onScanFailure(error) {
@@ -714,13 +717,13 @@
             document.getElementById("btn-manual-submit").disabled = false;
         });
 
-        // ---- VEND-07: scan deliberado (1 leitura → painel → ações) ----
+        // ---- Scan automático: QR age direto (pontua ou resgata) ----
         // Estado do cliente atualmente no painel.
         let panelClienteId = null;
         let currentClientName = "";
         let currentPremios = 0;
 
-        const selectPointsQty = document.getElementById("select-points-qty");
+        const selectPointsQty = document.getElementById("scan-qty");
         const clientPanel = document.getElementById("client-panel");
         const prizeBox = document.getElementById("prize-box");
         const btnDeliverPrize = document.getElementById("btn-deliver-prize");
@@ -732,7 +735,8 @@
             String(err && err.message).includes("ASSINATURA_INATIVA") ||
             String(err && err.code).includes("failed-precondition");
 
-        // Carrega o cliente (read-only via getCard) e abre o painel — NÃO pontua.
+        // Scan/manual AGE DIRETO: resgata se houver prêmio pendente, senão credita a
+        // quantidade selecionada no leitor. Sem etapa de confirmação (decisão de produto).
         async function loadClient(clientUid) {
             if (!empresaId) {
                 showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
@@ -747,16 +751,57 @@
                     playSound("error");
                     return;
                 }
-                populateQtyOptions(metaConfig.metaPontos || 10);
-                renderClientPanel(clientUid, card.pontos, card.premiosPendentes, card.nome);
-                triggerVibration(80);
+                currentClientName = card.nome || "Cliente";
+                if ((card.premiosPendentes || 0) > 0) {
+                    await autoRedeem(clientUid);   // cliente tem prêmio → resgate automático
+                } else {
+                    await autoAward(clientUid);    // sem prêmio → credita a quantidade do leitor
+                }
             } catch (err) {
-                console.error("Erro ao carregar cliente:", err);
+                console.error("Erro ao processar leitura:", err);
                 resetPanel();
-                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao carregar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao carregar o cliente."));
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao processar",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao processar a leitura."));
                 playSound("error");
             }
+        }
+
+        // Credita a quantidade selecionada. Se o backend recusar por prêmio pendente
+        // (corrida com outro caixa), cai para o resgate automaticamente.
+        async function autoAward(clientUid) {
+            const qty = parseInt(selectPointsQty?.value || "1");
+            try {
+                const res = await awardPoints({ empresaId, clienteId: clientUid, qtd: qty });
+                renderClientPanel(clientUid, res.pontos, res.premiosPendentes, currentClientName);
+                if (res.premiosGanhos > 0) {
+                    showAlert("win", "Cartão completo! 🎉", `+${qty} · cliente ganhou ${res.premiosGanhos} prêmio(s). O próximo scan resgata.`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                } else {
+                    showAlert("success", "Pontos adicionados", `+${qty} · agora ${res.pontos}/${res.meta}.`);
+                    playSound("success");
+                    triggerVibration(150);
+                }
+                showEmojiFeedback(qty);
+            } catch (err) {
+                if (String(err && err.message).includes("PREMIO_PENDENTE")) {
+                    await autoRedeem(clientUid);
+                    return;
+                }
+                throw err;
+            }
+        }
+
+        // Resgate automático de 1 prêmio. No último prêmio o cartão renova com a sobra.
+        async function autoRedeem(clientUid) {
+            const r = await deliverPrize({ empresaId, clienteId: clientUid });
+            renderClientPanel(clientUid, r.pontos, r.premiosPendentes, currentClientName);
+            const msg = r.premiosPendentes > 0
+                ? `Prêmio entregue! Ainda restam ${r.premiosPendentes} prêmio(s).`
+                : "Prêmio entregue! Cartão renovado.";
+            showAlert("win", "🎁 Prêmio entregue!", msg);
+            playSound("win");
+            triggerVibration([100, 50, 100, 50, 300]);
         }
 
         // Opções de pontos = múltiplos relativos à meta (x): 1, 2, 3, ⌊x/2⌋, x
@@ -812,7 +857,7 @@
             updatePrizeBox(0);
         }
 
-        // Ação deliberada: adicionar pontos ao cliente carregado.
+        // Ação manual opcional: adicionar pontos ao cliente carregado.
         async function addPoints() {
             if (!panelClienteId) return;
             const qtyToAdd = parseInt(selectPointsQty?.value || "1");
@@ -840,7 +885,7 @@
             }
         }
 
-        // Ação deliberada: tirar 1 ponto (correção). Não altera prêmios pendentes.
+        // Ação manual opcional: tirar 1 ponto (correção). Não altera prêmios pendentes.
         async function removeOnePoint() {
             if (!panelClienteId) return;
             if (btnRemovePoint) btnRemovePoint.disabled = true;

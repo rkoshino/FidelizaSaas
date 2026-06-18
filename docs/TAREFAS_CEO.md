@@ -95,9 +95,9 @@
 ## 4. PÁGINA DE CADASTRO (`onboarding.html`) + Auth (`login.html` / `config.js`)
 
 ### Autenticação / segurança
-- [~] **CAD-01 (A-03) · 🔒 P2 — Termos de segurança no login social** ✅ login feito 2026-06-17 — `login.html`: aviso de Termos de Uso + Política de Privacidade. **Pendente:** repetir no onboarding (que ainda tem botões Google/Apple/Facebook sem o aviso).
-  Exibir os termos de segurança no login com Google, Apple e Facebook.
-  **Aceite:** aceite/sinalização de termos presente antes de concluir login via provedor social.
+- [~] **CAD-01 (A-03) · 🔒 P2 — Termos de segurança no login social** ✅ login feito 2026-06-17 — `login.html`: aviso de Termos de Uso + Política de Privacidade. **Pendente:** onboarding ainda exibe botões Facebook/Apple apesar da decisão D4; esconder esses botões e manter só Google + e-mail/senha com aviso de termos.
+  Exibir os termos de segurança no fluxo social ativo.
+  **Aceite:** onboarding não oferece providers fora do MVP; aceite/sinalização de termos presente antes de concluir login via provedor social ativo.
 
 - [x] **CAD-02 (A-01/A-02) · 🔒 P1 — Provedores independentes + verificação de e-mail** ✅ 2026-06-17 — **A-01** plugado: signup por e-mail dispara `sendEmailVerification` e o dashboard cobra a confirmação (banner + reenviar). **A-02** configurado pelo dono no console Firebase: **Google + E-mail/senha** ativos (Apple/Facebook fora do MVP por D4).
   **Aceite atendido:** providers funcionam isoladamente; cadastro por e-mail dispara verificação.
@@ -153,10 +153,13 @@
 
 > Testes da Onda 0: **B-02 (câmera) confirmado OK** ✅. Novos itens abaixo.
 
-- [x] **VEND-07 · 🎨 P1 — Scan deliberado (1 leitura → painel → ações)** ⭐ ✅ 2026-06-16 — `vendedor.html`: scan chama `getCard` (read-only) e abre painel único com progresso + entregar prêmio + adicionar pontos (opções `+1/+2/+3/+⌊x/2⌋/+x`) + tirar ponto + próximo cliente. Removida a caixa "Modo do Próximo Scan".
+- [x] **VEND-07 · 🎨 P1 — Scan deliberado (1 leitura → painel → ações)** ⭐ ✅ 2026-06-16 — **histórico; superado por VEND-09 em 2026-06-18**. `vendedor.html`: scan chamava `getCard` (read-only) e abria painel único com progresso + entregar prêmio + adicionar pontos (opções `+1/+2/+3/+⌊x/2⌋/+x`) + tirar ponto + próximo cliente. Removida a caixa "Modo do Próximo Scan".
   Hoje, ao iniciar a câmera, o scan **auto-aplica** o "Modo do Próximo Scan" (por padrão dá +1 ponto na hora). Indesejado/superestimulante.
-  **Desejado:** escanear **uma vez** o QR do cliente → abrir um painel **minimalista** com o estado do cartão e ações explícitas: **aplicar pontos**, **ver/entregar prêmio pendente** (marcar como resgatado), **tirar ponto** (correção). Sem mutação automática no scan.
-  **Aceite:** 1 scan carrega o cliente (via `getCard`, read-only); pontuar e entregar prêmio são toques deliberados; fluxo limpo e rápido de pegar. _(Substitui a caixa "Modo do Próximo Scan"; engloba VEND-03.)_
+  **Desejado na época:** escanear **uma vez** o QR do cliente → abrir painel minimalista com ações explícitas. **Decisão posterior:** scan deve agir direto com seletor rápido e resgate automático.
+  **Aceite histórico:** 1 scan carregava o cliente (via `getCard`, read-only). _(Substituído por VEND-09; engloba VEND-03.)_
+
+- [x] **VEND-09 · 🎨 P1 — Scan automático com seletor rápido + resgate automático** ✅ 2026-06-18 — decisão posterior do CEO substituiu o modelo deliberado do VEND-07. `vendedor.html`: vendedor escolhe a quantidade antes da leitura; scan sem prêmio pendente credita automaticamente; scan com prêmio pendente resgata automaticamente; trava anti-duplicação evita rajada de leituras. `functions/index.js`: cartão trava em `meta/meta`, guarda `pontosSobra` e só injeta a sobra após o último resgate.
+  **Aceite:** 9+4 → cartão 10/10 + 1 prêmio pendente + `pontosSobra=3`; próximo scan resgata e cliente vê cartão novo com 3 pontos entrando.
 
 - [x] **VEND-08 · ✨ P2 — QR de acesso do vendedor no dashboard** ✅ 2026-06-16 — `dashboard.html` aba Equipe: QR para `vendedor.html?empresa=ID` + instrução + copiar link.
   Na aba **Equipe**, junto ao QR de divulgação, um QR que leva à **página de login do vendedor** (`vendedor.html?empresa=ID`). O trabalhador (e-mail já pré-cadastrado pelo dono em Equipe) escaneia → loga → **cai direto no vendedor**. Dashboard continua só do dono.

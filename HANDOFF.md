@@ -3,12 +3,11 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-18 (sessão: **V-03 TEMA CLARO** — paleta oficial creme/verde/terracota
-> aplicada em TODAS as 7 telas (landing + logadas); **X-01 modais** em dashboard/cliente/vendedor;
-> **PR #2 aberto** p/ main. Antes: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
-> Depois: V-03 paleta v2 amendoado+teal na landing — DEPLOYADO; **A-02 (provedores Firebase) FEITO pelo
-> dono; webhook Asaas CONFIGURADO pelo dono (token existente, sequencial, ativo)**. TRIAL-01 backend
-> reescrito (avisos 15/7/3/1 dias às 10h BRT) — NÃO deployado, aguarda secret RESEND_API_KEY).
+> Última atualização: 2026-06-18 (sessão: **fluxo scan/prêmio + V-03 + X-01**).
+> **Deploy production concluído** (`firebase deploy --only functions,hosting`) em `tempontinho.com` e
+> `nice-dreamks-fidelidade.web.app`: tema claro oficial nas 7 telas, modais X-01, fundo do cliente fixo
+> em creme `#F4EFE6`, e novo contrato de pontos/prêmio (cartão trava cheio, scan resgata, sobra entra só
+> depois do resgate). **PR #2 aberto** p/ main na branch `fix/onda-0-bugs-p0`.
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -65,24 +64,19 @@ deployadas** (Fase B no ar com a chave Asaas nova — 2026-06-17).
 ### ⏸️ ONDE PAREI EXATAMENTE
 Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluídas e deployadas
 (hosting + Functions). Pendências:
-1. **Configurar o webhook no painel Asaas** (tarefa do dono) — senão `PAYMENT_CONFIRMED` não vira
-   `statusAssinatura: active` e o paywall não some sozinho. URL/token/eventos na seção "AGUARDANDO O CEO".
-   Functions, preço R$19,90 e chave nova **já estão no ar** — pode fechar PIX real.
-2. **V-03 (tema claro)** — NÃO iniciado. Migrar telas logadas (escuro) p/ tema claro. Bloqueado na
-   **paleta** (CEO ainda vai decidir; D3 autoriza paleta clara neutra como placeholder). É a maior
-   mudança visual restante — fazer junto com o logo definitivo (também ON HOLD) faz sentido.
+1. ✅ **Webhook Asaas configurado pelo dono**. Falta só teste PIX ponta-a-ponta:
+   `createSubscription` → pagar → webhook vira `statusAssinatura: active` → paywall some.
+2. ~~**V-03 (tema claro)**~~ ✅ **FEITA E DEPLOYADA (2026-06-18)**. Paleta oficial creme/verde/terracota
+   aplicada nas 7 telas. O cliente ignora `visualConfig.corFundo` para manter o fundo creme padrão.
 3. **Onda 4** — feita quase toda e deployada (vendedor QR/atalho, reset de senha, termos, validação
    por campo, pickers, share wa.me, reforço home). **A-01 IMPLEMENTADA** (2026-06-17): onboarding dispara
    `sendEmailVerification` no cadastro por e-mail e o dashboard mostra banner cobrando confirmação +
-   botão reenviar (só para provider `password` não verificado). **Falta só A-02** (config de provedores
-   no console Firebase — tarefa de console).
-4. **Onda 5** — feitas: X-06 confirmação, X-04 parcial aria, **X-03 (foco-visível global), X-05
+   botão reenviar (só para provider `password` não verificado). **A-02 FEITA pelo dono** (Google +
+   e-mail/senha ativos; Facebook/Apple fora do MVP).
+4. **Onda 5** — feitas: X-06 confirmação, X-04 parcial aria, **X-01 modais**, **X-03 (foco-visível global), X-05
    (loading/offline/erro no cliente), X-07 (reduced-motion), C-06 (empty state cliente novo) e X-02
-   parcial (contraste nas telas escuras)** — todas em 2026-06-17. **X-01** (modais no lugar de
-   alert/confirm) segue ADIADO de propósito (refactor amplo em fluxos destrutivos). **X-02 sweep
-   completo** (contraste/tamanho de fonte em onboarding/index/login) foi deixado para acompanhar a
-   V-03 (tema claro) e evitar retrabalho. **Tudo de 2026-06-17 ainda NÃO deployado** (aguardando
-   `firebase deploy --only hosting`).
+   parcial (contraste nas telas escuras)**. **X-02 sweep completo** foi parcialmente coberto pela migração
+   do tema claro. **Tema/modais/scan/prêmio já deployados** em 2026-06-18.
 
 ### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
 1. **Testar a build atual** (Onda 0→5 + Fase B) em produção e dar feedback/ajustes. Fazer **hard refresh**.
@@ -102,39 +96,48 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    Remetente `avisos@tempontinho.com`. **Pendência de segurança:** a API key foi colada no chat — o dono
    deve **rotacioná-la** no Resend (criar outra, `firebase functions:secrets:set RESEND_API_KEY` com a
    nova, redeploy de functions, revogar a antiga). **Falta testar** o envio real (ver lado do Claude).
-5. (Antigo) testar **login Google no mobile**.
+7. (Antigo) testar **login Google no mobile**.
+8. **Teste manual do novo fluxo de scan/prêmio**: vendedor seleciona quantidade rápida, escaneia QR do
+   cliente; sem prêmio pendente o scan pontua automaticamente; ao completar o cartão, o cliente vê prêmio
+   pendente; próximo scan do vendedor resgata automaticamente; no último resgate, o cartão rasga/renova e
+   `pontosSobra` entra ponto a ponto.
 
 ### ▶️ PRÓXIMOS PASSOS — o que sobrou
-1. **Webhook Asaas** (tarefa do dono — ver "AGUARDANDO O CEO") + **teste PIX ponta-a-ponta**
-   (createSubscription → pagar → webhook vira `active` → paywall some). Já dá pra fechar PIX real.
+1. **Teste PIX ponta-a-ponta** (createSubscription → pagar → webhook vira `active` → paywall some).
+   Já dá pra fechar PIX real; webhook Asaas já foi configurado pelo dono.
 2. ~~**V-03 (tema claro)**~~ ✅ **FEITA (2026-06-18)**. Paleta oficial aprovada pelo CEO (creme `#F4EFE6`
    + verde forest `#2A5A44` + terracota `#D96B43`, regra 60/30/10 — substitui a teal de teste) aplicada
    nas 7 telas: landing, login, cliente, dashboard, vendedor, onboarding, master-admin. Implementação:
    tokens `brand.*` + remap dos scales legados (indigo/emerald/teal→verde, amber/orange→terracota) na
-   config inline + inversão de luminância no markup (scale `stone` nos neutros). Validada visualmente na
-   landing (screenshot). **Ainda NÃO deployada** (aguarda `firebase deploy --only hosting`).
-3. ~~A-01~~ ✅ FEITA (2026-06-17). Falta só **A-02** (provedores no console Firebase — tarefa de console).
+   config inline + inversão de luminância no markup (scale `stone` nos neutros). **Deployada em produção
+   em 2026-06-18** junto com functions.
+3. ~~A-01~~ ✅ FEITA (2026-06-17). ~~A-02~~ ✅ FEITA pelo dono (provedores Google + e-mail/senha).
 4. **Onda 5 restante:** só **X-02 sweep completo** (acompanha V-03/tema claro). **X-01 ✅ FEITA
    (2026-06-18)**: `alert/confirm/prompt` nativos substituídos por `showToast`(success/error/warn) +
    `confirmDialog` (modal promise-based, com variante `danger` e `keyword` p/ a exclusão por palavra
-   "APAGAR") em **dashboard, cliente e vendedor** (commit `cf05bb4`). **Ainda NÃO deployado** (aguarda
-   `firebase deploy --only hosting`).
+   "APAGAR") em **dashboard, cliente e vendedor**. **Deployada em produção em 2026-06-18**.
    ✅ Feitas E DEPLOYADAS em 2026-06-17: X-02 (parcial telas escuras), X-03, X-05, X-07, C-06, **C-01**
    (prévia de valor antes do login + Google 1-tap primário + FB/Apple escondidos por D4).
    📦 **PR aberto:** `fix/onda-0-bugs-p0` → `main` = https://github.com/rkoshino/FidelizaSaas/pull/2
    (33 commits; Ondas 0→5 + Fase B + X-01).
-5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO (`functions/notifications.js`,
+5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO E DEPLOYADO (`functions/notifications.js`,
    `subscriptionReminderCron` onSchedule **10:00 BRT**, avisos em **15/7/3/1 dias antes do vencimento**
    (trialEndDate p/ trial, proximoVencimento p/ active), dedupe em `lembretesVencimentoEnviados`).
-   **Falta:** domínio Resend verificar + `firebase functions:secrets:set RESEND_API_KEY` + `firebase
-   deploy --only functions`. Conta Resend criada e DNS já adicionado (passo a passo em "AGUARDANDO O CEO").
-6. **V-03 tema claro** — teste de paleta na **landing** (`index.html`) via tokens no `tailwind.config`.
-   v1 (creme/verde/laranja) REPROVADA. **v2 ATUAL: off-white amendoado `#F2EBDE` + tinta espresso
-   `#2A2520` + contraste único teal `#0E6E63`, 3 cores, SEM degradê.** DEPLOYADO. Aguarda OK do CEO
-   antes de migrar as telas logadas escuras (dashboard/vendedor/onboarding/master-admin/cliente) — o
-   grosso restante do V-03. Obs.: o logo SVG (pássaro) ainda tem degradê azul, mas é ON HOLD (logo
-   definitivo é tarefa à parte).
+   Resend está live; falta rotacionar a API key exposta no chat e testar envio real.
+6. ~~**V-03 tema claro**~~ ✅ FEITO E DEPLOYADO. Paleta oficial atual: creme `#F4EFE6`, verde `#2A5A44`,
+   terracota `#D96B43`, tinta `#2A2520`. Obs.: o logo SVG (pássaro) ainda tem degradê azul, mas é ON HOLD
+   (logo definitivo é tarefa à parte).
 7. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
+
+8. **Novo fluxo de pontos/prêmio** ✅ **FEITO E DEPLOYADO (2026-06-18)**:
+   - Backend (`functions/index.js`): `awardPoints` recusa pontuar se `premiosPendentes > 0`; ao completar,
+     mantém `pontos = meta`, incrementa `premiosPendentes` e guarda a sobra em `pontosSobra`.
+   - Backend (`deliverPrize`): resgata 1 prêmio; quando zera os pendentes, renova o cartão com
+     `pontos = pontosSobra` e limpa `pontosSobra`.
+   - Vendedor (`vendedor.html`): scan age direto; se não há prêmio, credita a quantidade do seletor rápido;
+     se há prêmio, resgata automaticamente. Há trava anti-duplicação de leitura.
+   - Cliente (`cliente.html`): banner/animação de prêmio pendente, animação de resgate, cartão rasgando,
+     novo cartão entrando e sobra animando ponto a ponto.
 
 ### 🔧 Notas operacionais
 - **Git push trava** no `git-credential-osxkeychain` neste ambiente. Use o helper do gh:
@@ -168,7 +171,7 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 - **Repo local:** `/Users/claytonborges/WORK/FidelizaSaas` (NÃO é o portfólio em
   `ClaytonBorgesDev-portfolio-final` — não confunda; o `AGENTS.md`/`CLAUDE.md`
   sobre "not the Next.js you know" é do portfólio, não daqui).
-- **GitHub:** `rkoshino/FidelizaSaas` (branch de trabalho atual: `main`, sincronizado).
+- **GitHub:** `rkoshino/FidelizaSaas` (branch de trabalho atual: `fix/onda-0-bugs-p0`, PR #2 para `main`).
 - **Stack:** HTML + JS ES Modules **vanilla** (sem build step), TailwindCSS via CDN,
   Firebase SDK 10.8.0.
 - **Firebase:** projeto `nice-dreamks-fidelidade`, Functions v2 (Node 22, CommonJS),
@@ -187,11 +190,14 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 - **Modelo de dados multi-tenant:** `empresas/{empresaId}/clientes/{clienteId}` =
   `{ clienteId, nome, email, pontos, premiosPendentes, atualizadoEm }`; logs em
   subcoleção `.../logs/{logId}`. Perfil do consumidor em `clientes/{uid}`.
-- **Carry-over:** `total = pontos + qtd; premiosGanhos = floor(total/meta);
-  pontos = total % meta`. Prêmios acumulam em `premiosPendentes`.
+- **Carry-over postergado:** se `pontos + qtd` completa o cartão, `awardPoints` trava o cartão cheio
+  (`pontos = meta`), incrementa `premiosPendentes` e salva `pontosSobra = total % meta`. Enquanto houver
+  prêmio pendente, o cliente não recebe novos pontos; o próximo scan do vendedor resgata o prêmio.
+  Quando o último prêmio pendente é resgatado, `deliverPrize` renova o cartão e injeta `pontosSobra`.
 - **Camada client:** `points-api.js` (wrappers das callables + `ensureClientCard`
   + `listenCard`). UI: `cliente.html`, `vendedor.html`, `dashboard.html`.
-- **Confete/banner do cliente** dispara em `premiosPendentes > 0` (não em pontos>=meta).
+- **Confete/banner do cliente** dispara em `premiosPendentes > 0`; resgate dispara banner, rasgo do cartão,
+  novo cartão e animação da sobra.
 
 ## Billing (Asaas / PIX) — IMPLEMENTADO E NO AR
 
@@ -274,6 +280,8 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       `firebase functions:secrets:set ASAAS_API_KEY` (versão 2; antiga destruída no redeploy).
 - [ ] **Testar login Google no MOBILE** em `tempontinho.com` (o redirect URI foi corrigido —
       confirmar que loga e PERMANECE logado).
+- [ ] **Testar scan/prêmio no runtime real**: cenário 9+4 → cartão 10/10 + 1 prêmio pendente +
+      `pontosSobra=3`; próximo scan resgata; cliente vê cartão novo com 3 pontos entrando.
 - [x] **Configurar o webhook no painel Asaas** ✅ 2026-06-17 — token existente, Sequencial, ativo,
       eventos de cobrança/assinatura marcados. (Falta só o teste PIX ponta-a-ponta — lado do Claude.)
 - [x] **A-02 — Provedores Google + E-mail/senha no Console Firebase** ✅ 2026-06-17.
@@ -287,8 +295,8 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] **Atualizar `ASAAS_API_KEY` + redeploy de Functions** ✅ 2026-06-17 — Fase B (R$19,90 +
       nextDueDate=trialEndDate) foi ao ar junto com a rotação da chave; webhook verificado (401 sem token).
 - [ ] **Teste ponta-a-ponta funcional** (após webhook ativo): login vendedor + cliente,
-      escanear QR, validar carry-over (ex.: 9+4→1 prêmio, cartão 3/10), entrega de
-      prêmio idempotente, isolamento entre empresas, paywall com trial expirado,
+      escanear QR, validar carry-over postergado (ex.: 9+4→cartão 10/10 + 1 prêmio pendente +
+      sobra 3 guardada; próximo scan resgata e renova com 3/10), isolamento entre empresas, paywall com trial expirado,
       e `deleteMyData` (confirmar que a query collectionGroup `clientes`/`clienteId`
       funciona sem índice composto — se reclamar, criar via link do erro).
 - [ ] **Teste de pagamento real/sandbox** do fluxo PIX (createSubscription → pagar →
@@ -306,22 +314,18 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       - [x] **Fase B (preço R$ 19,90)** — ✅ DEPLOYADA em 2026-06-17 (billing.js + copy no ar;
             Functions redeployadas com a chave nova). Frontend e backend consistentes em R$19,90.
       - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
-      - [~] **Onda 2 (marca/tema)** — V-02 (Outfit) e V-06 (jargão) feitas; V-01 placeholder já
-            consistente. **V-03 (tema claro):** paleta v2 (amendoado+teal) aplicada como TESTE na landing
-            e deployada; aguardando OK do CEO ("paleta em breve falaremos mais") antes de migrar as telas
-            logadas escuras (o grosso restante).
+      - [x] **Onda 2 (marca/tema)** — V-02 (Outfit), V-06 (jargão) e V-01 placeholder feitas.
+            **V-03 (tema claro)** feita e deployada em 2026-06-18 nas 7 telas com paleta oficial
+            creme/verde/terracota.
       - [~] **Onda 4 (cadastro/auth)** — feitas: C-02/C-03/C-04 (vendedor: QR do cliente,
             reordenação, atalho painel), B-05 (reset de senha) + A-03 (termos no login), O-02/O-03/O-04/O-06
             (onboarding: copy, título pré-preenchido, validação por campo, aviso conta vendedor),
             O-05 (botão wa.me), V-04 (paleta curada), V-05 (emoji picker já existia), C-05 (reforço na home),
-            **A-01 (verificação de e-mail — 2026-06-17, falta deploy).** **Falta:** A-02
-            (config de provedores no console Firebase).
-      - [~] **Onda 5 (polimento)** — feitas: X-06 (confirmação ao bloquear no master-admin), X-04 parcial
-            (aria-label nos botões de fechar do dashboard), **X-03 (foco-visível global), X-05 (loading/
-            offline/erro no cliente), X-07 (reduced-motion), C-06 (empty state cliente novo), X-02 parcial
-            (contraste telas escuras) — todas 2026-06-17, falta deploy.** **Faltam:** X-01 (trocar
-            alert/confirm nativos por modais — refactor amplo, ADIADO de propósito), X-02 sweep completo
-            (com V-03), C-01 (reduzir fricção do cartão do cliente — experimento "L").
+            **A-01 (verificação de e-mail) deployada** e **A-02 feita pelo dono**. **Falta:** esconder
+            Facebook/Apple no onboarding e alinhar o aviso de termos ali (D4: só Google + e-mail/senha).
+      - [~] **Onda 5 (polimento)** — feitas e deployadas: X-01 (modais), X-03, X-05, X-07, C-06,
+            C-01 e X-02 parcial. **Falta:** X-02 sweep completo/auditoria fina de contraste e leitura
+            pós-tema claro.
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
@@ -333,9 +337,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] LGPD delete server-side, movido para kebab no cliente
 - [x] Billing Asaas/PIX (createSubscription + webhook) + enforcement + paywall
 - [x] Rules endurecidas (anti auto-promoção a Pro) + índice
-- [x] Rebrand Tem Pontinho; domínio + SSL; preço R$10
+- [x] Rebrand Tem Pontinho; domínio + SSL; preço R$19,90
 - [x] Fix do loop de login mobile (authDomain → tempontinho.com)
-- [x] Tudo deployado e mergeado no `main`
+- [x] Tudo desta branch deployado; merge em `main` ainda pendente via PR #2
 - [x] **Auditoria de design completa** (web + mobile) → `docs/RELATORIO_DESIGN.md`
 - [x] **Review do CEO organizado em backlog** → `docs/TAREFAS_CEO.md`
 - [x] **Relatório master + plano de execução em ondas** → `docs/RELATORIO_FINAL.md` + `docs/PLANO_EXECUCAO.md`

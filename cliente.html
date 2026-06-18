@@ -67,7 +67,46 @@
             outline-offset: 2px !important;
             border-radius: 6px;
         }
-    </style>
+
+        /* Pulso suave do banner de prêmio (estado persistente / retorno do cliente). */
+        .reward-pulse { animation: reward-pulse 2.2s ease-in-out infinite; }
+        @keyframes reward-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 107, 67, 0.35); }
+            50%      { transform: scale(1.015); box-shadow: 0 0 0 10px rgba(217, 107, 67, 0); }
+        }
+
+        /* Sequência de RESGATE: o cartão atual rasga em duas metades. */
+        .card-tear { position: relative; overflow: hidden; }
+        .card-tear .tear-half {
+            position: absolute; left: 0; width: 100%; height: 50%;
+            background: inherit;
+        }
+        @keyframes tear-top {
+            0%   { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(-120%) rotate(-6deg); opacity: 0; }
+        }
+        @keyframes tear-bottom {
+            0%   { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(120%) rotate(6deg); opacity: 0; }
+        }
+        .tear-top-anim    { animation: tear-top 0.85s cubic-bezier(0.4, 0, 0.6, 1) forwards; }
+        .tear-bottom-anim { animation: tear-bottom 0.85s cubic-bezier(0.4, 0, 0.6, 1) forwards; }
+
+        /* Novo cartão em branco entrando após o rasgo. */
+        .card-enter { animation: card-enter 0.5s ease-out forwards; }
+        @keyframes card-enter {
+            0%   { opacity: 0; transform: translateY(14px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Carimbo que "salta" ao entrar (sobra ponto a ponto). */
+        .stamp-pop { animation: stamp-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes stamp-pop {
+            0%   { transform: scale(0.4); opacity: 0.3; }
+            60%  { transform: scale(1.18); }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+</style>
 </head>
 <body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #F4EFE6;">
 
@@ -193,9 +232,15 @@
             </div>
 
             <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
-            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-brand-accent/10 text-brand-accent-dark flex flex-col items-center gap-2 text-center animate-bounce">
-                <h4 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>Você tem <span id="victory-count">1</span> prêmio(s)!</h4>
-                <p class="text-[11px] text-stone-700 font-medium">Mostre esta tela (o QR acima) ao vendedor para retirar.</p>
+            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-brand-accent/10 text-brand-accent-dark flex flex-col items-center gap-2 text-center">
+                <h4 id="victory-title" class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou um prêmio!</h4>
+                <p id="victory-desc" class="text-[11px] text-stone-700 font-medium">Mostre este QR ao vendedor para resgatar.</p>
+            </div>
+
+            <!-- Toast/estado transitório de RESGATE (efêmero, some sozinho) -->
+            <div id="redeem-banner" class="hidden p-3 rounded-2xl border border-brand-green/30 bg-brand-green/10 text-brand-green flex items-center justify-center gap-2 text-center">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="redeem-text" class="text-xs font-semibold">Prêmio resgatado!</span>
             </div>
 
             <!-- C-06: Empty state acolhedor para o cliente novo (0 carimbos, nenhum prêmio) -->
@@ -363,9 +408,10 @@
                             const pageTitle = visualConfig.tituloPagina || companyData.nomeEmpresa || "Empresa";
                             document.title = pageTitle;
                             
-                            // Altera a cor de fundo do container da página inteira
-                            document.documentElement.style.backgroundColor = visualConfig.corFundo || "#F4EFE6";
-                            document.getElementById("body-container").style.backgroundColor = visualConfig.corFundo || "#F4EFE6";
+                            // TEMA CLARO PADRONIZADO: o fundo da página é SEMPRE o creme da paleta.
+                            // Ignora visualConfig.corFundo de propósito (decisão de produto) para evitar fundos como rosa.
+                            document.documentElement.style.backgroundColor = "#F4EFE6";
+                            document.getElementById("body-container").style.backgroundColor = "#F4EFE6";
                             
                             // Altera fontes
                             const activeFont = visualConfig.fonte || "sans";
@@ -508,52 +554,138 @@
         }
 
         // 3. Ouvinte em tempo real do cartão do cliente (subcoleção da empresa)
+        // Máquina de estados: pontuar / completar (prêmio) / resgatar (rasga + novo cartão + sobra).
         function setupPointsRealtimeListener(clientUid) {
             if (unsubscribeListener) unsubscribeListener();
 
             let firstLoad = true;
             let lastPoints = 0;
             let lastPremios = 0;
+            let animando = false; // trava enquanto roda a sequência de resgate
 
             unsubscribeListener = listenCard(idEmpresa, clientUid, (card) => {
                 if (!card) return;
                 const pontos = card.pontos || 0;
                 const premios = card.premiosPendentes || 0;
 
-                // Atualiza Contador + Grid de Carimbos
-                document.getElementById("points-counter").innerText = `${pontos} / ${metaPontos}`;
-                renderStamps(pontos);
-
-                // Animação de pouso do emoji quando os pontos sobem
-                if (!firstLoad && pontos > lastPoints) {
-                    for (let p = lastPoints + 1; p <= pontos; p++) {
-                        playLandingAnimation(p);
-                    }
+                // Primeiro carregamento: sincroniza sem animar "ganhou agora".
+                // Se já vier com prêmio pendente (cliente voltou), mostra o estado persistente.
+                if (firstLoad) {
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    if (premios > 0) showVictory(premios, /*retorno=*/true);
+                    else hideVictory();
+                    toggleWelcome(pontos === 0 && premios === 0);
+                    lastPoints = pontos; lastPremios = premios; firstLoad = false;
+                    return;
                 }
 
-                // Prêmio(s) pendente(s): gatilho do banner/confete é premiosPendentes
-                // (o cartão reseta no carry-over, então pontos nunca chega à meta).
-                const banner = document.getElementById("victory-banner");
-                const countEl = document.getElementById("victory-count");
-                if (premios > 0) {
-                    if (countEl) countEl.innerText = premios;
-                    banner.classList.remove("hidden");
-                    if (!firstLoad && premios > lastPremios) {
-                        const delay = pontos > lastPoints ? 1100 : 0; // espera o pouso, se houve
-                        setTimeout(() => setTimeout(() => fireVictoryConfetti(), 100), delay);
+                if (animando) { lastPoints = pontos; lastPremios = premios; return; }
+
+                const completou   = premios > lastPremios;                       // fechou um cartão
+                const resgatou    = premios < lastPremios;                       // vendedor entregou prêmio
+                const ganhouPonto = !completou && !resgatou && pontos > lastPoints;
+
+                if (completou) {
+                    // Cartão fica cheio e travado; prêmio pendente nos dois aparelhos.
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    playLandingAnimation(metaPontos);            // o carimbo final "pousa"
+                    showVictory(premios, false);
+                    setTimeout(() => fireVictoryConfetti(), prefersReducedMotion ? 0 : 1100);
+                } else if (resgatou) {
+                    if (premios > 0) {
+                        // Ainda restam prêmios: mantém o cartão cheio.
+                        setCounter(pontos);
+                        renderStamps(pontos);
+                        showVictory(premios, true);
+                        showRedeemBanner(`Prêmio resgatado! Ainda resta${premios > 1 ? "m" : ""} ${premios}.`);
+                    } else {
+                        // Último prêmio resgatado: rasga o cartão e injeta a sobra ponto a ponto.
+                        hideVictory();
+                        showRedeemBanner("Prêmio resgatado! 🎁");
+                        toggleWelcome(false);
+                        runRedeemSequence(pontos);
                     }
+                } else if (ganhouPonto) {
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    for (let p = lastPoints + 1; p <= pontos; p++) playLandingAnimation(p);
                 } else {
-                    banner.classList.add("hidden");
+                    // Sem transição relevante: só sincroniza.
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    if (premios > 0) showVictory(premios, true); else hideVictory();
+                    toggleWelcome(pontos === 0 && premios === 0);
                 }
 
-                // C-06: cliente novo (sem carimbos e sem prêmio) vê uma mensagem de boas-vindas.
-                const welcome = document.getElementById("welcome-banner");
-                if (welcome) welcome.classList.toggle("hidden", !(pontos === 0 && premios === 0));
-
-                lastPoints = pontos;
-                lastPremios = premios;
-                firstLoad = false;
+                lastPoints = pontos; lastPremios = premios;
             });
+
+            // ---- helpers de UI do cartão (closure sobre `animando`) ----
+            function setCounter(p) {
+                document.getElementById("points-counter").innerText = `${p} / ${metaPontos}`;
+            }
+            function toggleWelcome(show) {
+                const welcome = document.getElementById("welcome-banner");
+                if (welcome) welcome.classList.toggle("hidden", !show);
+            }
+            function showVictory(premios, retorno) {
+                const banner = document.getElementById("victory-banner");
+                const plural = premios > 1 ? `${premios} prêmios` : "um prêmio";
+                document.getElementById("victory-title").innerHTML = retorno
+                    ? `<i class="fa-solid fa-gift mr-1.5"></i>🎁 Você tem ${plural} para resgatar!`
+                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou ${plural}!`;
+                document.getElementById("victory-desc").innerText = "Mostre este QR ao vendedor para resgatar.";
+                banner.classList.remove("hidden");
+                banner.classList.add("reward-pulse");
+            }
+            function hideVictory() {
+                const banner = document.getElementById("victory-banner");
+                banner.classList.add("hidden");
+                banner.classList.remove("reward-pulse");
+            }
+            function showRedeemBanner(msg) {
+                const rb = document.getElementById("redeem-banner");
+                document.getElementById("redeem-text").innerText = msg;
+                rb.classList.remove("hidden");
+                clearTimeout(rb._t);
+                rb._t = setTimeout(() => rb.classList.add("hidden"), 4500);
+            }
+            function fillStamp(i) {
+                const slot = document.getElementById(`stamp-slot-${i}`);
+                if (!slot) return;
+                slot.classList.remove("bg-white", "text-stone-400", "border-stone-300", "text-xs");
+                slot.classList.add("bg-brand-accent", "border-brand-accent", "text-white", "scale-110", "stamp-pop");
+                slot.innerHTML = `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`;
+            }
+            // Sequência de resgate: cartão antigo rasga → novo cartão entra → sobra entra ponto a ponto.
+            function runRedeemSequence(novoPontos) {
+                const grid = document.getElementById("stamps-grid");
+                setCounter(0);
+                if (prefersReducedMotion || !grid) {
+                    renderStamps(novoPontos);
+                    setCounter(novoPontos);
+                    return;
+                }
+                animando = true;
+                grid.classList.add("tear-bottom-anim");
+                setTimeout(() => {
+                    grid.classList.remove("tear-bottom-anim");
+                    renderStamps(0);
+                    grid.classList.add("card-enter");
+                    setTimeout(() => grid.classList.remove("card-enter"), 500);
+                    let i = 0;
+                    const step = () => {
+                        i++;
+                        if (i > novoPontos) { animando = false; return; }
+                        fillStamp(i);
+                        setCounter(i);
+                        setTimeout(step, 430);
+                    };
+                    setTimeout(step, 450);
+                }, 880);
+            }
         }
 
         // Animação de Pouso Rápido do Ponto
