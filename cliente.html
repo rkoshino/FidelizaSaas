@@ -492,8 +492,9 @@
         if (!navigator.onLine) {
             showLoadError();
         } else {
-            // Executa branding
-            await fetchCompanyBranding();
+            // Branding NÃO bloqueia o registro dos listeners abaixo. Um top-level
+            // await aqui travava o botão de login no mobile (init mais lenta no celular).
+            fetchCompanyBranding().catch((e) => console.error("Erro no branding:", e));
         }
 
         // X-05: recupera automaticamente quando a conexão volta.
@@ -504,13 +505,15 @@
             }
         });
 
-        // Finaliza o fluxo de redirect do mobile (se houver)
-        try {
-            await getRedirectResult(auth);
-        } catch (err) {
-            console.error("Erro ao recuperar resultado do redirecionamento:", err);
-            showToast(authErrorMessage(err), "error");
-        }
+        // Finaliza o fluxo de redirect do mobile SEM bloquear o módulo (IIFE).
+        (async () => {
+            try {
+                await getRedirectResult(auth);
+            } catch (err) {
+                console.error("Erro ao recuperar resultado do redirecionamento:", err);
+                showToast(authErrorMessage(err), "error");
+            }
+        })();
 
         // 2. Controla o estado de Autenticação do Usuário (Cliente)
         auth.onAuthStateChanged(async (user) => {

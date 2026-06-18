@@ -465,7 +465,9 @@
             }
         }
 
-        await fetchCompanyBranding();
+        // Branding não-bloqueante: um top-level await aqui travava o registro dos
+        // listeners (botão de login) enquanto a init carregava — no mobile ficava "sem efeito".
+        fetchCompanyBranding().catch((e) => console.error("Erro no branding:", e));
 
         function authErrorMessage(err) {
             const code = err && err.code;
@@ -516,13 +518,15 @@
             html5QrcodeScanner = new Html5Qrcode("reader");
         }
 
-        // Finaliza o fluxo de redirect do mobile (se houver)
-        try {
-            await getRedirectResult(auth);
-        } catch (err) {
-            console.error("Erro ao recuperar resultado do redirecionamento:", err);
-            showToast(authErrorMessage(err), "error");
-        }
+        // Finaliza o fluxo de redirect do mobile SEM bloquear o módulo (IIFE).
+        (async () => {
+            try {
+                await getRedirectResult(auth);
+            } catch (err) {
+                console.error("Erro ao recuperar resultado do redirecionamento:", err);
+                showToast(authErrorMessage(err), "error");
+            }
+        })();
 
         // Gerenciamento da Autenticação do Vendedor
         auth.onAuthStateChanged(async (user) => {

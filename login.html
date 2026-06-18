@@ -241,25 +241,24 @@
             }
         }
 
-        // Finaliza redirect do mobile
-        let handledRedirect = false;
-        try {
-            const redirectResult = await getRedirectResult(auth);
-            if (redirectResult && redirectResult.user) {
-                handledRedirect = true;
-                await routeOwnerSession(redirectResult.user);
-            }
-        } catch (err) {
-            console.error("Erro no redirecionamento:", err);
-            showToast(authErrorMessage(err));
-        }
-
-        // Verifica se voltou de um redirecionamento ou se já tem sessão
+        // Roteia o dono assim que há sessão (volta de redirect no mobile OU sessão
+        // persistida). routeOwnerSession tem guarda (routingSession) contra duplicação.
         auth.onAuthStateChanged(async (user) => {
-            if (user && !handledRedirect) {
-                await routeOwnerSession(user);
-            }
+            if (user) await routeOwnerSession(user);
         });
+
+        // Finaliza o redirect do mobile SEM bloquear o módulo. IMPORTANTE: um
+        // `await getRedirectResult` no topo do módulo trava o registro dos listeners
+        // abaixo (o clique do botão Google) enquanto o Auth inicializa — no celular,
+        // que é mais lento, o botão "ficava sem efeito". Por isso roda em IIFE.
+        (async () => {
+            try {
+                await getRedirectResult(auth);
+            } catch (err) {
+                console.error("Erro no redirecionamento:", err);
+                showToast(authErrorMessage(err));
+            }
+        })();
 
         // Email / Senha Login
         authForm.addEventListener("submit", async (e) => {
