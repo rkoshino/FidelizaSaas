@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,14 @@
                         sans:   ['Inter', 'sans-serif'],
                         inter:  ['Inter', 'sans-serif'],
                         outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
                 }
             }
@@ -23,25 +31,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .glassmorphism {
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid #E3DBCC;
         }
         .nav-item { transition: all 0.15s ease; }
         .nav-item.active {
-            background: rgba(99, 102, 241, 0.2);
-            color: #818cf8;
-            border-left: 2px solid #6366f1;
+            background: rgba(42, 90, 68, 0.12);
+            color: #2A5A44;
+            border-left: 2px solid #2A5A44;
         }
         .nav-item:not(.active):hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: #e2e8f0;
+            background: rgba(42, 37, 32, 0.04);
+            color: #2A2520;
         }
         /* Scrollbar fina */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.35); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(42,90,68,0.35); border-radius: 4px; }
         /* Spinner */
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { animation: spin 0.8s linear infinite; }
@@ -50,9 +58,15 @@
         #toast.hide { opacity: 0; transform: translateY(-8px); pointer-events: none; }
         /* Garante que hidden sempre vence sobre flex no Tailwind CDN (v3 sem !important) */
         .hidden { display: none !important; }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
     </style>
 </head>
-<body class="h-full font-inter bg-slate-950 text-slate-100 overflow-hidden">
+<body class="h-full font-inter bg-brand-paper text-stone-800 overflow-hidden">
 
 <!-- ═══════════════════════════════════════════════════════════
      TOAST GLOBAL
@@ -65,24 +79,24 @@
 <!-- ═══════════════════════════════════════════════════════════
      LOADING SCREEN
 ═══════════════════════════════════════════════════════════ -->
-<div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950">
-    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-6">
+<div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-paper">
+    <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-green to-brand-green-dark flex items-center justify-center shadow-lg shadow-brand-green/30 mb-6">
         <i class="fa-solid fa-shield-halved text-white text-3xl"></i>
     </div>
     <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full spinner mb-4"></div>
-    <p class="text-slate-400 text-sm">Verificando credenciais…</p>
+    <p class="text-stone-500 text-sm">Verificando credenciais…</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
      ACCESS DENIED SCREEN
 ═══════════════════════════════════════════════════════════ -->
-<div id="access-denied" class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-slate-950 gap-6">
+<div id="access-denied" class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-brand-paper gap-6">
     <div class="w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
-        <i class="fa-solid fa-ban text-red-400 text-4xl"></i>
+        <i class="fa-solid fa-ban text-red-500 text-4xl"></i>
     </div>
     <div class="text-center">
-        <h2 class="text-2xl font-bold font-outfit text-white mb-2">Acesso Restrito</h2>
-        <p class="text-slate-400 text-sm">Você não tem permissão para acessar este painel.<br>Será desconectado automaticamente.</p>
+        <h2 class="text-2xl font-bold font-outfit text-stone-800 mb-2">Acesso Restrito</h2>
+        <p class="text-stone-500 text-sm">Você não tem permissão para acessar este painel.<br>Será desconectado automaticamente.</p>
     </div>
     <button id="btn-denied-logout" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition">
         <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair agora
@@ -95,17 +109,17 @@
 <div id="admin-panel" class="hidden h-full flex">
 
     <!-- ─── SIDEBAR ──────────────────────────────────────────── -->
-    <aside class="w-64 shrink-0 h-screen flex flex-col bg-slate-900 border-r border-slate-800 glassmorphism z-10">
+    <aside class="w-64 shrink-0 h-screen flex flex-col bg-white border-r border-stone-200 glassmorphism z-10">
 
         <!-- Logo -->
-        <div class="px-6 py-6 border-b border-slate-800">
+        <div class="px-6 py-6 border-b border-stone-200">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/30 shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-green to-brand-green-dark flex items-center justify-center shadow-md shadow-brand-green/30 shrink-0">
                     <i class="fa-solid fa-shield-halved text-white text-lg"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-bold font-outfit text-white leading-tight">Super Admin</p>
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest leading-tight mt-0.5">Master Control</p>
+                    <p class="text-sm font-bold font-outfit text-stone-800 leading-tight">Super Admin</p>
+                    <p class="text-[10px] text-stone-500 uppercase tracking-widest leading-tight mt-0.5">Master Control</p>
                 </div>
             </div>
         </div>
@@ -116,31 +130,31 @@
                 <i class="fa-solid fa-gauge-high w-4 text-center"></i>
                 Dashboard
             </button>
-            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 text-left w-full" data-section="empresas">
+            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-500 text-left w-full" data-section="empresas">
                 <i class="fa-solid fa-building w-4 text-center"></i>
                 Empresas
             </button>
-            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 text-left w-full" data-section="logs">
+            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-500 text-left w-full" data-section="logs">
                 <i class="fa-solid fa-scroll w-4 text-center"></i>
                 Logs do Sistema
             </button>
-            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 text-left w-full" data-section="comunicacao">
+            <button class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-500 text-left w-full" data-section="comunicacao">
                 <i class="fa-solid fa-bullhorn w-4 text-center"></i>
                 Comunicação
             </button>
         </nav>
 
         <!-- Admin User Footer -->
-        <div class="px-4 py-4 border-t border-slate-800">
+        <div class="px-4 py-4 border-t border-stone-200">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shrink-0">
                     <i class="fa-solid fa-user text-white text-xs"></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p id="admin-email" class="text-xs text-slate-300 font-medium truncate">–</p>
-                    <p class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">Super Admin</p>
+                    <p id="admin-email" class="text-xs text-stone-600 font-medium truncate">–</p>
+                    <p class="text-[10px] text-brand-green font-semibold uppercase tracking-wider">Super Admin</p>
                 </div>
-                <button id="btn-logout" title="Sair" class="text-slate-500 hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-400/10">
+                <button id="btn-logout" title="Sair" class="text-stone-500 hover:text-red-500 transition p-1.5 rounded-lg hover:bg-red-500/10">
                     <i class="fa-solid fa-right-from-bracket text-sm"></i>
                 </button>
             </div>
@@ -148,22 +162,22 @@
     </aside>
 
     <!-- ─── MAIN CONTENT ─────────────────────────────────────── -->
-    <main class="flex-1 h-screen overflow-y-auto bg-slate-950 p-8">
+    <main class="flex-1 h-screen overflow-y-auto bg-brand-paper p-8">
 
         <!-- ── SEÇÃO 1: DASHBOARD ────────────────────────────── -->
         <section id="section-dashboard" class="section-content">
 
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="text-2xl font-bold font-outfit text-white">Dashboard</h1>
-                <p class="text-slate-400 text-sm mt-1">Visão geral do seu SaaS em tempo real.</p>
+                <h1 class="text-2xl font-bold font-outfit text-stone-800">Dashboard</h1>
+                <p class="text-stone-500 text-sm mt-1">Visão geral do seu SaaS em tempo real.</p>
             </div>
 
             <!-- KPI Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
 
                 <!-- Empresas Ativas -->
-                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                <div class="glassmorphism rounded-2xl p-6 shadow-sm border border-stone-200 relative overflow-hidden">
                     <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-400"></div>
                     <div class="flex items-start justify-between mb-4">
                         <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center">
@@ -171,25 +185,25 @@
                         </div>
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">Ativo</span>
                     </div>
-                    <p id="kpi-ativas" class="text-4xl font-bold text-white mb-1">–</p>
-                    <p class="text-slate-400 text-sm">Empresas Ativas</p>
+                    <p id="kpi-ativas" class="text-4xl font-bold text-stone-800 mb-1">–</p>
+                    <p class="text-stone-500 text-sm">Empresas Ativas</p>
                 </div>
 
                 <!-- MRR -->
-                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500"></div>
+                <div class="glassmorphism rounded-2xl p-6 shadow-sm border border-stone-200 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-green to-brand-green-dark"></div>
                     <div class="flex items-start justify-between mb-4">
                         <div class="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center">
                             <i class="fa-solid fa-dollar-sign text-indigo-400 text-base"></i>
                         </div>
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded-full">MRR</span>
                     </div>
-                    <p id="kpi-mrr" class="text-4xl font-bold text-white mb-1">–</p>
-                    <p class="text-slate-400 text-sm">Receita Estimada</p>
+                    <p id="kpi-mrr" class="text-4xl font-bold text-stone-800 mb-1">–</p>
+                    <p class="text-stone-500 text-sm">Receita Estimada (ativas × R$ 19,90)</p>
                 </div>
 
                 <!-- Em Trial -->
-                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                <div class="glassmorphism rounded-2xl p-6 shadow-sm border border-stone-200 relative overflow-hidden">
                     <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 to-yellow-400"></div>
                     <div class="flex items-start justify-between mb-4">
                         <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
@@ -197,12 +211,12 @@
                         </div>
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">Trial</span>
                     </div>
-                    <p id="kpi-trial" class="text-4xl font-bold text-white mb-1">–</p>
-                    <p class="text-slate-400 text-sm">Em Período Trial</p>
+                    <p id="kpi-trial" class="text-4xl font-bold text-stone-800 mb-1">–</p>
+                    <p class="text-stone-500 text-sm">Em Período Trial</p>
                 </div>
 
                 <!-- Bloqueadas -->
-                <div class="glassmorphism rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
+                <div class="glassmorphism rounded-2xl p-6 shadow-sm border border-stone-200 relative overflow-hidden">
                     <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 to-rose-400"></div>
                     <div class="flex items-start justify-between mb-4">
                         <div class="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/20 flex items-center justify-center">
@@ -210,23 +224,23 @@
                         </div>
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-red-400 bg-red-400/10 px-2 py-1 rounded-full">Bloqueado</span>
                     </div>
-                    <p id="kpi-bloqueadas" class="text-4xl font-bold text-white mb-1">–</p>
-                    <p class="text-slate-400 text-sm">Empresas Bloqueadas</p>
+                    <p id="kpi-bloqueadas" class="text-4xl font-bold text-stone-800 mb-1">–</p>
+                    <p class="text-stone-500 text-sm">Empresas Bloqueadas</p>
                 </div>
 
             </div>
 
             <!-- Atividade Recente -->
-            <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl">
-                <div class="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="glassmorphism rounded-2xl border border-stone-200 shadow-sm">
+                <div class="px-6 py-5 border-b border-stone-200 flex items-center justify-between">
                     <div>
-                        <h2 class="text-base font-semibold font-outfit text-white">Atividade Recente</h2>
-                        <p class="text-slate-400 text-xs mt-0.5">Últimos 5 eventos do sistema</p>
+                        <h2 class="text-base font-semibold font-outfit text-stone-800">Atividade Recente</h2>
+                        <p class="text-stone-500 text-xs mt-0.5">Últimos 5 eventos do sistema</p>
                     </div>
-                    <i class="fa-solid fa-timeline text-slate-600 text-lg"></i>
+                    <i class="fa-solid fa-timeline text-stone-400 text-lg"></i>
                 </div>
-                <div id="recent-activity-list" class="divide-y divide-slate-800">
-                    <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                <div id="recent-activity-list" class="divide-y divide-stone-200">
+                    <div class="px-6 py-8 text-center text-stone-500 text-sm">
                         <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Carregando…
                     </div>
                 </div>
@@ -240,48 +254,48 @@
             <!-- Header -->
             <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold font-outfit text-white flex items-center gap-3">
+                    <h1 class="text-2xl font-bold font-outfit text-stone-800 flex items-center gap-3">
                         Gestão de Empresas
-                        <span id="badge-total-empresas" class="text-xs font-semibold bg-slate-800 text-slate-300 px-3 py-1 rounded-full">0</span>
+                        <span id="badge-total-empresas" class="text-xs font-semibold bg-stone-100 text-stone-600 px-3 py-1 rounded-full">0</span>
                     </h1>
-                    <p class="text-slate-400 text-sm mt-1">Gerencie todas as contas do SaaS.</p>
+                    <p class="text-stone-500 text-sm mt-1">Gerencie todas as contas do SaaS.</p>
                 </div>
             </div>
 
             <!-- Toolbar: Busca + Filtros -->
             <div class="flex flex-wrap items-center gap-3 mb-5">
                 <div class="relative flex-1 min-w-[200px]">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
                     <input id="empresa-search" type="text" placeholder="Buscar por nome ou e-mail…"
-                        class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                        class="w-full bg-white border border-stone-300 rounded-xl pl-10 pr-4 py-2.5 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                 </div>
                 <div class="flex gap-2" id="status-filters">
                     <button class="filter-btn active-filter px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition" data-filter="todos">Todos</button>
-                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-filter="ativo">Ativo</button>
-                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-filter="trial">Trial</button>
-                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-filter="bloqueado">Bloqueado</button>
+                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition" data-filter="ativo">Ativo</button>
+                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition" data-filter="trial">Trial</button>
+                    <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition" data-filter="bloqueado">Bloqueado</button>
                 </div>
             </div>
 
             <!-- Tabela -->
-            <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+            <div class="glassmorphism rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="border-b border-slate-800 bg-slate-900/50">
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">#</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Empresa</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Cadastro</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Trial End</th>
-                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Ações</th>
+                            <tr class="border-b border-stone-200 bg-stone-100">
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">#</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">Empresa</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">Status</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">Cadastro</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">Trial End</th>
+                                <th class="px-5 py-3.5 text-left text-xs font-semibold text-stone-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="empresas-tbody" class="divide-y divide-slate-800">
+                        <tbody id="empresas-tbody" class="divide-y divide-stone-200">
                             <tr id="empresas-empty-row" class="hidden">
-                                <td colspan="7" class="px-5 py-12 text-center text-slate-500">
-                                    <i class="fa-solid fa-building text-3xl mb-3 block text-slate-700"></i>
+                                <td colspan="7" class="px-5 py-12 text-center text-stone-500">
+                                    <i class="fa-solid fa-building text-3xl mb-3 block text-stone-300"></i>
                                     Nenhuma empresa encontrada.
                                 </td>
                             </tr>
@@ -298,10 +312,10 @@
             <!-- Header -->
             <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold font-outfit text-white">Logs do Sistema</h1>
-                    <p class="text-slate-400 text-sm mt-1">Eventos em tempo real.</p>
+                    <h1 class="text-2xl font-bold font-outfit text-stone-800">Logs do Sistema</h1>
+                    <p class="text-stone-500 text-sm mt-1">Eventos em tempo real.</p>
                 </div>
-                <button id="btn-clear-log-filter" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center gap-2">
+                <button id="btn-clear-log-filter" class="px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition flex items-center gap-2">
                     <i class="fa-solid fa-xmark"></i> Limpar filtros
                 </button>
             </div>
@@ -311,26 +325,26 @@
                 <button class="log-filter-btn active-log-filter px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition" data-level="todos">
                     <i class="fa-solid fa-list mr-1.5"></i>Todos
                 </button>
-                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-level="info">
-                    <i class="fa-solid fa-circle-info mr-1.5 text-blue-400"></i>Info
+                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition" data-level="info">
+                    <i class="fa-solid fa-circle-info mr-1.5 text-blue-500"></i>Info
                 </button>
-                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-level="warn">
+                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition" data-level="warn">
                     <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-400"></i>Warn
                 </button>
-                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700 transition" data-level="error">
-                    <i class="fa-solid fa-circle-exclamation mr-1.5 text-red-400"></i>Error
+                <button class="log-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-stone-100 text-stone-500 hover:bg-stone-200 transition" data-level="error">
+                    <i class="fa-solid fa-circle-exclamation mr-1.5 text-red-500"></i>Error
                 </button>
             </div>
 
             <!-- Lista de Logs -->
-            <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                <div id="logs-list" class="divide-y divide-slate-800 max-h-[60vh] overflow-y-auto">
-                    <div class="px-6 py-8 text-center text-slate-500 text-sm">
+            <div class="glassmorphism rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                <div id="logs-list" class="divide-y divide-stone-200 max-h-[60vh] overflow-y-auto">
+                    <div class="px-6 py-8 text-center text-stone-500 text-sm">
                         <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Aguardando eventos…
                     </div>
                 </div>
-                <div class="px-6 py-4 border-t border-slate-800 flex justify-center">
-                    <button id="btn-load-more-logs" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold transition hidden">
+                <div class="px-6 py-4 border-t border-stone-200 flex justify-center">
+                    <button id="btn-load-more-logs" class="text-xs text-brand-green hover:text-brand-green-dark font-semibold transition hidden">
                         <i class="fa-solid fa-chevron-down mr-1"></i> Carregar mais 20
                     </button>
                 </div>
@@ -343,30 +357,30 @@
 
             <!-- Header -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold font-outfit text-white">Comunicação Global</h1>
-                <p class="text-slate-400 text-sm mt-1">Envie avisos para todos os tenants do SaaS.</p>
+                <h1 class="text-2xl font-bold font-outfit text-stone-800">Comunicação Global</h1>
+                <p class="text-stone-500 text-sm mt-1">Envie avisos para todos os tenants do SaaS.</p>
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
                 <!-- Formulário de Envio -->
-                <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl p-6">
-                    <h2 class="text-base font-semibold font-outfit text-white mb-5 flex items-center gap-2">
-                        <i class="fa-solid fa-paper-plane text-indigo-400"></i>
+                <div class="glassmorphism rounded-2xl border border-stone-200 shadow-sm p-6">
+                    <h2 class="text-base font-semibold font-outfit text-stone-800 mb-5 flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane text-brand-green"></i>
                         Novo Comunicado
                     </h2>
                     <form id="form-comunicado" class="flex flex-col gap-4">
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Título</label>
+                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Título</label>
                             <input id="com-titulo" type="text" maxlength="120" placeholder="Ex: Manutenção programada…"
-                                class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                                class="bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo</label>
+                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tipo</label>
                             <select id="com-tipo"
-                                class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+                                class="bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
                                 <option value="info">ℹ️ Informativo</option>
                                 <option value="aviso">⚠️ Aviso</option>
                                 <option value="critico">🚨 Crítico</option>
@@ -374,13 +388,13 @@
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mensagem</label>
+                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Mensagem</label>
                             <textarea id="com-mensagem" rows="5" maxlength="1000" placeholder="Digite o conteúdo do aviso…"
-                                class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"></textarea>
+                                class="bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"></textarea>
                         </div>
 
                         <button type="submit" id="btn-enviar-comunicado"
-                            class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-bold text-white rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition duration-200 flex items-center justify-center gap-2">
+                            class="w-full py-3.5 bg-gradient-to-r from-brand-green to-brand-green-dark hover:from-brand-green-dark hover:to-brand-green-dark font-bold text-white rounded-xl shadow-lg shadow-brand-green/20 active:scale-[0.98] transition duration-200 flex items-center justify-center gap-2">
                             <i class="fa-solid fa-paper-plane"></i> Disparar Comunicado
                         </button>
 
@@ -388,13 +402,13 @@
                 </div>
 
                 <!-- Comunicados Enviados -->
-                <div class="glassmorphism rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col">
-                    <div class="px-6 py-5 border-b border-slate-800">
-                        <h2 class="text-base font-semibold font-outfit text-white">Comunicados Enviados</h2>
-                        <p class="text-slate-400 text-xs mt-0.5">Últimos 20 comunicados globais</p>
+                <div class="glassmorphism rounded-2xl border border-stone-200 shadow-sm overflow-hidden flex flex-col">
+                    <div class="px-6 py-5 border-b border-stone-200">
+                        <h2 class="text-base font-semibold font-outfit text-stone-800">Comunicados Enviados</h2>
+                        <p class="text-stone-500 text-xs mt-0.5">Últimos 20 comunicados globais</p>
                     </div>
-                    <div id="comunicados-list" class="flex-1 divide-y divide-slate-800 overflow-y-auto max-h-[520px]">
-                        <div class="px-6 py-8 text-center text-slate-500 text-sm">
+                    <div id="comunicados-list" class="flex-1 divide-y divide-stone-200 overflow-y-auto max-h-[520px]">
+                        <div class="px-6 py-8 text-center text-stone-500 text-sm">
                             <i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Carregando…
                         </div>
                     </div>
@@ -516,8 +530,8 @@ function activateSection(sectionId) {
     document.querySelectorAll(".section-content").forEach(s => s.classList.add("hidden"));
     document.querySelectorAll(".nav-item").forEach(btn => {
         btn.classList.remove("active");
-        btn.classList.add("text-slate-400");
-        btn.classList.remove("text-indigo-400");
+        btn.classList.add("text-stone-500");
+        btn.classList.remove("text-brand-green");
     });
 
     const target = document.getElementById("section-" + sectionId);
@@ -526,7 +540,7 @@ function activateSection(sectionId) {
     const navBtn = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
     if (navBtn) {
         navBtn.classList.add("active");
-        navBtn.classList.remove("text-slate-400");
+        navBtn.classList.remove("text-stone-500");
     }
 }
 
@@ -619,7 +633,7 @@ async function loadDashboard() {
             else if (s === "bloqueado" || s === "blocked") bloqueadas++;
         });
 
-        const mrr = ativas * 49;
+        const mrr = ativas * 19.90; // preço oficial: R$ 19,90/mês
 
         document.getElementById("kpi-ativas").textContent     = ativas;
         document.getElementById("kpi-mrr").textContent        = formatMoney(mrr);
@@ -638,7 +652,7 @@ async function loadDashboard() {
     } catch (e) {
         console.error("Erro ao carregar atividade recente:", e);
         document.getElementById("recent-activity-list").innerHTML =
-            `<div class="px-6 py-8 text-center text-slate-500 text-sm">Erro ao carregar eventos.</div>`;
+            `<div class="px-6 py-8 text-center text-stone-500 text-sm">Erro ao carregar eventos.</div>`;
     }
 }
 
@@ -646,17 +660,17 @@ function renderRecentActivity(docs) {
     const container = document.getElementById("recent-activity-list");
 
     if (!docs || docs.length === 0) {
-        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
-            <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
+        container.innerHTML = `<div class="px-6 py-8 text-center text-stone-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl block mb-2 text-stone-300"></i>
             Nenhum evento registrado.
         </div>`;
         return;
     }
 
     const levelConfig = {
-        info:  { icon: "fa-circle-info",        color: "text-blue-400",  bg: "bg-blue-400/10"  },
+        info:  { icon: "fa-circle-info",        color: "text-blue-500",  bg: "bg-blue-500/10"  },
         warn:  { icon: "fa-triangle-exclamation", color: "text-amber-400", bg: "bg-amber-400/10" },
-        error: { icon: "fa-circle-exclamation",  color: "text-red-400",   bg: "bg-red-400/10"   },
+        error: { icon: "fa-circle-exclamation",  color: "text-red-500",   bg: "bg-red-500/10"   },
     };
 
     let html = "";
@@ -666,16 +680,16 @@ function renderRecentActivity(docs) {
         const cfg     = levelConfig[level] || levelConfig.info;
         const msg     = escapeHtml(data.message || "–");
         const ts      = formatDateTime(data.timestamp);
-        const uid     = data.uid ? `<span class="ml-2 text-[10px] text-slate-600 font-mono">${escapeHtml(data.uid.substring(0, 12))}…</span>` : "";
+        const uid     = data.uid ? `<span class="ml-2 text-[10px] text-stone-400 font-mono">${escapeHtml(data.uid.substring(0, 12))}…</span>` : "";
 
         html += `
-        <div class="px-6 py-4 flex items-start gap-4 hover:bg-slate-800/30 transition">
+        <div class="px-6 py-4 flex items-start gap-4 hover:bg-stone-50 transition">
             <div class="w-8 h-8 rounded-full ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5">
                 <i class="fa-solid ${cfg.icon} ${cfg.color} text-sm"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm text-slate-200 leading-snug">${msg}${uid}</p>
-                <p class="text-xs text-slate-500 mt-1">${ts}</p>
+                <p class="text-sm text-stone-800 leading-snug">${msg}${uid}</p>
+                <p class="text-xs text-stone-500 mt-1">${ts}</p>
             </div>
         </div>`;
     });
@@ -741,39 +755,39 @@ function renderEmpresas() {
             trial:     `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>Trial</span>`,
             bloqueado: `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/20"><span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>Bloqueado</span>`,
         };
-        return map[n] || `<span class="text-slate-500 text-xs">${escapeHtml(s)}</span>`;
+        return map[n] || `<span class="text-stone-500 text-xs">${escapeHtml(s)}</span>`;
     };
 
     filtered.forEach((emp, idx) => {
         const tr = document.createElement("tr");
-        tr.className = "emp-row hover:bg-slate-800/30 transition";
+        tr.className = "emp-row hover:bg-stone-50 transition";
 
         const isBloqueado = emp.statusAssinatura === "bloqueado";
         const btnLabel    = isBloqueado ? "Desbloquear" : "Bloquear";
         const btnClass    = isBloqueado
-            ? "px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition"
-            : "px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition";
+            ? "px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/20 transition"
+            : "px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-500/10 text-red-600 border border-red-500/20 hover:bg-red-500/20 transition";
         const novoStatus  = isBloqueado ? "ativo" : "bloqueado";
 
         const link        = emp.linkUnicoCliente || "";
 
         tr.innerHTML = `
-            <td class="px-5 py-4 text-slate-500 text-xs">${idx + 1}</td>
+            <td class="px-5 py-4 text-stone-500 text-xs">${idx + 1}</td>
             <td class="px-5 py-4">
-                <p class="text-sm text-white font-medium leading-snug"></p>
+                <p class="text-sm text-stone-800 font-medium leading-snug"></p>
             </td>
             <td class="px-5 py-4">
-                <p class="text-sm text-slate-300"></p>
+                <p class="text-sm text-stone-600"></p>
             </td>
             <td class="px-5 py-4">${statusBadge(emp.statusAssinatura)}</td>
-            <td class="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">${formatDate(emp.dataCadastro)}</td>
-            <td class="px-5 py-4 text-xs text-slate-400 whitespace-nowrap">${formatDate(emp.trialEndDate)}</td>
+            <td class="px-5 py-4 text-xs text-stone-500 whitespace-nowrap">${formatDate(emp.dataCadastro)}</td>
+            <td class="px-5 py-4 text-xs text-stone-500 whitespace-nowrap">${formatDate(emp.trialEndDate)}</td>
             <td class="px-5 py-4">
                 <div class="flex items-center gap-2">
                     <button class="btn-toggle-status ${btnClass}" data-id="${escapeHtml(emp.id)}" data-nome="" data-novo="${novoStatus}">
                         ${btnLabel}
                     </button>
-                    <button class="btn-copy-link px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600 transition" data-link="${escapeHtml(link)}" title="Copiar link do cliente">
+                    <button class="btn-copy-link px-3 py-1.5 text-xs font-semibold rounded-lg bg-stone-100 text-stone-600 border border-stone-300 hover:bg-stone-200 transition" data-link="${escapeHtml(link)}" title="Copiar link do cliente">
                         <i class="fa-solid fa-link"></i>
                     </button>
                 </div>
@@ -807,6 +821,11 @@ function renderEmpresas() {
 }
 
 async function toggleStatus(empresaId, nomeEmpresa, novoStatus) {
+    // X-06: confirmação antes de bloquear um lojista (ação sensível)
+    if (novoStatus === "bloqueado") {
+        const ok = confirm(`Bloquear "${nomeEmpresa}"?\n\nO lojista perde o acesso de escrita (não consegue dar pontos nem gerenciar) até ser desbloqueado.`);
+        if (!ok) return;
+    }
     try {
         await updateDoc(doc(db, "empresas", empresaId), {
             statusAssinatura: novoStatus
@@ -841,10 +860,10 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 
         document.querySelectorAll(".filter-btn").forEach(b => {
             b.classList.remove("active-filter", "bg-indigo-600", "text-white");
-            b.classList.add("bg-slate-800", "text-slate-400");
+            b.classList.add("bg-stone-100", "text-stone-500");
         });
         btn.classList.add("active-filter", "bg-indigo-600", "text-white");
-        btn.classList.remove("bg-slate-800", "text-slate-400");
+        btn.classList.remove("bg-stone-100", "text-stone-500");
 
         renderEmpresas();
     });
@@ -879,8 +898,8 @@ function renderLogs() {
         : allLogs.filter(l => l.level === currentLogLevel);
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
-            <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
+        container.innerHTML = `<div class="px-6 py-8 text-center text-stone-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl block mb-2 text-stone-300"></i>
             Nenhum log encontrado.
         </div>`;
         btnMore.classList.add("hidden");
@@ -888,9 +907,9 @@ function renderLogs() {
     }
 
     const levelConfig = {
-        info:  { icon: "fa-circle-info",        color: "text-blue-400",  bg: "bg-blue-400/10",   badge: "bg-blue-400/15 text-blue-400 border-blue-400/20"  },
-        warn:  { icon: "fa-triangle-exclamation", color: "text-amber-400", bg: "bg-amber-400/10",  badge: "bg-amber-400/15 text-amber-400 border-amber-400/20" },
-        error: { icon: "fa-circle-exclamation",  color: "text-red-400",   bg: "bg-red-400/10",    badge: "bg-red-400/15 text-red-400 border-red-400/20"   },
+        info:  { icon: "fa-circle-info",        color: "text-blue-500",  bg: "bg-blue-500/10",   badge: "bg-blue-500/15 text-blue-600 border-blue-500/20"  },
+        warn:  { icon: "fa-triangle-exclamation", color: "text-amber-400", bg: "bg-amber-400/10",  badge: "bg-amber-400/15 text-amber-500 border-amber-400/20" },
+        error: { icon: "fa-circle-exclamation",  color: "text-red-500",   bg: "bg-red-500/10",    badge: "bg-red-500/15 text-red-600 border-red-500/20"   },
     };
 
     let html = "";
@@ -898,17 +917,17 @@ function renderLogs() {
         const level = log.level || "info";
         const cfg   = levelConfig[level] || levelConfig.info;
 
-        html += `<div class="px-5 py-3.5 flex items-start gap-4 hover:bg-slate-800/30 transition">
+        html += `<div class="px-5 py-3.5 flex items-start gap-4 hover:bg-stone-50 transition">
             <div class="w-7 h-7 rounded-lg ${cfg.bg} flex items-center justify-center shrink-0 mt-0.5">
                 <i class="fa-solid ${cfg.icon} ${cfg.color} text-xs"></i>
             </div>
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap mb-0.5">
                     <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${cfg.badge}">${escapeHtml(level)}</span>
-                    <span class="text-xs text-slate-500">${formatDateTime(log.timestamp)}</span>
-                    ${log.uid ? `<span class="text-[10px] text-slate-600 font-mono bg-slate-800 px-1.5 py-0.5 rounded">${escapeHtml(String(log.uid).substring(0,14))}…</span>` : ""}
+                    <span class="text-xs text-stone-500">${formatDateTime(log.timestamp)}</span>
+                    ${log.uid ? `<span class="text-[10px] text-stone-500 font-mono bg-stone-100 px-1.5 py-0.5 rounded">${escapeHtml(String(log.uid).substring(0,14))}…</span>` : ""}
                 </div>
-                <p class="text-sm text-slate-300 leading-snug break-words"></p>
+                <p class="text-sm text-stone-700 leading-snug break-words"></p>
             </div>
         </div>`;
     });
@@ -932,10 +951,10 @@ document.querySelectorAll(".log-filter-btn").forEach(btn => {
 
         document.querySelectorAll(".log-filter-btn").forEach(b => {
             b.classList.remove("active-log-filter", "bg-indigo-600", "text-white");
-            b.classList.add("bg-slate-800", "text-slate-400");
+            b.classList.add("bg-stone-100", "text-stone-500");
         });
         btn.classList.add("active-log-filter", "bg-indigo-600", "text-white");
-        btn.classList.remove("bg-slate-800", "text-slate-400");
+        btn.classList.remove("bg-stone-100", "text-stone-500");
 
         renderLogs();
     });
@@ -946,12 +965,12 @@ document.getElementById("btn-clear-log-filter").addEventListener("click", () => 
     currentLogLevel = "todos";
     document.querySelectorAll(".log-filter-btn").forEach(b => {
         b.classList.remove("active-log-filter", "bg-indigo-600", "text-white");
-        b.classList.add("bg-slate-800", "text-slate-400");
+        b.classList.add("bg-stone-100", "text-stone-500");
     });
     const allBtn = document.querySelector('.log-filter-btn[data-level="todos"]');
     if (allBtn) {
         allBtn.classList.add("active-log-filter", "bg-indigo-600", "text-white");
-        allBtn.classList.remove("bg-slate-800", "text-slate-400");
+        allBtn.classList.remove("bg-stone-100", "text-stone-500");
     }
     renderLogs();
 });
@@ -981,17 +1000,17 @@ function loadComunicados() {
 }
 
 const tipoConfig = {
-    info:   { label: "Informativo", icon: "fa-circle-info",        class: "bg-blue-400/15 text-blue-400 border-blue-400/20"  },
-    aviso:  { label: "Aviso",       icon: "fa-triangle-exclamation", class: "bg-amber-400/15 text-amber-400 border-amber-400/20" },
-    critico:{ label: "Crítico",     icon: "fa-circle-exclamation",  class: "bg-red-400/15 text-red-400 border-red-400/20"   },
+    info:   { label: "Informativo", icon: "fa-circle-info",        class: "bg-blue-500/15 text-blue-600 border-blue-500/20"  },
+    aviso:  { label: "Aviso",       icon: "fa-triangle-exclamation", class: "bg-amber-400/15 text-amber-500 border-amber-400/20" },
+    critico:{ label: "Crítico",     icon: "fa-circle-exclamation",  class: "bg-red-500/15 text-red-600 border-red-500/20"   },
 };
 
 function renderComunicados(docs) {
     const container = document.getElementById("comunicados-list");
 
     if (!docs || docs.length === 0) {
-        container.innerHTML = `<div class="px-6 py-8 text-center text-slate-500 text-sm">
-            <i class="fa-solid fa-inbox text-2xl block mb-2 text-slate-700"></i>
+        container.innerHTML = `<div class="px-6 py-8 text-center text-stone-500 text-sm">
+            <i class="fa-solid fa-inbox text-2xl block mb-2 text-stone-300"></i>
             Nenhum comunicado enviado.
         </div>`;
         return;
@@ -1002,7 +1021,7 @@ function renderComunicados(docs) {
     docs.forEach(com => {
         const tipo = tipoConfig[com.tipo] || tipoConfig.info;
         const div  = document.createElement("div");
-        div.className = "px-5 py-4 hover:bg-slate-800/30 transition";
+        div.className = "px-5 py-4 hover:bg-stone-50 transition";
 
         div.innerHTML = `
         <div class="flex items-start justify-between gap-3">
@@ -1011,12 +1030,12 @@ function renderComunicados(docs) {
                     <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${tipo.class} flex items-center gap-1">
                         <i class="fa-solid ${tipo.icon} text-[10px]"></i>${escapeHtml(tipo.label)}
                     </span>
-                    <span class="text-xs text-slate-500">${formatDateTime(com.dataCriacao)}</span>
+                    <span class="text-xs text-stone-500">${formatDateTime(com.dataCriacao)}</span>
                 </div>
-                <p class="text-sm font-semibold text-white mb-1"></p>
-                <p class="text-xs text-slate-400 leading-relaxed line-clamp-2"></p>
+                <p class="text-sm font-semibold text-stone-800 mb-1"></p>
+                <p class="text-xs text-stone-500 leading-relaxed line-clamp-2"></p>
             </div>
-            <button class="btn-del-comunicado shrink-0 p-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition" data-id="${escapeHtml(com.id)}" title="Excluir">
+            <button class="btn-del-comunicado shrink-0 p-2 rounded-lg text-stone-400 hover:text-red-500 hover:bg-red-500/10 transition" data-id="${escapeHtml(com.id)}" title="Excluir">
                 <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
         </div>`;

@@ -135,17 +135,27 @@ exports.createSubscription = onCall(
     }
 
     /* --- 2. Cria assinatura PIX --- */
-    // nextDueDate = hoje (YYYY-MM-DD)
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
+    // nextDueDate = fim do trial (1º mês grátis): pagar antes é permitido, mas o
+    // mês pago só começa a valer ao fim dos 30 dias. Se o trial já passou (ou não
+    // existe), cobra a partir de hoje.
+    let dueDateObj = new Date();
+    const trialEndRaw = empData.trialEndDate;
+    if (trialEndRaw) {
+      const trialEndObj =
+        typeof trialEndRaw.toDate === "function" ? trialEndRaw.toDate() : new Date(trialEndRaw);
+      if (trialEndObj.getTime() > dueDateObj.getTime()) {
+        dueDateObj = trialEndObj;
+      }
+    }
+    const yyyy = dueDateObj.getFullYear();
+    const mm = String(dueDateObj.getMonth() + 1).padStart(2, "0");
+    const dd = String(dueDateObj.getDate()).padStart(2, "0");
     const nextDueDate = `${yyyy}-${mm}-${dd}`;
 
     const subscriptionPayload = {
       customer: asaasCustomerId,
       billingType: "PIX",
-      value: 10.0,
+      value: 19.90,
       cycle: "MONTHLY",
       nextDueDate,
       description: "Tem Pontinho - Plano Mensal",
@@ -201,7 +211,7 @@ exports.createSubscription = onCall(
     return {
       status: subscription.status,
       subscriptionId: asaasSubscriptionId,
-      value: 10.0,
+      value: 19.90,
       pixCopiaECola,
       pixQrCodeBase64,
       invoiceUrl,

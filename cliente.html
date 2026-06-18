@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full text-slate-100 font-inter">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cartão de Fidelidade - Carregando...</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -17,13 +16,22 @@
                         space: ['Space Grotesk', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                         bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
                 }
             }
         }
     </script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QRCode.js CDN -->
@@ -33,20 +41,79 @@
     
     <style>
         .glassmorphism {
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 8px 24px rgba(42, 37, 32, 0.08);
         }
         .stamp-pulse {
             animation: pulse-border 2s infinite;
         }
         @keyframes pulse-border {
-            0%, 100% { border-color: rgba(255, 255, 255, 0.2); }
-            50% { border-color: rgba(255, 255, 255, 0.6); }
+            0%, 100% { border-color: rgba(217, 107, 67, 0.3); }
+            50% { border-color: rgba(217, 107, 67, 0.7); }
         }
-    </style>
+        /* X-07: respeita prefers-reduced-motion — neutraliza animações/transições. */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
+
+        /* Pulso suave do banner de prêmio (estado persistente / retorno do cliente). */
+        .reward-pulse { animation: reward-pulse 2.2s ease-in-out infinite; }
+        @keyframes reward-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 107, 67, 0.35); }
+            50%      { transform: scale(1.015); box-shadow: 0 0 0 10px rgba(217, 107, 67, 0); }
+        }
+
+        /* Sequência de RESGATE: o cartão atual rasga em duas metades. */
+        .card-tear { position: relative; overflow: hidden; }
+        .card-tear .tear-half {
+            position: absolute; left: 0; width: 100%; height: 50%;
+            background: inherit;
+        }
+        @keyframes tear-top {
+            0%   { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(-120%) rotate(-6deg); opacity: 0; }
+        }
+        @keyframes tear-bottom {
+            0%   { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(120%) rotate(6deg); opacity: 0; }
+        }
+        .tear-top-anim    { animation: tear-top 0.85s cubic-bezier(0.4, 0, 0.6, 1) forwards; }
+        .tear-bottom-anim { animation: tear-bottom 0.85s cubic-bezier(0.4, 0, 0.6, 1) forwards; }
+
+        /* Novo cartão em branco entrando após o rasgo. */
+        .card-enter { animation: card-enter 0.5s ease-out forwards; }
+        @keyframes card-enter {
+            0%   { opacity: 0; transform: translateY(14px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Carimbo que "salta" ao entrar (sobra ponto a ponto). */
+        .stamp-pop { animation: stamp-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes stamp-pop {
+            0%   { transform: scale(0.4); opacity: 0.3; }
+            60%  { transform: scale(1.18); }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+</style>
 </head>
-<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #0b0f19;">
+<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #F4EFE6;">
+
+<div id="toast" class="fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none" style="opacity:0;transform:translateY(-8px);transition:all .3s">
+  <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
+  <span id="toast-text"></span>
+</div>
 
     <!-- Main Container -->
     <main class="flex-grow flex items-center justify-center py-6 w-full max-w-sm mx-auto">
@@ -54,35 +121,44 @@
         <!-- LOGIN CARD -->
         <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-6 text-center">
             <div class="flex flex-col items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white text-3xl">
+                <div class="w-14 h-14 rounded-2xl bg-brand-green text-white flex items-center justify-center text-3xl">
                     ✶
                 </div>
-                <h2 id="login-welcome-title" class="text-xl font-bold font-outfit text-white">Carregando Programa...</h2>
-                <p id="login-welcome-desc" class="text-slate-300 text-xs px-2 leading-relaxed">
-                    Entre com uma de suas contas de rede social para começar a acumular carimbos e resgatar prêmios incríveis!
+                <h2 id="login-welcome-title" class="text-xl font-bold font-outfit text-brand-green">Carregando Programa...</h2>
+                <p id="login-welcome-desc" class="text-stone-500 text-xs px-2 leading-relaxed">
+                    Entre para começar a acumular carimbos e resgatar seu prêmio!
                 </p>
             </div>
 
-            <!-- Social Authentication Buttons -->
+            <!-- C-01: prévia de valor (loja/prêmio/progresso) ANTES da barreira de login -->
+            <div id="reward-preview" class="rounded-2xl border border-stone-200 bg-white p-4 flex flex-col items-center gap-2.5 text-center">
+                <div id="preview-stamps" class="flex items-center justify-center gap-1 flex-wrap"></div>
+                <p class="text-xs text-stone-600 font-medium leading-relaxed">
+                    Junte <span id="preview-meta" class="font-bold text-stone-800">10</span> carimbos e ganhe
+                </p>
+                <p id="preview-prize" class="text-sm font-bold text-brand-accent">seu prêmio</p>
+            </div>
+
+            <!-- Authentication Buttons (C-01: Google 1-tap como primário; e-mail como alternativa) -->
             <div class="flex flex-col gap-3" id="social-login-container">
-                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98]">
-                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
-                    <span>Logar com Google</span>
+                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 rounded-2xl transition font-semibold text-sm active:scale-[0.98] shadow-sm shadow-stone-200">
+                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="">
+                    <span>Continuar com Google</span>
                 </button>
-                <button id="btn-login-facebook" class="flex items-center justify-center gap-3 w-full py-3.5 bg-[#1877F2] hover:bg-[#166fe5] rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                <button id="btn-login-facebook" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-[#1877F2] hover:bg-[#166fe5] rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
                     <i class="fa-brands fa-facebook text-lg"></i>
                     <span>Logar com Facebook</span>
                 </button>
-                <button id="btn-login-apple" class="flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-slate-800 hover:bg-slate-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                <button id="btn-login-apple" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-stone-800 hover:bg-stone-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
                     <i class="fa-brands fa-apple text-lg"></i>
                     <span>Logar com Apple</span>
                 </button>
                 <div class="flex items-center my-1">
-                    <div class="h-[1px] flex-grow bg-white/10"></div>
-                    <span class="px-2 text-[10px] text-slate-400 uppercase tracking-widest">ou</span>
-                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
+                    <span class="px-2 text-[10px] text-stone-400 uppercase tracking-widest">ou</span>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
                 </div>
-                <button id="btn-toggle-email" class="w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-slate-300">
+                <button id="btn-toggle-email" class="w-full py-3.5 bg-white border border-stone-300 hover:bg-stone-50 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-stone-600">
                     <i class="fa-regular fa-envelope mr-1.5 text-sm"></i> Entrar com E-mail
                 </button>
             </div>
@@ -90,25 +166,25 @@
             <!-- Email Login Form -->
             <form id="email-login-form" class="hidden flex flex-col gap-3.5 text-left">
                 <div class="flex flex-col gap-1">
-                    <label for="client-email" class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">E-mail</label>
-                    <input type="email" id="client-email" required placeholder="ex: cliente@email.com" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="client-email" class="text-[9px] font-semibold text-stone-500 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="client-email" required placeholder="ex: cliente@email.com" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label for="client-password" class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Senha (Mínimo 6 caracteres)</label>
-                    <input type="password" id="client-password" required placeholder="Digite sua senha" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="client-password" class="text-[9px] font-semibold text-stone-500 uppercase tracking-wider">Senha (Mínimo 6 caracteres)</label>
+                    <input type="password" id="client-password" required placeholder="Digite sua senha" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
                 <button type="submit" id="btn-submit-client-email" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-white text-xs rounded-xl active:scale-[0.98] transition">
                     Entrar / Criar Conta
                 </button>
-                <button type="button" id="btn-back-social" class="text-center text-[10px] text-slate-400 mt-1 hover:underline">
+                <button type="button" id="btn-back-social" class="text-center text-xs text-stone-500 mt-1 min-h-[44px] inline-flex items-center justify-center hover:underline">
                     Voltar para Login Social
                 </button>
             </form>
             
-            <div class="text-[10px] text-slate-400 px-4 mt-2 bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+            <div class="text-[10px] text-stone-500 px-4 mt-2 bg-white border border-stone-200 p-3 rounded-xl">
                 <p class="mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> <strong>Sua privacidade é importante.</strong></p>
                 <p>
-                    Ao criar uma conta, você concorda com nossos <a href="termos.html" target="_blank" class="text-white hover:underline font-semibold">Termos de Uso</a> e <a href="privacidade.html" target="_blank" class="text-white hover:underline font-semibold">Política de Privacidade (LGPD)</a>, e autoriza explicitamente o compartilhamento do seu Nome e E-mail com <strong id="lgpd-store-name" class="text-indigo-300">este estabelecimento</strong> para fins de pontuação.
+                    Ao criar uma conta, você concorda com nossos <a href="termos.html" target="_blank" class="text-brand-green hover:underline font-semibold">Termos de Uso</a> e <a href="privacidade.html" target="_blank" class="text-brand-green hover:underline font-semibold">Política de Privacidade (LGPD)</a>, e autoriza explicitamente o compartilhamento do seu Nome e E-mail com <strong id="lgpd-store-name" class="text-brand-green">este estabelecimento</strong> para fins de pontuação.
                 </p>
             </div>
         </div>
@@ -118,29 +194,29 @@
             
             <!-- Branding Header -->
             <div class="flex flex-col items-center gap-1.5 mt-2">
-                <div class="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white text-lg">
+                <div class="w-10 h-10 rounded-full bg-brand-green text-white flex items-center justify-center text-lg">
                     ✶
                 </div>
-                <h2 id="app-title" class="font-bold text-lg text-white leading-tight">Clube de Fidelidade</h2>
-                <span class="text-[9px] bg-black/35 text-white/90 border border-white/10 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Cartão de Pontos</span>
+                <h2 id="app-title" class="font-bold text-lg text-brand-green leading-tight">Clube de Fidelidade</h2>
+                <span class="text-[9px] bg-brand-green/10 text-brand-green border border-brand-green/20 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Cartão de Pontos</span>
             </div>
 
             <!-- Unique Client QR Code Section (Moved to top) -->
             <div class="glassmorphism rounded-3xl p-6 flex flex-col items-center gap-4">
-                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-black/15" id="qrcode-box">
+                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 border border-stone-200 shadow-sm" id="qrcode-box">
                     <div id="qrcode-placeholder"></div>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <p class="text-xs text-white font-semibold">Seu QR Code de Pontuação</p>
-                    <p class="text-[9px] text-white/60">Apresente este código ao vendedor no balcão para registrar carimbos.</p>
+                    <p class="text-xs text-stone-800 font-semibold">Seu QR Code de Pontuação</p>
+                    <p class="text-[9px] text-stone-500">Apresente este código ao vendedor no balcão para registrar carimbos.</p>
                 </div>
             </div>
 
             <!-- Stamped Point Area (Card Deck style) -->
-            <div class="glassmorphism rounded-3xl p-5 border border-white/10 shadow-xl flex flex-col gap-4">
-                <div class="flex justify-between items-center text-xs border-b border-white/10 pb-3">
-                    <span class="text-white/80 font-medium">Pontuação Acumulada</span>
-                    <span id="points-counter" class="font-bold text-white bg-black/20 px-2.5 py-1 rounded-lg">0 / 10</span>
+            <div class="glassmorphism rounded-3xl p-5 flex flex-col gap-4">
+                <div class="flex justify-between items-center text-xs border-b border-stone-200 pb-3">
+                    <span class="text-stone-600 font-medium">Pontuação Acumulada</span>
+                    <span id="points-counter" class="font-bold text-brand-green bg-brand-green/10 px-2.5 py-1 rounded-lg">0 / 10</span>
                 </div>
 
                 <!-- Stamps Grid -->
@@ -149,26 +225,38 @@
                 </div>
 
                 <!-- Goal Banner and Prize Detail -->
-                <div class="p-3 bg-black/25 border border-white/5 rounded-2xl text-xs text-white/90 leading-relaxed font-medium">
-                    Meta de <span id="points-target" class="font-bold underline">10</span> carimbos = 
-                    <span id="prize-description" class="font-bold text-yellow-300">Carregando Prêmio...</span>
+                <div class="p-3 bg-brand-paper border border-stone-200 rounded-2xl text-xs text-stone-600 leading-relaxed font-medium">
+                    Meta de <span id="points-target" class="font-bold underline text-brand-green">10</span> carimbos =
+                    <span id="prize-description" class="font-bold text-brand-accent">Carregando Prêmio...</span>
                 </div>
             </div>
 
             <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
-            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-yellow-400 bg-yellow-400/10 text-yellow-300 flex flex-col items-center gap-2 text-center animate-bounce">
-                <h4 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>Você tem <span id="victory-count">1</span> prêmio(s)!</h4>
-                <p class="text-[11px] text-white font-medium">Mostre esta tela (o QR acima) ao vendedor para retirar.</p>
+            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-brand-accent/10 text-brand-accent-dark flex flex-col items-center gap-2 text-center">
+                <h4 id="victory-title" class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou um prêmio!</h4>
+                <p id="victory-desc" class="text-[11px] text-stone-700 font-medium">Mostre este QR ao vendedor para resgatar.</p>
+            </div>
+
+            <!-- Toast/estado transitório de RESGATE (efêmero, some sozinho) -->
+            <div id="redeem-banner" class="hidden p-3 rounded-2xl border border-brand-green/30 bg-brand-green/10 text-brand-green flex items-center justify-center gap-2 text-center">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="redeem-text" class="text-xs font-semibold">Prêmio resgatado!</span>
+            </div>
+
+            <!-- C-06: Empty state acolhedor para o cliente novo (0 carimbos, nenhum prêmio) -->
+            <div id="welcome-banner" class="hidden p-4 rounded-2xl border border-stone-200 bg-white text-stone-800 flex flex-col items-center gap-1 text-center">
+                <h4 class="font-bold text-sm"><i class="fa-solid fa-hand-sparkles mr-1.5 text-brand-accent"></i>Bem-vindo(a)!</h4>
+                <p class="text-[11px] text-stone-600 font-medium">Seu primeiro carimbo está a um pedido de distância. Mostre seu QR no balcão e comece a juntar pontos.</p>
             </div>
 
             <!-- Profile Info Footer / Logged user info -->
-            <div class="flex items-center justify-between px-3 text-[11px] text-white/70 mt-2">
+            <div class="flex items-center justify-between px-3 text-[11px] text-stone-500 mt-2">
                 <span id="client-name">Cliente</span>
                 <div class="relative">
-                    <button id="btn-menu-toggle" class="text-white/60 hover:text-white px-2 py-1 rounded-lg transition" aria-label="Menu"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                    <div id="account-menu" class="hidden absolute right-0 bottom-full mb-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 text-left">
-                        <button id="btn-logout" class="w-full px-4 py-2.5 text-white/80 hover:bg-white/5 flex items-center gap-2 transition"><i class="fa-solid fa-power-off w-4"></i> Desconectar</button>
-                        <button id="btn-delete-account" class="w-full px-4 py-2.5 text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition border-t border-white/5"><i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)</button>
+                    <button id="btn-menu-toggle" class="text-stone-400 hover:text-stone-700 w-11 h-11 inline-flex items-center justify-center rounded-lg transition" aria-label="Menu"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    <div id="account-menu" class="hidden absolute right-0 bottom-full mb-2 w-56 bg-white border border-stone-200 rounded-xl shadow-xl overflow-hidden z-50 text-left">
+                        <button id="btn-logout" class="w-full px-4 py-2.5 text-stone-700 hover:bg-stone-100 flex items-center gap-2 transition"><i class="fa-solid fa-power-off w-4"></i> Desconectar</button>
+                        <button id="btn-delete-account" class="w-full px-4 py-2.5 text-red-600 hover:bg-red-50 flex items-center gap-2 transition border-t border-stone-200"><i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)</button>
                     </div>
                 </div>
             </div>
@@ -178,8 +266,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full text-center text-[9px] text-white/40 pb-2">
-        <p>&copy; Tem Pontinho. Alimentado por White Label.</p>
+    <footer class="w-full text-center text-[11px] text-stone-400 pb-2">
+        <p>&copy; Tem Pontinho · seu cartão fidelidade no celular.</p>
     </footer>
 
     <!-- Firebase SDK Logic -->
@@ -206,6 +294,52 @@
         } from "./config.js?v=2";
         import { ensureClientCard, listenCard, deleteMyData } from "./points-api.js?v=2";
 
+        // Toast não-bloqueante (substitui alert) + modal de confirmação (substitui confirm)
+        function showToast(message, type = "success") {
+          const toast = document.getElementById("toast");
+          const toastText = document.getElementById("toast-text");
+          const toastIcon = document.getElementById("toast-icon");
+          toastText.textContent = message;
+          const configs = {
+            success: { bg: "bg-indigo-600", icon: "fa-circle-check" },
+            error:   { bg: "bg-red-600",    icon: "fa-circle-xmark" },
+            warn:    { bg: "bg-amber-500",  icon: "fa-triangle-exclamation" },
+          };
+          const cfg = configs[type] || configs.success;
+          toast.className = `fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white ${cfg.bg}`;
+          toastIcon.className = `fa-solid ${cfg.icon} text-base`;
+          toast.style.opacity = "1"; toast.style.transform = "translateY(0)"; toast.style.pointerEvents = "auto";
+          clearTimeout(toast._hideTimer);
+          toast._hideTimer = setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(-8px)"; toast.style.pointerEvents = "none"; }, 3500);
+        }
+
+        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
+          return new Promise((resolve) => {
+            const modal = document.getElementById("modal-confirm");
+            const elTitle = document.getElementById("confirm-title");
+            const elMsg = document.getElementById("confirm-message");
+            const elInput = document.getElementById("confirm-input");
+            const btnOk = document.getElementById("confirm-ok");
+            const btnCancel = document.getElementById("confirm-cancel");
+            const iconWrap = document.getElementById("confirm-icon-wrap");
+            const icon = document.getElementById("confirm-icon");
+            elTitle.textContent = title; elMsg.textContent = message;
+            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
+            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"}`;
+            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
+            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
+            modal.classList.remove("hidden");
+            if (keyword) setTimeout(() => elInput.focus(), 50);
+            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
+            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
+            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
+            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
+            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
+            document.addEventListener("keydown", onKey);
+          });
+        }
+
         // Variáveis Locais do Sistema
         let slugEmpresa = "";
         let idEmpresa = "";
@@ -215,6 +349,9 @@
         let qrCodeInstance = null;
         let unsubscribeListener = null;
         let brandEmoji = "⭐";
+
+        // X-07: usuários que pedem menos movimento não recebem confete/voo de emoji.
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         // Recupera slug/empresaId pelos parâmetros de URL com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
@@ -271,14 +408,15 @@
                             const pageTitle = visualConfig.tituloPagina || companyData.nomeEmpresa || "Empresa";
                             document.title = pageTitle;
                             
-                            // Altera a cor de fundo do container da página inteira
-                            document.documentElement.style.backgroundColor = visualConfig.corFundo || "#0b0f19";
-                            document.getElementById("body-container").style.backgroundColor = visualConfig.corFundo || "#0b0f19";
+                            // TEMA CLARO PADRONIZADO: o fundo da página é SEMPRE o creme da paleta.
+                            // Ignora visualConfig.corFundo de propósito (decisão de produto) para evitar fundos como rosa.
+                            document.documentElement.style.backgroundColor = "#F4EFE6";
+                            document.getElementById("body-container").style.backgroundColor = "#F4EFE6";
                             
                             // Altera fontes
                             const activeFont = visualConfig.fonte || "sans";
                             document.getElementById("body-container").className = `h-full flex flex-col justify-between overflow-x-hidden p-4 font-${activeFont} transition-all duration-500`;
-                            document.getElementById("app-title").className = `font-bold text-lg text-white leading-tight font-${activeFont}`;
+                            document.getElementById("app-title").className = `font-bold text-lg text-brand-green leading-tight font-${activeFont}`;
                             document.getElementById("app-title").innerText = pageTitle;
                             
                             const lgpdName = document.getElementById("lgpd-store-name");
@@ -291,6 +429,23 @@
                             // Configura os textos de boas-vindas da tela de login
                             document.getElementById("login-welcome-title").innerText = `Fidelidade - ${pageTitle}`;
                             document.getElementById("login-welcome-desc").innerText = `Entre e comece a acumular pontos para ganhar: ${companyData.metaConfig?.descriçãoPremio || "um prêmio especial"}`;
+
+                            // C-01: prévia de valor antes do login (meta, prêmio e carimbos vazios).
+                            const previewMeta = document.getElementById("preview-meta");
+                            const previewPrize = document.getElementById("preview-prize");
+                            const previewStamps = document.getElementById("preview-stamps");
+                            if (previewMeta) previewMeta.innerText = metaPontos;
+                            if (previewPrize) previewPrize.innerText = companyData.metaConfig?.descriçãoPremio || "um prêmio especial";
+                            if (previewStamps) {
+                                // Mostra até 5 slots de carimbo (resumo visual do cartão) + "…" se a meta for maior.
+                                const shown = Math.min(metaPontos, 5);
+                                let html = "";
+                                for (let i = 0; i < shown; i++) {
+                                    html += `<span class="w-7 h-7 rounded-full border border-stone-300 bg-white flex items-center justify-center text-[11px] text-stone-400">${brandEmoji}</span>`;
+                                }
+                                if (metaPontos > shown) html += `<span class="text-stone-500 text-xs px-1">+${metaPontos - shown}</span>`;
+                                previewStamps.innerHTML = html;
+                            }
                             
                             // Se o usuário já estiver logado, forçar um re-render dos carimbos com a nova meta/emoji
                             if (loggedUser) {
@@ -302,25 +457,57 @@
                     });
                 } else {
                     document.getElementById("login-welcome-title").innerText = "Link Inválido";
-                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-400 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Parâmetro de link ausente!</span> Por favor, use o link completo gerado no onboarding (ex: <code>cliente.html?link=nome-da-empresa</code>).`;
-                    // Oculta botões de login
-                    const btnContainer = document.querySelector("#login-screen div.flex-col");
-                    if (btnContainer) btnContainer.classList.add("hidden");
+                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-600 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Link inválido</span> Abra o cartão pelo link que a loja compartilhou com você.`;
+                    // Oculta entradas de login (mantém o header com a mensagem de erro)
+                    hideLoginInputs();
                 }
             } catch (err) {
                 console.error("Erro ao carregar branding da empresa: ", err);
+                // X-05: erro de rede deixava o título em "Carregando…" para sempre.
+                showLoadError();
             }
         }
 
-        // Executa branding
-        await fetchCompanyBranding();
+        // Esconde botões/form/prévia de login, preservando o header (e sua mensagem).
+        function hideLoginInputs() {
+            ["social-login-container", "email-login-form", "reward-preview"].forEach(id => {
+                document.getElementById(id)?.classList.add("hidden");
+            });
+        }
+
+        // X-05: estado de erro/offline na tela inicial (corrige "Carregando…" eterno, B-06).
+        function showLoadError() {
+            const title = document.getElementById("login-welcome-title");
+            const desc = document.getElementById("login-welcome-desc");
+            const offline = !navigator.onLine;
+            title.innerText = offline ? "Você está sem conexão" : "Não foi possível carregar";
+            desc.innerHTML = `<span class="text-amber-400 font-bold block mb-2"><i class="fa-solid fa-wifi mr-1"></i> ${offline ? "Sem internet" : "Erro de rede"}</span> ${offline ? "Verifique sua conexão e tente de novo." : "Tente novamente em instantes."} <button id="btn-retry-load" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button>`;
+            hideLoginInputs();
+            document.getElementById("btn-retry-load")?.addEventListener("click", () => window.location.reload());
+        }
+
+        // X-05: se já abrir offline, não fica preso no "Carregando…".
+        if (!navigator.onLine) {
+            showLoadError();
+        } else {
+            // Executa branding
+            await fetchCompanyBranding();
+        }
+
+        // X-05: recupera automaticamente quando a conexão volta.
+        window.addEventListener("online", () => {
+            const title = document.getElementById("login-welcome-title");
+            if (title && (title.innerText === "Você está sem conexão" || title.innerText === "Não foi possível carregar")) {
+                window.location.reload();
+            }
+        });
 
         // Finaliza o fluxo de redirect do mobile (se houver)
         try {
             await getRedirectResult(auth);
         } catch (err) {
             console.error("Erro ao recuperar resultado do redirecionamento:", err);
-            alert("Erro no login: " + err.message);
+            showToast("Erro no login: " + err.message, "error");
         }
 
         // 2. Controla o estado de Autenticação do Usuário (Cliente)
@@ -367,52 +554,144 @@
         }
 
         // 3. Ouvinte em tempo real do cartão do cliente (subcoleção da empresa)
+        // Máquina de estados: pontuar / completar (prêmio) / resgatar (rasga + novo cartão + sobra).
         function setupPointsRealtimeListener(clientUid) {
             if (unsubscribeListener) unsubscribeListener();
 
             let firstLoad = true;
             let lastPoints = 0;
             let lastPremios = 0;
+            let animando = false; // trava enquanto roda a sequência de resgate
 
             unsubscribeListener = listenCard(idEmpresa, clientUid, (card) => {
                 if (!card) return;
                 const pontos = card.pontos || 0;
                 const premios = card.premiosPendentes || 0;
 
-                // Atualiza Contador + Grid de Carimbos
-                document.getElementById("points-counter").innerText = `${pontos} / ${metaPontos}`;
-                renderStamps(pontos);
-
-                // Animação de pouso do emoji quando os pontos sobem
-                if (!firstLoad && pontos > lastPoints) {
-                    for (let p = lastPoints + 1; p <= pontos; p++) {
-                        playLandingAnimation(p);
-                    }
+                // Primeiro carregamento: sincroniza sem animar "ganhou agora".
+                // Se já vier com prêmio pendente (cliente voltou), mostra o estado persistente.
+                if (firstLoad) {
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    if (premios > 0) showVictory(premios, /*retorno=*/true);
+                    else hideVictory();
+                    toggleWelcome(pontos === 0 && premios === 0);
+                    lastPoints = pontos; lastPremios = premios; firstLoad = false;
+                    return;
                 }
 
-                // Prêmio(s) pendente(s): gatilho do banner/confete é premiosPendentes
-                // (o cartão reseta no carry-over, então pontos nunca chega à meta).
-                const banner = document.getElementById("victory-banner");
-                const countEl = document.getElementById("victory-count");
-                if (premios > 0) {
-                    if (countEl) countEl.innerText = premios;
-                    banner.classList.remove("hidden");
-                    if (!firstLoad && premios > lastPremios) {
-                        const delay = pontos > lastPoints ? 1100 : 0; // espera o pouso, se houve
-                        setTimeout(() => setTimeout(() => fireVictoryConfetti(), 100), delay);
+                if (animando) { lastPoints = pontos; lastPremios = premios; return; }
+
+                const completou   = premios > lastPremios;                       // fechou um cartão
+                const resgatou    = premios < lastPremios;                       // vendedor entregou prêmio
+                const ganhouPonto = !completou && !resgatou && pontos > lastPoints;
+
+                if (completou) {
+                    // Cartão fica cheio e travado; prêmio pendente nos dois aparelhos.
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    playLandingAnimation(metaPontos);            // o carimbo final "pousa"
+                    showVictory(premios, false);
+                    setTimeout(() => fireVictoryConfetti(), prefersReducedMotion ? 0 : 1100);
+                } else if (resgatou) {
+                    if (premios > 0) {
+                        // Ainda restam prêmios: mantém o cartão cheio.
+                        setCounter(pontos);
+                        renderStamps(pontos);
+                        showVictory(premios, true);
+                        showRedeemBanner(`Prêmio resgatado! Ainda resta${premios > 1 ? "m" : ""} ${premios}.`);
+                    } else {
+                        // Último prêmio resgatado: rasga o cartão e injeta a sobra ponto a ponto.
+                        hideVictory();
+                        showRedeemBanner("Prêmio resgatado! 🎁");
+                        toggleWelcome(false);
+                        runRedeemSequence(pontos);
                     }
+                } else if (ganhouPonto) {
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    for (let p = lastPoints + 1; p <= pontos; p++) playLandingAnimation(p);
                 } else {
-                    banner.classList.add("hidden");
+                    // Sem transição relevante: só sincroniza.
+                    setCounter(pontos);
+                    renderStamps(pontos);
+                    if (premios > 0) showVictory(premios, true); else hideVictory();
+                    toggleWelcome(pontos === 0 && premios === 0);
                 }
 
-                lastPoints = pontos;
-                lastPremios = premios;
-                firstLoad = false;
+                lastPoints = pontos; lastPremios = premios;
             });
+
+            // ---- helpers de UI do cartão (closure sobre `animando`) ----
+            function setCounter(p) {
+                document.getElementById("points-counter").innerText = `${p} / ${metaPontos}`;
+            }
+            function toggleWelcome(show) {
+                const welcome = document.getElementById("welcome-banner");
+                if (welcome) welcome.classList.toggle("hidden", !show);
+            }
+            function showVictory(premios, retorno) {
+                const banner = document.getElementById("victory-banner");
+                const plural = premios > 1 ? `${premios} prêmios` : "um prêmio";
+                document.getElementById("victory-title").innerHTML = retorno
+                    ? `<i class="fa-solid fa-gift mr-1.5"></i>🎁 Você tem ${plural} para resgatar!`
+                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou ${plural}!`;
+                document.getElementById("victory-desc").innerText = "Mostre este QR ao vendedor para resgatar.";
+                banner.classList.remove("hidden");
+                banner.classList.add("reward-pulse");
+            }
+            function hideVictory() {
+                const banner = document.getElementById("victory-banner");
+                banner.classList.add("hidden");
+                banner.classList.remove("reward-pulse");
+            }
+            function showRedeemBanner(msg) {
+                const rb = document.getElementById("redeem-banner");
+                document.getElementById("redeem-text").innerText = msg;
+                rb.classList.remove("hidden");
+                clearTimeout(rb._t);
+                rb._t = setTimeout(() => rb.classList.add("hidden"), 4500);
+            }
+            function fillStamp(i) {
+                const slot = document.getElementById(`stamp-slot-${i}`);
+                if (!slot) return;
+                slot.classList.remove("bg-white", "text-stone-400", "border-stone-300", "text-xs");
+                slot.classList.add("bg-brand-accent", "border-brand-accent", "text-white", "scale-110", "stamp-pop");
+                slot.innerHTML = `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`;
+            }
+            // Sequência de resgate: cartão antigo rasga → novo cartão entra → sobra entra ponto a ponto.
+            function runRedeemSequence(novoPontos) {
+                const grid = document.getElementById("stamps-grid");
+                setCounter(0);
+                if (prefersReducedMotion || !grid) {
+                    renderStamps(novoPontos);
+                    setCounter(novoPontos);
+                    return;
+                }
+                animando = true;
+                grid.classList.add("tear-bottom-anim");
+                setTimeout(() => {
+                    grid.classList.remove("tear-bottom-anim");
+                    renderStamps(0);
+                    grid.classList.add("card-enter");
+                    setTimeout(() => grid.classList.remove("card-enter"), 500);
+                    let i = 0;
+                    const step = () => {
+                        i++;
+                        if (i > novoPontos) { animando = false; return; }
+                        fillStamp(i);
+                        setCounter(i);
+                        setTimeout(step, 430);
+                    };
+                    setTimeout(step, 450);
+                }, 880);
+            }
         }
 
         // Animação de Pouso Rápido do Ponto
         function playLandingAnimation(pointIndex) {
+            // X-07: sem movimento — renderStamps() já desenhou o carimbo, então não anima.
+            if (prefersReducedMotion) return;
             const giantEmoji = document.createElement("div");
             giantEmoji.innerText = brandEmoji;
             giantEmoji.style.position = "fixed";
@@ -453,9 +732,9 @@
                 giantEmoji.remove();
                 const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
                 if (targetSlot) {
-                    targetSlot.classList.remove("bg-black/20", "text-white/50", "border-white/10", "rounded-full", "border-2", "text-xs");
-                    targetSlot.classList.add("bg-transparent", "border-transparent", "scale-110");
-                    targetSlot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${brandEmoji}</span>`;
+                    targetSlot.classList.remove("bg-white", "text-stone-400", "border-stone-300", "text-xs");
+                    targetSlot.classList.add("bg-brand-accent", "border-brand-accent", "text-white", "scale-110");
+                    targetSlot.innerHTML = `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`;
                 }
             }, 1100);
         }
@@ -479,14 +758,14 @@
                 stamp.id = `stamp-slot-${i}`;
                 const isStamped = i <= pointsCount;
 
-                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
-                    isStamped 
-                        ? "bg-transparent border-transparent scale-110" 
-                        : "rounded-full border-2 bg-black/20 text-white/50 border-white/10 text-xs"
+                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 rounded-full border-2 ${
+                    isStamped
+                        ? "bg-brand-accent border-brand-accent text-white scale-110"
+                        : "bg-white text-stone-400 border-stone-300 text-xs"
                 }`;
 
-                stamp.innerHTML = isStamped 
-                    ? `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${brandEmoji}</span>` 
+                stamp.innerHTML = isStamped
+                    ? `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`
                     : `${i}`;
 
                 grid.appendChild(stamp);
@@ -495,6 +774,8 @@
 
         // Confetes Interativos de Sucesso com Emojis da Empresa
         function fireVictoryConfetti() {
+            // X-07: sem confete quando o usuário pede menos movimento (o banner de vitória já comunica).
+            if (prefersReducedMotion) return;
             try {
                 var scalar = 3;
                 var emojiShape = confetti.shapeFromText({ text: brandEmoji, scalar });
@@ -574,10 +855,10 @@
                         try {
                             await createUserWithEmailAndPassword(auth, email, password);
                         } catch (createErr) {
-                            alert("Erro ao criar conta de cliente: " + createErr.message);
+                            showToast("Erro ao criar conta de cliente: " + createErr.message, "error");
                         }
                     } else {
-                        alert("Erro de autenticação: " + err.message);
+                        showToast("Erro de autenticação: " + err.message, "error");
                     }
                 } finally {
                     btn.disabled = false;
@@ -611,7 +892,7 @@
                 const confirmMessage = "ATENÇÃO: Você vai excluir TODOS os seus dados da plataforma " +
                     "(Direito ao Esquecimento - LGPD): seus pontos e cartões de fidelidade em todas as lojas.\n\n" +
                     "Esta ação é IRREVERSÍVEL. Deseja continuar?";
-                if (!confirm(confirmMessage)) return;
+                if (!(await confirmDialog({ title: "Excluir meus dados", message: confirmMessage, confirmText: "Excluir", danger: true }))) return;
 
                 try {
                     btnDeleteAccount.disabled = true;
@@ -623,20 +904,20 @@
                     // 2. Tenta remover a conta de autenticação (pode exigir re-login recente).
                     try {
                         await user.delete();
-                        alert("Seus dados e sua conta foram removidos permanentemente.");
+                        showToast("Seus dados e sua conta foram removidos permanentemente.", "success");
                     } catch (e) {
                         if (e && e.code === "auth/requires-recent-login") {
-                            alert("Seus dados (pontos e cartões) foram apagados. Para remover também o login, " +
-                                "entre novamente e repita a exclusão. Você será desconectado agora.");
+                            showToast("Seus dados (pontos e cartões) foram apagados. Para remover também o login, " +
+                                "entre novamente e repita a exclusão. Você será desconectado agora.", "success");
                         } else {
                             console.warn("Auth não removida:", e);
-                            alert("Seus dados foram apagados. Sua conta de login será encerrada agora.");
+                            showToast("Seus dados foram apagados. Sua conta de login será encerrada agora.", "success");
                         }
                     }
                     await logoutUser();
                 } catch (err) {
                     console.error("Erro ao apagar dados:", err);
-                    alert("Ocorreu um erro ao processar sua solicitação. Tente novamente.");
+                    showToast("Ocorreu um erro ao processar sua solicitação. Tente novamente.", "error");
                     btnDeleteAccount.disabled = false;
                     btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)';
                 }
@@ -644,5 +925,24 @@
         }
 
     </script>
+
+<div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+  <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+    <div class="flex items-start gap-3">
+      <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+        <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+        <p id="confirm-message" class="text-sm text-stone-600 mt-1 whitespace-pre-line"></p>
+        <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+      </div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 transition">Cancelar</button>
+      <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

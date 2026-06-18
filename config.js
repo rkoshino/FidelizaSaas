@@ -9,7 +9,9 @@ import {
     OAuthProvider,
     signOut,
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
+    sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     getFirestore, 
@@ -143,6 +145,8 @@ export {
     onSnapshot,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
+    sendEmailVerification,
     loginWithGoogle,
     loginWithFacebook,
     loginWithApple,

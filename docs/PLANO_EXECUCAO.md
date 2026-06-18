@@ -4,20 +4,30 @@
 > **Base:** `RELATORIO_FINAL.md` (mapa master) · **Companion:** `TAREFAS_CEO.md`, `RELATORIO_DESIGN.md`
 > **Data:** 2026-06-16 · **Status:** pronto para execução
 > **Rastreabilidade:** mantém os IDs do relatório final (`B-01`, `M-01`, `$-03`…). Cite em commits/PRs: `fix(B-01): ...`.
+>
+> ⚠️ **Este é o PLANO (estático). O estado atual de cada item vive no `../HANDOFF.md`** (checklist por onda,
+> atualizado a cada bloco) e no `TAREFAS_CEO.md`. Não leia as tabelas abaixo como "o que falta" — em
+> 2026-06-17 já estão concluídas Ondas 0–4, Fase B, billing/webhook/auth/Resend e a maior parte da Onda 5;
+> restam V-03 (tema claro nas telas logadas), X-01 (modais) e X-02 (sweep de contraste).
 
 ---
 
-## 0. Direções assumidas (⛳ confirmar com CEO)
+## 0. Decisões do CEO — CONFIRMADAS (2026-06-16)
 
-O plano já anda com estas escolhas como padrão; se o CEO decidir diferente, só os itens marcados ⛳ mudam.
+> As 5 decisões estratégicas foram respondidas pelo CEO. O plano agora executa sobre estas
+> escolhas (não mais sobre defaults). ⛳ marca os IDs cujo escopo mudou em relação ao plano original.
 
-| # | Decisão | Direção assumida | Reversível? |
-|---|---------|------------------|-------------|
-| D1 | Preço oficial | **R$ 10/mês** (alinha billing + posicionamento "barato") | Sim — só copy/valores |
-| D2 | Marca única | **Araras (logo da landing)** em todas as telas | Sim — troca de asset |
-| D3 | Tema do app logado | **Mantém escuro**, mas com marca/cores unificadas | Sim, porém mais custo |
-| D4 | Apple/Facebook no MVP | **Fora do MVP** — só Google + e-mail | Sim — adicionar depois |
-| D5 | Login obrigatório no cartão do cliente | **Reduzir fricção** (mostrar loja/prêmio antes do login) — agendado na Onda 5 | Sim |
+| # | Decisão | **Definição do CEO** | Impacto no plano |
+|---|---------|----------------------|------------------|
+| D1 | Preço oficial | **R$ 19,90/mês + 1º mês grátis, sempre** | ⚠️ Muda o default (era R$10). Afeta **`billing.js` (hoje cria assinatura R$10)**, `$-03`, `$-01/$-02` (banner trial), `$-05` (MRR). Reconciliar TUDO para R$19,90. |
+| D2 | Marca | **Logo ON HOLD.** Padronizar usando o **placeholder atual** (já está bom) em todas as telas; manter a tarefa do logo definitivo **em aberto**. | `V-01` vira "padronizar placeholder único + registrar pendência de logo", não "aplicar logo araras". |
+| D3 | Tema do app | **Tema CLARO padronizado.** Paleta definitiva **a decidir** (usar paleta clara neutra como placeholder). | ⚠️ Muda o default (era escuro). `V-03` = migrar telas logadas p/ claro; paleta fica em aberto. |
+| D4 | Apple/Facebook | **Fora do MVP** — só Google + e-mail/senha. **+ Necessidade do dev:** meio de **testar o cadastro sem criar e-mail novo** (e-mail de teste "reutilizável" ou rota que simula login). **NÃO é prioridade.** | `A-02` só Google+e-mail. Nova tarefa `T-DEV` (baixa prioridade) p/ test harness de cadastro. |
+| D5 | Login do cartão do cliente | **Manter mínimo** — só o necessário para contabilizar o ponto no **menor número de movimentos** possível. | `C-01` reescopado: não remover login, e sim minimizar passos até pontuar. |
+
+> **Mandato do CEO (prioridade-mestra):** *"gastar os tokens fazendo o MVP mínimo e completo funcional antes de luxos."*
+> → Funcional (bugs, billing correto, mobile usável, monetização ligada) **vem antes** de polimento (Onda 5, pickers sofisticados).
+> Documentar corretamente o progresso é parte do mandato.
 
 ---
 

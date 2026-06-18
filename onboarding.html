@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100 font-inter">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +24,15 @@
                         space: ['Space Grotesk', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                         bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
                 }
             }
@@ -32,7 +41,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QRCode.js CDN -->
@@ -41,27 +50,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .glassmorphism {
-            background: rgba(15, 23, 42, 0.65);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid #E3DBCC;
         }
         .phone-shadow {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 40px rgba(42, 90, 68, 0.12);
         }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #090d16;
+            background: #F4EFE6;
         }
         ::-webkit-scrollbar-thumb {
-            background: #1e293b;
+            background: #E3DBCC;
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #334155;
+            background: #82AB94;
         }
         @media print {
             @page { size: auto; margin: 0mm; }
@@ -101,6 +110,12 @@
                 display: none !important;
             }
         }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body class="h-full flex flex-col justify-between overflow-x-hidden selection:bg-indigo-500 selection:text-white">
@@ -108,10 +123,10 @@
     <!-- Header / Navbar -->
     <header class="w-full py-5 px-6 md:px-12 flex justify-between items-center glassmorphism sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <div class="w-10 h-10 rounded-xl bg-brand-green flex items-center justify-center shadow-lg shadow-brand-green/20">
                 <i class="fa-solid fa-gem text-white text-xl"></i>
             </div>
-            <span class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-400 font-outfit">Tem Pontinho</span>
+            <span class="text-2xl font-bold tracking-tight text-brand-green font-outfit">Tem Pontinho</span>
         </div>
         <div class="flex items-center gap-4">
             <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1.5 rounded-full font-medium">Versão MVP 1.0</span>
@@ -127,32 +142,32 @@
             <!-- Step Indicators -->
             <div class="flex items-center justify-between px-2">
                 <div class="flex items-center gap-1.5 md:gap-3">
-                    <div id="step-indicator-1" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">1</div>
-                    <span class="text-xs md:text-sm font-medium text-slate-300 hidden sm:inline">Cadastro</span>
+                    <div id="step-indicator-1" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-brand-green text-white shadow-lg shadow-brand-green/30">1</div>
+                    <span class="text-xs md:text-sm font-medium text-stone-600 hidden sm:inline">Cadastro</span>
                 </div>
-                <div class="h-[2px] flex-1 bg-slate-800 mx-2 md:mx-4">
-                    <div id="step-line-1" class="h-full bg-indigo-600 w-0 transition-all duration-500"></div>
-                </div>
-                
-                <div class="flex items-center gap-1.5 md:gap-3">
-                    <div id="step-indicator-2" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400">2</div>
-                    <span class="text-xs md:text-sm font-medium text-slate-500 hidden sm:inline">Regras</span>
-                </div>
-                <div class="h-[2px] flex-1 bg-slate-800 mx-2 md:mx-4">
-                    <div id="step-line-2" class="h-full bg-indigo-600 w-0 transition-all duration-500"></div>
+                <div class="h-[2px] flex-1 bg-stone-200 mx-2 md:mx-4">
+                    <div id="step-line-1" class="h-full bg-brand-green w-0 transition-all duration-500"></div>
                 </div>
 
                 <div class="flex items-center gap-1.5 md:gap-3">
-                    <div id="step-indicator-3" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400">3</div>
-                    <span class="text-xs md:text-sm font-medium text-slate-500 hidden sm:inline">Visual</span>
+                    <div id="step-indicator-2" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-stone-200 text-stone-500">2</div>
+                    <span class="text-xs md:text-sm font-medium text-stone-500 hidden sm:inline">Regras</span>
                 </div>
-                <div class="h-[2px] flex-1 bg-slate-800 mx-2 md:mx-4">
-                    <div id="step-line-3" class="h-full bg-indigo-600 w-0 transition-all duration-500"></div>
+                <div class="h-[2px] flex-1 bg-stone-200 mx-2 md:mx-4">
+                    <div id="step-line-2" class="h-full bg-brand-green w-0 transition-all duration-500"></div>
                 </div>
 
                 <div class="flex items-center gap-1.5 md:gap-3">
-                    <div id="step-indicator-4" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400">4</div>
-                    <span class="text-xs md:text-sm font-medium text-slate-500 hidden sm:inline">Materiais</span>
+                    <div id="step-indicator-3" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-stone-200 text-stone-500">3</div>
+                    <span class="text-xs md:text-sm font-medium text-stone-500 hidden sm:inline">Visual</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-stone-200 mx-2 md:mx-4">
+                    <div id="step-line-3" class="h-full bg-brand-green w-0 transition-all duration-500"></div>
+                </div>
+
+                <div class="flex items-center gap-1.5 md:gap-3">
+                    <div id="step-indicator-4" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-stone-200 text-stone-500">4</div>
+                    <span class="text-xs md:text-sm font-medium text-stone-500 hidden sm:inline">Materiais</span>
                 </div>
             </div>
 
@@ -165,63 +180,74 @@
             <!-- STEP 1: LOGIN / CADASTRO -->
             <div id="step-panel-1" class="glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300">
                 <div>
-                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 1: Cadastro da Empresa & Trial</h2>
-                    <p class="text-slate-400 text-sm mt-1">Crie sua conta para começar seu teste gratuito de 30 dias. Não é necessário cartão de crédito.</p>
+                    <h2 class="text-2xl font-bold font-outfit text-stone-800">Etapa 1: Cadastro da Empresa & Trial</h2>
+                    <p class="text-stone-500 text-sm mt-1">Crie sua conta para começar seu teste gratuito de 30 dias. Não é necessário cartão de crédito.</p>
                 </div>
 
                 <!-- Social Sign-ins -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button id="btn-login-google" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 transition duration-200">
+                    <button id="btn-login-google" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition duration-200">
                         <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
                         <span class="text-sm font-medium">Google</span>
                     </button>
-                    <button id="btn-login-facebook" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 transition duration-200">
+                    <button id="btn-login-facebook" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition duration-200">
                         <i class="fa-brands fa-facebook text-[#1877F2] text-xl"></i>
                         <span class="text-sm font-medium">Facebook</span>
                     </button>
-                    <button id="btn-login-apple" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 transition duration-200">
-                        <i class="fa-brands fa-apple text-white text-xl"></i>
+                    <button id="btn-login-apple" class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 transition duration-200">
+                        <i class="fa-brands fa-apple text-stone-800 text-xl"></i>
                         <span class="text-sm font-medium">Apple</span>
                     </button>
                 </div>
 
                 <div class="flex items-center my-2">
-                    <div class="h-[1px] flex-grow bg-slate-800"></div>
-                    <span class="px-3 text-xs text-slate-500 uppercase tracking-widest">ou E-mail</span>
-                    <div class="h-[1px] flex-grow bg-slate-800"></div>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
+                    <span class="px-3 text-xs text-stone-500 uppercase tracking-widest">ou E-mail</span>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
                 </div>
 
                 <!-- Form E-mail -->
                 <form id="auth-form" class="flex flex-col gap-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5 hidden">
-                            <label for="company-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nome da Empresa</label>
-                            <input type="text" id="company-name" placeholder="Ex: Hamburgueria Gourmet" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                            <label for="company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
+                            <input type="text" id="company-name" placeholder="Ex: Hamburgueria Gourmet" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label for="owner-email" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail Comercial</label>
-                            <input type="email" id="owner-email" placeholder="nome@empresa.com" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                            <label for="owner-email" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial</label>
+                            <input type="email" id="owner-email" placeholder="nome@empresa.com" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
                         </div>
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label for="owner-password" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Senha</label>
-                        <input type="password" id="owner-password" placeholder="Mínimo 6 caracteres" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        <label for="owner-password" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Senha</label>
+                        <input type="password" id="owner-password" placeholder="Mínimo 6 caracteres" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
                     </div>
 
                     <!-- Toggle login mode -->
                     <div class="flex justify-between items-center text-xs mt-1">
-                        <span class="text-slate-400">Já tem uma conta? <button type="button" id="toggle-auth-mode" class="text-indigo-400 font-semibold hover:underline">Fazer Login</button></span>
+                        <span class="text-stone-500">Já tem uma conta? <button type="button" id="toggle-auth-mode" class="text-brand-green font-semibold hover:underline">Fazer Login</button></span>
                     </div>
 
                     <!-- LGPD Checkbox -->
                     <div class="flex items-start gap-2 mt-2" id="lgpd-container">
-                        <input type="checkbox" id="lgpd-consent" required class="mt-1 w-4 h-4 bg-slate-900 border-slate-700 rounded text-indigo-500 focus:ring-indigo-500">
-                        <label for="lgpd-consent" class="text-[11px] text-slate-400 leading-tight">
-                            Declaro que li e concordo com os <a href="termos.html" target="_blank" class="text-indigo-400 hover:underline">Termos de Uso</a> e a <a href="termos.html" target="_blank" class="text-indigo-400 hover:underline">Política de Privacidade</a>, aceitando os termos de processamento de dados (LGPD).
+                        <input type="checkbox" id="lgpd-consent" required class="mt-1 w-4 h-4 bg-white border-stone-300 rounded text-brand-green focus:ring-brand-green">
+                        <label for="lgpd-consent" class="text-[11px] text-stone-500 leading-tight">
+                            Declaro que li e concordo com os <a href="termos.html" target="_blank" class="text-brand-green hover:underline">Termos de Uso</a> e a <a href="termos.html" target="_blank" class="text-brand-green hover:underline">Política de Privacidade</a>, aceitando os termos de processamento de dados (LGPD).
                         </label>
                     </div>
 
-                    <button type="submit" id="btn-submit-step1" class="mt-2 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <!-- TRIAL-01: condições do trial, lúdico e minimalista (CTA único = botão abaixo) -->
+                    <div id="trial-terms-card" class="mt-1 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex flex-col gap-2">
+                        <p class="text-sm font-bold text-brand-green flex items-center gap-2"><i class="fa-solid fa-gift"></i> 1 mês grátis pra testar</p>
+                        <ul class="text-[11px] text-stone-600 leading-relaxed flex flex-col gap-1.5">
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-credit-card text-stone-500 w-3.5 mt-0.5"></i> Sem cartão de crédito agora.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-bell text-stone-500 w-3.5 mt-0.5"></i> Avisamos 1 semana antes do fim, pra você decidir com calma.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-clock text-stone-500 w-3.5 mt-0.5"></i> Pode pagar antes — o mês pago só começa a valer ao fim dos 30 dias.</li>
+                            <li class="flex items-start gap-2"><i class="fa-solid fa-lock text-stone-500 w-3.5 mt-0.5"></i> Sem pagamento, o acesso encerra ao fim do teste.</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" id="btn-submit-step1" class="mt-2 w-full py-4 bg-brand-green hover:bg-brand-green-dark font-semibold text-white rounded-xl shadow-lg shadow-brand-green/20 active:scale-[0.98] transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                         Criar Conta e Iniciar Teste Grátis
                     </button>
                 </form>
@@ -230,36 +256,36 @@
             <!-- STEP 2: CONFIGURAÇÃO DO PROGRAMA -->
             <div id="step-panel-2" class="hidden glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300 animate-fade-in">
                 <div>
-                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 2: Configuração da Campanha</h2>
-                    <p class="text-slate-400 text-sm mt-1">Defina como funcionará a pontuação e qual será a recompensa final do seu cliente.</p>
+                    <h2 class="text-2xl font-bold font-outfit text-stone-800">Etapa 2: Configuração do Cartão de Pontos</h2>
+                    <p class="text-stone-500 text-sm mt-1">Defina o prêmio, quantos pontos para ganhar e o link do seu cartão.</p>
                 </div>
 
                 <div class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1.5">
-                        <label for="step2-company-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nome da Empresa / Negócio</label>
-                        <input type="text" id="step2-company-name" placeholder="Ex: Hamburgueria Gourmet" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        <label for="step2-company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa / Negócio</label>
+                        <input type="text" id="step2-company-name" placeholder="Ex: Hamburgueria Gourmet" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label for="step2-custom-slug" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Personalizado do Cartão</label>
-                        <div class="flex items-center bg-slate-900/60 border border-slate-800 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
-                            <span class="text-slate-500 text-xs px-3 py-3 border-r border-slate-800 bg-slate-950">cliente.html?link=</span>
-                            <input type="text" id="step2-custom-slug" placeholder="meu-negocio" required class="w-full bg-transparent border-none px-3 py-3 text-sm focus:outline-none text-white transition" autocomplete="off">
+                        <label for="step2-custom-slug" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Personalizado do Cartão</label>
+                        <div class="flex items-center bg-white border border-stone-300 rounded-xl focus-within:border-brand-green focus-within:ring-1 focus-within:ring-brand-green transition overflow-hidden pr-4">
+                            <span class="text-stone-500 text-xs px-3 py-3 border-r border-stone-300 bg-brand-paper">cliente.html?link=</span>
+                            <input type="text" id="step2-custom-slug" placeholder="meu-negocio" required class="w-full bg-transparent border-none px-3 py-3 text-sm focus:outline-none text-stone-800 placeholder-stone-400 transition" autocomplete="off">
                         </div>
-                        <span id="slug-error" class="hidden text-red-400 text-[10px] font-semibold mt-1">Este link já está em uso ou é inválido. Tente outro.</span>
-                        <span class="text-[11px] text-slate-500">Este será o link que você enviará aos seus clientes. Use apenas letras minúsculas e hífens.</span>
+                        <span id="slug-error" class="hidden text-red-500 text-[10px] font-semibold mt-1">Este link já está em uso ou é inválido. Tente outro.</span>
+                        <span class="text-[11px] text-stone-500">Este será o link que você enviará aos seus clientes. Use apenas letras minúsculas e hífens.</span>
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label for="campaign-points" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Meta de Pontos</label>
-                        <input type="number" id="campaign-points" value="10" min="3" max="20" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
-                        <span class="text-[11px] text-slate-500">Número de visitas/stamps necessários para obter o prêmio (Sugerido: 10).</span>
+                        <label for="campaign-points" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="campaign-points" value="10" min="3" max="20" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
+                        <span class="text-[11px] text-stone-500">Número de visitas/stamps necessários para obter o prêmio (Sugerido: 10).</span>
                     </div>
                     <div class="flex flex-col gap-1.5">
-                        <label for="campaign-prize" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Descrição do Prêmio</label>
-                        <input type="text" id="campaign-prize" value="1 Drink Especial" placeholder="Ex: 1 Hambúrguer + Batata Frita" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
-                        <span class="text-[11px] text-slate-500">Seja atraente e claro sobre o que seu cliente ganhará ao preencher o cartão.</span>
+                        <label for="campaign-prize" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="campaign-prize" value="1 Drink Especial" placeholder="Ex: 1 Hambúrguer + Batata Frita" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
+                        <span class="text-[11px] text-stone-500">Seja atraente e claro sobre o que seu cliente ganhará ao preencher o cartão.</span>
                     </div>
-                    
-                    <button id="btn-next-step2" class="mt-4 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200">
+
+                    <button id="btn-next-step2" class="mt-4 w-full py-4 bg-brand-green hover:bg-brand-green-dark font-semibold text-white rounded-xl shadow-lg shadow-brand-green/20 transition duration-200">
                         Continuar para Aparência
                     </button>
                 </div>
@@ -268,27 +294,38 @@
             <!-- STEP 3: CUSTOMIZAÇÃO VISUAL -->
             <div id="step-panel-3" class="hidden glassmorphism rounded-2xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-300">
                 <div>
-                    <h2 class="text-2xl font-bold font-outfit text-white">Etapa 3: Personalização Visual</h2>
-                    <p class="text-slate-400 text-sm mt-1">Configure o visual da página do cliente. Acompanhe os ajustes no simulador de celular à direita.</p>
+                    <h2 class="text-2xl font-bold font-outfit text-stone-800">Etapa 3: Personalização Visual</h2>
+                    <p class="text-stone-500 text-sm mt-1">Configure o visual da página do cliente. Acompanhe os ajustes no simulador de celular à direita.</p>
                 </div>
 
                 <div class="flex flex-col gap-5">
                     <div class="flex flex-col gap-1.5">
-                        <label for="theme-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Título da Página</label>
-                        <input type="text" id="theme-title" value="Clube Fidelidade Gourmet" placeholder="Ex: Cartão de Fidelidade - Pizzaria" required class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        <label for="theme-title" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Título da Página</label>
+                        <input type="text" id="theme-title" value="" placeholder="Ex: Cartão de Fidelidade - Pizzaria" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 placeholder-stone-400 transition">
                     </div>
-                    
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5">
-                            <label for="theme-color" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cor de Fundo Principal</label>
-                            <div class="flex gap-2 items-center">
-                                <input type="color" id="theme-color" value="#4f46e5" class="w-12 h-11 bg-transparent border-0 cursor-pointer rounded-xl">
-                                <input type="text" id="theme-color-hex" value="#4f46e5" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3 py-3 text-sm focus:outline-none text-white uppercase transition">
+                            <label for="theme-color" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Cor de Fundo Principal</label>
+                            <!-- V-04: paleta curada (toque rápido no mobile) -->
+                            <div id="color-swatches" class="flex flex-wrap gap-2">
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#4f46e5" style="background:#4f46e5" aria-label="Índigo"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#db2777" style="background:#db2777" aria-label="Rosa"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#e11d48" style="background:#e11d48" aria-label="Vermelho"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#ea580c" style="background:#ea580c" aria-label="Laranja"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#16a34a" style="background:#16a34a" aria-label="Verde"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#0891b2" style="background:#0891b2" aria-label="Ciano"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#7c3aed" style="background:#7c3aed" aria-label="Violeta"></button>
+                                <button type="button" class="color-swatch w-9 h-9 rounded-xl border-2 border-stone-300 transition active:scale-90" data-color="#0f172a" style="background:#0f172a" aria-label="Grafite"></button>
+                            </div>
+                            <div class="flex gap-2 items-center mt-1">
+                                <input type="color" id="theme-color" value="#4f46e5" class="w-12 h-11 bg-transparent border-0 cursor-pointer rounded-xl" title="Cor personalizada">
+                                <input type="text" id="theme-color-hex" value="#4f46e5" class="w-full bg-white border border-stone-300 rounded-xl px-3 py-3 text-sm focus:outline-none text-stone-800 uppercase transition">
                             </div>
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label for="theme-font" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipografia (Fonte)</label>
-                            <select id="theme-font" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                            <label for="theme-font" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tipografia (Fonte)</label>
+                            <select id="theme-font" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-green text-stone-800 transition">
                                 <option value="sans" selected>Inter</option>
                                 <option value="playfair">Playfair Display</option>
                                 <option value="space">Space Grotesk</option>
@@ -299,22 +336,22 @@
                     </div>
 
                     <div class="flex flex-col gap-1.5 relative">
-                        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
-                        <button type="button" id="emoji-picker-btn" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 text-sm text-left text-white flex items-center justify-between transition focus:border-indigo-500">
+                        <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Emoji dos Carimbos</label>
+                        <button type="button" id="emoji-picker-btn" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm text-left text-stone-800 flex items-center justify-between transition focus:border-brand-green">
                             <span id="selected-emoji-label">⭐</span>
-                            <i class="fa-solid fa-chevron-down text-slate-500 text-xs"></i>
+                            <i class="fa-solid fa-chevron-down text-stone-500 text-xs"></i>
                         </button>
                         <input type="hidden" id="theme-emoji" value="⭐">
-                        
+
                         <!-- Premium Emoji Picker Popover -->
-                        <div id="emoji-picker-popover" class="hidden absolute top-[76px] left-0 w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl z-50 flex flex-col gap-3 glassmorphism max-h-[300px]">
+                        <div id="emoji-picker-popover" class="hidden absolute top-[76px] left-0 w-full bg-white border border-stone-200 rounded-2xl p-4 shadow-2xl z-50 flex flex-col gap-3 glassmorphism max-h-[300px]">
                             <!-- Categorias Tab -->
-                            <div class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800 shrink-0 text-base scrollbar-none justify-between w-full">
-                                <button type="button" id="tab-emoji-popular" class="emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold">🔥</button>
-                                <button type="button" id="tab-emoji-food" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">🍕</button>
-                                <button type="button" id="tab-emoji-smileys" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">😀</button>
-                                <button type="button" id="tab-emoji-activities" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">⚽</button>
-                                <button type="button" id="tab-emoji-objects" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold">💡</button>
+                            <div class="flex gap-2 overflow-x-auto pb-2 border-b border-stone-200 shrink-0 text-base scrollbar-none justify-between w-full">
+                                <button type="button" id="tab-emoji-popular" class="emoji-tab-btn px-3 py-1.5 rounded-xl bg-brand-green text-white font-semibold">🔥</button>
+                                <button type="button" id="tab-emoji-food" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-stone-500 hover:text-stone-800 hover:bg-stone-100 font-semibold">🍕</button>
+                                <button type="button" id="tab-emoji-smileys" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-stone-500 hover:text-stone-800 hover:bg-stone-100 font-semibold">😀</button>
+                                <button type="button" id="tab-emoji-activities" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-stone-500 hover:text-stone-800 hover:bg-stone-100 font-semibold">⚽</button>
+                                <button type="button" id="tab-emoji-objects" class="emoji-tab-btn px-3 py-1.5 rounded-xl text-stone-500 hover:text-stone-800 hover:bg-stone-100 font-semibold">💡</button>
                             </div>
                             <!-- Emojis Grid -->
                             <div id="emojis-grid-container" class="grid grid-cols-6 gap-2 overflow-y-auto text-xl py-1 justify-items-center">
@@ -324,28 +361,31 @@
                     </div>
 
                     <!-- Logo Upload Locked for Free Plan -->
-                    <div class="flex flex-col gap-2 p-4 rounded-xl border border-slate-800 bg-slate-950/40">
+                    <div class="flex flex-col gap-2 p-4 rounded-xl border border-stone-200 bg-brand-paper">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Logotipo da Empresa</span>
-                            <span class="text-[10px] bg-violet-500/20 text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded-md font-bold uppercase"><i class="fa-solid fa-lock text-[8px] mr-1"></i>PRO</span>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Logotipo da Empresa</span>
+                            <span class="text-[10px] bg-brand-accent/15 text-brand-accent border border-brand-accent/30 px-2 py-0.5 rounded-md font-bold uppercase"><i class="fa-solid fa-lock text-[8px] mr-1"></i>PRO</span>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-slate-600 border border-slate-700">
+                            <div class="w-12 h-12 rounded-xl bg-stone-200 flex items-center justify-center text-stone-400 border border-stone-300">
                                 <i class="fa-solid fa-image text-lg"></i>
                             </div>
                             <div class="flex-1">
                                 <input type="file" disabled class="hidden" id="logo-upload">
-                                <label for="logo-upload" class="cursor-not-allowed text-xs text-slate-500 bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg font-medium inline-block">
+                                <label for="logo-upload" class="cursor-not-allowed text-xs text-stone-500 bg-white border border-stone-300 px-3 py-2 rounded-lg font-medium inline-block">
                                     Enviar Logotipo
                                 </label>
-                                <span class="text-[10px] text-slate-600 block mt-1">Disponível apenas após a ativação da conta comercial Pro.</span>
+                                <span class="text-[10px] text-stone-500 block mt-1">Disponível apenas após a ativação da conta comercial Pro.</span>
                             </div>
                         </div>
                     </div>
                     
-                    <button id="btn-next-step3" class="mt-2 w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white rounded-xl shadow-lg shadow-indigo-500/20 transition duration-200">
-                        Ativar Programa e Gerar Links
-                    </button>
+                    <div class="mt-2 flex gap-3">
+                        <button type="button" id="btn-back-step3" class="px-5 py-4 bg-white border border-stone-300 hover:bg-stone-50 text-stone-700 font-semibold rounded-xl transition active:scale-95 flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                        <button id="btn-next-step3" class="flex-1 py-4 bg-brand-green hover:bg-brand-green-dark font-semibold text-white rounded-xl shadow-lg shadow-brand-green/20 transition duration-200">
+                            Ativar Programa e Gerar Links
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -355,40 +395,41 @@
                     <div class="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-3xl mb-1 shadow-lg shadow-emerald-500/5 animate-pulse">
                         <i class="fa-solid fa-circle-check animate-bounce"></i>
                     </div>
-                    <h2 class="text-2xl font-bold font-outfit text-white">Programa Ativado com Sucesso!</h2>
-                    <p class="text-slate-400 text-sm max-w-md">Sua campanha está no ar e pronta para receber clientes. Abaixo estão seus links exclusivos e materiais de divulgação.</p>
+                    <h2 class="text-2xl font-bold font-outfit text-stone-800">Programa Ativado com Sucesso!</h2>
+                    <p class="text-stone-500 text-sm max-w-md">Sua campanha está no ar e pronta para receber clientes. Abaixo estão seus links exclusivos e materiais de divulgação.</p>
                 </div>
 
                 <!-- Generated links card -->
                 <div class="flex flex-col gap-4 mt-2">
                     <!-- Client link -->
                     <div class="flex flex-col gap-1.5">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
+                        <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
                         <div class="flex gap-2">
-                            <input type="text" readonly id="link-cliente-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-300 select-all">
-                            <button id="btn-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            <input type="text" readonly id="link-cliente-url" class="flex-1 bg-brand-paper border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-brand-green select-all">
+                            <button id="btn-copy-cliente" class="px-4 bg-brand-green hover:bg-brand-green-dark text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
                         </div>
                     </div>
 
                     <!-- Admin link -->
                     <div class="flex flex-col gap-1.5">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link do Vendedor (Leitor/Validador de Pontos)</span>
+                        <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link do Vendedor (Leitor/Validador de Pontos)</span>
                         <div class="flex gap-2">
-                            <input type="text" readonly id="link-vendedor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-300 select-all">
-                            <button id="btn-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            <input type="text" readonly id="link-vendedor-url" class="flex-1 bg-brand-paper border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-brand-accent select-all">
+                            <button id="btn-copy-vendedor" class="px-4 bg-brand-accent hover:bg-brand-accent-dark text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
                         </div>
+                        <span class="text-[11px] text-stone-500 mt-0.5"><i class="fa-solid fa-circle-info mr-1"></i> No celular do balcão, abra este link e faça login com o <strong>mesmo e-mail e senha</strong> deste cadastro.</span>
                     </div>
                 </div>
 
                 <!-- QR Code Block -->
-                <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-slate-950/40 border border-slate-800">
-                    <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="qrcode-box">
+                <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-brand-paper border border-stone-200">
+                    <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/10" id="qrcode-box">
                         <div id="qrcode-placeholder"></div>
                     </div>
                     <div class="flex flex-col gap-2 text-center sm:text-left">
-                        <h3 class="font-bold text-white text-base font-outfit">QR Code de Divulgação</h3>
-                        <p class="text-xs text-slate-400 max-w-sm">Imprima este QR Code ou coloque-o no balcão e mesas para que seus clientes escaneiem e entrem no programa instantaneamente.</p>
-                        <button id="btn-download-qrcode" class="mt-2 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
+                        <h3 class="font-bold text-stone-800 text-base font-outfit">QR Code de Divulgação</h3>
+                        <p class="text-xs text-stone-500 max-w-sm">Imprima este QR Code ou coloque-o no balcão e mesas para que seus clientes escaneiem e entrem no programa instantaneamente.</p>
+                        <button id="btn-download-qrcode" class="mt-2 text-xs font-semibold text-stone-700 bg-white border border-stone-300 hover:bg-stone-50 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
                             <i class="fa-solid fa-download"></i> Baixar para Impressão
                         </button>
                     </div>
@@ -396,15 +437,16 @@
 
                 <!-- WhatsApp Kit -->
                 <div class="flex flex-col gap-2">
-                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">WhatsApp Kit (Pronto para enviar)</span>
+                    <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">WhatsApp Kit (Pronto para enviar)</span>
                     <div class="relative">
-                        <textarea readonly id="whatsapp-kit-text" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 focus:outline-none resize-none leading-relaxed select-all"></textarea>
-                        <button id="btn-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Kit</button>
+                        <textarea readonly id="whatsapp-kit-text" rows="3" class="w-full bg-brand-paper border border-stone-200 rounded-xl p-4 text-xs text-stone-700 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                        <button id="btn-copy-whatsapp" class="absolute bottom-3 right-3 bg-brand-green/90 hover:bg-brand-green text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Kit</button>
                     </div>
+                    <a id="btn-share-whatsapp" href="#" target="_blank" rel="noopener" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm rounded-xl transition active:scale-95 inline-flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-base"></i> Enviar no WhatsApp</a>
                 </div>
 
                 <!-- Finish wizard button -->
-                <button id="btn-finish-wizard" class="mt-4 w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 font-semibold text-white rounded-xl shadow-lg shadow-emerald-500/20 transition duration-200">
+                <button id="btn-finish-wizard" class="mt-4 w-full py-4 bg-brand-green hover:bg-brand-green-dark font-semibold text-white rounded-xl shadow-lg shadow-brand-green/20 transition duration-200">
                     Ir para o Painel Administrativo <i class="fa-solid fa-arrow-right ml-1 text-sm"></i>
                 </button>
             </div>
@@ -413,7 +455,7 @@
 
         <!-- Smartphone Simulator Panel (Right Side - 5 cols) -->
         <div class="lg:col-span-5 w-full flex flex-col items-center sticky top-28 z-40">
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-mobile-screen mr-1"></i> Visualização Mobile ao Vivo</span>
+            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-mobile-screen mr-1"></i> Visualização Mobile ao Vivo</span>
             
             <!-- Smartphone frame mockup -->
             <div class="w-full max-w-[340px] aspect-[9/18.5] bg-slate-900 rounded-[50px] p-3 border-4 border-slate-800 phone-shadow relative flex flex-col">
@@ -469,17 +511,17 @@
 
     <!-- MODAL: FLYER DE DIVULGAÇÃO A4 -->
     <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 max-h-[90vh]">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 max-h-[90vh]">
             <div class="flex justify-between items-center no-print">
-                <h3 class="font-bold text-lg text-white font-outfit">Flyer de Divulgação</h3>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Flyer de Divulgação</h3>
                 <div class="flex gap-2">
-                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
-                    <button id="btn-close-flyer" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-brand-green text-white rounded-xl font-semibold hover:bg-brand-green-dark transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
+                    <button id="btn-close-flyer" class="w-8 h-8 rounded-lg bg-white border border-stone-300 flex items-center justify-center hover:bg-stone-50 text-stone-500 hover:text-stone-800 transition"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
-            
+
             <!-- Flyer Container (Designed for Printing) -->
-            <div class="overflow-y-auto flex justify-center p-4 bg-slate-950 border border-slate-900 rounded-xl max-h-[60vh] no-print">
+            <div class="overflow-y-auto flex justify-center p-4 bg-brand-paper border border-stone-200 rounded-xl max-h-[60vh] no-print">
                 <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
                     <div class="flex flex-col items-center gap-4 mt-2">
                         <!-- QR Code Grande no Topo -->
@@ -501,8 +543,8 @@
                 </div>
             </div>
         </div>
-    <footer class="w-full py-6 px-6 text-center border-t border-slate-900 bg-slate-950/80 text-xs text-slate-500 mt-8">
-        <p>&copy; 2026 Tem Pontinho. Todos os direitos reservados. MVP White Label.</p>
+    <footer class="w-full py-6 px-6 text-center border-t border-stone-200 bg-brand-paper text-xs text-stone-500 mt-8">
+        <p>&copy; 2026 Tem Pontinho. Todos os direitos reservados.</p>
     </footer>
 
     <!-- Firebase Script and Logic Connection -->
@@ -517,8 +559,9 @@
             query,
             where,
             getDocs,
-            createUserWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
             signInWithEmailAndPassword,
+            sendEmailVerification,
             loginWithGoogle,
             loginWithFacebook,
             loginWithApple 
@@ -526,6 +569,7 @@
 
         // --- Variáveis de Estado do Wizard ---
         let currentStep = 1;
+        let themeTitleTouched = false; // O-03: marca edição manual do título da página
         let loggedUser = null;
         let createdCompanyId = "";
         let qrcodeInstance = null;
@@ -559,6 +603,9 @@
         const themeFontInput = document.getElementById("theme-font");
         const btnNextStep3 = document.getElementById("btn-next-step3");
 
+        // O-01: voltar do passo 3 (visual) para o passo 2 (regras), preservando os dados.
+        document.getElementById("btn-back-step3")?.addEventListener("click", () => setStep(2));
+
         // Outputs Step 4
         const linkClienteUrlInput = document.getElementById("link-cliente-url");
         const linkVendedorUrlInput = document.getElementById("link-vendedor-url");
@@ -588,26 +635,30 @@
             const lgpdContainer = document.getElementById("lgpd-container");
             const lgpdCheckbox = document.getElementById("lgpd-consent");
 
+            const trialCard = document.getElementById("trial-terms-card");
+
             if (isSignupMode) {
                 document.querySelector("#step-panel-1 h2").innerText = "Etapa 1: Cadastro da Empresa & Trial";
                 companyNameInput.parentNode.classList.remove("hidden");
                 companyNameInput.required = true;
                 btnSubmitStep1.innerText = "Criar Conta e Iniciar Teste Grátis";
                 toggleAuthModeBtn.innerText = "Fazer Login";
-                
-                // Mostrar checkbox LGPD no cadastro
+
+                // Mostrar checkbox LGPD + condições do trial no cadastro
                 if(lgpdContainer) lgpdContainer.classList.remove("hidden");
                 if(lgpdCheckbox) lgpdCheckbox.required = true;
+                if(trialCard) trialCard.classList.remove("hidden");
             } else {
                 document.querySelector("#step-panel-1 h2").innerText = "Fazer Login no Tem Pontinho";
                 companyNameInput.parentNode.classList.add("hidden");
                 companyNameInput.required = false;
                 btnSubmitStep1.innerText = "Acessar Painel";
                 toggleAuthModeBtn.innerText = "Criar Nova Conta";
-                
-                // Esconder checkbox LGPD no login
+
+                // Esconder checkbox LGPD + condições do trial no login
                 if(lgpdContainer) lgpdContainer.classList.add("hidden");
                 if(lgpdCheckbox) lgpdCheckbox.required = false;
+                if(trialCard) trialCard.classList.add("hidden");
             }
         });
 
@@ -636,22 +687,22 @@
             // Atualiza barra de progresso visual
             stepIndicators.forEach((ind, i) => {
                 if (i + 1 < step) {
-                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-emerald-600 text-white shadow-lg shadow-emerald-600/20";
+                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-brand-green text-white shadow-lg shadow-brand-green/20";
                     ind.innerHTML = '<i class="fa-solid fa-check"></i>';
                 } else if (i + 1 === step) {
-                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-brand-green text-white shadow-lg shadow-brand-green/30";
                     ind.innerText = i + 1;
                 } else {
-                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-slate-800 text-slate-400";
+                    ind.className = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 bg-stone-200 text-stone-500";
                     ind.innerText = i + 1;
                 }
             });
 
             stepLines.forEach((line, i) => {
                 if (i + 1 < step) {
-                    line.className = "h-[2px] flex-1 bg-emerald-600 transition-all duration-500";
+                    line.className = "h-[2px] flex-1 bg-brand-green transition-all duration-500";
                 } else {
-                    line.className = "h-[2px] flex-1 bg-slate-800 transition-all duration-500";
+                    line.className = "h-[2px] flex-1 bg-stone-200 transition-all duration-500";
                 }
             });
         }
@@ -709,14 +760,47 @@
         }
 
         // Adiciona listeners para atualizações dinâmicas
-        themeTitleInput.addEventListener("input", updateSimulator);
+        themeTitleInput.addEventListener("input", () => { themeTitleTouched = true; updateSimulator(); });
         themeFontInput.addEventListener("change", updateSimulator);
         campaignPrizeInput.addEventListener("input", updateSimulator);
         campaignPointsInput.addEventListener("input", updateSimulator);
+
+        // O-04: ao digitar, remove o destaque de erro do campo
+        [step2CompanyNameInput, step2CustomSlugInput, campaignPointsInput, campaignPrizeInput].forEach(el => {
+            el.addEventListener("input", () => {
+                if (el.value.trim()) {
+                    el.classList.remove("border-red-500");
+                    el.classList.add("border-stone-300");
+                }
+            });
+        });
         themeColorInput.addEventListener("input", (e) => {
             themeColorHexInput.value = e.target.value.toUpperCase();
+            highlightSwatch(e.target.value);
             updateSimulator();
         });
+
+        // V-04: paleta curada — clique no swatch define a cor e marca o selecionado
+        const colorSwatches = document.querySelectorAll(".color-swatch");
+        function highlightSwatch(color) {
+            colorSwatches.forEach(sw => {
+                const sel = sw.dataset.color.toLowerCase() === (color || "").toLowerCase();
+                sw.classList.toggle("ring-2", sel);
+                sw.classList.toggle("ring-brand-green", sel);
+                sw.classList.toggle("ring-offset-2", sel);
+                sw.classList.toggle("ring-offset-white", sel);
+            });
+        }
+        colorSwatches.forEach(sw => {
+            sw.addEventListener("click", () => {
+                const color = sw.dataset.color;
+                themeColorInput.value = color;
+                themeColorHexInput.value = color.toUpperCase();
+                highlightSwatch(color);
+                updateSimulator();
+            });
+        });
+        highlightSwatch("#4f46e5");
         
         themeColorHexInput.addEventListener("input", (e) => {
             let val = e.target.value;
@@ -801,11 +885,11 @@
 
             // Update active tab styles
             document.querySelectorAll(".emoji-tab-btn").forEach(btn => {
-                btn.className = "emoji-tab-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 font-semibold";
+                btn.className = "emoji-tab-btn px-3 py-1.5 rounded-xl text-stone-500 hover:text-stone-800 hover:bg-stone-100 font-semibold";
             });
             const activeTab = document.getElementById(`tab-emoji-${category}`);
             if (activeTab) {
-                activeTab.className = "emoji-tab-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-semibold";
+                activeTab.className = "emoji-tab-btn px-3 py-1.5 rounded-xl bg-brand-green text-white font-semibold";
             }
         }
 
@@ -844,6 +928,23 @@
             step2CustomSlugInput.value = slug;
         }
 
+        // B-08: se a conta já tem uma empresa FINALIZADA (tem linkUnicoCliente), não
+        // deixamos re-rodar o onboarding (que sobrescreveria a empresa). Manda direto
+        // ao dashboard. Retorna true se redirecionou.
+        async function redirectIfAlreadyRegistered(uid) {
+            try {
+                const snap = await getDoc(doc(db, "empresas", uid));
+                if (snap.exists() && snap.data().linkUnicoCliente) {
+                    showToast("Você já tem uma empresa cadastrada. Abrindo seu painel...");
+                    setTimeout(() => { window.location.href = `./dashboard.html?empresa=${uid}`; }, 800);
+                    return true;
+                }
+            } catch (e) {
+                console.error("Erro ao checar empresa existente:", e);
+            }
+            return false;
+        }
+
         // Submissão do Formulário de Cadastro / Login por E-mail
         authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -859,22 +960,35 @@
                     // Cadastro
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     loggedUser = cred.user;
+                    // A-01: dispara e-mail de verificação no cadastro por e-mail/senha
+                    // (não bloqueia o onboarding — avisa e segue; o dashboard cobra a confirmação).
+                    try {
+                        await sendEmailVerification(cred.user);
+                    } catch (verErr) {
+                        console.error("Falha ao enviar verificação de e-mail:", verErr);
+                    }
                     await setupCompanyDraft(loggedUser.uid, companyName || "Minha Empresa", email);
-                    showToast("Conta criada e trial de 30 dias iniciado!");
+                    showToast("Conta criada! Enviamos um link de confirmação para " + email + ".");
                     setStep(2);
                 } else {
                     // Login
                     const cred = await signInWithEmailAndPassword(auth, email, password);
                     loggedUser = cred.user;
                     createdCompanyId = loggedUser.uid;
+                    // B-08: já cadastrado → dashboard (não re-onboarda/sobrescreve).
+                    if (await redirectIfAlreadyRegistered(loggedUser.uid)) return;
                     showToast("Login efetuado com sucesso!");
-                    
-                    // Se fez login, vamos pular a criação e recuperar as configs
                     setStep(2);
                 }
             } catch (err) {
                 console.error(err);
-                showToast("Erro: " + err.message);
+                if (err.code === "auth/email-already-in-use") {
+                    // B-08: e-mail já cadastrado — não permitir novo cadastro; orienta login.
+                    showToast("Este e-mail já está cadastrado. Faça login para acessar sua conta.");
+                    if (isSignupMode) toggleAuthModeBtn.click(); // alterna para o modo Login
+                } else {
+                    showToast("Erro: " + err.message);
+                }
             } finally {
                 btnSubmitStep1.disabled = false;
                 btnSubmitStep1.innerText = isSignupMode ? "Criar Conta e Iniciar Teste Grátis" : "Acessar Painel";
@@ -887,7 +1001,10 @@
                 const user = await providerLoginFn();
                 loggedUser = user;
                 createdCompanyId = user.uid;
-                
+
+                // B-08: já cadastrado → dashboard (não re-onboarda/sobrescreve).
+                if (await redirectIfAlreadyRegistered(user.uid)) return;
+
                 // Setup Draft e vai pro Step 2
                 await setupCompanyDraft(user.uid, user.displayName || "Minha Empresa", user.email);
                 showToast("Autenticado com sucesso!");
@@ -904,8 +1021,23 @@
 
         // --- Lógica do Step 2: Configuração da Campanha ---
         btnNextStep2.addEventListener("click", async () => {
-            if (!step2CompanyNameInput.value || !step2CustomSlugInput.value || !campaignPointsInput.value || !campaignPrizeInput.value) {
-                showToast("Por favor, preencha todos os campos obrigatórios!");
+            // O-04: validação por campo — destaca o campo vazio e foca nele.
+            const camposObrigatorios = [
+                { el: step2CompanyNameInput, nome: "o nome da empresa" },
+                { el: step2CustomSlugInput, nome: "o link do cartão" },
+                { el: campaignPointsInput, nome: "a meta de pontos" },
+                { el: campaignPrizeInput, nome: "a descrição do prêmio" },
+            ];
+            let primeiroInvalido = null;
+            camposObrigatorios.forEach(c => {
+                const vazio = !c.el.value.trim();
+                c.el.classList.toggle("border-red-500", vazio);
+                c.el.classList.toggle("border-stone-300", !vazio);
+                if (vazio && !primeiroInvalido) primeiroInvalido = c;
+            });
+            if (primeiroInvalido) {
+                showToast(`Preencha ${primeiroInvalido.nome}.`);
+                primeiroInvalido.el.focus();
                 return;
             }
 
@@ -933,9 +1065,10 @@
                     return;
                 }
 
-                // Carrega pre-fill do titulo do Step 3
-                if (!themeTitleInput.value || themeTitleInput.value === "Fidelidade") {
-                    themeTitleInput.value = step2CompanyNameInput.value + " - Fidelidade";
+                // O-03: pré-preenche o título da página com o nome da empresa,
+                // a menos que o dono já tenha digitado algo manualmente.
+                if (!themeTitleTouched || !themeTitleInput.value.trim()) {
+                    themeTitleInput.value = step2CompanyNameInput.value.trim();
                 }
                 updateSimulator();
                 setStep(3);
@@ -971,16 +1104,20 @@
 
                 const finalSlug = step2CustomSlugInput.value.trim();
 
-                // Atualiza o Firestore (Cria/Sobrescreve com os dados oficiais)
-                await setDoc(empresaRef, {
+                // B-01: os campos de billing (statusAssinatura/trialEndDate) são
+                // protegidos pelas regras (camposProtegidosIntactos) e só podem ser
+                // gravados na CRIAÇÃO do doc — nunca num update via client. Se a
+                // empresa já existe (re-onboarding / login com conta existente),
+                // omitimos esses campos para o setDoc passar como update válido.
+                const existingSnap = await getDoc(empresaRef);
+                const isFirstCreate = !existingSnap.exists();
+
+                const empresaData = {
                     nomeEmpresa: step2CompanyNameInput.value.trim(),
                     emailComercial: loggedUser?.email || "",
                     donoUid: createdCompanyId,
-                    dataCadastro: new Date(),
-                    statusAssinatura: "trial",
-                    trialEndDate: trialEnd,
                     linkUnicoCliente: finalSlug,
-                    slugsAntigos: [],
+                    slugsAntigos: existingSnap.data()?.slugsAntigos || [],
                     metaConfig: {
                         metaPontos: metaPontos,
                         descriçãoPremio: descriçãoPremio
@@ -992,7 +1129,17 @@
                         logoUrl: "",
                         emoji: emoji
                     }
-                }, { merge: true });
+                };
+
+                // Só na criação: trial (1º mês grátis) + carimbo de cadastro.
+                if (isFirstCreate) {
+                    empresaData.dataCadastro = new Date();
+                    empresaData.statusAssinatura = "trial";
+                    empresaData.trialEndDate = trialEnd;
+                }
+
+                // Cria (com trial) ou atualiza (sem tocar nos campos de billing).
+                await setDoc(empresaRef, empresaData, { merge: true });
 
                 // Recupera documento atualizado para obter o linkUnicoCliente
                 const docSnap = await getDoc(empresaRef);
@@ -1021,6 +1168,10 @@
 
                 // Prepara Kit de Mensagem do WhatsApp
                 whatsappKitTextarea.value = `🎉 Olá! Lançamos nosso sistema de fidelidade digital! Cadastre-se agora e comece a acumular pontos para ganhar ${descriçãoPremio}: ${clientUrl}`;
+
+                // O-05: botão de envio direto via wa.me com a mensagem pronta
+                const shareWhatsappBtn = document.getElementById("btn-share-whatsapp");
+                if (shareWhatsappBtn) shareWhatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(whatsappKitTextarea.value)}`;
 
                 showToast("Campanha ativada com sucesso!");
                 setStep(4);

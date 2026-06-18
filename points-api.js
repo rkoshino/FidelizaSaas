@@ -29,10 +29,10 @@ function call(name) {
 /* ---- Callables (mutação server-side) ---- */
 
 // awardPoints({ empresaId, clienteId, qtd })
-//   -> { pontos, premiosGanhos, premiosPendentes, meta }
+//   -> { pontos, premiosGanhos, premiosPendentes, sobra, meta }
 export const awardPoints = call("awardPoints");
 
-// deliverPrize({ empresaId, clienteId }) -> { premiosPendentes }
+// deliverPrize({ empresaId, clienteId }) -> { pontos, premiosPendentes }
 export const deliverPrize = call("deliverPrize");
 
 // removePoint({ empresaId, clienteId }) -> { pontos }   (correção do vendedor)

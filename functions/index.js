@@ -113,8 +113,8 @@ async function assertAssinaturaAtiva(empresaId) {
 /* ----------------------------- Callables ----------------------------- */
 
 /**
- * awardPoints({ empresaId, clienteId, qtd }) — credita pontos com carry-over.
- * total = pontos + qtd; premiosGanhos = floor(total/meta); pontos = total % meta.
+ * awardPoints({ empresaId, clienteId, qtd }) — credita pontos se não houver prêmio pendente.
+ * Ao completar o cartão, trava em meta/meta e guarda a sobra em `pontosSobra`.
  * Transação atômica (evita lost update em double-scan).
  */
 exports.awardPoints = onCall(async (request) => {
@@ -135,16 +135,31 @@ exports.awardPoints = onCall(async (request) => {
     const snap = await tx.get(ref);
     if (!snap.exists) throw new HttpsError("not-found", "Cartão do cliente não encontrado.");
     const data = snap.data();
+    const pendentesAtuais = Number(data.premiosPendentes) || 0;
+    // Cartão travado: enquanto houver prêmio pendente não se pontua — o cliente
+    // precisa resgatar o prêmio antes de voltar a acumular (decisão de produto).
+    if (pendentesAtuais > 0) {
+      throw new HttpsError("failed-precondition", "PREMIO_PENDENTE");
+    }
     const pontosAtuais = Number(data.pontos) || 0;
     const total = pontosAtuais + qtd;
     const premiosGanhos = Math.floor(total / meta);
-    const pontosRestantes = total % meta;
+    const sobra = total % meta; // reservada p/ entrar no PRÓXIMO cartão só após o resgate
 
-    tx.update(ref, {
-      pontos: pontosRestantes,
-      premiosPendentes: FieldValue.increment(premiosGanhos),
-      atualizadoEm: FieldValue.serverTimestamp(),
-    });
+    if (premiosGanhos > 0) {
+      // Completou o cartão: trava cheio (meta/meta) e guarda a sobra em pontosSobra.
+      tx.update(ref, {
+        pontos: meta,
+        premiosPendentes: FieldValue.increment(premiosGanhos),
+        pontosSobra: sobra,
+        atualizadoEm: FieldValue.serverTimestamp(),
+      });
+    } else {
+      tx.update(ref, {
+        pontos: total,
+        atualizadoEm: FieldValue.serverTimestamp(),
+      });
+    }
     tx.set(ref.collection("logs").doc(), {
       tipo: "carimbo",
       qtd,
@@ -152,7 +167,12 @@ exports.awardPoints = onCall(async (request) => {
       vendedor: caller.nome,
       data: FieldValue.serverTimestamp(),
     });
-    return { pontos: pontosRestantes, premiosGanhos, meta };
+    return {
+      pontos: premiosGanhos > 0 ? meta : total,
+      premiosGanhos,
+      sobra: premiosGanhos > 0 ? sobra : 0,
+      meta,
+    };
   });
 
   // Lê o total de pendentes pós-transação para devolver ao client.
@@ -162,8 +182,8 @@ exports.awardPoints = onCall(async (request) => {
 
 /**
  * deliverPrize({ empresaId, clienteId }) — entrega 1 prêmio pendente.
- * Idempotente: exige premiosPendentes > 0; decrementa 1; incrementa o
- * contador da empresa — tudo na mesma transação.
+ * Exige premiosPendentes > 0; decrementa 1 e incrementa o contador da empresa.
+ * No último prêmio pendente, zera o cartão e injeta `pontosSobra` no novo cartão.
  */
 exports.deliverPrize = onCall(async (request) => {
   const { empresaId, clienteId } = request.data || {};
@@ -173,23 +193,35 @@ exports.deliverPrize = onCall(async (request) => {
   const ref = cartaoRef(empresaId, clienteId);
   const empRef = db.collection("empresas").doc(empresaId);
 
-  const premiosPendentes = await db.runTransaction(async (tx) => {
+  const resultado = await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists) throw new HttpsError("not-found", "Cartão do cliente não encontrado.");
-    const pendentes = Number(snap.data().premiosPendentes) || 0;
+    const data = snap.data();
+    const pendentes = Number(data.premiosPendentes) || 0;
     if (pendentes <= 0) throw new HttpsError("failed-precondition", "Cliente não tem prêmios a entregar.");
 
-    tx.update(ref, { premiosPendentes: pendentes - 1, atualizadoEm: FieldValue.serverTimestamp() });
+    const novoPendentes = pendentes - 1;
+    const update = { premiosPendentes: novoPendentes, atualizadoEm: FieldValue.serverTimestamp() };
+    let pontos = Number(data.pontos) || 0;
+    if (novoPendentes === 0) {
+      // Último prêmio resgatado: zera o cartão e injeta a sobra reservada (carry-over
+      // postergado) — é isso que o cliente vê entrar ponto a ponto no novo cartão.
+      const sobra = Number(data.pontosSobra) || 0;
+      update.pontos = sobra;
+      update.pontosSobra = 0;
+      pontos = sobra;
+    }
+    tx.update(ref, update);
     tx.update(empRef, { totalPremiosEntregues: FieldValue.increment(1) });
     tx.set(ref.collection("logs").doc(), {
       tipo: "resgate",
       vendedor: caller.nome,
       data: FieldValue.serverTimestamp(),
     });
-    return pendentes - 1;
+    return { premiosPendentes: novoPendentes, pontos };
   });
 
-  return { premiosPendentes };
+  return resultado;
 });
 
 /**
@@ -315,3 +347,9 @@ exports.deleteMyData = onCall(async (request) => {
 /*  Nomes exportados: createSubscription, asaasWebhook                 */
 /* ------------------------------------------------------------------ */
 Object.assign(exports, require("./billing"));
+
+/* ------------------------------------------------------------------ */
+/*  Notificações por e-mail (TRIAL-01) — módulo notifications.js       */
+/*  Nomes exportados: subscriptionReminderCron (onSchedule 10h BRT)    */
+/* ------------------------------------------------------------------ */
+Object.assign(exports, require("./notifications"));

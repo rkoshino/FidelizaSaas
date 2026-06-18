@@ -3,7 +3,11 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-16.
+> Última atualização: 2026-06-18 (sessão: **fluxo scan/prêmio + V-03 + X-01**).
+> **Deploy production concluído** (`firebase deploy --only functions,hosting`) em `tempontinho.com` e
+> `nice-dreamks-fidelidade.web.app`: tema claro oficial nas 7 telas, modais X-01, fundo do cliente fixo
+> em creme `#F4EFE6`, e novo contrato de pontos/prêmio (cartão trava cheio, scan resgata, sobra entra só
+> depois do resgate). **PR #2 aberto** p/ main na branch `fix/onda-0-bugs-p0`.
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -21,11 +25,135 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 6. **`docs/PLANO_ACAO.md`** — plano antigo de refatoração de pontos (histórico, concluído;
    restam só itens de segurança: App Check e expor branding público — ver §6 dele).
 
-> **Próxima sessão — onde retomar:** a auditoria + o plano estão prontos e aguardando
-> o CEO aprovar e responder as **5 decisões** da §5 do `RELATORIO_FINAL.md`
-> (preço oficial, marca única, tema do app, Apple/Facebook no MVP, login do cliente).
-> A **Onda 0** (bugs P0, incl. `B-01`/CAD-05 = erro de permissions ao finalizar cadastro)
-> **não depende dessas decisões e pode começar já.**
+---
+
+## 📍 ESTADO ATUAL — leia isto primeiro (atualizado 2026-06-17)
+
+### Decisões do CEO (já respondidas — detalhe em `docs/PLANO_EXECUCAO.md §0`)
+- **Preço:** R$ 19,90/mês + **1º mês grátis** (o trial de 30 dias É o mês grátis). Pagar antes
+  do fim do trial é permitido, mas o **mês pago só começa a valer ao fim dos 30 dias**
+  → no billing: `createSubscription.nextDueDate = trialEndDate`.
+- **Logo:** ON HOLD — padronizar o **placeholder atual**; tarefa do logo definitivo fica aberta.
+- **Tema do app:** **claro** (paleta ainda a decidir → usar paleta clara neutra como placeholder).
+- **Auth:** só **Google + e-mail/senha** (Apple/Facebook fora do MVP).
+- **Cartão do cliente:** mínimo de movimentos pra contabilizar o ponto.
+- **Mandato-mestra:** *"MVP mínimo e completo funcional antes de luxos."*
+
+### ✅ Concluído e DEPLOYADO em produção (`tempontinho.com`)
+Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + Onda 3 + **Fase B LIVE** +
+Onda 4 + Onda 5 parcial; **ainda NÃO mergeado em `main`**). Hosting deployado; **Functions também
+deployadas** (Fase B no ar com a chave Asaas nova — 2026-06-17).
+
+- **Onda 0 — bugs P0:** B-01, B-02, B-03, B-04, $-04, B-07.
+- **Rodada 2 — feedback do CEO:** VEND-07, B-08, O-01, TRIAL-01, VEND-08.
+- **Onda 1 — mobile (NOVO):** M-01 (barra de nav inferior no dashboard), M-02 (stats grid-cols-2,
+  tabela de clientes vira cards via CSS+data-label, header desapertado, logout mobile), M-03/M-04
+  (home sem overflow-x, Login sempre visível, cards flutuantes escondidos < sm), M-05 (alvos ≥44px).
+- **Fase B + Onda 3 — preço/trial (NOVO):** $-03 (landing vira plano ÚNICO R$19,90/mês + 1º mês grátis,
+  plano anual fictício REMOVIDO; dashboard e modal PIX R$19,90), $-05 (MRR = ativas×19.90), $-02
+  (banner de contagem no dashboard DURANTE o trial), $-01 (banner de trial no vendedor).
+  ✅ **`functions/billing.js` (value 19.90 + nextDueDate=trialEndDate) DEPLOYADO em produção**
+  (2026-06-17, junto com a rotação da `ASAAS_API_KEY` p/ a versão 2). Frontend e backend agora
+  cobram R$19,90 de forma consistente.
+- **Onda 2 parcial (NOVO):** V-02 (fonte Outfit carregada em dashboard/onboarding/cliente/vendedor —
+  antes `font-outfit` não renderizava), V-06 (jargão removido: White Label, empresaId, instrução de
+  dev no erro de link), V-01 (placeholder de logo já consistente no app; logo definitivo ON HOLD).
+- Verificação: `node --check billing.js` + curl confirmando no ar (preço, nav mobile, Outfit, .md→404).
+  **Falta teste runtime** (o CEO vai testar amanhã e dar o OK).
+
+### ⏸️ ONDE PAREI EXATAMENTE
+Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluídas e deployadas
+(hosting + Functions). Pendências:
+1. ✅ **Webhook Asaas configurado pelo dono**. Falta só teste PIX ponta-a-ponta:
+   `createSubscription` → pagar → webhook vira `statusAssinatura: active` → paywall some.
+2. ~~**V-03 (tema claro)**~~ ✅ **FEITA E DEPLOYADA (2026-06-18)**. Paleta oficial creme/verde/terracota
+   aplicada nas 7 telas. O cliente ignora `visualConfig.corFundo` para manter o fundo creme padrão.
+3. **Onda 4** — feita quase toda e deployada (vendedor QR/atalho, reset de senha, termos, validação
+   por campo, pickers, share wa.me, reforço home). **A-01 IMPLEMENTADA** (2026-06-17): onboarding dispara
+   `sendEmailVerification` no cadastro por e-mail e o dashboard mostra banner cobrando confirmação +
+   botão reenviar (só para provider `password` não verificado). **A-02 FEITA pelo dono** (Google +
+   e-mail/senha ativos; Facebook/Apple fora do MVP).
+4. **Onda 5** — feitas: X-06 confirmação, X-04 parcial aria, **X-01 modais**, **X-03 (foco-visível global), X-05
+   (loading/offline/erro no cliente), X-07 (reduced-motion), C-06 (empty state cliente novo) e X-02
+   parcial (contraste nas telas escuras)**. **X-02 sweep completo** foi parcialmente coberto pela migração
+   do tema claro. **Tema/modais/scan/prêmio já deployados** em 2026-06-18.
+
+### ⛳ AGUARDANDO O CEO (humano) — bloqueios/pendências
+1. **Testar a build atual** (Onda 0→5 + Fase B) em produção e dar feedback/ajustes. Fazer **hard refresh**.
+2. ✅ **`ASAAS_API_KEY` rotacionada** (versão 2) e Functions redeployadas em 2026-06-17 — a versão antiga
+   foi destruída no mesmo fluxo. Nada pendente aqui.
+3. ✅ **Fase B (preço R$ 19,90) DEPLOYADA** — billing.js no ar com value 19.90 + nextDueDate=trialEndDate.
+4. ✅ **Webhook Asaas CONFIGURADO** (2026-06-17, pelo dono): URL do `asaasWebhook`, token = valor
+   EXISTENTE do secret `ASAAS_WEBHOOK_TOKEN` (sem regenerar → sem redeploy), tipo de envio **Sequencial**,
+   webhook **ativo**, fila de sincronização ativada, eventos `PAYMENT_CONFIRMED`/`PAYMENT_RECEIVED`/
+   `PAYMENT_OVERDUE` (+ assinatura cancelada/inativada). **Falta só o teste PIX ponta-a-ponta.**
+
+5. ✅ **A-02 — Provedores de login CONFIGURADOS** (2026-06-17, pelo dono): Google + E-mail/senha ativos
+   no Console Firebase (Apple/Facebook fora por D4). A-01 (verificação) e B-05 (reset) já operam.
+
+6. ✅ **TRIAL-01 — Resend LIVE** (2026-06-17): domínio `tempontinho.com` Verified (região sa-east-1),
+   secret `RESEND_API_KEY` criado e `subscriptionReminderCron` DEPLOYADO (avisos 15/7/3/1 dias às 10h BRT).
+   Remetente `avisos@tempontinho.com`. **Pendência de segurança:** a API key foi colada no chat — o dono
+   deve **rotacioná-la** no Resend (criar outra, `firebase functions:secrets:set RESEND_API_KEY` com a
+   nova, redeploy de functions, revogar a antiga). **Falta testar** o envio real (ver lado do Claude).
+7. (Antigo) testar **login Google no mobile**.
+8. **Teste manual do novo fluxo de scan/prêmio**: vendedor seleciona quantidade rápida, escaneia QR do
+   cliente; sem prêmio pendente o scan pontua automaticamente; ao completar o cartão, o cliente vê prêmio
+   pendente; próximo scan do vendedor resgata automaticamente; no último resgate, o cartão rasga/renova e
+   `pontosSobra` entra ponto a ponto.
+
+### ▶️ PRÓXIMOS PASSOS — o que sobrou
+1. **Teste PIX ponta-a-ponta** (createSubscription → pagar → webhook vira `active` → paywall some).
+   Já dá pra fechar PIX real; webhook Asaas já foi configurado pelo dono.
+2. ~~**V-03 (tema claro)**~~ ✅ **FEITA (2026-06-18)**. Paleta oficial aprovada pelo CEO (creme `#F4EFE6`
+   + verde forest `#2A5A44` + terracota `#D96B43`, regra 60/30/10 — substitui a teal de teste) aplicada
+   nas 7 telas: landing, login, cliente, dashboard, vendedor, onboarding, master-admin. Implementação:
+   tokens `brand.*` + remap dos scales legados (indigo/emerald/teal→verde, amber/orange→terracota) na
+   config inline + inversão de luminância no markup (scale `stone` nos neutros). **Deployada em produção
+   em 2026-06-18** junto com functions.
+3. ~~A-01~~ ✅ FEITA (2026-06-17). ~~A-02~~ ✅ FEITA pelo dono (provedores Google + e-mail/senha).
+4. **Onda 5 restante:** só **X-02 sweep completo** (acompanha V-03/tema claro). **X-01 ✅ FEITA
+   (2026-06-18)**: `alert/confirm/prompt` nativos substituídos por `showToast`(success/error/warn) +
+   `confirmDialog` (modal promise-based, com variante `danger` e `keyword` p/ a exclusão por palavra
+   "APAGAR") em **dashboard, cliente e vendedor**. **Deployada em produção em 2026-06-18**.
+   ✅ Feitas E DEPLOYADAS em 2026-06-17: X-02 (parcial telas escuras), X-03, X-05, X-07, C-06, **C-01**
+   (prévia de valor antes do login + Google 1-tap primário + FB/Apple escondidos por D4).
+   📦 **PR aberto:** `fix/onda-0-bugs-p0` → `main` = https://github.com/rkoshino/FidelizaSaas/pull/2
+   (33 commits; Ondas 0→5 + Fase B + X-01).
+5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO E DEPLOYADO (`functions/notifications.js`,
+   `subscriptionReminderCron` onSchedule **10:00 BRT**, avisos em **15/7/3/1 dias antes do vencimento**
+   (trialEndDate p/ trial, proximoVencimento p/ active), dedupe em `lembretesVencimentoEnviados`).
+   Resend está live; falta rotacionar a API key exposta no chat e testar envio real.
+6. ~~**V-03 tema claro**~~ ✅ FEITO E DEPLOYADO. Paleta oficial atual: creme `#F4EFE6`, verde `#2A5A44`,
+   terracota `#D96B43`, tinta `#2A2520`. Obs.: o logo SVG (pássaro) ainda tem degradê azul, mas é ON HOLD
+   (logo definitivo é tarefa à parte).
+7. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
+
+8. **Novo fluxo de pontos/prêmio** ✅ **FEITO E DEPLOYADO (2026-06-18)**:
+   - Backend (`functions/index.js`): `awardPoints` recusa pontuar se `premiosPendentes > 0`; ao completar,
+     mantém `pontos = meta`, incrementa `premiosPendentes` e guarda a sobra em `pontosSobra`.
+   - Backend (`deliverPrize`): resgata 1 prêmio; quando zera os pendentes, renova o cartão com
+     `pontos = pontosSobra` e limpa `pontosSobra`.
+   - Vendedor (`vendedor.html`): scan age direto; se não há prêmio, credita a quantidade do seletor rápido;
+     se há prêmio, resgata automaticamente. Há trava anti-duplicação de leitura.
+   - Cliente (`cliente.html`): banner/animação de prêmio pendente, animação de resgate, cartão rasgando,
+     novo cartão entrando e sobra animando ponto a ponto.
+
+### 🔧 Notas operacionais
+- **Git push trava** no `git-credential-osxkeychain` neste ambiente. Use o helper do gh:
+  `git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin HEAD:<branch>`
+  (ver memória `git-push-via-gh-helper`). O `gh` está autenticado com escopo `repo`.
+- **Versionamento:** commitar padronizado (conventional + IDs do plano) ao fechar cada bloco
+  (preferência permanente do CEO — ver memória `versioning-on-block-completion`).
+- Deploys de hosting: `firebase deploy --only hosting` (global CLI 13.6.0 serve).
+- ⚠️ **Deploy de FUNCTIONS exige node ≥20**: o `firebase` global é 13.6.0 sobre **node v18** e RECUSA
+  o runtime `nodejs22` ("Cannot deploy function with runtime nodejs22"). Use o node do Homebrew (v23):
+  `cd functions/.. && PATH="/opt/homebrew/bin:$PATH" npx -y firebase-tools@latest deploy --only functions`.
+  (firebase-tools 15 precisa de node ≥20; o node padrão do shell é v18 — por isso o prefixo de PATH.)
+- Política de limpeza do Artifact Registry (gcf-artifacts) ativada em southamerica-east1: remove imagens
+  com +3 dias (resolve o aviso de custo). Comando: `... functions:artifacts:setpolicy --location southamerica-east1 --days 3 --force`.
+
+---
 
 > **⚠️ Segurança de hosting (corrigido nesta sessão):** o `firebase.json` usava
 > `"public": "."` e servia a raiz inteira — `HANDOFF.md` e outros `.md` ficavam
@@ -36,13 +164,14 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 ## O que é o projeto
 
 **Tem Pontinho** — SaaS de cartão fidelidade digital (pontos/carimbos) para
-pequenos comércios. Filosofia: mínimo e sólido, barato (assinatura **R$ 10/mês**).
+pequenos comércios. Filosofia: mínimo e sólido, barato (assinatura **R$ 19,90/mês**,
+1º mês grátis — já LIVE em produção desde 2026-06-17).
 O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 - **Repo local:** `/Users/claytonborges/WORK/FidelizaSaas` (NÃO é o portfólio em
   `ClaytonBorgesDev-portfolio-final` — não confunda; o `AGENTS.md`/`CLAUDE.md`
   sobre "not the Next.js you know" é do portfólio, não daqui).
-- **GitHub:** `rkoshino/FidelizaSaas` (branch de trabalho atual: `main`, sincronizado).
+- **GitHub:** `rkoshino/FidelizaSaas` (branch de trabalho atual: `fix/onda-0-bugs-p0`, PR #2 para `main`).
 - **Stack:** HTML + JS ES Modules **vanilla** (sem build step), TailwindCSS via CDN,
   Firebase SDK 10.8.0.
 - **Firebase:** projeto `nice-dreamks-fidelidade`, Functions v2 (Node 22, CommonJS),
@@ -61,18 +190,22 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 - **Modelo de dados multi-tenant:** `empresas/{empresaId}/clientes/{clienteId}` =
   `{ clienteId, nome, email, pontos, premiosPendentes, atualizadoEm }`; logs em
   subcoleção `.../logs/{logId}`. Perfil do consumidor em `clientes/{uid}`.
-- **Carry-over:** `total = pontos + qtd; premiosGanhos = floor(total/meta);
-  pontos = total % meta`. Prêmios acumulam em `premiosPendentes`.
+- **Carry-over postergado:** se `pontos + qtd` completa o cartão, `awardPoints` trava o cartão cheio
+  (`pontos = meta`), incrementa `premiosPendentes` e salva `pontosSobra = total % meta`. Enquanto houver
+  prêmio pendente, o cliente não recebe novos pontos; o próximo scan do vendedor resgata o prêmio.
+  Quando o último prêmio pendente é resgatado, `deliverPrize` renova o cartão e injeta `pontosSobra`.
 - **Camada client:** `points-api.js` (wrappers das callables + `ensureClientCard`
   + `listenCard`). UI: `cliente.html`, `vendedor.html`, `dashboard.html`.
-- **Confete/banner do cliente** dispara em `premiosPendentes > 0` (não em pontos>=meta).
+- **Confete/banner do cliente** dispara em `premiosPendentes > 0`; resgate dispara banner, rasgo do cartão,
+  novo cartão e animação da sobra.
 
 ## Billing (Asaas / PIX) — IMPLEMENTADO E NO AR
 
 - `functions/billing.js`:
   - `createSubscription({ empresaId, cpfCnpj, telefone })` — cria cliente +
-    assinatura PIX R$10/mês no Asaas, devolve QR + copia-e-cola (com retry p/
-    latência). Auth: só o dono.
+    assinatura PIX **R$19,90/mês** no Asaas (`nextDueDate=trialEndDate`: o mês pago
+    só começa ao fim do trial), devolve QR + copia-e-cola (com retry p/ latência).
+    Auth: só o dono. ✅ **R$19,90 LIVE em produção** (deployado 2026-06-17 com a chave nova).
   - `asaasWebhook` (HTTP) — valida header `asaas-access-token` e atualiza
     `statusAssinatura` nos eventos de pagamento.
     **URL:** `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`
@@ -90,9 +223,8 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 ## Secrets (Secret Manager) — já configurados
 
-- `ASAAS_API_KEY` — chave de **produção** do Asaas. ⚠️ **Foi exposta em texto puro
-  numa conversa anterior — precisa ser rotacionada** (tarefa do dono no painel Asaas;
-  depois é só rodar `firebase functions:secrets:set ASAAS_API_KEY` e redeploy das functions).
+- `ASAAS_API_KEY` — chave de **produção** do Asaas. ✅ **Rotacionada em 2026-06-17** (versão 2 no
+  Secret Manager; a versão exposta antiga foi destruída no redeploy). Functions já usam a nova.
 - `ASAAS_WEBHOOK_TOKEN` — armazenado no Secret Manager (valor REMOVIDO deste doc por
   segurança — estava em texto puro num arquivo que era servido publicamente). Para
   recuperar o valor: `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`.
@@ -141,25 +273,30 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 ## TODO LIST
 
 ### Do lado do DONO/SÓCIO (humano)
-- [ ] **Testar login Google no MOBILE** em `tempontinho.com` (era o último item em
-      aberto; o redirect URI foi corrigido — confirmar que loga e PERMANECE logado).
-- [ ] **Configurar o webhook no painel Asaas** (responsável: sócio). Em
-      Configurações → Integrações → Webhooks:
-      URL = `https://southamerica-east1-nice-dreamks-fidelidade.cloudfunctions.net/asaasWebhook`;
-      Token = valor de `ASAAS_WEBHOOK_TOKEN` (rodar `firebase functions:secrets:access ASAAS_WEBHOOK_TOKEN`);
-      Eventos: `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE` + cancelamento/
-      inativação de assinatura. (Status atual: provavelmente AINDA NÃO feito.)
-- [ ] **Rotacionar a chave de produção do Asaas** (foi exposta). Gerar nova no painel
-      e avisar o Claude para atualizar o secret + redeploy.
+- [~] **Testar Onda 0 + Rodada 2 em produção** (EM ANDAMENTO — 2026-06-17). Roteiro nos
+      relatórios; dar **feedback (ajustes)** ou **bandeira verde** para liberar o próximo bloco.
+      Fazer **hard refresh** antes de testar (cache de HTML do navegador).
+- [x] **Rotacionar a `ASAAS_API_KEY`** ✅ 2026-06-17 — feito pelo dono via
+      `firebase functions:secrets:set ASAAS_API_KEY` (versão 2; antiga destruída no redeploy).
+- [ ] **Testar login Google no MOBILE** em `tempontinho.com` (o redirect URI foi corrigido —
+      confirmar que loga e PERMANECE logado).
+- [ ] **Testar scan/prêmio no runtime real**: cenário 9+4 → cartão 10/10 + 1 prêmio pendente +
+      `pontosSobra=3`; próximo scan resgata; cliente vê cartão novo com 3 pontos entrando.
+- [x] **Configurar o webhook no painel Asaas** ✅ 2026-06-17 — token existente, Sequencial, ativo,
+      eventos de cobrança/assinatura marcados. (Falta só o teste PIX ponta-a-ponta — lado do Claude.)
+- [x] **A-02 — Provedores Google + E-mail/senha no Console Firebase** ✅ 2026-06-17.
+- [x] **TRIAL-01 / Resend** ✅ 2026-06-17 — domínio verificado, secret criado, cron deployado.
+      **Falta:** rotacionar a API key (foi colada no chat) e testar um envio real.
+- [x] **Limpeza GCR/Artifact Registry** ✅ 2026-06-17 — política de retenção de 3 dias ativada.
 - [ ] **(Se for ativar App Check)** registrar um site key reCAPTCHA v3 no console e
       passar o valor para o Claude.
 
 ### Do lado do CLAUDE (assistente)
-- [ ] **Atualizar `ASAAS_API_KEY`** assim que o dono rotacionar (set secret + `firebase
-      deploy --only functions`).
+- [x] **Atualizar `ASAAS_API_KEY` + redeploy de Functions** ✅ 2026-06-17 — Fase B (R$19,90 +
+      nextDueDate=trialEndDate) foi ao ar junto com a rotação da chave; webhook verificado (401 sem token).
 - [ ] **Teste ponta-a-ponta funcional** (após webhook ativo): login vendedor + cliente,
-      escanear QR, validar carry-over (ex.: 9+4→1 prêmio, cartão 3/10), entrega de
-      prêmio idempotente, isolamento entre empresas, paywall com trial expirado,
+      escanear QR, validar carry-over postergado (ex.: 9+4→cartão 10/10 + 1 prêmio pendente +
+      sobra 3 guardada; próximo scan resgata e renova com 3/10), isolamento entre empresas, paywall com trial expirado,
       e `deleteMyData` (confirmar que a query collectionGroup `clientes`/`clienteId`
       funciona sem índice composto — se reclamar, criar via link do erro).
 - [ ] **Teste de pagamento real/sandbox** do fluxo PIX (createSubscription → pagar →
@@ -167,11 +304,28 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [ ] **App Check** (quando o dono fornecer o site key): preencher `APP_CHECK_SITE_KEY`
       em `config.js`, `enforceAppCheck: true` em `functions/index.js` (e billing.js se
       desejado), redeploy. Testar que o app continua logando.
-- [ ] **Limpeza:** apagar imagens de build do GCR que geram aviso de custo
-      (`https://console.cloud.google.com/gcr/images/nice-dreamks-fidelidade/us/gcf`).
-- [ ] **Executar o roadmap de design/produto:** seguir `docs/PLANO_EXECUCAO.md` por ondas
-      (começar pela Onda 0 — bugs P0, incl. `B-01`/CAD-05). Marcar progresso em
-      `docs/TAREFAS_CEO.md`.
+- [x] **Limpeza:** política de retenção (3 dias) no Artifact Registry `gcf-artifacts` ✅ 2026-06-17
+      (some o aviso de custo; imagens antigas são apagadas automaticamente).
+- [~] **Executar o roadmap de design/produto** (`docs/PLANO_EXECUCAO.md`), marcando progresso
+      em `docs/TAREFAS_CEO.md`:
+      - [x] **Onda 0** (bugs P0) — feita e deployada.
+      - [x] **Rodada 2** (feedback do CEO: VEND-07, B-08, O-01, TRIAL-01, VEND-08) — feita e deployada.
+      - [x] **Onda 1 (mobile)** — M-01..M-05 feitas e deployadas (hosting).
+      - [x] **Fase B (preço R$ 19,90)** — ✅ DEPLOYADA em 2026-06-17 (billing.js + copy no ar;
+            Functions redeployadas com a chave nova). Frontend e backend consistentes em R$19,90.
+      - [x] **Onda 3 (trial/MRR)** — $-01/$-02/$-03/$-05 feitas e deployadas (hosting).
+      - [x] **Onda 2 (marca/tema)** — V-02 (Outfit), V-06 (jargão) e V-01 placeholder feitas.
+            **V-03 (tema claro)** feita e deployada em 2026-06-18 nas 7 telas com paleta oficial
+            creme/verde/terracota.
+      - [~] **Onda 4 (cadastro/auth)** — feitas: C-02/C-03/C-04 (vendedor: QR do cliente,
+            reordenação, atalho painel), B-05 (reset de senha) + A-03 (termos no login), O-02/O-03/O-04/O-06
+            (onboarding: copy, título pré-preenchido, validação por campo, aviso conta vendedor),
+            O-05 (botão wa.me), V-04 (paleta curada), V-05 (emoji picker já existia), C-05 (reforço na home),
+            **A-01 (verificação de e-mail) deployada** e **A-02 feita pelo dono**. **Falta:** esconder
+            Facebook/Apple no onboarding e alinhar o aviso de termos ali (D4: só Google + e-mail/senha).
+      - [~] **Onda 5 (polimento)** — feitas e deployadas: X-01 (modais), X-03, X-05, X-07, C-06,
+            C-01 e X-02 parcial. **Falta:** X-02 sweep completo/auditoria fina de contraste e leitura
+            pós-tema claro.
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
@@ -183,9 +337,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] LGPD delete server-side, movido para kebab no cliente
 - [x] Billing Asaas/PIX (createSubscription + webhook) + enforcement + paywall
 - [x] Rules endurecidas (anti auto-promoção a Pro) + índice
-- [x] Rebrand Tem Pontinho; domínio + SSL; preço R$10
+- [x] Rebrand Tem Pontinho; domínio + SSL; preço R$19,90
 - [x] Fix do loop de login mobile (authDomain → tempontinho.com)
-- [x] Tudo deployado e mergeado no `main`
+- [x] Tudo desta branch deployado; merge em `main` ainda pendente via PR #2
 - [x] **Auditoria de design completa** (web + mobile) → `docs/RELATORIO_DESIGN.md`
 - [x] **Review do CEO organizado em backlog** → `docs/TAREFAS_CEO.md`
 - [x] **Relatório master + plano de execução em ondas** → `docs/RELATORIO_FINAL.md` + `docs/PLANO_EXECUCAO.md`

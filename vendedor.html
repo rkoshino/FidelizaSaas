@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100 font-inter">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,31 +16,53 @@
                         space: ['Space Grotesk', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                         bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
                 }
             }
         }
     </script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html5-qrcode Library -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- QRCode.js (gera o QR da página do cliente) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <style>
         .glassmorphism {
-            background: rgba(15, 23, 42, 0.55);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
         }
         #reader__scan_region video {
             object-fit: cover !important;
             border-radius: 16px;
         }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
     </style>
 </head>
-<body class="h-full flex flex-col justify-between overflow-x-hidden bg-slate-950 p-4 font-sans">
+<body class="h-full flex flex-col justify-between overflow-x-hidden bg-brand-paper p-4 font-sans">
+
+    <div id="toast" class="fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none" style="opacity:0;transform:translateY(-8px);transition:all .3s">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
+      <span id="toast-text"></span>
+    </div>
 
     <!-- Main Container -->
     <main class="flex-grow flex items-center justify-center py-4 w-full max-w-sm mx-auto">
@@ -51,36 +73,36 @@
                 <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-2xl">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <h2 class="text-xl font-bold font-outfit text-white" id="login-empresa-nome">Área do Atendente</h2>
-                <p class="text-slate-400 text-xs px-1 leading-relaxed">
+                <h2 class="text-xl font-bold font-outfit text-stone-800" id="login-empresa-nome">Área do Atendente</h2>
+                <p class="text-stone-500 text-xs px-1 leading-relaxed">
                     Faça login para acessar a câmera e registrar carimbos.
                 </p>
             </div>
 
             <!-- Social Authentication Buttons -->
             <div class="flex flex-col gap-3">
-                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white border border-stone-300 hover:bg-stone-50 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-stone-700">
                     <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
                     <span>Logar com Google</span>
                 </button>
                 
                 <div class="flex items-center my-1">
-                    <div class="h-[1px] flex-grow bg-white/10"></div>
-                    <span class="px-2 text-[10px] text-slate-500 uppercase tracking-widest">ou</span>
-                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
+                    <span class="px-2 text-[10px] text-stone-500 uppercase tracking-widest">ou</span>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
                 </div>
             </div>
 
             <!-- Login Form -->
             <form id="login-form" class="flex flex-col gap-4 text-left">
                 <div class="flex flex-col gap-1">
-                    <label for="email" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">E-mail</label>
-                    <input type="email" id="email" required placeholder="ex: joao@atendimento.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-white">
+                    <label for="email" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="email" required placeholder="ex: joao@atendimento.com" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-stone-800 placeholder-stone-400">
                 </div>
                 
                 <div class="flex flex-col gap-1">
-                    <label for="password" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Senha (Crie ou Digite)</label>
-                    <input type="password" id="password" required placeholder="Digite sua senha" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-white">
+                    <label for="password" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Senha (Crie ou Digite)</label>
+                    <input type="password" id="password" required placeholder="Digite sua senha" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-stone-800 placeholder-stone-400">
                     <span class="text-[9px] text-indigo-400 leading-normal mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Se for seu primeiro acesso, a senha digitada acima será registrada como sua senha oficial.</span>
                 </div>
 
@@ -88,7 +110,7 @@
                     Entrar no Scanner
                 </button>
             </form>
-            <span class="text-[9px] text-slate-500 leading-normal">Apenas atendentes pré-registrados pelo dono do estabelecimento conseguem acessar.</span>
+            <span class="text-[9px] text-stone-500 leading-normal">Apenas atendentes pré-registrados pelo dono do estabelecimento conseguem acessar.</span>
         </div>
 
         <!-- SCANNER APP SCREEN (Hidden initially) -->
@@ -101,67 +123,87 @@
                         <i class="fa-solid fa-camera"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-xs text-white leading-tight" id="empresa-nome">Minha Empresa</h3>
-                        <p class="text-[9px] text-slate-500" id="vendedor-nome">Atendente Logado</p>
+                        <h3 class="font-bold text-xs text-stone-800 leading-tight" id="empresa-nome">Minha Empresa</h3>
+                        <p class="text-[9px] text-stone-500" id="vendedor-nome">Atendente Logado</p>
                     </div>
                 </div>
-                <button id="btn-logout" class="text-[10px] font-bold text-red-400 hover:text-red-300 px-2 py-1 rounded bg-slate-900 border border-slate-800 transition"><i class="fa-solid fa-power-off"></i> Sair</button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="dashboard.html" class="text-[11px] font-bold text-stone-600 hover:text-stone-800 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition" title="Abrir Painel do Dono"><i class="fa-solid fa-gauge-high"></i> Painel</a>
+                    <button id="btn-logout" class="text-[11px] font-bold text-red-500 hover:text-red-600 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition"><i class="fa-solid fa-power-off"></i> Sair</button>
+                </div>
+            </div>
+
+            <!-- $-01: Banner de trial (mês grátis) -->
+            <div id="trial-banner" class="hidden items-center justify-between gap-3 p-3 rounded-2xl border border-amber-200 bg-amber-50 text-left">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0"><i class="fa-solid fa-hourglass-half text-xs"></i></div>
+                    <p class="text-[11px] text-stone-700 leading-tight">Faltam <span id="trial-banner-days" class="font-bold text-stone-900">30</span> dias do mês grátis. Depois, R$ 19,90/mês.</p>
+                </div>
+                <a href="dashboard.html" class="shrink-0 text-[10px] font-bold text-white bg-amber-500 hover:bg-amber-600 px-3 min-h-[40px] inline-flex items-center rounded-lg transition active:scale-95">Assinar</a>
             </div>
 
             <!-- Camera Scanner Box -->
             <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3 relative">
                 <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Leitor de QR Code</span>
-                    <span class="w-2 h-2 rounded-full bg-slate-600 animate-pulse" id="scanner-status-dot"></span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Leitor de QR Code</span>
+                    <span class="w-2 h-2 rounded-full bg-stone-300 animate-pulse" id="scanner-status-dot"></span>
                 </div>
 
                 <!-- Video Element viewport -->
-                <div id="reader" class="w-full overflow-hidden border border-slate-800 rounded-2xl bg-black flex items-center justify-center"></div>
+                <div id="reader" class="w-full overflow-hidden border border-stone-200 rounded-2xl bg-black flex items-center justify-center"></div>
 
                 <!-- Scanner Actions Buttons -->
                 <div class="flex gap-2">
                     <button id="btn-start-scanner" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
                         <i class="fa-solid fa-play"></i> Iniciar Câmera
                     </button>
-                    <button id="btn-stop-scanner" disabled class="flex-1 py-3 bg-slate-900 border border-slate-800 disabled:border-slate-900 text-slate-400 disabled:text-slate-600 hover:bg-slate-800 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
+                    <button id="btn-stop-scanner" disabled class="flex-1 py-3 bg-white border border-stone-300 disabled:border-stone-200 text-stone-600 disabled:text-stone-300 hover:bg-stone-50 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
                         <i class="fa-solid fa-stop"></i> Parar
                     </button>
                 </div>
-            </div>
 
-            <!-- Operation Mode -->
-            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Modo do Próximo Scan</span>
-                <div class="flex gap-2">
-                    <button id="btn-mode-remove" class="flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition">Tirar 1 Ponto</button>
-                    <select id="select-points-qty" class="w-32 bg-slate-900 border border-slate-800 rounded-xl px-2 py-2 text-xs text-indigo-400 focus:outline-none focus:border-indigo-500 font-bold">
-                        <option value="1" selected>+1 Ponto</option>
-                        <option value="2">+2 Pontos</option>
-                        <option value="3">+3 Pontos</option>
-                        <option value="4">+4 Pontos</option>
-                        <option value="5">+5 Pontos</option>
-                        <option value="10">+10 Pontos</option>
-                    </select>
+                <!-- Quantidade de pontos creditada a cada leitura (definida ANTES de escanear) -->
+                <div class="flex items-center gap-2 pt-2 border-t border-stone-200">
+                    <label for="scan-qty" class="text-[10px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap">Pontos por leitura</label>
+                    <select id="scan-qty" class="flex-1 bg-white border border-stone-300 rounded-xl px-2 py-2.5 text-xs text-brand-green font-bold focus:outline-none focus:border-brand-green"></select>
                 </div>
             </div>
 
             <!-- Manual Fallback box -->
             <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Carimbar Manualmente</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 text-left">Carimbar Manualmente</span>
                 <div class="flex gap-2">
-                    <input type="text" id="manual-client-input" placeholder="Digite UID ou e-mail do cliente..." class="flex-grow bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    <button id="btn-manual-submit" class="px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition">Carimbar</button>
+                    <input type="text" id="manual-client-input" placeholder="Digite UID ou e-mail do cliente..." class="flex-grow bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-indigo-500">
+                    <button id="btn-manual-submit" class="px-4 bg-white border border-stone-300 hover:bg-stone-50 text-stone-600 font-bold text-xs rounded-xl active:scale-95 transition">Carimbar</button>
                 </div>
             </div>
 
-            <!-- Cliente escaneado / Prêmio pendente -->
-            <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-3 text-left">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cliente</span>
-                <p class="text-sm font-bold text-white"><span id="client-points">0</span><span class="text-slate-500">/<span id="client-meta">10</span> pontos</span></p>
-                <div id="prize-box" class="hidden flex-col gap-2 p-3 rounded-2xl bg-yellow-400/10 border-2 border-yellow-400/20">
-                    <p class="text-xs font-bold text-yellow-400 flex items-center gap-2"><i class="fa-solid fa-gift"></i> <span id="prize-count-text">1 prêmio a entregar</span></p>
-                    <button id="btn-deliver-prize" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-50">Entregar prêmio</button>
+            <!-- Cliente escaneado: painel de resultado + correção manual -->
+            <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-4 text-left">
+                <div class="flex justify-between items-center gap-2">
+                    <div class="min-w-0">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Cliente</span>
+                        <p class="text-sm font-bold text-stone-800 truncate" id="client-name">Cliente</p>
+                    </div>
+                    <button id="btn-next-client" class="shrink-0 text-[11px] font-bold text-stone-600 hover:text-stone-800 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Próximo</button>
                 </div>
+
+                <!-- Prêmio pendente (C-03: caixa de prêmio antes dos pontos) -->
+                <div id="prize-box" class="hidden flex-col gap-2 p-3 rounded-2xl bg-yellow-50 border-2 border-yellow-300">
+                    <p class="text-xs font-bold text-yellow-700 flex items-center gap-2"><i class="fa-solid fa-gift"></i> <span id="prize-count-text">1 prêmio a entregar</span></p>
+                    <button id="btn-deliver-prize" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-stone-900 font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-50">Marcar prêmio como entregue</button>
+                </div>
+
+                <!-- Progresso do cartão -->
+                <div class="flex flex-col gap-1.5">
+                    <p class="text-3xl font-extrabold text-stone-800 leading-none"><span id="client-points">0</span><span class="text-lg text-stone-500">/<span id="client-meta">10</span></span></p>
+                    <div class="w-full h-2 rounded-full bg-stone-200 overflow-hidden">
+                        <div id="client-progress" class="h-full bg-indigo-500 transition-all duration-300" style="width:0%"></div>
+                    </div>
+                </div>
+
+                <!-- Correção manual (o scan já credita/resgata automaticamente) -->
+                <button id="btn-remove-point" class="w-full min-h-[44px] bg-transparent border border-stone-300 hover:bg-stone-50 text-stone-600 hover:text-stone-700 font-semibold text-[11px] rounded-xl active:scale-95 transition">Tirar 1 ponto (correção)</button>
             </div>
 
             <!-- Feedbacks Popup Area (Dynamic states alerts) -->
@@ -171,8 +213,15 @@
                 </div>
                 <div>
                     <h4 class="font-bold text-xs" id="alert-title">Sucesso!</h4>
-                    <p class="text-[10px] text-slate-300 mt-0.5" id="alert-message">Detalhes do alerta.</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5" id="alert-message">Detalhes do alerta.</p>
                 </div>
+            </div>
+
+            <!-- C-02: QR da página do cliente (para novos clientes entrarem) -->
+            <div id="cliente-qr-card" class="hidden glassmorphism rounded-3xl p-4 flex-col items-center gap-3 text-center">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500">Cliente novo? Aponte a câmera aqui</span>
+                <div id="cliente-qr" class="bg-white p-3 rounded-2xl inline-flex border border-stone-200"></div>
+                <a id="cliente-qr-link" href="#" target="_blank" rel="noopener" class="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 break-all">Abrir página do cliente</a>
             </div>
 
         </div>
@@ -180,7 +229,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full text-center text-[9px] text-slate-600 pb-2">
+    <footer class="w-full text-center text-[9px] text-stone-400 pb-2">
         <p>Validador Tem Pontinho &copy; 2026. Segurança lógica ativa.</p>
     </footer>
 
@@ -214,6 +263,51 @@
         
         let html5QrcodeScanner = null;
         let isScannerRunning = false;
+
+        function showToast(message, type = "success") {
+          const toast = document.getElementById("toast");
+          const toastText = document.getElementById("toast-text");
+          const toastIcon = document.getElementById("toast-icon");
+          toastText.textContent = message;
+          const configs = {
+            success: { bg: "bg-indigo-600", icon: "fa-circle-check" },
+            error:   { bg: "bg-red-600",    icon: "fa-circle-xmark" },
+            warn:    { bg: "bg-amber-500",  icon: "fa-triangle-exclamation" },
+          };
+          const cfg = configs[type] || configs.success;
+          toast.className = `fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white ${cfg.bg}`;
+          toastIcon.className = `fa-solid ${cfg.icon} text-base`;
+          toast.style.opacity = "1"; toast.style.transform = "translateY(0)"; toast.style.pointerEvents = "auto";
+          clearTimeout(toast._hideTimer);
+          toast._hideTimer = setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(-8px)"; toast.style.pointerEvents = "none"; }, 3500);
+        }
+
+        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
+          return new Promise((resolve) => {
+            const modal = document.getElementById("modal-confirm");
+            const elTitle = document.getElementById("confirm-title");
+            const elMsg = document.getElementById("confirm-message");
+            const elInput = document.getElementById("confirm-input");
+            const btnOk = document.getElementById("confirm-ok");
+            const btnCancel = document.getElementById("confirm-cancel");
+            const iconWrap = document.getElementById("confirm-icon-wrap");
+            const icon = document.getElementById("confirm-icon");
+            elTitle.textContent = title; elMsg.textContent = message;
+            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
+            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-600"}`;
+            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
+            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
+            modal.classList.remove("hidden");
+            if (keyword) setTimeout(() => elInput.focus(), 50);
+            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
+            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
+            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
+            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
+            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
+            document.addEventListener("keydown", onKey);
+          });
+        }
 
         // Tenta obter o ID da empresa pela query param com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
@@ -307,12 +401,12 @@
                 // Se não tiver empresaId na URL, bloqueia login e mostra aviso com diagnóstico
                 document.getElementById("login-empresa-nome").innerText = "Link de Vendedor Inválido";
                 document.getElementById("login-form").outerHTML = `
-                    <div class="p-4 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 text-xs leading-relaxed text-left font-medium flex flex-col gap-2">
+                    <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs leading-relaxed text-left font-medium flex flex-col gap-2">
                         <div>
                             <i class="fa-solid fa-triangle-exclamation mr-1 text-sm"></i>
                             <strong>Erro:</strong> O link do vendedor está incompleto.
                         </div>
-                        <div class="bg-black/20 p-2 rounded border border-red-500/10 font-mono text-[10px] break-all select-all">
+                        <div class="bg-red-100/50 p-2 rounded border border-red-200 font-mono text-[10px] break-all select-all">
                             URL Detectada: ${window.location.href}
                         </div>
                         <p>Por favor, use a URL completa fornecida no painel (ex: <code>vendedor.html?empresa=ID_DA_EMPRESA</code>).</p>
@@ -325,10 +419,40 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     metaConfig = data.metaConfig;
-                    
+                    populateQtyOptions((metaConfig && metaConfig.metaPontos) || 10);
+
                     // Exibe nome da empresa no topo e na tela de login
                     document.getElementById("empresa-nome").innerText = data.nomeEmpresa;
                     document.getElementById("login-empresa-nome").innerText = `Atendente - ${data.nomeEmpresa}`;
+
+                    // $-01: banner de trial (mês grátis) — só durante o trial vigente.
+                    const trialEnd = data.trialEndDate
+                        ? (typeof data.trialEndDate.toDate === "function" ? data.trialEndDate.toDate() : new Date(data.trialEndDate))
+                        : null;
+                    const emTrial = (data.statusAssinatura === "trial") && trialEnd && trialEnd > new Date();
+                    if (emTrial) {
+                        const diffDays = Math.max(0, Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24)));
+                        const daysEl = document.getElementById("trial-banner-days");
+                        if (daysEl) daysEl.innerText = diffDays;
+                        const banner = document.getElementById("trial-banner");
+                        if (banner) banner.classList.replace("hidden", "flex");
+                    }
+
+                    // C-02: QR da página do cliente (novos clientes escaneiam para entrar)
+                    const slug = data.linkUnicoCliente || empresaId;
+                    if (slug && typeof QRCode !== "undefined") {
+                        const base = location.origin + location.pathname.replace(/[^/]*$/, "");
+                        const clienteUrl = `${base}cliente.html?link=${encodeURIComponent(slug)}`;
+                        const qrBox = document.getElementById("cliente-qr");
+                        const qrCard = document.getElementById("cliente-qr-card");
+                        const qrLink = document.getElementById("cliente-qr-link");
+                        if (qrBox && qrCard) {
+                            qrBox.innerHTML = "";
+                            new QRCode(qrBox, { text: clienteUrl, width: 140, height: 140, correctLevel: QRCode.CorrectLevel.M });
+                            if (qrLink) qrLink.href = clienteUrl;
+                            qrCard.classList.replace("hidden", "flex");
+                        }
+                    }
                 }
             } catch (err) {
                 console.error("Erro ao buscar dados da empresa: ", err);
@@ -342,7 +466,7 @@
             await getRedirectResult(auth);
         } catch (err) {
             console.error("Erro ao recuperar resultado do redirecionamento:", err);
-            alert("Erro no login: " + err.message);
+            showToast("Erro no login: " + err.message, "error");
         }
 
         // Gerenciamento da Autenticação do Vendedor
@@ -362,21 +486,25 @@
                             document.getElementById("app-screen").classList.remove("hidden");
                             document.getElementById("vendedor-nome").innerText = vData.nomeVendedor;
                             
-                            // Inicializa scanner
+                            // Inicializa scanner — desmonta qualquer instância anterior
+                            // (relogin) antes de recriar, garantindo um #reader limpo (B-02).
+                            await teardownScanner();
                             html5QrcodeScanner = new Html5Qrcode("reader");
                             return;
                         }
                     }
                     
                     // Se não pertencer à empresa ou não for vendedor ativo, bloqueia e faz deslog
-                    alert("Acesso negado! Você não está autorizado como vendedor desta empresa.");
+                    showToast("Acesso negado! Você não está autorizado como vendedor desta empresa.", "error");
                     await logoutUser();
                 } catch (err) {
                     console.error("Erro ao verificar vendedor:", err);
-                    alert("Erro ao checar permissão: " + err.message);
+                    showToast("Erro ao checar permissão: " + err.message, "error");
                     await logoutUser();
                 }
             } else {
+                // Deslogado: desmonta o scanner para liberar a câmera e limpar o #reader (B-02).
+                await teardownScanner();
                 document.getElementById("login-screen").classList.remove("hidden");
                 document.getElementById("app-screen").classList.add("hidden");
             }
@@ -412,14 +540,14 @@
                         }
                     } catch (innerErr) {
                         if (innerErr.code === "auth/email-already-in-use") {
-                            alert("Erro: Este e-mail já possui uma conta criada, mas a senha digitada está incorreta (ou você usa Login pelo Google). Tente usar o botão 'Logar com Google'.");
+                            showToast("Erro: Este e-mail já possui uma conta criada, mas a senha digitada está incorreta (ou você usa Login pelo Google). Tente usar o botão 'Logar com Google'.", "error");
                         } else {
                             console.error(innerErr);
                         }
                     }
                 }
                 
-                alert("Erro de Login: Senha incorreta ou atendente não autorizado.");
+                showToast("Erro de Login: Senha incorreta ou atendente não autorizado.", "error");
                 btn.disabled = false;
                 btn.innerText = "Entrar no Scanner";
             }
@@ -435,16 +563,15 @@
                 await loginWithGoogleRedirect();
             } catch (err) {
                 console.error(err);
-                alert("Erro ao logar com Google: " + err.message);
+                showToast("Erro ao logar com Google: " + err.message, "error");
                 btn.innerHTML = originalText;
             }
         });
 
         // Logout
         document.getElementById("btn-logout").addEventListener("click", async () => {
-            if (isScannerRunning) {
-                await stopScanner();
-            }
+            // B-02: desmonta totalmente (stop + clear) antes de deslogar.
+            await teardownScanner();
             await logoutUser();
         });
 
@@ -484,16 +611,37 @@
 
         async function stopScanner() {
             if (!html5QrcodeScanner || !isScannerRunning) return;
-            
+
             btnStart.disabled = false;
             btnStop.disabled = true;
-            statusDot.className = "w-2 h-2 rounded-full bg-slate-600";
-            
+            statusDot.className = "w-2 h-2 rounded-full bg-stone-300";
+
             try {
                 await html5QrcodeScanner.stop();
                 isScannerRunning = false;
             } catch (err) {
                 console.error(err);
+            }
+        }
+
+        // B-02: desmonta o scanner por completo (stop + clear + libera a instância).
+        // Sem isto, ao relogar criávamos um novo Html5Qrcode sobre o <div id="reader">
+        // que ainda continha o vídeo/canvas da sessão anterior → tela preta.
+        async function teardownScanner() {
+            if (!html5QrcodeScanner) return;
+            try {
+                if (isScannerRunning) {
+                    await html5QrcodeScanner.stop();
+                }
+                await html5QrcodeScanner.clear(); // remove o vídeo/canvas do #reader
+            } catch (err) {
+                console.error("Erro ao desmontar o scanner:", err);
+            } finally {
+                isScannerRunning = false;
+                html5QrcodeScanner = null;
+                if (btnStart) btnStart.disabled = false;
+                if (btnStop) btnStop.disabled = true;
+                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-stone-300";
             }
         }
 
@@ -503,16 +651,18 @@
         let isProcessing = false;
 
         async function onScanSuccess(decodedText) {
+            const clientUid = decodedText.trim();
+            // Trava anti-duplicação: a câmera dispara a leitura várias vezes com o QR na
+            // frente. Processa 1 vez e só libera após um cooldown (evita pontuar/resgatar
+            // em rajada na mesma aproximação).
             if (isProcessing) return;
             isProcessing = true;
 
-            // Pausa scanner momentaneamente
-            triggerVibration(100); // Vibração simples de confirmação de captura
+            triggerVibration(100); // confirmação de captura
+            await loadClient(clientUid);
 
-            const clientUid = decodedText.trim();
-            await processPointAward(clientUid);
-
-            // Reativa leitura após 2.5 segundos de cooldown
+            // Depois do cooldown, reaproximar o MESMO cliente já age de novo
+            // (ex.: completar o cartão e, na sequência, resgatar o prêmio).
             setTimeout(() => {
                 isProcessing = false;
             }, 2500);
@@ -528,7 +678,7 @@
             const val = input.value.trim();
             
             if (!val) {
-                alert("Por favor, digite o UID ou E-mail do cliente.");
+                showToast("Por favor, digite o UID ou E-mail do cliente.", "warn");
                 return;
             }
 
@@ -562,127 +712,202 @@
                 }
             }
 
-            await processPointAward(clientUid);
+            await loadClient(clientUid);
             input.value = "";
             document.getElementById("btn-manual-submit").disabled = false;
         });
 
-        let isRemovingPoint = false;
-        
-        // Handle mode toggle UI
-        const btnModeRemove = document.getElementById("btn-mode-remove");
-        const selectPointsQty = document.getElementById("select-points-qty");
+        // ---- Scan automático: QR age direto (pontua ou resgata) ----
+        // Estado do cliente atualmente no painel.
+        let panelClienteId = null;
+        let currentClientName = "";
+        let currentPremios = 0;
 
-        if (btnModeRemove) {
-            btnModeRemove.addEventListener("click", () => {
-                isRemovingPoint = !isRemovingPoint;
-                if (isRemovingPoint) {
-                    btnModeRemove.className = "flex-1 py-2 bg-red-900/40 border border-red-500/50 text-red-400 font-bold text-xs rounded-xl active:scale-95 transition";
-                    btnModeRemove.innerText = "Modo: Tirar Ponto";
-                    selectPointsQty.disabled = true;
-                    selectPointsQty.classList.add("opacity-50");
-                } else {
-                    btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
-                    btnModeRemove.innerText = "Tirar 1 Ponto";
-                    selectPointsQty.disabled = false;
-                    selectPointsQty.classList.remove("opacity-50");
-                }
-            });
-        }
+        const selectPointsQty = document.getElementById("scan-qty");
+        const clientPanel = document.getElementById("client-panel");
+        const prizeBox = document.getElementById("prize-box");
+        const btnDeliverPrize = document.getElementById("btn-deliver-prize");
+        const btnAddPoints = document.getElementById("btn-add-points");
+        const btnRemovePoint = document.getElementById("btn-remove-point");
+        const btnNextClient = document.getElementById("btn-next-client");
 
-        // Lógica de Negócio: tudo via Cloud Functions (points-api.js).
-        async function processPointAward(clientUid) {
+        const isInativaErr = (err) =>
+            String(err && err.message).includes("ASSINATURA_INATIVA") ||
+            String(err && err.code).includes("failed-precondition");
+
+        // Scan/manual AGE DIRETO: resgata se houver prêmio pendente, senão credita a
+        // quantidade selecionada no leitor. Sem etapa de confirmação (decisão de produto).
+        async function loadClient(clientUid) {
+            if (!empresaId) {
+                showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
+                playSound("error");
+                return;
+            }
             try {
-                if (!empresaId) {
-                    showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
+                const card = await getCard({ empresaId, clienteId: clientUid });
+                if (!card || !card.exists) {
+                    resetPanel();
+                    showAlert("error", "Sem cartão", "Este cliente ainda não ativou o cartão desta loja.");
                     playSound("error");
                     return;
                 }
-                const meta = metaConfig.metaPontos || 10;
-
-                // MODO: TIRAR PONTO (correção do vendedor)
-                if (isRemovingPoint) {
-                    const r = await removePoint({ empresaId, clienteId: clientUid });
-                    renderClientPanel(clientUid, r.pontos, null);
-                    showAlert("success", "Ponto Removido", `Cliente agora tem ${r.pontos}/${meta} pontos.`);
-                    playSound("success");
-                    triggerVibration(150);
-                    resetRemoveMode();
-                    return;
-                }
-
-                // MODO: ADICIONAR PONTOS — carry-over + prêmio no MESMO scan (server-side)
-                const qtyToAdd = parseInt(selectPointsQty?.value || "1");
-                const res = await awardPoints({ empresaId, clienteId: clientUid, qtd: qtyToAdd });
-                // res: { pontos, premiosGanhos, premiosPendentes, meta }
-                renderClientPanel(clientUid, res.pontos, res.premiosPendentes);
-
-                if (res.premiosGanhos > 0) {
-                    showAlert("win", "Cartela completa!", `+${qtyToAdd} pontos · ${res.premiosGanhos} cartela(s) completa(s)! · ${res.premiosPendentes} prêmio(s) a entregar · cartão agora ${res.pontos}/${res.meta}.`);
-                    playSound("win");
-                    triggerVibration([100, 50, 100, 50, 300]);
+                currentClientName = card.nome || "Cliente";
+                if ((card.premiosPendentes || 0) > 0) {
+                    await autoRedeem(clientUid);   // cliente tem prêmio → resgate automático
                 } else {
-                    showAlert("success", "Pontos Adicionados!", `+${qtyToAdd} · cliente agora tem ${res.pontos}/${res.meta} pontos.`);
-                    playSound("success");
-                    triggerVibration(150);
+                    await autoAward(clientUid);    // sem prêmio → credita a quantidade do leitor
                 }
-                showEmojiFeedback(qtyToAdd);
-
-                if (selectPointsQty) selectPointsQty.value = "1";
             } catch (err) {
-                console.error("Erro ao processar pontos: ", err);
-                const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
-                if (isInativa) {
-                    showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
-                } else {
-                    showAlert("error", "Erro de Processamento", err.message || "Falha ao registrar pontos.");
-                }
+                console.error("Erro ao processar leitura:", err);
+                resetPanel();
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao processar",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao processar a leitura."));
                 playSound("error");
             }
         }
 
-        function resetRemoveMode() {
-            isRemovingPoint = false;
-            if (btnModeRemove) {
-                btnModeRemove.className = "flex-1 py-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl active:scale-95 transition";
-                btnModeRemove.innerText = "Tirar 1 Ponto";
-            }
-            if (selectPointsQty) {
-                selectPointsQty.disabled = false;
-                selectPointsQty.classList.remove("opacity-50");
+        // Credita a quantidade selecionada. Se o backend recusar por prêmio pendente
+        // (corrida com outro caixa), cai para o resgate automaticamente.
+        async function autoAward(clientUid) {
+            const qty = parseInt(selectPointsQty?.value || "1");
+            try {
+                const res = await awardPoints({ empresaId, clienteId: clientUid, qtd: qty });
+                renderClientPanel(clientUid, res.pontos, res.premiosPendentes, currentClientName);
+                if (res.premiosGanhos > 0) {
+                    showAlert("win", "Cartão completo! 🎉", `+${qty} · cliente ganhou ${res.premiosGanhos} prêmio(s). O próximo scan resgata.`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                } else {
+                    showAlert("success", "Pontos adicionados", `+${qty} · agora ${res.pontos}/${res.meta}.`);
+                    playSound("success");
+                    triggerVibration(150);
+                }
+                showEmojiFeedback(qty);
+            } catch (err) {
+                if (String(err && err.message).includes("PREMIO_PENDENTE")) {
+                    await autoRedeem(clientUid);
+                    return;
+                }
+                throw err;
             }
         }
 
-        // Painel do cliente escaneado + entrega de prêmio
-        let panelClienteId = null;
-        const clientPanel = document.getElementById("client-panel");
-        const prizeBox = document.getElementById("prize-box");
-        const btnDeliverPrize = document.getElementById("btn-deliver-prize");
+        // Resgate automático de 1 prêmio. No último prêmio o cartão renova com a sobra.
+        async function autoRedeem(clientUid) {
+            const r = await deliverPrize({ empresaId, clienteId: clientUid });
+            renderClientPanel(clientUid, r.pontos, r.premiosPendentes, currentClientName);
+            const msg = r.premiosPendentes > 0
+                ? `Prêmio entregue! Ainda restam ${r.premiosPendentes} prêmio(s).`
+                : "Prêmio entregue! Cartão renovado.";
+            showAlert("win", "🎁 Prêmio entregue!", msg);
+            playSound("win");
+            triggerVibration([100, 50, 100, 50, 300]);
+        }
 
-        function renderClientPanel(clienteId, pontos, premiosPendentes) {
+        // Opções de pontos = múltiplos relativos à meta (x): 1, 2, 3, ⌊x/2⌋, x
+        // (deduplicadas e ≤ x). O maior valor completa um cartão inteiro num scan.
+        function populateQtyOptions(meta) {
+            if (!selectPointsQty) return;
+            const opts = [...new Set([1, 2, 3, Math.floor(meta / 2), meta])]
+                .filter((n) => n >= 1 && n <= meta)
+                .sort((a, b) => a - b);
+            selectPointsQty.innerHTML = opts
+                .map((n) => `<option value="${n}">+${n}${n === meta ? " (cartão)" : ""}</option>`)
+                .join("");
+            selectPointsQty.value = "1";
+        }
+
+        function renderClientPanel(clienteId, pontos, premiosPendentes, nome) {
             panelClienteId = clienteId;
+            if (nome != null) currentClientName = nome;
             const meta = metaConfig.metaPontos || 10;
             if (clientPanel) clientPanel.classList.remove("hidden");
+            const elName = document.getElementById("client-name");
+            if (elName) elName.innerText = currentClientName || "Cliente";
             const elP = document.getElementById("client-points");
             const elM = document.getElementById("client-meta");
             if (elP && pontos != null) elP.innerText = pontos;
             if (elM) elM.innerText = meta;
-            updatePrizeBox(premiosPendentes);
+            const prog = document.getElementById("client-progress");
+            if (prog && pontos != null) prog.style.width = Math.min(100, Math.round((pontos / meta) * 100)) + "%";
+            updatePrizeBox(premiosPendentes != null ? premiosPendentes : currentPremios);
         }
 
         function updatePrizeBox(premiosPendentes) {
             if (!prizeBox) return;
             if (premiosPendentes != null && premiosPendentes > 0) {
+                currentPremios = premiosPendentes;
                 prizeBox.classList.remove("hidden");
                 prizeBox.classList.add("flex");
                 const txt = document.getElementById("prize-count-text");
                 if (txt) txt.innerText = `${premiosPendentes} prêmio(s) a entregar`;
                 if (btnDeliverPrize) btnDeliverPrize.disabled = false;
             } else if (premiosPendentes != null) {
+                currentPremios = 0;
                 prizeBox.classList.add("hidden");
                 prizeBox.classList.remove("flex");
             }
         }
+
+        function resetPanel() {
+            panelClienteId = null;
+            currentClientName = "";
+            currentPremios = 0;
+            if (clientPanel) clientPanel.classList.add("hidden");
+            updatePrizeBox(0);
+        }
+
+        // Ação manual opcional: adicionar pontos ao cliente carregado.
+        async function addPoints() {
+            if (!panelClienteId) return;
+            const qtyToAdd = parseInt(selectPointsQty?.value || "1");
+            if (btnAddPoints) btnAddPoints.disabled = true;
+            try {
+                const res = await awardPoints({ empresaId, clienteId: panelClienteId, qtd: qtyToAdd });
+                renderClientPanel(panelClienteId, res.pontos, res.premiosPendentes, currentClientName);
+                if (res.premiosGanhos > 0) {
+                    showAlert("win", "Cartão completo!", `+${qtyToAdd} · ${res.premiosGanhos} cartão(ões) completo(s) · ${res.premiosPendentes} prêmio(s) a entregar · agora ${res.pontos}/${res.meta}.`);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                } else {
+                    showAlert("success", "Pontos adicionados", `+${qtyToAdd} · cliente agora tem ${res.pontos}/${res.meta} pontos.`);
+                    playSound("success");
+                    triggerVibration(150);
+                }
+                showEmojiFeedback(qtyToAdd);
+            } catch (err) {
+                console.error("Erro ao adicionar pontos:", err);
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao pontuar",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao registrar pontos."));
+                playSound("error");
+            } finally {
+                if (btnAddPoints) btnAddPoints.disabled = false;
+            }
+        }
+
+        // Ação manual opcional: tirar 1 ponto (correção). Não altera prêmios pendentes.
+        async function removeOnePoint() {
+            if (!panelClienteId) return;
+            if (btnRemovePoint) btnRemovePoint.disabled = true;
+            try {
+                const r = await removePoint({ empresaId, clienteId: panelClienteId });
+                renderClientPanel(panelClienteId, r.pontos, currentPremios, currentClientName);
+                showAlert("success", "Ponto removido", `Cliente agora tem ${r.pontos}/${metaConfig.metaPontos || 10}.`);
+                playSound("success");
+                triggerVibration(120);
+            } catch (err) {
+                console.error("Erro ao remover ponto:", err);
+                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao remover",
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao remover ponto."));
+                playSound("error");
+            } finally {
+                if (btnRemovePoint) btnRemovePoint.disabled = false;
+            }
+        }
+
+        if (btnAddPoints) btnAddPoints.addEventListener("click", addPoints);
+        if (btnRemovePoint) btnRemovePoint.addEventListener("click", removeOnePoint);
+        if (btnNextClient) btnNextClient.addEventListener("click", resetPanel);
 
         if (btnDeliverPrize) {
             btnDeliverPrize.addEventListener("click", async () => {
@@ -737,16 +962,16 @@
             card.className = "p-4 rounded-2xl flex items-start gap-3 text-left transition-all duration-300 animate-fade-in";
             
             if (type === "success") {
-                card.classList.add("bg-emerald-500/10", "border-2", "border-emerald-500/20", "text-emerald-400");
-                iconBox.className = "w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg shrink-0";
+                card.classList.add("bg-emerald-50", "border-2", "border-emerald-200", "text-emerald-700");
+                iconBox.className = "w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 text-lg shrink-0";
                 iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
             } else if (type === "win") {
-                card.classList.add("bg-yellow-400/10", "border-2", "border-yellow-400/20", "text-yellow-400");
-                iconBox.className = "w-8 h-8 rounded-lg bg-yellow-400/20 flex items-center justify-center text-yellow-400 text-lg shrink-0";
+                card.classList.add("bg-yellow-50", "border-2", "border-yellow-300", "text-yellow-700");
+                iconBox.className = "w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-700 text-lg shrink-0";
                 iconBox.innerHTML = '<i class="fa-solid fa-trophy animate-bounce"></i>';
             } else if (type === "error") {
-                card.classList.add("bg-red-500/10", "border-2", "border-red-500/20", "text-red-400");
-                iconBox.className = "w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 text-lg shrink-0";
+                card.classList.add("bg-red-50", "border-2", "border-red-200", "text-red-600");
+                iconBox.className = "w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-lg shrink-0";
                 iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
             }
 
@@ -761,5 +986,24 @@
         }
 
     </script>
+
+<div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+  <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+    <div class="flex items-start gap-3">
+      <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-100 text-amber-600">
+        <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+        <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
+        <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+      </div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 transition">Cancelar</button>
+      <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
