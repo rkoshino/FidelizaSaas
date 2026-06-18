@@ -34,15 +34,17 @@ pontosRestantes= total % meta
 
 ## 2. Modelo de dados (Firestore)
 
-**Mudança:** sair do mapa `pontosPerEmpresa` (dentro do doc do cliente) para **subcoleção por empresa**, que permite isolamento real nas regras e carregar `premiosPendentes`:
+**Mudança executada:** sair do mapa `pontosPerEmpresa` (dentro do doc do cliente) para
+**subcoleção por empresa**, permitindo isolamento real nas regras e carregar `premiosPendentes`.
+Modelo final em produção:
 
 ```
-clientes/{clienteId}                      → perfil: { nome, email }        (cliente só escreve isto)
-clientes/{clienteId}/cartoes/{empresaId}  → { pontos, premiosPendentes, atualizadoEm }
-clientes/{clienteId}/cartoes/{empresaId}/logs/{logId} → carimbos e resgates (imutável)
+clientes/{clienteId}                                → perfil global: { nome, email }
+empresas/{empresaId}/clientes/{clienteId}            → cartão: { clienteId, nome, email, pontos, premiosPendentes, pontosSobra?, atualizadoEm }
+empresas/{empresaId}/clientes/{clienteId}/logs/{id}  → carimbos e resgates (imutável)
 ```
 - App é pré-lançamento (só dados de teste) → migração livre, sem backfill.
-- `cliente.html` lê em tempo real a subcoleção `cartoes` do próprio cliente.
+- `cliente.html` lê em tempo real via `listenCard(empresaId, clienteId)`.
 
 ## 3. Segurança (núcleo do go-live)
 
@@ -71,9 +73,10 @@ A alternativa rules-only foi **descartada** pela revisão de arquitetura:
 - Minimizar texto e ações na tela principal.
 
 ## 5. UX do vendedor (`vendedor.html`)
-- Scan único: adiciona, faz carry-over, detecta prêmio(s), reseta cartão — sem 2º scan, sem perder ponto.
-- Pós-scan mostra: nome do cliente, `pontos/meta`, e se houver, "🎁 N prêmio(s) a entregar" + botão Entregar.
-- Mensagens claras: "+4 pontos · 1 cartela completa · 1 prêmio a entregar · cartão agora 3/10".
+- Scan age direto: sem prêmio pendente, credita a quantidade do seletor rápido; com prêmio pendente,
+  resgata automaticamente.
+- Pós-scan mostra: nome do cliente, `pontos/meta`, e se houver, "🎁 N prêmio(s) a entregar".
+- Mensagens claras: "+4 pontos · cliente ganhou 1 prêmio · próximo scan resgata".
 - Mantém modo "Tirar 1 ponto".
 
 ## 6. Fora desta leva (backlog do go-live — ver relatório)

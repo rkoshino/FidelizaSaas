@@ -153,7 +153,7 @@
 > Testes da Onda 0: **B-02 (câmera) confirmado OK** ✅. Novos itens abaixo.
 
 - [x] **VEND-07 · 🎨 P1 — Scan deliberado (1 leitura → painel → ações)** ⭐ ✅ 2026-06-16 — **histórico; superado por VEND-09 em 2026-06-18**. `vendedor.html`: scan chamava `getCard` (read-only) e abria painel único com progresso + entregar prêmio + adicionar pontos (opções `+1/+2/+3/+⌊x/2⌋/+x`) + tirar ponto + próximo cliente. Removida a caixa "Modo do Próximo Scan".
-  Hoje, ao iniciar a câmera, o scan **auto-aplica** o "Modo do Próximo Scan" (por padrão dá +1 ponto na hora). Indesejado/superestimulante.
+  Naquele momento, ao iniciar a câmera, o scan **auto-aplicava** o "Modo do Próximo Scan" (por padrão dava +1 ponto na hora). Era indesejado/superestimulante.
   **Desejado na época:** escanear **uma vez** o QR do cliente → abrir painel minimalista com ações explícitas. **Decisão posterior:** scan deve agir direto com seletor rápido e resgate automático.
   **Aceite histórico:** 1 scan carregava o cliente (via `getCard`, read-only). _(Substituído por VEND-09; engloba VEND-03.)_
 

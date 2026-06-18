@@ -80,7 +80,7 @@ async function asaasRequest(path, method, body, apiKey) {
  * Fluxo:
  *   1. Valida auth e argumentos.
  *   2. Cria (ou reaproveita) cliente no Asaas.
- *   3. Cria assinatura PIX R$ 10/mês.
+ *   3. Cria assinatura PIX R$ 19,90/mês, com vencimento após o trial.
  *   4. Busca a 1ª cobrança da assinatura.
  *   5. Busca o QR PIX da cobrança.
  *   6. Persiste asaasCustomerId, asaasSubscriptionId, cpfCnpj no doc da empresa.

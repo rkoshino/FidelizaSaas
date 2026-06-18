@@ -2,7 +2,8 @@
 
 > Documento-contrato para os agentes. Fixa nomes de campos, callables, payloads
 > e regras para backend e frontend não divergirem. Provedor: **Asaas (produção)**.
-> Plano: **R$ 10,00/mês**. Enforcement: **bloquear carimbos + paywall**.
+> Plano: **R$ 19,90/mês + 1º mês grátis**. Enforcement: **bloquear carimbos + paywall**.
+> Estado em 2026-06-18: **implementado e deployado**; webhook Asaas configurado pelo dono.
 
 ## 1. Modelo de dados — `empresas/{empresaId}`
 
@@ -37,14 +38,15 @@ Caso contrário → BLOQUEADA. `awardPoints` e `deliverPrize` devem recusar com
 
 ### `createSubscription({ empresaId, cpfCnpj, telefone? })`
 - Auth: **apenas o dono** (`request.auth.uid === empresaId`).
-- Cria (ou reaproveita) o cliente no Asaas; cria assinatura PIX R$10/mês.
+- Cria (ou reaproveita) o cliente no Asaas; cria assinatura PIX **R$19,90/mês** com
+  `nextDueDate = trialEndDate` (o mês pago só começa depois dos 30 dias grátis).
 - Grava no doc: `asaasCustomerId`, `asaasSubscriptionId`, `cpfCnpj`.
 - Retorna:
 ```js
 {
   status,                // status da assinatura no Asaas
   subscriptionId,
-  value: 10.0,
+  value: 19.9,
   pixCopiaECola,         // payload PIX copia-e-cola da 1ª cobrança
   pixQrCodeBase64,       // imagem QR (base64, sem prefixo data:)
   invoiceUrl             // fallback: link da fatura Asaas
@@ -66,15 +68,14 @@ Caso contrário → BLOQUEADA. `awardPoints` e `deliverPrize` devem recusar com
 
 ## 5. Secrets (Secret Manager) — já existentes / a criar
 - `ASAAS_API_KEY` — **existe** (produção). Base URL: `https://api.asaas.com/v3`.
-- `ASAAS_WEBHOOK_TOKEN` — **a criar pelo dono** + configurar no painel Asaas.
+- `ASAAS_WEBHOOK_TOKEN` — **existe** e foi configurado no painel Asaas.
 - Bind dos secrets nas functions que usam (`createSubscription`, `asaasWebhook`).
 
 ## 6. Frontend (dashboard.html)
-- Trocar o **simulador fake** (`btn-stripe-checkout`, setTimeout) por chamada real
-  a `createSubscription`. Form de checkout coleta **CPF/CNPJ** (e telefone opc.).
+- Chamada real a `createSubscription`. Form de checkout coleta **CPF/CNPJ** (e telefone opc.).
 - Mostrar **QR Code PIX** (`pixQrCodeBase64`) + botão copiar (`pixCopiaECola`) +
   link `invoiceUrl`.
-- Trocar **preço R$ 79,90 → R$ 10,00** em todos os lugares.
+- Preço oficial no frontend: **R$ 19,90/mês**.
 - Paywall: quando `statusAssinatura` ∈ {`overdue`,`canceled`} ou trial expirado,
   mostrar tela de pagamento e desabilitar ações de escrita. `onSnapshot` no doc
   da empresa: quando virar `active`, liberar automaticamente.

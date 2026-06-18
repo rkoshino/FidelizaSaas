@@ -5,6 +5,9 @@
 > **Propósito:** unificar duas revisões independentes numa única leitura priorizada, cobrindo todos os buracos identificáveis, e propor — em alto nível — um plano em ondas para aprovação.
 > **Documentos-fonte:** `RELATORIO_DESIGN.md` (auditoria de design) · `TAREFAS_CEO.md` (review do CEO).
 > **Plano de execução:** `PLANO_EXECUCAO.md`.
+> **Nota de status (2026-06-18):** este relatório é histórico. As decisões pendentes abaixo já foram
+> resolvidas e grande parte do plano foi implementada/deployada. Para estado operacional atual, use
+> `../HANDOFF.md` e `TAREFAS_CEO.md`.
 
 ---
 
@@ -94,7 +97,7 @@ Legenda origem: **D** = Design · **C** = CEO · **D+C** = ambos. Severidade: �
 |----|----------|--------|-----|-----|
 | $-01 | **Falta aviso de fim do mês grátis** + CTA de compra na **tela do vendedor** | C | 🟡 | VEND-05 |
 | $-02 | **Falta aviso de fim do mês grátis** abaixo do cabeçalho do **dashboard** | C | 🟡 | DASH-04 |
-| $-03 | **Preço inconsistente**: landing R$ 19,90 (ou R$ 12,41/ano) × meta/billing R$ 10,00 | D | 🟡 | §4.4 |
+| $-03 | ✅ **Resolvido:** preço oficial R$ 19,90/mês + 1º mês grátis reconciliado em landing, dashboard, billing e MRR | D | 🟡 | §4.4 |
 | $-04 | Paywall **não bloqueia** "Editar Regras", "Novo Vendedor", PIX, slug, excluir-conta | D | 🔴 | §5.6 |
 | $-05 | MRR do master-admin hardcoded (`ativas * 49`) — número fictício | D | 🟢 | §5.7 |
 
@@ -112,7 +115,7 @@ Legenda origem: **D** = Design · **C** = CEO · **D+C** = ambos. Severidade: �
 | ID | Problema | Origem | Sev | Ref |
 |----|----------|--------|-----|-----|
 | A-01 | **Confirmação de e-mail** no cadastro por e-mail | C | 🟡 | CAD-02 |
-| A-02 | Configurar Google/Apple/Facebook + e-mail de forma **independente** | C | 🟡 | CAD-02 |
+| A-02 | ✅ **Resolvido por D4:** Google + e-mail/senha; Apple/Facebook fora do MVP | C | 🟡 | CAD-02 |
 | A-03 | Exibir **termos de segurança** no login social | C | 🟡 | CAD-01 |
 | A-04 | Sem "mostrar/ocultar senha" no login | D | 🟢 | §5.2 |
 
@@ -145,10 +148,10 @@ Legenda origem: **D** = Design · **C** = CEO · **D+C** = ambos. Severidade: �
 
 Estas não são tarefas — são **direções** que precisam de uma escolha sua antes de executar:
 
-1. **Preço oficial.** R$ 10? R$ 19,90? Outro? Hoje landing e checkout discordam ($-03). *Tudo de monetização depende disto.*
+1. ✅ **Preço oficial:** R$ 19,90/mês + 1º mês grátis; landing, dashboard, billing e MRR reconciliados.
 2. **Marca única.** Qual logo vira o oficial (recomendação do design: a marca das araras da landing) e replicado em todas as telas (V-01)?
-3. **Tema do app logado.** Mantém escuro (com a marca unificada) ou aproxima do claro da landing (V-03)?
-4. **Apple e Facebook entram no MVP?** Têm custo/burocracia de provider (A-02).
+3. ✅ **Tema do app logado:** claro padronizado com paleta creme/verde/terracota.
+4. ✅ **Apple e Facebook entram no MVP?** Não. D4: só Google + e-mail/senha.
 5. **Cartão do cliente exige login?** Manter o login obrigatório ou liberar a visualização antes (C-01) — impacta diretamente a fricção do consumidor.
 
 ---

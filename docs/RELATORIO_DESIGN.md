@@ -3,6 +3,9 @@
 > Consultoria de design sênior · revisão de UI/UX do produto inteiro (web + mobile)
 > Data: 2026-06-16 · Autor: revisão de design assistida
 > Escopo: landing, autenticação, app do cliente, painel do vendedor, onboarding, dashboard do dono, master-admin.
+> **Nota de status (2026-06-18):** este relatório é diagnóstico histórico. Várias divergências aqui
+> (preço R$10, tema escuro, providers Apple/Facebook, alertas nativos etc.) já foram resolvidas.
+> Para estado atual, use `../HANDOFF.md` e `TAREFAS_CEO.md`.
 
 ---
 

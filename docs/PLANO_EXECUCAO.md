@@ -7,8 +7,9 @@
 >
 > ⚠️ **Este é o PLANO (estático). O estado atual de cada item vive no `../HANDOFF.md`** (checklist por onda,
 > atualizado a cada bloco) e no `TAREFAS_CEO.md`. Não leia as tabelas abaixo como "o que falta" — em
-> 2026-06-17 já estão concluídas Ondas 0–4, Fase B, billing/webhook/auth/Resend e a maior parte da Onda 5;
-> restam V-03 (tema claro nas telas logadas), X-01 (modais) e X-02 (sweep de contraste).
+> 2026-06-18: Ondas 0–4, Fase B, billing/webhook/auth/Resend, V-03 tema claro, X-01 modais,
+> D4/CAD-01 final e parte substancial da Onda 5 já foram concluídos e deployados.
+> O que ainda exige atenção prática está no `../HANDOFF.md`.
 
 ---
 
@@ -19,9 +20,9 @@
 
 | # | Decisão | **Definição do CEO** | Impacto no plano |
 |---|---------|----------------------|------------------|
-| D1 | Preço oficial | **R$ 19,90/mês + 1º mês grátis, sempre** | ⚠️ Muda o default (era R$10). Afeta **`billing.js` (hoje cria assinatura R$10)**, `$-03`, `$-01/$-02` (banner trial), `$-05` (MRR). Reconciliar TUDO para R$19,90. |
+| D1 | Preço oficial | **R$ 19,90/mês + 1º mês grátis, sempre** | ✅ Reconciliado em frontend + `functions/billing.js`; `nextDueDate = trialEndDate`. |
 | D2 | Marca | **Logo ON HOLD.** Padronizar usando o **placeholder atual** (já está bom) em todas as telas; manter a tarefa do logo definitivo **em aberto**. | `V-01` vira "padronizar placeholder único + registrar pendência de logo", não "aplicar logo araras". |
-| D3 | Tema do app | **Tema CLARO padronizado.** Paleta definitiva **a decidir** (usar paleta clara neutra como placeholder). | ⚠️ Muda o default (era escuro). `V-03` = migrar telas logadas p/ claro; paleta fica em aberto. |
+| D3 | Tema do app | **Tema CLARO padronizado.** Paleta definitiva: creme `#F4EFE6`, verde `#2A5A44`, terracota `#D96B43`. | ✅ `V-03` concluído e deployado nas 7 telas. |
 | D4 | Apple/Facebook | **Fora do MVP** — só Google + e-mail/senha. **+ Necessidade do dev:** meio de **testar o cadastro sem criar e-mail novo** (e-mail de teste "reutilizável" ou rota que simula login). **NÃO é prioridade.** | `A-02` só Google+e-mail. Nova tarefa `T-DEV` (baixa prioridade) p/ test harness de cadastro. |
 | D5 | Login do cartão do cliente | **Manter mínimo** — só o necessário para contabilizar o ponto no **menor número de movimentos** possível. | `C-01` reescopado: não remover login, e sim minimizar passos até pontuar. |
 
@@ -94,7 +95,7 @@
 
 | ID | Tipo | Tarefa | Arquivos | Critério de aceite | Est. |
 |----|------|--------|----------|--------------------|------|
-| **$-03** | 📝 | **Reconciliar o preço** ⛳(D1) em landing (`index.html` R$ 19,90/R$ 12,41), dashboard (R$ 10) e master-admin (MRR `*49`). Valor único e coerente. | index, dashboard, master-admin | Mesmo preço em todas as superfícies | S |
+| **$-03** | 📝 | ✅ **Preço reconciliado** ⛳(D1): valor oficial R$ 19,90/mês + 1º mês grátis em landing, dashboard, billing e MRR. | index, dashboard, master-admin, functions/billing.js | Mesmo preço em todas as superfícies | S |
 | **$-01** | ✨ | **Banner de trial no vendedor**: "Faltam N dias do mês grátis" + CTA "assinar". Calcular de `trialEndDate`. | `vendedor.html` | Banner com contagem correta + CTA leva ao fluxo de assinatura | M |
 | **$-02** | ✨ | **Banner de trial no dashboard** (abaixo do cabeçalho), mesma lógica/CTA. | `dashboard.html` | Banner abaixo do header com contagem + CTA | S |
 | **$-05** | ⚙️ | MRR real (ou rótulo "estimativa") no master-admin em vez de `ativas*49`. | `master-admin.html` | Número reflete o preço oficial/realidade | S |
