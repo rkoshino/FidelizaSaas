@@ -112,11 +112,12 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    config inline + inversão de luminância no markup (scale `stone` nos neutros). **Deployada em produção
    em 2026-06-18** junto com functions.
 3. ~~A-01~~ ✅ FEITA (2026-06-17). ~~A-02~~ ✅ FEITA pelo dono (provedores Google + e-mail/senha).
-4. **Onda 5 restante:** só **X-02 sweep completo** (acompanha V-03/tema claro). **X-01 ✅ FEITA
+4. **Onda 5 restante:** só **X-02 auditoria visual final** (manual, pós-tema claro). **X-01 ✅ FEITA
    (2026-06-18)**: `alert/confirm/prompt` nativos substituídos por `showToast`(success/error/warn) +
    `confirmDialog` (modal promise-based, com variante `danger` e `keyword` p/ a exclusão por palavra
    "APAGAR") em **dashboard, cliente e vendedor**. **Deployada em produção em 2026-06-18**.
-   ✅ Feitas E DEPLOYADAS em 2026-06-17/18: X-02 (parcial), X-03, X-05, X-07, C-06, **C-01**
+   ✅ Feitas E DEPLOYADAS em 2026-06-17/18: X-02 (parcial + sweep adicional em login/cliente/vendedor),
+   X-03, X-05, X-07, C-06, **C-01**
    (prévia de valor antes do login + Google 1-tap primário) e **D4/CAD-01 final** (Facebook/Apple removidos
    do onboarding/cliente/config; aviso de termos do Google no onboarding).
    📦 **PR #2 mergeado em `main`**: https://github.com/rkoshino/FidelizaSaas/pull/2.
@@ -324,8 +325,8 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
             **A-01 (verificação de e-mail) deployada**, **A-02 feita pelo dono** e **D4/CAD-01 final**
             concluído: Facebook/Apple removidos; onboarding mantém só Google + e-mail/senha com aviso de termos.
       - [~] **Onda 5 (polimento)** — feitas e deployadas: X-01 (modais), X-03, X-05, X-07, C-06,
-            C-01 e X-02 parcial. **Falta:** X-02 sweep completo/auditoria fina de contraste e leitura
-            pós-tema claro.
+            C-01 e X-02 parcial + sweep adicional em login/cliente/vendedor. **Falta:** auditoria visual
+            final de contraste/leitura em device real pós-tema claro.
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.
