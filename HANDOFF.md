@@ -3,8 +3,9 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-18 (sessão: **X-01 modais** em dashboard/cliente/vendedor + **PR #2 aberto**
-> p/ main com toda a branch. Antes: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
+> Última atualização: 2026-06-18 (sessão: **V-03 TEMA CLARO** — paleta oficial creme/verde/terracota
+> aplicada em TODAS as 7 telas (landing + logadas); **X-01 modais** em dashboard/cliente/vendedor;
+> **PR #2 aberto** p/ main. Antes: A-01 + Onda 5 X-02p/X-03/X-05/X-07/C-06 + C-01 — DEPLOYADO.
 > Depois: V-03 paleta v2 amendoado+teal na landing — DEPLOYADO; **A-02 (provedores Firebase) FEITO pelo
 > dono; webhook Asaas CONFIGURADO pelo dono (token existente, sequencial, ativo)**. TRIAL-01 backend
 > reescrito (avisos 15/7/3/1 dias às 10h BRT) — NÃO deployado, aguarda secret RESEND_API_KEY).
@@ -106,8 +107,12 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
 ### ▶️ PRÓXIMOS PASSOS — o que sobrou
 1. **Webhook Asaas** (tarefa do dono — ver "AGUARDANDO O CEO") + **teste PIX ponta-a-ponta**
    (createSubscription → pagar → webhook vira `active` → paywall some). Já dá pra fechar PIX real.
-2. **V-03 (tema claro)** — única peça bloqueada: depende da **paleta** (CEO decide; D3 autoriza
-   placeholder neutro). Maior mudança visual restante; fazer junto do logo definitivo (ON HOLD).
+2. ~~**V-03 (tema claro)**~~ ✅ **FEITA (2026-06-18)**. Paleta oficial aprovada pelo CEO (creme `#F4EFE6`
+   + verde forest `#2A5A44` + terracota `#D96B43`, regra 60/30/10 — substitui a teal de teste) aplicada
+   nas 7 telas: landing, login, cliente, dashboard, vendedor, onboarding, master-admin. Implementação:
+   tokens `brand.*` + remap dos scales legados (indigo/emerald/teal→verde, amber/orange→terracota) na
+   config inline + inversão de luminância no markup (scale `stone` nos neutros). Validada visualmente na
+   landing (screenshot). **Ainda NÃO deployada** (aguarda `firebase deploy --only hosting`).
 3. ~~A-01~~ ✅ FEITA (2026-06-17). Falta só **A-02** (provedores no console Firebase — tarefa de console).
 4. **Onda 5 restante:** só **X-02 sweep completo** (acompanha V-03/tema claro). **X-01 ✅ FEITA
    (2026-06-18)**: `alert/confirm/prompt` nativos substituídos por `showToast`(success/error/warn) +
