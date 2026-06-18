@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100 font-inter">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,14 @@
                         mono: ['JetBrains Mono', 'monospace'],
                         bebas: ['Bebas Neue', 'sans-serif'],
                         outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                      brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                      indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                      orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
                 }
             }
@@ -32,9 +40,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .glassmorphism {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
         }
         @media print {
             @page { size: auto; margin: 0mm; }
@@ -81,7 +89,7 @@
             #clientes-table-body, #clientes-table-body tr, #clientes-table-body td { display: block; width: 100%; }
             #clientes-table-body tr {
                 position: relative;
-                border: 1px solid rgb(15 23 42);
+                border: 1px solid rgb(227 219 204);
                 border-radius: 1rem;
                 margin-bottom: 0.75rem;
                 padding: 0.25rem 0;
@@ -96,7 +104,7 @@
                 font-size: 10px;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
-                color: rgb(100 116 139);
+                color: rgb(111 101 87);
                 margin-bottom: 2px;
             }
             #clientes-table-body td.col-check {
@@ -110,50 +118,50 @@
         }
         /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
         :focus-visible {
-            outline: 2px solid #818cf8 !important;
+            outline: 2px solid #2A5A44 !important;
             outline-offset: 2px !important;
             border-radius: 6px;
         }
     </style>
 </head>
-<body class="h-full flex bg-slate-950">
+<body class="h-full flex bg-brand-paper">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 border-r border-slate-900 bg-slate-950 flex flex-col justify-between shrink-0 hidden md:flex">
+    <aside class="w-64 border-r border-stone-200 bg-white flex flex-col justify-between shrink-0 hidden md:flex">
         <div class="flex flex-col gap-8 p-6">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
                     <i class="fa-solid fa-gem text-white text-base"></i>
                 </div>
-                <span class="text-lg font-bold font-outfit text-white">Tem Pontinho</span>
+                <span class="text-lg font-bold font-outfit text-stone-800">Tem Pontinho</span>
             </div>
             
             <nav class="flex flex-col gap-1">
                 <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200">
                     <i class="fa-solid fa-chart-line text-base"></i> Visão Geral
                 </button>
-                <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
+                <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
                     <i class="fa-solid fa-users text-base"></i> Clientes
                 </button>
-                <button onclick="switchTab('equipe')" id="tab-btn-equipe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
+                <button onclick="switchTab('equipe')" id="tab-btn-equipe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
                     <i class="fa-solid fa-user-shield text-base"></i> Equipe (Vendedores)
                 </button>
-                <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200">
+                <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
                     <i class="fa-solid fa-qrcode text-base"></i> Assinatura
                 </button>
             </nav>
         </div>
 
         <!-- Logged In User Footer -->
-        <div class="p-6 border-t border-slate-900 flex flex-col gap-3">
+        <div class="p-6 border-t border-stone-200 flex flex-col gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400" id="user-avatar">E</div>
+                <div class="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center font-bold text-brand-green" id="user-avatar">E</div>
                 <div class="overflow-hidden">
-                    <p class="text-xs font-semibold text-white truncate" id="user-display-name">Empresário</p>
-                    <p class="text-[10px] text-slate-400 truncate" id="user-email">email@empresa.com</p>
+                    <p class="text-xs font-semibold text-stone-800 truncate" id="user-display-name">Empresário</p>
+                    <p class="text-[10px] text-stone-500 truncate" id="user-email">email@empresa.com</p>
                 </div>
             </div>
-            <button id="btn-logout" class="w-full py-2.5 bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-900/50 rounded-xl text-xs font-semibold text-slate-400 hover:text-red-400 transition flex items-center justify-center gap-2">
+            <button id="btn-logout" class="w-full py-2.5 bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 rounded-xl text-xs font-semibold text-stone-500 hover:text-red-600 transition flex items-center justify-center gap-2">
                 <i class="fa-solid fa-right-from-bracket"></i> Sair do Painel
             </button>
         </div>
@@ -162,15 +170,15 @@
     <!-- Main Container -->
     <div class="flex-1 flex flex-col overflow-y-auto">
         <!-- Top bar -->
-        <header class="h-16 border-b border-slate-900 px-4 md:px-6 flex items-center justify-between gap-2 glassmorphism sticky top-0 z-30">
+        <header class="h-16 border-b border-stone-200 px-4 md:px-6 flex items-center justify-between gap-2 glassmorphism sticky top-0 z-30">
             <div class="flex items-center gap-2 min-w-0">
-                <h1 class="text-base md:text-lg font-bold font-outfit text-white truncate" id="page-title">Visão Geral</h1>
+                <h1 class="text-base md:text-lg font-bold font-outfit text-stone-800 truncate" id="page-title">Visão Geral</h1>
                 <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="trial-badge">Período de Teste</span>
                 <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="active-badge">Pro Ativo</span>
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
-                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-xl transition flex items-center gap-1.5 min-h-[40px]" title="Abrir Cartão Digital">
+                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-xl transition flex items-center gap-1.5 min-h-[40px]" title="Abrir Cartão Digital">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden lg:inline">Página do Cliente</span>
                 </button>
                 <div class="flex items-center">
@@ -182,7 +190,7 @@
                     </button>
                 </div>
                 <!-- Logout (somente mobile; no desktop fica na sidebar) -->
-                <button id="btn-logout-mobile" class="md:hidden text-xs font-semibold bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-900/50 text-slate-400 hover:text-red-400 w-10 h-10 rounded-xl transition flex items-center justify-center shrink-0" title="Sair do Painel" aria-label="Sair do Painel">
+                <button id="btn-logout-mobile" class="md:hidden text-xs font-semibold bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 text-stone-500 hover:text-red-600 w-10 h-10 rounded-xl transition flex items-center justify-center shrink-0" title="Sair do Painel" aria-label="Sair do Painel">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
@@ -196,11 +204,11 @@
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
                     <div>
-                        <h4 class="font-bold text-white text-sm">Faltam <span id="trial-days-left">30</span> dias do seu mês grátis</h4>
-                        <p class="text-slate-400 text-xs mt-0.5">Assine por R$ 19,90/mês quando quiser — o pagamento só começa a valer no fim do período grátis, sem interromper seu programa.</p>
+                        <h4 class="font-bold text-stone-800 text-sm">Faltam <span id="trial-days-left">30</span> dias do seu mês grátis</h4>
+                        <p class="text-stone-500 text-xs mt-0.5">Assine por R$ 19,90/mês quando quiser — o pagamento só começa a valer no fim do período grátis, sem interromper seu programa.</p>
                     </div>
                 </div>
-                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
+                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
             </div>
 
             <!-- A-01: Banner de verificação de e-mail (cadastro por e-mail/senha não confirmado) -->
@@ -208,8 +216,8 @@
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shrink-0"><i class="fa-solid fa-envelope-circle-check"></i></div>
                     <div>
-                        <h4 class="font-bold text-white text-sm">Confirme seu e-mail</h4>
-                        <p class="text-slate-400 text-xs mt-0.5">Enviamos um link de confirmação para <span id="verify-email-address" class="text-slate-200 font-semibold"></span>. Confirme para manter o acesso seguro à sua conta.</p>
+                        <h4 class="font-bold text-stone-800 text-sm">Confirme seu e-mail</h4>
+                        <p class="text-stone-500 text-xs mt-0.5">Enviamos um link de confirmação para <span id="verify-email-address" class="text-stone-700 font-semibold"></span>. Confirme para manter o acesso seguro à sua conta.</p>
                     </div>
                 </div>
                 <button id="btn-resend-verification" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/15 transition shrink-0 active:scale-95">Reenviar</button>
@@ -223,29 +231,29 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                     <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Clientes Cadastrados</span>
-                            <span class="text-3xl font-bold text-white font-outfit" id="stat-total-clientes">0</span>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Clientes Cadastrados</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-clientes">0</span>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
                     </div>
                     <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Carimbos</span>
-                            <span class="text-3xl font-bold text-white font-outfit" id="stat-total-pontos">0</span>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total de Carimbos</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-pontos">0</span>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-star"></i></div>
                     </div>
                     <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Prêmios a Resgatar</span>
-                            <span class="text-3xl font-bold text-white font-outfit" id="stat-premios-disponiveis">0</span>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios a Resgatar</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-disponiveis">0</span>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl"><i class="fa-solid fa-gift"></i></div>
                     </div>
                     <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Prêmios Entregues</span>
-                            <span class="text-3xl font-bold text-white font-outfit" id="stat-premios-entregues">0</span>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios Entregues</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-entregues">0</span>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
                     </div>
@@ -254,29 +262,29 @@
                 <!-- Resumo Campanha -->
                 <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-4">
                     <div class="flex justify-between items-center flex-wrap gap-2">
-                        <h3 class="font-bold text-lg text-white font-outfit">Regras da Campanha Ativa</h3>
+                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Regras da Campanha Ativa</h3>
                         <div class="flex gap-2 flex-wrap justify-end">
                             <button onclick="openEditarCampanhaModal()" class="text-sm font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-400 px-4 py-2 rounded-xl transition flex items-center gap-2">
                                 <i class="fa-solid fa-pen-to-square"></i> Editar Regras
                             </button>
-                            <button onclick="openProFeatureModal('Links Externos e HTML Customizado')" class="text-sm font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 px-4 py-2 rounded-xl transition flex items-center gap-2" id="btn-pro-links">
+                            <button onclick="openProFeatureModal('Links Externos e HTML Customizado')" class="text-sm font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-4 py-2 rounded-xl transition flex items-center gap-2" id="btn-pro-links">
                                 <i class="fa-solid fa-lock text-amber-400"></i> Links / Visual Pro
                             </button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex items-center gap-3 p-4 bg-slate-900/40 rounded-xl border border-slate-800">
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
                             <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-circle-check"></i></div>
                             <div>
-                                <p class="text-slate-400 text-xs">Meta do Cartão</p>
-                                <p class="text-white text-sm font-semibold mt-0.5"><span id="summary-meta-pontos">10</span> Pontos / Carimbos</p>
+                                <p class="text-stone-500 text-xs">Meta do Cartão</p>
+                                <p class="text-stone-800 text-sm font-semibold mt-0.5"><span id="summary-meta-pontos">10</span> Pontos / Carimbos</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 p-4 bg-slate-900/40 rounded-xl border border-slate-800">
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
                             <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-trophy"></i></div>
                             <div>
-                                <p class="text-slate-400 text-xs">Recompensa final</p>
-                                <p class="text-white text-sm font-semibold mt-0.5" id="summary-premio">1 Drink Especial</p>
+                                <p class="text-stone-500 text-xs">Recompensa final</p>
+                                <p class="text-stone-800 text-sm font-semibold mt-0.5" id="summary-premio">1 Drink Especial</p>
                             </div>
                         </div>
                     </div>
@@ -284,25 +292,25 @@
 
                 <!-- Links e Materiais -->
                 <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-6">
-                    <h3 class="font-bold text-lg text-white font-outfit">Links e Divulgação</h3>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Links e Divulgação</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Links Úteis -->
                         <div class="flex flex-col gap-4">
                             <!-- Client link -->
                             <div class="flex flex-col gap-1.5">
-                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
+                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
                                 <div class="flex gap-2">
-                                    <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-300 select-all">
+                                    <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-700 select-all">
                                     <button id="btn-overview-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
                                 </div>
                             </div>
         
                             <!-- Admin link -->
                             <div class="flex flex-col gap-1.5">
-                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Câmera do Vendedor (Validar/Carimbar)</span>
+                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Câmera do Vendedor (Validar/Carimbar)</span>
                                 <div class="flex gap-2">
-                                    <input type="text" readonly id="overview-link-vendedor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-300 select-all">
+                                    <input type="text" readonly id="overview-link-vendedor-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-700 select-all">
                                     <button id="btn-overview-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
                                 </div>
                             </div>
@@ -310,25 +318,25 @@
 
                         <!-- WhatsApp Kit -->
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Texto Pronto para WhatsApp</span>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Texto Pronto para WhatsApp</span>
                             <div class="relative h-full">
-                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full h-full min-h-[110px] bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full h-full min-h-[110px] bg-white border border-stone-200 rounded-xl p-4 text-xs text-stone-500 focus:outline-none resize-none leading-relaxed select-all"></textarea>
                                 <button id="btn-overview-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Texto</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-2 pt-6 border-t border-slate-800">
-                        <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-slate-950/40 border border-slate-800">
+                    <div class="mt-2 pt-6 border-t border-stone-200">
+                        <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-stone-50 border border-stone-200">
                             <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="overview-qrcode-box">
-                                <div id="overview-qrcode-placeholder" class="w-[120px] h-[120px] flex items-center justify-center text-slate-300">
+                                <div id="overview-qrcode-placeholder" class="w-[120px] h-[120px] flex items-center justify-center text-stone-500">
                                     <i class="fa-solid fa-qrcode text-4xl"></i>
                                 </div>
                             </div>
                             <div class="flex flex-col gap-2 text-center sm:text-left">
-                                <h3 class="font-bold text-white text-base font-outfit">Flyer de Divulgação (A4)</h3>
-                                <p class="text-xs text-slate-400 max-w-sm">Imprima o seu flyer contendo o QR Code acima. Coloque-o no balcão e nas mesas para que seus clientes escaneiem e entrem no seu programa de fidelidade instantaneamente.</p>
-                                <button onclick="openFlyerModal()" class="mt-2 text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
+                                <h3 class="font-bold text-stone-800 text-base font-outfit">Flyer de Divulgação (A4)</h3>
+                                <p class="text-xs text-stone-500 max-w-sm">Imprima o seu flyer contendo o QR Code acima. Coloque-o no balcão e nas mesas para que seus clientes escaneiem e entrem no seu programa de fidelidade instantaneamente.</p>
+                                <button onclick="openFlyerModal()" class="mt-2 text-xs font-semibold text-stone-500 bg-white border border-stone-200 hover:bg-stone-100 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
                                     <i class="fa-solid fa-file-pdf"></i> Abrir e Baixar Flyer PNG
                                 </button>
                             </div>
@@ -341,39 +349,39 @@
             <div id="tab-content-clientes" class="hidden flex flex-col gap-6">
                 <!-- Header search -->
                 <div class="flex justify-between items-center gap-4 flex-wrap">
-                    <h3 class="font-bold text-lg text-white font-outfit">Clientes Participantes</h3>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Clientes Participantes</h3>
                     <div class="flex items-center gap-4 w-full md:w-auto">
                         <div class="flex items-center">
-                            <button id="btn-clientes-pagina-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
+                            <button id="btn-clientes-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
                             </button>
-                            <button id="btn-clientes-copiar-cliente" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 border-l-0 text-slate-300 px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link do Cliente">
+                            <button id="btn-clientes-copiar-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 border-l-0 text-stone-700 px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link do Cliente">
                                 <i class="fa-regular fa-copy"></i> Copiar Link
                             </button>
                         </div>
                         <div class="relative w-full sm:max-w-xs flex-1 mt-3 md:mt-0">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-slate-300">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-500 text-xs"></i>
+                            <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-white border border-stone-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-stone-500">
                         </div>
                     </div>
                 </div>
 
                 <!-- Bulk Actions Bar -->
                 <div id="bulk-actions-bar" class="hidden glassmorphism px-4 py-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 flex items-center justify-between gap-4 mb-4">
-                    <span class="text-xs text-indigo-300 font-medium"><span id="selected-count">0</span> clientes selecionados</span>
+                    <span class="text-xs text-indigo-700 font-medium"><span id="selected-count">0</span> clientes selecionados</span>
                     <div class="flex gap-2">
                         <button onclick="openBulkAjustarModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition active:scale-95">Ajustar Pontos</button>
-                        <button onclick="bulkResetPoints()" class="text-xs font-semibold bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg transition active:scale-95">Zerar Pontos</button>
+                        <button onclick="bulkResetPoints()" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg transition active:scale-95">Zerar Pontos</button>
                     </div>
                 </div>
 
                 <!-- Table box -->
-                <div class="glassmorphism rounded-2xl overflow-hidden border border-slate-900">
+                <div class="glassmorphism rounded-2xl overflow-hidden border border-stone-200">
                     <div class="overflow-x-auto w-full">
                         <table class="w-full text-left text-xs border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-900 bg-slate-900/30 text-slate-400 font-semibold uppercase tracking-wider">
-                                    <th class="py-4 px-6 w-12 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4"></th>
+                                <tr class="border-b border-stone-200 bg-stone-50 text-stone-500 font-semibold uppercase tracking-wider">
+                                    <th class="py-4 px-6 w-12 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4"></th>
                                     <th class="py-4 px-6">Nome Completo</th>
                                     <th class="py-4 px-6">E-mail</th>
                                     <th class="py-4 px-6 text-center">Pontuação</th>
@@ -381,9 +389,9 @@
                                     <th class="py-4 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="clientes-table-body" class="divide-y divide-slate-900 text-slate-300">
+                            <tbody id="clientes-table-body" class="divide-y divide-stone-200 text-stone-500">
                                 <tr>
-                                    <td colspan="5" class="py-8 text-center text-slate-400">
+                                    <td colspan="5" class="py-8 text-center text-stone-500">
                                         <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando clientes cadastrados...
                                     </td>
                                 </tr>
@@ -397,8 +405,8 @@
             <div id="tab-content-equipe" class="hidden flex flex-col gap-6">
                 <div class="flex justify-between items-center gap-4 flex-wrap">
                     <div>
-                        <h3 class="font-bold text-lg text-white font-outfit">Equipe de Atendimento</h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
+                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe de Atendimento</h3>
+                        <p class="text-xs text-stone-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
                     </div>
                     <div class="flex items-center gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
                         <div class="flex items-center">
@@ -416,22 +424,22 @@
                 </div>
 
                 <!-- VEND-08: QR de acesso rápido do vendedor -->
-                <div class="glassmorphism rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5 border border-slate-800">
+                <div class="glassmorphism rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5 border border-stone-200">
                     <div class="bg-white p-3 rounded-xl shrink-0 shadow-lg shadow-black/20">
-                        <div id="vendor-access-qrcode" class="w-[120px] h-[120px] flex items-center justify-center text-slate-300"><i class="fa-solid fa-qrcode text-4xl"></i></div>
+                        <div id="vendor-access-qrcode" class="w-[120px] h-[120px] flex items-center justify-center text-stone-500"><i class="fa-solid fa-qrcode text-4xl"></i></div>
                     </div>
                     <div class="flex flex-col gap-2 text-center sm:text-left">
-                        <h4 class="font-bold text-white text-sm font-outfit">Acesso rápido do vendedor</h4>
-                        <p class="text-xs text-slate-400 leading-relaxed">Peça para o funcionário <strong>escanear este QR com o celular</strong>: ele cai direto na tela de login do vendedor. Basta entrar com o e-mail já cadastrado aqui na equipe — o painel da empresa continua só com você.</p>
+                        <h4 class="font-bold text-stone-800 text-sm font-outfit">Acesso rápido do vendedor</h4>
+                        <p class="text-xs text-stone-500 leading-relaxed">Peça para o funcionário <strong>escanear este QR com o celular</strong>: ele cai direto na tela de login do vendedor. Basta entrar com o e-mail já cadastrado aqui na equipe — o painel da empresa continua só com você.</p>
                         <div class="flex gap-2 justify-center sm:justify-start mt-1">
-                            <button id="btn-vendor-qr-copy" class="text-[11px] font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 px-3 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-copy"></i> Copiar link</button>
+                            <button id="btn-vendor-qr-copy" class="text-[11px] font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-3 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-copy"></i> Copiar link</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Vendedores Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-slate-400 col-span-full">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-stone-500 col-span-full">
                         <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando equipe...
                     </div>
                 </div>
@@ -441,69 +449,69 @@
             <div id="tab-content-stripe" class="hidden flex flex-col gap-8">
                 <div class="flex justify-between items-center flex-wrap gap-4">
                     <div>
-                        <h3 class="text-2xl font-bold font-outfit text-white">Configurações da Conta</h3>
-                        <p class="text-slate-400 text-xs mt-1">Gerencie os dados da sua empresa, assinatura e privacidade.</p>
+                        <h3 class="text-2xl font-bold font-outfit text-stone-800">Configurações da Conta</h3>
+                        <p class="text-stone-500 text-xs mt-1">Gerencie os dados da sua empresa, assinatura e privacidade.</p>
                     </div>
                 </div>
 
                 <!-- Formulário de Dados da Empresa -->
-                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-5 border border-slate-800">
-                    <h4 class="font-bold text-white text-base font-outfit">Informações do Controlador (LGPD)</h4>
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-5 border border-stone-200">
+                    <h4 class="font-bold text-stone-800 text-base font-outfit">Informações do Controlador (LGPD)</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="flex flex-col gap-1.5">
-                            <label for="config-company-name" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nome da Empresa</label>
+                            <label for="config-company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
                             <div class="flex gap-2">
-                                <input type="text" id="config-company-name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                                <input type="text" id="config-company-name" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
                                 <button id="btn-save-company-name" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar</button>
                             </div>
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label for="config-company-slug" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Link Personalizado</label>
+                            <label for="config-company-slug" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Personalizado</label>
                             <div class="flex gap-2">
-                                <div class="flex-1 flex items-center bg-slate-900 border border-slate-800 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
-                                    <span class="text-slate-400 text-xs px-3 py-2.5 border-r border-slate-800 bg-slate-950">/cliente.html?link=</span>
-                                    <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-white transition" autocomplete="off">
+                                <div class="flex-1 flex items-center bg-white border border-stone-200 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
+                                    <span class="text-stone-500 text-xs px-3 py-2.5 border-r border-stone-200 bg-stone-100">/cliente.html?link=</span>
+                                    <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-stone-800 transition" autocomplete="off">
                                 </div>
                                 <button id="btn-save-company-slug" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar Link</button>
                             </div>
-                            <span class="text-[10px] text-slate-400">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
+                            <span class="text-[10px] text-stone-500">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">E-mail Comercial (Login)</label>
-                            <input type="text" id="config-owner-email" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-400 opacity-70 cursor-not-allowed">
+                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial (Login)</label>
+                            <input type="text" id="config-owner-email" readonly class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-500 opacity-70 cursor-not-allowed">
                         </div>
                     </div>
                 </div>
 
                 <!-- Área de Privacidade / Danger Zone -->
-                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-4 border border-red-900/30 bg-red-950/10">
-                    <h4 class="font-bold text-red-400 text-base font-outfit"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Zona de Perigo (LGPD)</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed max-w-3xl">Como Controlador de Dados, você tem o direito de solicitar a exclusão permanente da sua conta e de todos os dados associados a ela (incluindo todos os clientes cadastrados no seu programa de fidelidade). <strong>Esta ação é irreversível.</strong></p>
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-4 border border-red-200 bg-red-50">
+                    <h4 class="font-bold text-red-600 text-base font-outfit"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Zona de Perigo (LGPD)</h4>
+                    <p class="text-xs text-stone-500 leading-relaxed max-w-3xl">Como Controlador de Dados, você tem o direito de solicitar a exclusão permanente da sua conta e de todos os dados associados a ela (incluindo todos os clientes cadastrados no seu programa de fidelidade). <strong>Esta ação é irreversível.</strong></p>
                     <div>
-                        <button id="btn-delete-controller-account" class="mt-2 text-xs font-bold bg-red-900/40 hover:bg-red-600 border border-red-500/50 hover:border-red-500 text-red-400 hover:text-white px-4 py-3 rounded-xl transition flex items-center gap-2">
+                        <button id="btn-delete-controller-account" class="mt-2 text-xs font-bold bg-red-50 hover:bg-red-600 border border-red-300 hover:border-red-600 text-red-600 hover:text-white px-4 py-3 rounded-xl transition flex items-center gap-2">
                             <i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados
                         </button>
                     </div>
                 </div>
 
-                <hr class="border-slate-800 my-2">
+                <hr class="border-stone-200 my-2">
                 
                 <!-- Plans Column Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-start">
                     
                     <!-- Free/Trial Card -->
-                    <div class="glassmorphism p-6 rounded-2xl border-slate-800/80 flex flex-col gap-5 bg-slate-950/20">
+                    <div class="glassmorphism p-6 rounded-2xl border-stone-200/80 flex flex-col gap-5 bg-stone-50">
                         <div class="flex flex-col gap-1">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Plano Atual</span>
-                            <h4 class="text-xl font-bold text-white font-outfit">Período de Testes</h4>
-                            <p class="text-slate-400 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest">Plano Atual</span>
+                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Período de Testes</h4>
+                            <p class="text-stone-500 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
                         </div>
-                        <div class="text-2xl font-bold font-outfit text-white">R$ 0 <span class="text-xs font-normal text-slate-400">/ 30 dias</span></div>
+                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 0 <span class="text-xs font-normal text-stone-500">/ 30 dias</span></div>
                         
-                        <div class="h-[1px] bg-slate-900 w-full"></div>
+                        <div class="h-[1px] bg-stone-200 w-full"></div>
 
-                        <ul class="flex flex-col gap-3 text-xs text-slate-400">
+                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
                             <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Até 1 vendedor</li>
                             <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Tabela de clientes ativa</li>
                             <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Sem upload de Logotipo</li>
@@ -512,19 +520,19 @@
                     </div>
 
                     <!-- Pro Card (Active Stripe simulation) -->
-                    <div class="glassmorphism p-6 rounded-2xl border-indigo-500/40 relative flex flex-col gap-5 bg-indigo-950/5">
+                    <div class="glassmorphism p-6 rounded-2xl border-brand-green/40 relative flex flex-col gap-5 bg-brand-green/5">
                         <div class="absolute -top-3 right-5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-400/20 shadow-md">Mais Popular</div>
                         
                         <div class="flex flex-col gap-1">
                             <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Profissional</span>
-                            <h4 class="text-xl font-bold text-white font-outfit">Plano Tem Pontinho</h4>
-                            <p class="text-indigo-200/60 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
+                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Plano Tem Pontinho</h4>
+                            <p class="text-stone-500 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
                         </div>
-                        <div class="text-2xl font-bold font-outfit text-white">R$ 19,90 <span class="text-xs font-normal text-slate-400">/ mensal</span></div>
+                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 19,90 <span class="text-xs font-normal text-stone-500">/ mensal</span></div>
                         
-                        <div class="h-[1px] bg-slate-900 w-full"></div>
+                        <div class="h-[1px] bg-stone-200 w-full"></div>
 
-                        <ul class="flex flex-col gap-3 text-xs text-slate-300">
+                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
                             <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Vendedores Ilimitados</li>
                             <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Envio de Logotipo da Marca</li>
                             <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Customizações Visuais Estendidas</li>
@@ -544,59 +552,59 @@
     </div>
 
     <!-- Barra de Navegação Inferior (somente mobile) -->
-    <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur border-t border-slate-900 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white backdrop-blur border-t border-stone-200 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
         <button onclick="switchTab('dashboard')" id="mtab-btn-dashboard" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-indigo-400 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-chart-line text-lg"></i> Visão Geral
         </button>
-        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-400 font-medium text-[10px] transition-colors">
+        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-users text-lg"></i> Clientes
         </button>
-        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-400 font-medium text-[10px] transition-colors">
+        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-user-shield text-lg"></i> Equipe
         </button>
-        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-slate-400 font-medium text-[10px] transition-colors">
+        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
             <i class="fa-solid fa-qrcode text-lg"></i> Assinatura
         </button>
     </nav>
 
     <!-- MODAL 1: AJUSTAR PONTOS -->
     <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-white font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
-                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
+                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <div class="flex flex-col gap-4">
-                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs">
-                    <p class="text-slate-400">Cliente selecionado:</p>
-                    <p class="text-white font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
+                <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+                    <p class="text-stone-500">Cliente selecionado:</p>
+                    <p class="text-stone-800 font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
                     <p class="text-indigo-400 font-bold mt-2">Pontuação Atual: <span id="modal-ajuste-pontos-atuais">0</span> Pontos</p>
                 </div>
 
                 <!-- Ações de Ajuste -->
                 <div class="flex gap-2">
-                    <button onclick="setAjusteAction('add')" id="btn-action-add" class="flex-1 py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-300 transition">+ Adicionar</button>
-                    <button onclick="setAjusteAction('remove')" id="btn-action-remove" class="flex-1 py-2.5 rounded-lg border-2 border-slate-800 bg-transparent text-slate-400 font-bold text-xs transition">- Remover</button>
-                    <button onclick="setAjusteAction('zero')" id="btn-action-zero" class="flex-1 py-2.5 rounded-lg border-2 border-slate-800 bg-transparent text-slate-400 font-bold text-xs transition">Zerar Pontos</button>
+                    <button onclick="setAjusteAction('add')" id="btn-action-add" class="flex-1 py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-700 transition">+ Adicionar</button>
+                    <button onclick="setAjusteAction('remove')" id="btn-action-remove" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">- Remover</button>
+                    <button onclick="setAjusteAction('zero')" id="btn-action-zero" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">Zerar Pontos</button>
                 </div>
 
                 <!-- Campo de Entrada de Pontos -->
                 <div class="flex flex-col gap-1" id="input-pontos-container">
-                    <label for="ajuste-quantidade-pontos" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Quantidade de Pontos</label>
-                    <input type="number" id="ajuste-quantidade-pontos" value="1" min="1" max="100" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="ajuste-quantidade-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Quantidade de Pontos</label>
+                    <input type="number" id="ajuste-quantidade-pontos" value="1" min="1" max="100" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
 
                 <!-- Campo Justificativa Obrigatória -->
                 <div class="flex flex-col gap-1">
-                    <label for="ajuste-justificativa" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
-                    <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    <span class="text-[9px] text-slate-400">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
+                    <label for="ajuste-justificativa" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
+                    <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-stone-500">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
                 </div>
 
                 <!-- Confirm buttons -->
-                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-slate-800 text-white disabled:text-slate-400 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-stone-200 text-white disabled:text-stone-500 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
                     Confirmar Ajuste
                 </button>
             </div>
@@ -605,52 +613,52 @@
 
     <!-- MODAL 2: LINKS DE DIVULGAÇÃO -->
     <div id="modal-promo-links" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-white font-outfit">Links de Divulgação</h3>
-                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Links de Divulgação</h3>
+                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <div class="flex flex-col gap-4 text-xs">
                 <div class="flex flex-col gap-1">
-                    <span class="font-semibold text-slate-400">Link do Cartão de Fidelidade do Cliente</span>
+                    <span class="font-semibold text-stone-500">Link do Cartão de Fidelidade do Cliente</span>
                     <div class="flex gap-2 mt-1">
-                        <input type="text" readonly id="promo-client-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-indigo-300 select-all focus:outline-none">
+                        <input type="text" readonly id="promo-client-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-indigo-700 select-all focus:outline-none">
                         <button onclick="copyPromoUrl('promo-client-url')" class="px-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">Copiar</button>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <span class="font-semibold text-slate-400">Link do Scanner do Vendedor (Equipe)</span>
+                    <span class="font-semibold text-stone-500">Link do Scanner do Vendedor (Equipe)</span>
                     <div class="flex gap-2 mt-1">
-                        <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-violet-300 select-all focus:outline-none">
+                        <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-violet-700 select-all focus:outline-none">
                         <button onclick="copyPromoUrl('promo-vendor-url')" class="px-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition">Copiar</button>
                     </div>
                 </div>
                 
-                <p class="text-[10px] text-slate-400 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
+                <p class="text-[10px] text-stone-500 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
             </div>
         </div>
     </div>
 
     <!-- MODAL 3: CADASTRAR VENDEDOR -->
     <div id="modal-cadastrar-vendedor" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-sm w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-white font-outfit">Cadastrar Vendedor</h3>
-                <button onclick="closeAddVendedorModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Cadastrar Vendedor</h3>
+                <button onclick="closeAddVendedorModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <form id="vendedor-form" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
-                    <label for="vendedor-nome" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Nome Completo</label>
-                    <input type="text" id="vendedor-nome" placeholder="Ex: João Silva" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="vendedor-nome" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Nome Completo</label>
+                    <input type="text" id="vendedor-nome" placeholder="Ex: João Silva" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
                 
                 <div class="flex flex-col gap-1">
-                    <label for="vendedor-email" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">E-mail de Acesso</label>
-                    <input type="email" id="vendedor-email" placeholder="joao@vendedor.com" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    <span class="text-[9px] text-slate-400">O vendedor utilizará este e-mail para logar no scanner do celular.</span>
+                    <label for="vendedor-email" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">E-mail de Acesso</label>
+                    <input type="email" id="vendedor-email" placeholder="joao@vendedor.com" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-stone-500">O vendedor utilizará este e-mail para logar no scanner do celular.</span>
                 </div>
 
                 <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
@@ -661,56 +669,56 @@
     </div>
     <!-- MODAL HISTÓRICO DE CARIMBOS -->
     <div id="modal-historico" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 overflow-y-auto max-h-[90vh]">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="font-bold text-lg text-white font-outfit">Histórico de Carimbos</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-white font-medium">...</span></p>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Histórico de Carimbos</h3>
+                    <p class="text-[10px] text-stone-500 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-stone-800 font-medium">...</span></p>
                 </div>
-                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <div id="historico-lista" class="flex flex-col gap-3 mt-2">
-                <div class="text-center text-slate-400 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+                <div class="text-center text-stone-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
             </div>
         </div>
     </div>
     <!-- MODAL 4: EDITAR CAMPANHA -->
     <div id="modal-editar-campanha" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 overflow-y-auto max-h-[90vh]">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-white font-outfit">Editar Página</h3>
-                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Editar Página</h3>
+                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
             
             <form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
                 <div class="flex flex-col gap-1">
-                    <label for="edit-theme-title" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Título da Página do Cliente</label>
-                    <input type="text" id="edit-theme-title" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="edit-theme-title" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Título da Página do Cliente</label>
+                    <input type="text" id="edit-theme-title" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Meta de Pontos</label>
-                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Descrição do Prêmio</label>
-                        <input type="text" id="edit-premio-desc" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="edit-premio-desc" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                        <label for="edit-theme-color" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cor de Fundo Principal</label>
+                        <label for="edit-theme-color" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Cor de Fundo Principal</label>
                         <div class="flex gap-2 items-center">
                             <input type="color" id="edit-theme-color" class="w-10 h-10 bg-transparent border-0 cursor-pointer rounded-lg">
-                            <input type="text" id="edit-theme-color-hex" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white uppercase focus:outline-none">
+                            <input type="text" id="edit-theme-color-hex" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 uppercase focus:outline-none">
                         </div>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="edit-theme-font" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Tipografia (Fonte)</label>
-                        <select id="edit-theme-font" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        <label for="edit-theme-font" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Tipografia (Fonte)</label>
+                        <select id="edit-theme-font" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                             <option value="sans">Inter</option>
                             <option value="playfair">Playfair Display</option>
                             <option value="space">Space Grotesk</option>
@@ -721,9 +729,9 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5 relative">
-                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Emoji dos Carimbos</label>
-                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white transition text-center text-xl">
-                    <p class="text-[10px] text-slate-400 mt-1">Use o teclado para inserir 1 emoji.</p>
+                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Emoji dos Carimbos</label>
+                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 transition text-center text-xl">
+                    <p class="text-[10px] text-stone-500 mt-1">Use o teclado para inserir 1 emoji.</p>
                 </div>
 
                 <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
@@ -735,17 +743,17 @@
 
     <!-- MODAL 5: FLYER DE DIVULGAÇÃO A4 -->
     <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100 max-h-[90vh]">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 max-h-[90vh]">
             <div class="flex justify-between items-center no-print">
-                <h3 class="font-bold text-lg text-white font-outfit">Flyer de Divulgação</h3>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Flyer de Divulgação</h3>
                 <div class="flex gap-2">
                     <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
-                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
             </div>
             
             <!-- Flyer Container (Designed for Printing) -->
-            <div class="overflow-y-auto flex justify-center p-4 bg-slate-950 border border-slate-900 rounded-xl max-h-[60vh] no-print">
+            <div class="overflow-y-auto flex justify-center p-4 bg-stone-100 border border-stone-200 rounded-xl max-h-[60vh] no-print">
                 <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
                     <div class="flex flex-col items-center gap-4 mt-2">
                         <!-- QR Code Grande no Topo -->
@@ -756,14 +764,14 @@
                         <!-- Informações em baixo de forma simples -->
                         <div class="flex flex-col items-center gap-1">
                             <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
-                            <p class="text-[9px] uppercase tracking-widest text-slate-400 font-semibold mb-1">Clube de Fidelidade</p>
+                            <p class="text-[9px] uppercase tracking-widest text-stone-500 font-semibold mb-1">Clube de Fidelidade</p>
                             
                             <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
-                            <p class="text-[10px] text-slate-400 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                            <p class="text-[10px] text-stone-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
                         </div>
                     </div>
 
-                    <div class="text-[8px] text-slate-400 font-semibold mt-3">Powered by Tem Pontinho</div>
+                    <div class="text-[8px] text-stone-500 font-semibold mt-3">Powered by Tem Pontinho</div>
                 </div>
             </div>
         </div>
@@ -771,40 +779,40 @@
 
     <!-- MODAL PRO FEATURE -->
     <div id="modal-pro-feature" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-sm w-full p-8 flex flex-col gap-4 shadow-2xl animate-fade-in text-slate-100 text-center relative overflow-hidden">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-8 flex flex-col gap-4 shadow-2xl animate-fade-in text-stone-800 text-center relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl"></div>
             
             <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-2xl mx-auto flex items-center justify-center text-slate-900 text-3xl shadow-lg shadow-amber-500/30 mb-2">
                 <i class="fa-solid fa-crown"></i>
             </div>
             
-            <h3 class="font-bold text-2xl text-white font-outfit">Recurso Premium</h3>
-            <p class="text-xs text-slate-400 mb-2">A funcionalidade <strong id="pro-feature-name" class="text-amber-400">Links Externos</strong> é exclusiva do plano Profissional (PRO).</p>
+            <h3 class="font-bold text-2xl text-stone-800 font-outfit">Recurso Premium</h3>
+            <p class="text-xs text-stone-500 mb-2">A funcionalidade <strong id="pro-feature-name" class="text-amber-400">Links Externos</strong> é exclusiva do plano Profissional (PRO).</p>
             
-            <div class="bg-slate-900/50 border border-slate-800 p-4 rounded-xl text-left flex flex-col gap-2 mb-2">
-                <p class="text-xs font-semibold text-slate-300 mb-1">Com o Plano PRO você pode:</p>
-                <div class="flex items-center gap-2 text-[11px] text-slate-400"><i class="fa-solid fa-check text-emerald-500"></i> Inserir botões de WhatsApp, Cardápio, etc.</div>
-                <div class="flex items-center gap-2 text-[11px] text-slate-400"><i class="fa-solid fa-check text-emerald-500"></i> Trocar logotipo do cartão</div>
-                <div class="flex items-center gap-2 text-[11px] text-slate-400"><i class="fa-solid fa-check text-emerald-500"></i> Modificar cores e estilo avançado</div>
+            <div class="bg-stone-50 border border-stone-200 p-4 rounded-xl text-left flex flex-col gap-2 mb-2">
+                <p class="text-xs font-semibold text-stone-500 mb-1">Com o Plano PRO você pode:</p>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Inserir botões de WhatsApp, Cardápio, etc.</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Trocar logotipo do cartão</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Modificar cores e estilo avançado</div>
             </div>
 
             <button onclick="closeProFeatureModal(); switchTab('stripe');" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95">
                 Ver Planos de Assinatura
             </button>
-            <button onclick="closeProFeatureModal()" class="text-xs text-slate-400 hover:text-white mt-1">Agora não</button>
+            <button onclick="closeProFeatureModal()" class="text-xs text-stone-500 hover:text-stone-800 mt-1">Agora não</button>
         </div>
     </div>
 
     <!-- PAYWALL BANNER -->
     <div id="paywall-banner" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-end justify-center p-4 pointer-events-none">
         <div class="w-full max-w-2xl pointer-events-auto mb-6">
-            <div class="glassmorphism rounded-2xl border border-red-500/30 bg-red-950/20 p-5 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
-                <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-red-400 shrink-0 text-xl">
+            <div class="glassmorphism rounded-2xl border border-red-200 bg-red-50 p-5 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
+                <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-red-600 shrink-0 text-xl">
                     <i class="fa-solid fa-circle-exclamation"></i>
                 </div>
                 <div class="flex-1 text-center sm:text-left">
-                    <h4 class="font-bold text-white text-sm">Assinatura inativa — <span id="paywall-motivo">Período de teste encerrado</span></h4>
-                    <p class="text-slate-400 text-xs mt-0.5">Os carimbos e resgates estão bloqueados. Regularize sua assinatura para continuar operando seu programa de fidelidade.</p>
+                    <h4 class="font-bold text-stone-800 text-sm">Assinatura inativa — <span id="paywall-motivo">Período de teste encerrado</span></h4>
+                    <p class="text-stone-500 text-xs mt-0.5">Os carimbos e resgates estão bloqueados. Regularize sua assinatura para continuar operando seu programa de fidelidade.</p>
                 </div>
                 <button onclick="switchTab('stripe')" class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition active:scale-95 flex items-center gap-2">
                     <i class="fa-solid fa-qrcode"></i> Pagar com PIX
@@ -815,37 +823,37 @@
 
     <!-- MODAL PIX CHECKOUT -->
     <div id="modal-pix-checkout" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-slate-100">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="font-bold text-lg text-white font-outfit">Assinar — Plano Tem Pontinho</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">R$ 19,90 / mês via PIX</p>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Assinar — Plano Tem Pontinho</h3>
+                    <p class="text-xs text-stone-500 mt-0.5">R$ 19,90 / mês via PIX</p>
                 </div>
-                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:bg-slate-800 text-slate-400 hover:text-white transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
 
             <!-- Step 1: Form -->
             <div id="pix-checkout-form-step" class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1.5">
-                    <label for="pix-cpfcnpj" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">CPF / CNPJ <span class="text-red-400">*</span></label>
+                    <label for="pix-cpfcnpj" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">CPF / CNPJ <span class="text-red-600">*</span></label>
                     <input type="text" id="pix-cpfcnpj" placeholder="Somente números (11 ou 14 dígitos)" maxlength="18"
-                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
-                    <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-400">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                    <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-600">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label for="pix-telefone" class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Telefone <span class="text-slate-400">(opcional)</span></label>
+                    <label for="pix-telefone" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Telefone <span class="text-stone-500">(opcional)</span></label>
                     <input type="text" id="pix-telefone" placeholder="Ex: 11999990000"
-                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-white transition">
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
                 </div>
                 <button id="btn-pix-submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-sm rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-1">
                     <i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX
                 </button>
-                <p class="text-[10px] text-slate-400 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
+                <p class="text-[10px] text-stone-500 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
             </div>
 
             <!-- Step 2: PIX Result -->
             <div id="pix-result-step" class="hidden flex flex-col gap-5 items-center">
-                <div class="w-full p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 text-center">
+                <div class="w-full p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-700 text-center">
                     <i class="fa-solid fa-circle-check mr-1"></i>
                     Cobrança gerada! Escaneie o QR no app do seu banco. A liberação é automática assim que o pagamento cair.
                 </div>
@@ -857,10 +865,10 @@
 
                 <!-- Copia e Cola -->
                 <div class="w-full flex flex-col gap-1.5">
-                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">PIX Copia e Cola</label>
+                    <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">PIX Copia e Cola</label>
                     <div class="flex gap-2">
                         <input type="text" id="pix-copia-cola" readonly
-                            class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-indigo-300 select-all focus:outline-none">
+                            class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-xs text-indigo-700 select-all focus:outline-none">
                         <button id="btn-pix-copiar" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">
                             <i class="fa-regular fa-copy mr-1"></i> Copiar
                         </button>
@@ -873,7 +881,7 @@
                     <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Abrir fatura no navegador
                 </a>
 
-                <button onclick="closePixCheckoutModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition active:scale-95">
+                <button onclick="closePixCheckoutModal()" class="w-full py-2.5 bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl transition active:scale-95">
                     Fechar
                 </button>
             </div>
@@ -911,7 +919,7 @@
                 ? "bg-red-900/90 border-red-500/40 text-red-200"
                 : type === "warn"
                 ? "bg-amber-900/90 border-amber-500/40 text-amber-100"
-                : "bg-slate-800/90 border-slate-700/60 text-slate-100";
+                : "bg-brand-green text-white border-brand-green";
             toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-xl border backdrop-blur-md text-sm font-medium shadow-2xl transition-all duration-300 opacity-0 translate-y-2 ${colorClass}`;
             toast.innerText = message;
             document.body.appendChild(toast);
@@ -941,7 +949,7 @@
             elTitle.textContent = title; elMsg.textContent = message;
             btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
             btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
-            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-600" : "bg-amber-500/15 text-amber-400"}`;
             icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
             if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
             modal.classList.remove("hidden");
@@ -1193,11 +1201,11 @@
                     if (isWin) premiosDisponiveis += premios;
 
                     const tr = document.createElement("tr");
-                    tr.className = "hover:bg-slate-900/30 transition duration-150";
+                    tr.className = "hover:bg-stone-100 transition duration-150";
                     tr.innerHTML = `
-                        <td class="col-check py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-slate-800 bg-slate-900 text-indigo-600 focus:ring-indigo-500"></td>
-                        <td data-label="Nome" class="py-4 px-6 font-medium text-white">${nome}</td>
-                        <td data-label="E-mail" class="py-4 px-6 text-slate-400">${client.email || ""}</td>
+                        <td class="col-check py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500"></td>
+                        <td data-label="Nome" class="py-4 px-6 font-medium text-stone-800">${nome}</td>
+                        <td data-label="E-mail" class="py-4 px-6 text-stone-500">${client.email || ""}</td>
                         <td data-label="Pontuação" class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
                         <td data-label="Status" class="py-4 px-6 text-center">
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
@@ -1210,13 +1218,13 @@
                         </td>
                         <td data-label="Ações" class="col-actions py-4 px-6 text-right">
                             <div class="flex gap-2 justify-end">
-                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-emerald-950/40 hover:text-emerald-400 hover:border-emerald-500/30 text-slate-300 font-semibold px-3 py-1.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg border border-slate-800 transition" title="Ver Histórico">
+                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-white hover:bg-emerald-50 hover:text-brand-green hover:border-emerald-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition" title="Ver Histórico">
                                     <i class="fa-solid fa-list-ul"></i>
                                 </button>
-                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-slate-900 hover:bg-indigo-950/40 hover:text-indigo-400 hover:border-indigo-500/30 text-slate-300 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-slate-800 transition">
+                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-white hover:bg-emerald-50 hover:text-brand-green hover:border-emerald-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition">
                                     Ajustar
                                 </button>
-                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-slate-900 hover:bg-red-950/40 hover:text-red-400 hover:border-red-500/30 text-slate-400 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-slate-800 transition">
+                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition">
                                     Zerar
                                 </button>
                             </div>
@@ -1228,7 +1236,7 @@
                 if (!hasClientes) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="py-12 text-center text-slate-400">
+                            <td colspan="5" class="py-12 text-center text-stone-500">
                                 Nenhum cliente ativo registrado no seu programa ainda.<br>
                                 <span class="text-[10px] text-indigo-400 mt-2 block">Compartilhe o link do cliente para começar!</span>
                             </td>
@@ -1262,19 +1270,19 @@
                     card.className = "glassmorphism p-5 rounded-2xl flex flex-col justify-between gap-4";
                     card.innerHTML = `
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 text-lg">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-stone-200 flex items-center justify-center text-stone-500 text-lg">
                                 <i class="fa-solid fa-user-tag"></i>
                             </div>
                             <div>
-                                <h4 class="font-bold text-white text-sm leading-tight">${vended.nomeVendedor}</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">${vended.email}</p>
+                                <h4 class="font-bold text-stone-800 text-sm leading-tight">${vended.nomeVendedor}</h4>
+                                <p class="text-[10px] text-stone-500 mt-0.5">${vended.email}</p>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center border-t border-slate-900 pt-3">
-                            <span class="text-[9px] font-bold uppercase tracking-wider ${vended.ativo ? 'text-emerald-400' : 'text-slate-400'}">
+                        <div class="flex justify-between items-center border-t border-stone-200 pt-3">
+                            <span class="text-[9px] font-bold uppercase tracking-wider ${vended.ativo ? 'text-emerald-400' : 'text-stone-500'}">
                                 ${vended.ativo ? 'Ativo' : 'Inativo'}
                             </span>
-                            <button onclick="deletarVendedor('${vUid}')" class="text-[10px] text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-500/10 transition">
+                            <button onclick="deletarVendedor('${vUid}')" class="text-[10px] text-red-600 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-500/10 transition">
                                 Remover
                             </button>
                         </div>
@@ -1284,7 +1292,7 @@
 
                 if (!hasVendedores) {
                     grid.innerHTML = `
-                        <div class="glassmorphism p-8 rounded-2xl text-center text-slate-400 col-span-full">
+                        <div class="glassmorphism p-8 rounded-2xl text-center text-stone-500 col-span-full">
                             Nenhum vendedor registrado nesta empresa.
                         </div>
                     `;
@@ -1301,7 +1309,7 @@
         window.openHistoricoModal = async function(clientId, clientName) {
             document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
             const historicoLista = document.getElementById("historico-lista");
-            historicoLista.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Carregando histórico...</div>`;
+            historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Carregando histórico...</div>`;
             document.getElementById("modal-historico").classList.remove("hidden");
 
             try {
@@ -1310,7 +1318,7 @@
                 const snap = await getDocs(logsRef);
 
                 if (snap.empty) {
-                    historicoLista.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs">Nenhum registro no histórico.</div>`;
+                    historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Nenhum registro no histórico.</div>`;
                     return;
                 }
 
@@ -1325,28 +1333,28 @@
                     const desc = log.tipo === "resgate"
                         ? `<i class="fa-solid fa-gift text-yellow-400 mr-1.5"></i> Prêmio entregue`
                         : log.tipo === "remocao"
-                        ? `<i class="fa-solid fa-minus text-red-400 mr-1.5"></i> -1 Ponto`
+                        ? `<i class="fa-solid fa-minus text-red-600 mr-1.5"></i> -1 Ponto`
                         : log.tipo === "ajuste"
                         ? `<i class="fa-solid fa-pen text-amber-400 mr-1.5"></i> Ajuste manual (${log.qtd ?? 0})`
                         : `<i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.qtd || 1} Ponto(s)`;
                     const sub = log.motivo ? `Motivo: ${log.motivo}` : `Vendedor: ${log.vendedor || "Sistema"}`;
 
                     return `
-                        <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                        <div class="bg-stone-50 border border-stone-200 p-3 rounded-xl flex justify-between items-center text-xs">
                             <div class="flex flex-col gap-1">
-                                <span class="text-white font-medium">${desc}</span>
-                                <span class="text-slate-400 text-[10px]">${sub}</span>
+                                <span class="text-stone-800 font-medium">${desc}</span>
+                                <span class="text-stone-500 text-[10px]">${sub}</span>
                             </div>
                             <div class="text-right flex flex-col gap-0.5">
-                                <span class="text-slate-300">${dateStr}</span>
-                                <span class="text-slate-400 text-[10px]">${timeStr}</span>
+                                <span class="text-stone-500">${dateStr}</span>
+                                <span class="text-stone-500 text-[10px]">${timeStr}</span>
                             </div>
                         </div>
                     `;
                 }).join("");
             } catch (err) {
                 console.error("Erro ao carregar histórico:", err);
-                historicoLista.innerHTML = `<div class="text-center text-red-400 py-6 text-xs">Erro ao carregar histórico.</div>`;
+                historicoLista.innerHTML = `<div class="text-center text-red-600 py-6 text-xs">Erro ao carregar histórico.</div>`;
             }
         };
 
@@ -1396,17 +1404,17 @@
 
             // Reseta classes
             [btnAdd, btnRemove, btnZero].forEach(btn => {
-                btn.className = "flex-grow py-2.5 rounded-lg border-2 border-slate-800 bg-transparent text-slate-400 font-bold text-xs transition";
+                btn.className = "flex-grow py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition";
             });
 
             if (action === "add") {
-                btnAdd.className = "flex-grow py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-300 transition";
+                btnAdd.className = "flex-grow py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-700 transition";
                 pointsContainer.classList.remove("hidden");
             } else if (action === "remove") {
-                btnRemove.className = "flex-grow py-2.5 rounded-lg border-2 border-amber-600 bg-amber-600/10 font-bold text-xs text-amber-300 transition";
+                btnRemove.className = "flex-grow py-2.5 rounded-lg border-2 border-amber-600 bg-amber-600/10 font-bold text-xs text-amber-700 transition";
                 pointsContainer.classList.remove("hidden");
             } else if (action === "zero") {
-                btnZero.className = "flex-grow py-2.5 rounded-lg border-2 border-red-600 bg-red-600/10 font-bold text-xs text-red-300 transition";
+                btnZero.className = "flex-grow py-2.5 rounded-lg border-2 border-red-600 bg-red-600/10 font-bold text-xs text-red-700 transition";
                 pointsContainer.classList.add("hidden");
             }
             
@@ -1774,7 +1782,7 @@
 
             // Reseta cores dos botões das abas
             [tabBtnDash, tabBtnClientes, tabBtnEquipe, tabBtnStripe].forEach(btn => {
-                btn.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900/60 font-medium text-sm transition-all duration-200";
+                btn.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200";
             });
 
             // Reseta exibições de conteúdos
@@ -1795,7 +1803,7 @@
                 const mBtn = document.getElementById(`mtab-btn-${t}`);
                 if (!mBtn) return;
                 mBtn.classList.toggle("text-indigo-400", t === tabName);
-                mBtn.classList.toggle("text-slate-400", t !== tabName);
+                mBtn.classList.toggle("text-stone-500", t !== tabName);
             });
 
             // Define título da página
@@ -2129,19 +2137,19 @@
     </script>
 
     <div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-      <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+      <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <div class="flex items-start gap-3">
           <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
             <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <h3 id="confirm-title" class="font-bold text-lg text-white font-outfit">Confirmar</h3>
-            <p id="confirm-message" class="text-sm text-slate-300 mt-1 whitespace-pre-line"></p>
-            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+            <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+            <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
+            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
           </div>
         </div>
         <div class="flex gap-3 mt-6">
-          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-slate-600 text-slate-200 font-semibold hover:bg-slate-700 transition">Cancelar</button>
+          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-800 font-semibold hover:bg-stone-100 transition">Cancelar</button>
           <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
         </div>
       </div>

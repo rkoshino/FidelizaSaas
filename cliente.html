@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full text-slate-100 font-inter">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,14 @@
                         mono: ['JetBrains Mono', 'monospace'],
                         bebas: ['Bebas Neue', 'sans-serif'],
                         outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
                 }
             }
@@ -33,16 +41,16 @@
     
     <style>
         .glassmorphism {
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 8px 24px rgba(42, 37, 32, 0.08);
         }
         .stamp-pulse {
             animation: pulse-border 2s infinite;
         }
         @keyframes pulse-border {
-            0%, 100% { border-color: rgba(255, 255, 255, 0.2); }
-            50% { border-color: rgba(255, 255, 255, 0.6); }
+            0%, 100% { border-color: rgba(217, 107, 67, 0.3); }
+            50% { border-color: rgba(217, 107, 67, 0.7); }
         }
         /* X-07: respeita prefers-reduced-motion — neutraliza animações/transições. */
         @media (prefers-reduced-motion: reduce) {
@@ -55,13 +63,13 @@
         }
         /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
         :focus-visible {
-            outline: 2px solid #818cf8 !important;
+            outline: 2px solid #2A5A44 !important;
             outline-offset: 2px !important;
             border-radius: 6px;
         }
     </style>
 </head>
-<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #0b0f19;">
+<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #F4EFE6;">
 
 <div id="toast" class="fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none" style="opacity:0;transform:translateY(-8px);transition:all .3s">
   <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
@@ -74,27 +82,27 @@
         <!-- LOGIN CARD -->
         <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-6 text-center">
             <div class="flex flex-col items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white text-3xl">
+                <div class="w-14 h-14 rounded-2xl bg-brand-green text-white flex items-center justify-center text-3xl">
                     ✶
                 </div>
-                <h2 id="login-welcome-title" class="text-xl font-bold font-outfit text-white">Carregando Programa...</h2>
-                <p id="login-welcome-desc" class="text-slate-300 text-xs px-2 leading-relaxed">
+                <h2 id="login-welcome-title" class="text-xl font-bold font-outfit text-brand-green">Carregando Programa...</h2>
+                <p id="login-welcome-desc" class="text-stone-500 text-xs px-2 leading-relaxed">
                     Entre para começar a acumular carimbos e resgatar seu prêmio!
                 </p>
             </div>
 
             <!-- C-01: prévia de valor (loja/prêmio/progresso) ANTES da barreira de login -->
-            <div id="reward-preview" class="rounded-2xl border border-white/10 bg-black/25 p-4 flex flex-col items-center gap-2.5 text-center">
+            <div id="reward-preview" class="rounded-2xl border border-stone-200 bg-white p-4 flex flex-col items-center gap-2.5 text-center">
                 <div id="preview-stamps" class="flex items-center justify-center gap-1 flex-wrap"></div>
-                <p class="text-xs text-white/90 font-medium leading-relaxed">
-                    Junte <span id="preview-meta" class="font-bold text-white">10</span> carimbos e ganhe
+                <p class="text-xs text-stone-600 font-medium leading-relaxed">
+                    Junte <span id="preview-meta" class="font-bold text-stone-800">10</span> carimbos e ganhe
                 </p>
-                <p id="preview-prize" class="text-sm font-bold text-yellow-300">seu prêmio</p>
+                <p id="preview-prize" class="text-sm font-bold text-brand-accent">seu prêmio</p>
             </div>
 
             <!-- Authentication Buttons (C-01: Google 1-tap como primário; e-mail como alternativa) -->
             <div class="flex flex-col gap-3" id="social-login-container">
-                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white hover:bg-slate-100 text-slate-900 border border-white rounded-2xl transition font-semibold text-sm active:scale-[0.98] shadow-lg shadow-black/10">
+                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white hover:bg-stone-50 text-stone-700 border border-stone-300 rounded-2xl transition font-semibold text-sm active:scale-[0.98] shadow-sm shadow-stone-200">
                     <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="">
                     <span>Continuar com Google</span>
                 </button>
@@ -102,16 +110,16 @@
                     <i class="fa-brands fa-facebook text-lg"></i>
                     <span>Logar com Facebook</span>
                 </button>
-                <button id="btn-login-apple" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-slate-800 hover:bg-slate-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
+                <button id="btn-login-apple" class="hidden flex items-center justify-center gap-3 w-full py-3.5 bg-black border border-stone-800 hover:bg-stone-900 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-white">
                     <i class="fa-brands fa-apple text-lg"></i>
                     <span>Logar com Apple</span>
                 </button>
                 <div class="flex items-center my-1">
-                    <div class="h-[1px] flex-grow bg-white/10"></div>
-                    <span class="px-2 text-[10px] text-slate-400 uppercase tracking-widest">ou</span>
-                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
+                    <span class="px-2 text-[10px] text-stone-400 uppercase tracking-widest">ou</span>
+                    <div class="h-[1px] flex-grow bg-stone-200"></div>
                 </div>
-                <button id="btn-toggle-email" class="w-full py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-slate-300">
+                <button id="btn-toggle-email" class="w-full py-3.5 bg-white border border-stone-300 hover:bg-stone-50 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-stone-600">
                     <i class="fa-regular fa-envelope mr-1.5 text-sm"></i> Entrar com E-mail
                 </button>
             </div>
@@ -119,25 +127,25 @@
             <!-- Email Login Form -->
             <form id="email-login-form" class="hidden flex flex-col gap-3.5 text-left">
                 <div class="flex flex-col gap-1">
-                    <label for="client-email" class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">E-mail</label>
-                    <input type="email" id="client-email" required placeholder="ex: cliente@email.com" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="client-email" class="text-[9px] font-semibold text-stone-500 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="client-email" required placeholder="ex: cliente@email.com" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div class="flex flex-col gap-1">
-                    <label for="client-password" class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Senha (Mínimo 6 caracteres)</label>
-                    <input type="password" id="client-password" required placeholder="Digite sua senha" class="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <label for="client-password" class="text-[9px] font-semibold text-stone-500 uppercase tracking-wider">Senha (Mínimo 6 caracteres)</label>
+                    <input type="password" id="client-password" required placeholder="Digite sua senha" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
                 </div>
                 <button type="submit" id="btn-submit-client-email" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-white text-xs rounded-xl active:scale-[0.98] transition">
                     Entrar / Criar Conta
                 </button>
-                <button type="button" id="btn-back-social" class="text-center text-xs text-slate-400 mt-1 min-h-[44px] inline-flex items-center justify-center hover:underline">
+                <button type="button" id="btn-back-social" class="text-center text-xs text-stone-500 mt-1 min-h-[44px] inline-flex items-center justify-center hover:underline">
                     Voltar para Login Social
                 </button>
             </form>
             
-            <div class="text-[10px] text-slate-400 px-4 mt-2 bg-slate-900/50 border border-slate-800 p-3 rounded-xl">
+            <div class="text-[10px] text-stone-500 px-4 mt-2 bg-white border border-stone-200 p-3 rounded-xl">
                 <p class="mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> <strong>Sua privacidade é importante.</strong></p>
                 <p>
-                    Ao criar uma conta, você concorda com nossos <a href="termos.html" target="_blank" class="text-white hover:underline font-semibold">Termos de Uso</a> e <a href="privacidade.html" target="_blank" class="text-white hover:underline font-semibold">Política de Privacidade (LGPD)</a>, e autoriza explicitamente o compartilhamento do seu Nome e E-mail com <strong id="lgpd-store-name" class="text-indigo-300">este estabelecimento</strong> para fins de pontuação.
+                    Ao criar uma conta, você concorda com nossos <a href="termos.html" target="_blank" class="text-brand-green hover:underline font-semibold">Termos de Uso</a> e <a href="privacidade.html" target="_blank" class="text-brand-green hover:underline font-semibold">Política de Privacidade (LGPD)</a>, e autoriza explicitamente o compartilhamento do seu Nome e E-mail com <strong id="lgpd-store-name" class="text-brand-green">este estabelecimento</strong> para fins de pontuação.
                 </p>
             </div>
         </div>
@@ -147,29 +155,29 @@
             
             <!-- Branding Header -->
             <div class="flex flex-col items-center gap-1.5 mt-2">
-                <div class="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white text-lg">
+                <div class="w-10 h-10 rounded-full bg-brand-green text-white flex items-center justify-center text-lg">
                     ✶
                 </div>
-                <h2 id="app-title" class="font-bold text-lg text-white leading-tight">Clube de Fidelidade</h2>
-                <span class="text-[9px] bg-black/35 text-white/90 border border-white/10 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Cartão de Pontos</span>
+                <h2 id="app-title" class="font-bold text-lg text-brand-green leading-tight">Clube de Fidelidade</h2>
+                <span class="text-[9px] bg-brand-green/10 text-brand-green border border-brand-green/20 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Cartão de Pontos</span>
             </div>
 
             <!-- Unique Client QR Code Section (Moved to top) -->
             <div class="glassmorphism rounded-3xl p-6 flex flex-col items-center gap-4">
-                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-black/15" id="qrcode-box">
+                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 border border-stone-200 shadow-sm" id="qrcode-box">
                     <div id="qrcode-placeholder"></div>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <p class="text-xs text-white font-semibold">Seu QR Code de Pontuação</p>
-                    <p class="text-[9px] text-white/60">Apresente este código ao vendedor no balcão para registrar carimbos.</p>
+                    <p class="text-xs text-stone-800 font-semibold">Seu QR Code de Pontuação</p>
+                    <p class="text-[9px] text-stone-500">Apresente este código ao vendedor no balcão para registrar carimbos.</p>
                 </div>
             </div>
 
             <!-- Stamped Point Area (Card Deck style) -->
-            <div class="glassmorphism rounded-3xl p-5 border border-white/10 shadow-xl flex flex-col gap-4">
-                <div class="flex justify-between items-center text-xs border-b border-white/10 pb-3">
-                    <span class="text-white/80 font-medium">Pontuação Acumulada</span>
-                    <span id="points-counter" class="font-bold text-white bg-black/20 px-2.5 py-1 rounded-lg">0 / 10</span>
+            <div class="glassmorphism rounded-3xl p-5 flex flex-col gap-4">
+                <div class="flex justify-between items-center text-xs border-b border-stone-200 pb-3">
+                    <span class="text-stone-600 font-medium">Pontuação Acumulada</span>
+                    <span id="points-counter" class="font-bold text-brand-green bg-brand-green/10 px-2.5 py-1 rounded-lg">0 / 10</span>
                 </div>
 
                 <!-- Stamps Grid -->
@@ -178,32 +186,32 @@
                 </div>
 
                 <!-- Goal Banner and Prize Detail -->
-                <div class="p-3 bg-black/25 border border-white/5 rounded-2xl text-xs text-white/90 leading-relaxed font-medium">
-                    Meta de <span id="points-target" class="font-bold underline">10</span> carimbos = 
-                    <span id="prize-description" class="font-bold text-yellow-300">Carregando Prêmio...</span>
+                <div class="p-3 bg-brand-paper border border-stone-200 rounded-2xl text-xs text-stone-600 leading-relaxed font-medium">
+                    Meta de <span id="points-target" class="font-bold underline text-brand-green">10</span> carimbos =
+                    <span id="prize-description" class="font-bold text-brand-accent">Carregando Prêmio...</span>
                 </div>
             </div>
 
             <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
-            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-yellow-400 bg-yellow-400/10 text-yellow-300 flex flex-col items-center gap-2 text-center animate-bounce">
+            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-brand-accent/10 text-brand-accent-dark flex flex-col items-center gap-2 text-center animate-bounce">
                 <h4 class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>Você tem <span id="victory-count">1</span> prêmio(s)!</h4>
-                <p class="text-[11px] text-white font-medium">Mostre esta tela (o QR acima) ao vendedor para retirar.</p>
+                <p class="text-[11px] text-stone-700 font-medium">Mostre esta tela (o QR acima) ao vendedor para retirar.</p>
             </div>
 
             <!-- C-06: Empty state acolhedor para o cliente novo (0 carimbos, nenhum prêmio) -->
-            <div id="welcome-banner" class="hidden p-4 rounded-2xl border border-white/15 bg-white/5 text-white flex flex-col items-center gap-1 text-center">
-                <h4 class="font-bold text-sm"><i class="fa-solid fa-hand-sparkles mr-1.5 text-yellow-300"></i>Bem-vindo(a)!</h4>
-                <p class="text-[11px] text-white/80 font-medium">Seu primeiro carimbo está a um pedido de distância. Mostre seu QR no balcão e comece a juntar pontos.</p>
+            <div id="welcome-banner" class="hidden p-4 rounded-2xl border border-stone-200 bg-white text-stone-800 flex flex-col items-center gap-1 text-center">
+                <h4 class="font-bold text-sm"><i class="fa-solid fa-hand-sparkles mr-1.5 text-brand-accent"></i>Bem-vindo(a)!</h4>
+                <p class="text-[11px] text-stone-600 font-medium">Seu primeiro carimbo está a um pedido de distância. Mostre seu QR no balcão e comece a juntar pontos.</p>
             </div>
 
             <!-- Profile Info Footer / Logged user info -->
-            <div class="flex items-center justify-between px-3 text-[11px] text-white/70 mt-2">
+            <div class="flex items-center justify-between px-3 text-[11px] text-stone-500 mt-2">
                 <span id="client-name">Cliente</span>
                 <div class="relative">
-                    <button id="btn-menu-toggle" class="text-white/60 hover:text-white w-11 h-11 inline-flex items-center justify-center rounded-lg transition" aria-label="Menu"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                    <div id="account-menu" class="hidden absolute right-0 bottom-full mb-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 text-left">
-                        <button id="btn-logout" class="w-full px-4 py-2.5 text-white/80 hover:bg-white/5 flex items-center gap-2 transition"><i class="fa-solid fa-power-off w-4"></i> Desconectar</button>
-                        <button id="btn-delete-account" class="w-full px-4 py-2.5 text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition border-t border-white/5"><i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)</button>
+                    <button id="btn-menu-toggle" class="text-stone-400 hover:text-stone-700 w-11 h-11 inline-flex items-center justify-center rounded-lg transition" aria-label="Menu"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    <div id="account-menu" class="hidden absolute right-0 bottom-full mb-2 w-56 bg-white border border-stone-200 rounded-xl shadow-xl overflow-hidden z-50 text-left">
+                        <button id="btn-logout" class="w-full px-4 py-2.5 text-stone-700 hover:bg-stone-100 flex items-center gap-2 transition"><i class="fa-solid fa-power-off w-4"></i> Desconectar</button>
+                        <button id="btn-delete-account" class="w-full px-4 py-2.5 text-red-600 hover:bg-red-50 flex items-center gap-2 transition border-t border-stone-200"><i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)</button>
                     </div>
                 </div>
             </div>
@@ -213,7 +221,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="w-full text-center text-[11px] text-white/60 pb-2">
+    <footer class="w-full text-center text-[11px] text-stone-400 pb-2">
         <p>&copy; Tem Pontinho · seu cartão fidelidade no celular.</p>
     </footer>
 
@@ -356,13 +364,13 @@
                             document.title = pageTitle;
                             
                             // Altera a cor de fundo do container da página inteira
-                            document.documentElement.style.backgroundColor = visualConfig.corFundo || "#0b0f19";
-                            document.getElementById("body-container").style.backgroundColor = visualConfig.corFundo || "#0b0f19";
+                            document.documentElement.style.backgroundColor = visualConfig.corFundo || "#F4EFE6";
+                            document.getElementById("body-container").style.backgroundColor = visualConfig.corFundo || "#F4EFE6";
                             
                             // Altera fontes
                             const activeFont = visualConfig.fonte || "sans";
                             document.getElementById("body-container").className = `h-full flex flex-col justify-between overflow-x-hidden p-4 font-${activeFont} transition-all duration-500`;
-                            document.getElementById("app-title").className = `font-bold text-lg text-white leading-tight font-${activeFont}`;
+                            document.getElementById("app-title").className = `font-bold text-lg text-brand-green leading-tight font-${activeFont}`;
                             document.getElementById("app-title").innerText = pageTitle;
                             
                             const lgpdName = document.getElementById("lgpd-store-name");
@@ -387,9 +395,9 @@
                                 const shown = Math.min(metaPontos, 5);
                                 let html = "";
                                 for (let i = 0; i < shown; i++) {
-                                    html += `<span class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center text-[11px] text-white/40">${brandEmoji}</span>`;
+                                    html += `<span class="w-7 h-7 rounded-full border border-stone-300 bg-white flex items-center justify-center text-[11px] text-stone-400">${brandEmoji}</span>`;
                                 }
-                                if (metaPontos > shown) html += `<span class="text-white/50 text-xs px-1">+${metaPontos - shown}</span>`;
+                                if (metaPontos > shown) html += `<span class="text-stone-500 text-xs px-1">+${metaPontos - shown}</span>`;
                                 previewStamps.innerHTML = html;
                             }
                             
@@ -403,7 +411,7 @@
                     });
                 } else {
                     document.getElementById("login-welcome-title").innerText = "Link Inválido";
-                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-400 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Link inválido</span> Abra o cartão pelo link que a loja compartilhou com você.`;
+                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-600 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Link inválido</span> Abra o cartão pelo link que a loja compartilhou com você.`;
                     // Oculta entradas de login (mantém o header com a mensagem de erro)
                     hideLoginInputs();
                 }
@@ -592,9 +600,9 @@
                 giantEmoji.remove();
                 const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
                 if (targetSlot) {
-                    targetSlot.classList.remove("bg-black/20", "text-white/50", "border-white/10", "rounded-full", "border-2", "text-xs");
-                    targetSlot.classList.add("bg-transparent", "border-transparent", "scale-110");
-                    targetSlot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${brandEmoji}</span>`;
+                    targetSlot.classList.remove("bg-white", "text-stone-400", "border-stone-300", "text-xs");
+                    targetSlot.classList.add("bg-brand-accent", "border-brand-accent", "text-white", "scale-110");
+                    targetSlot.innerHTML = `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`;
                 }
             }, 1100);
         }
@@ -618,14 +626,14 @@
                 stamp.id = `stamp-slot-${i}`;
                 const isStamped = i <= pointsCount;
 
-                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
-                    isStamped 
-                        ? "bg-transparent border-transparent scale-110" 
-                        : "rounded-full border-2 bg-black/20 text-white/50 border-white/10 text-xs"
+                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 rounded-full border-2 ${
+                    isStamped
+                        ? "bg-brand-accent border-brand-accent text-white scale-110"
+                        : "bg-white text-stone-400 border-stone-300 text-xs"
                 }`;
 
-                stamp.innerHTML = isStamped 
-                    ? `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(255,255,255,0.25)]">${brandEmoji}</span>` 
+                stamp.innerHTML = isStamped
+                    ? `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`
                     : `${i}`;
 
                 grid.appendChild(stamp);
@@ -787,19 +795,19 @@
     </script>
 
 <div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-  <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+  <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
     <div class="flex items-start gap-3">
       <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
         <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
       </div>
       <div class="flex-1 min-w-0">
-        <h3 id="confirm-title" class="font-bold text-lg text-white font-outfit">Confirmar</h3>
-        <p id="confirm-message" class="text-sm text-slate-300 mt-1 whitespace-pre-line"></p>
-        <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+        <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+        <p id="confirm-message" class="text-sm text-stone-600 mt-1 whitespace-pre-line"></p>
+        <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
       </div>
     </div>
     <div class="flex gap-3 mt-6">
-      <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-slate-600 text-slate-200 font-semibold hover:bg-slate-700 transition">Cancelar</button>
+      <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 transition">Cancelar</button>
       <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
     </div>
   </div>
