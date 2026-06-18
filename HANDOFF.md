@@ -3,11 +3,14 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-18 (sessão: **fluxo scan/prêmio + V-03 + X-01**).
+> Última atualização: 2026-06-18 (sessão: **login/cadastro + equipe/vendedores**).
 > **Deploy production concluído** (`firebase deploy --only functions,hosting`) em `tempontinho.com` e
 > `nice-dreamks-fidelidade.web.app`: tema claro oficial nas 7 telas, modais X-01, fundo do cliente fixo
 > em creme `#F4EFE6`, e novo contrato de pontos/prêmio (cartão trava cheio, scan resgata, sobra entra só
 > depois do resgate). **PR #2 mergeado em `main`**; produção e GitHub sincronizados.
+> Deploy production concluído também para login/cadastro + equipe/vendedores
+> (`firebase deploy --only functions,firestore,hosting`) em `tempontinho.com` e
+> `nice-dreamks-fidelidade.web.app`.
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -96,7 +99,9 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    Remetente `avisos@tempontinho.com`. **Pendência de segurança:** a API key foi colada no chat — o dono
    deve **rotacioná-la** no Resend (criar outra, `firebase functions:secrets:set RESEND_API_KEY` com a
    nova, redeploy de functions, revogar a antiga). **Falta testar** o envio real (ver lado do Claude).
-7. (Antigo) testar **login Google no mobile**.
+7. **Testar login/cadastro do dono em produção**: e-mail/senha sem senha deve mostrar erro PT-BR;
+   e-mail/senha incorreto deve sugerir cadastro; Google com conta sem empresa deve pedir confirmação
+   antes de criar cadastro/trial.
 8. **Teste manual do novo fluxo de scan/prêmio**: vendedor seleciona quantidade rápida, escaneia QR do
    cliente; sem prêmio pendente o scan pontua automaticamente; ao completar o cartão, o cliente vê prêmio
    pendente; próximo scan do vendedor resgata automaticamente; no último resgate, o cartão rasga/renova e
@@ -139,6 +144,13 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
      se há prêmio, resgata automaticamente. Há trava anti-duplicação de leitura.
    - Cliente (`cliente.html`): banner/animação de prêmio pendente, animação de resgate, cartão rasgando,
      novo cartão entrando e sobra animando ponto a ponto.
+
+9. **Login/cadastro + equipe/vendedores** ✅ **FEITO E DEPLOYADO (2026-06-18)**:
+   - Login do dono: Google novo pede confirmação antes de criar empresa/trial; e-mail/senha incorreto sugere cadastro.
+   - Equipe: “Novo Vendedor” gera convite; atendente aceita com Google ou e-mail/senha e cai no scanner.
+   - Dashboard: lista vendedores com Pausar/Retomar e Apagar.
+   - Backend: `acceptVendorInvite` cria vínculo de vendedor ativo; Functions bloqueiam vendedor pausado.
+   - PT-BR: validações nativas substituídas nos formulários principais e mensagens técnicas removidas dos fluxos testados.
 
 ### 🔧 Notas operacionais
 - **Git push trava** no `git-credential-osxkeychain` neste ambiente. Use o helper do gh:
@@ -281,6 +293,9 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       `firebase functions:secrets:set ASAAS_API_KEY` (versão 2; antiga destruída no redeploy).
 - [ ] **Testar login Google no MOBILE** em `tempontinho.com` (o redirect URI foi corrigido —
       confirmar que loga e PERMANECE logado).
+- [ ] **Testar login/cadastro/equipe em produção**: login sem senha em PT-BR; conta inexistente sugere
+      cadastro; Google sem empresa pede confirmação; convite de vendedor aceita Google/e-mail; pausar
+      bloqueia acesso; apagar remove acesso.
 - [ ] **Testar scan/prêmio no runtime real**: cenário 9+4 → cartão 10/10 + 1 prêmio pendente +
       `pontosSobra=3`; próximo scan resgata; cliente vê cartão novo com 3 pontos entrando.
 - [x] **Configurar o webhook no painel Asaas** ✅ 2026-06-17 — token existente, Sequencial, ativo,
@@ -327,6 +342,10 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
       - [~] **Onda 5 (polimento)** — feitas e deployadas: X-01 (modais), X-03, X-05, X-07, C-06,
             C-01 e X-02 parcial + sweep adicional em login/cliente/vendedor. **Falta:** auditoria visual
             final de contraste/leitura em device real pós-tema claro.
+- [x] **Login/cadastro + equipe/vendedores** — feito e deployado: login do dono separa
+      entrar/criar conta, Google novo pede confirmação antes do trial, erros principais em PT-BR,
+      convites de vendedor, aceite via callable, pausar/retomar/apagar vendedor e bloqueio de vendedor
+      pausado nas Functions. Documentado em `docs/PLANO_LOGIN_EQUIPE.md`.
 - [ ] **Backlog de polimento (pós-launch):** Tailwind via build (hoje CDN dá warning em
       prod), PWA/manifest, auditoria de acessibilidade (ver `docs/RELATORIO_DESIGN.md`),
       manter o `README` atualizado.

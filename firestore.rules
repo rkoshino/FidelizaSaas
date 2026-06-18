@@ -68,6 +68,13 @@ service cloud.firestore {
           allow write: if false;
         }
       }
+
+      // Convites de vendedores gerados pelo dono. O aceite acontece via
+      // Cloud Function (`acceptVendorInvite`) para evitar self-create arbitrário.
+      match /convitesVendedores/{conviteId} {
+        allow read, create, update, delete: if request.auth != null &&
+          (request.auth.uid == empresaId || isSuperAdmin());
+      }
     }
 
     // --- Perfil do consumidor (sem pontos) ---

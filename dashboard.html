@@ -417,7 +417,7 @@
                                 <i class="fa-regular fa-copy"></i> Copiar Link
                             </button>
                         </div>
-                        <button onclick="openAddVendedorModal()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
+                        <button onclick="gerarConviteVendedor()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
                             <i class="fa-solid fa-user-plus"></i> Novo Vendedor
                         </button>
                     </div>
@@ -430,10 +430,23 @@
                     </div>
                     <div class="flex flex-col gap-2 text-center sm:text-left">
                         <h4 class="font-bold text-stone-800 text-sm font-outfit">Acesso rápido do vendedor</h4>
-                        <p class="text-xs text-stone-500 leading-relaxed">Peça para o funcionário <strong>escanear este QR com o celular</strong>: ele cai direto na tela de login do vendedor. Basta entrar com o e-mail já cadastrado aqui na equipe — o painel da empresa continua só com você.</p>
+                        <p class="text-xs text-stone-500 leading-relaxed">Este QR abre a câmera do vendedor para quem já está autorizado. Para adicionar alguém novo, use <strong>Novo Vendedor</strong> e envie o link de convite gerado.</p>
                         <div class="flex gap-2 justify-center sm:justify-start mt-1">
                             <button id="btn-vendor-qr-copy" class="text-[11px] font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-3 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-copy"></i> Copiar link</button>
                         </div>
+                    </div>
+                </div>
+
+                <div id="vendor-invite-card" class="hidden glassmorphism rounded-2xl p-5 border border-brand-green/20 bg-brand-green/5 flex flex-col gap-3">
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm font-outfit">Convite de vendedor criado</h4>
+                        <p class="text-xs text-stone-600 mt-1">Envie este link para o atendente. Ele poderá criar login com Google ou e-mail/senha e cair direto na câmera desta empresa.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="vendor-invite-url" readonly class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs text-brand-green select-all focus:outline-none" value="">
+                        <button id="btn-copy-vendor-invite" class="px-4 py-3 bg-brand-green hover:bg-brand-green-dark text-white rounded-xl text-xs font-bold transition active:scale-95" type="button">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar convite
+                        </button>
                     </div>
                 </div>
 
@@ -629,7 +642,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <span class="font-semibold text-stone-500">Link do Scanner do Vendedor (Equipe)</span>
+                    <span class="font-semibold text-stone-500">Link da câmera do vendedor (equipe)</span>
                     <div class="flex gap-2 mt-1">
                         <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-violet-700 select-all focus:outline-none">
                         <button onclick="copyPromoUrl('promo-vendor-url')" class="px-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition">Copiar</button>
@@ -641,32 +654,6 @@
         </div>
     </div>
 
-    <!-- MODAL 3: CADASTRAR VENDEDOR -->
-    <div id="modal-cadastrar-vendedor" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-sm w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-stone-800 font-outfit">Cadastrar Vendedor</h3>
-                <button onclick="closeAddVendedorModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-            </div>
-            
-            <form id="vendedor-form" class="flex flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                    <label for="vendedor-nome" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Nome Completo</label>
-                    <input type="text" id="vendedor-nome" placeholder="Ex: João Silva" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                </div>
-                
-                <div class="flex flex-col gap-1">
-                    <label for="vendedor-email" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">E-mail de Acesso</label>
-                    <input type="email" id="vendedor-email" placeholder="joao@vendedor.com" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                    <span class="text-[9px] text-stone-500">O vendedor utilizará este e-mail para logar no scanner do celular.</span>
-                </div>
-
-                <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
-                    Autorizar Vendedor
-                </button>
-            </form>
-        </div>
-    </div>
     <!-- MODAL HISTÓRICO DE CARIMBOS -->
     <div id="modal-historico" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
@@ -1273,18 +1260,23 @@
                             <div class="w-10 h-10 rounded-xl bg-white border border-stone-200 flex items-center justify-center text-stone-500 text-lg">
                                 <i class="fa-solid fa-user-tag"></i>
                             </div>
-                            <div>
-                                <h4 class="font-bold text-stone-800 text-sm leading-tight">${vended.nomeVendedor}</h4>
-                                <p class="text-[10px] text-stone-500 mt-0.5">${vended.email}</p>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-stone-800 text-sm leading-tight truncate">${vended.nomeVendedor || "Atendente"}</h4>
+                                <p class="text-xs text-stone-500 mt-0.5 break-all">${vended.email || ""}</p>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center border-t border-stone-200 pt-3">
-                            <span class="text-[9px] font-bold uppercase tracking-wider ${vended.ativo ? 'text-emerald-400' : 'text-stone-500'}">
-                                ${vended.ativo ? 'Ativo' : 'Inativo'}
+                        <div class="flex justify-between items-center gap-2 border-t border-stone-200 pt-3">
+                            <span class="text-xs font-bold uppercase tracking-wider ${vended.ativo !== false ? 'text-emerald-700' : 'text-stone-500'}">
+                                ${vended.ativo !== false ? 'Ativo' : 'Pausado'}
                             </span>
-                            <button onclick="deletarVendedor('${vUid}')" class="text-[10px] text-red-600 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-500/10 transition">
-                                Remover
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="pausarVendedor('${vUid}', ${vended.ativo !== false})" class="text-xs text-stone-700 hover:text-brand-green font-semibold px-2 py-1.5 rounded border border-stone-200 hover:bg-stone-50 transition">
+                                    ${vended.ativo !== false ? 'Pausar' : 'Retomar'}
+                                </button>
+                                <button onclick="apagarVendedor('${vUid}')" class="text-xs text-red-600 hover:text-red-700 font-semibold px-2 py-1.5 rounded border border-red-200 hover:bg-red-50 transition">
+                                    Apagar
+                                </button>
+                            </div>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -1293,12 +1285,12 @@
                 if (!hasVendedores) {
                     grid.innerHTML = `
                         <div class="glassmorphism p-8 rounded-2xl text-center text-stone-500 col-span-full">
-                            Nenhum vendedor registrado nesta empresa.
+                            Nenhum vendedor registrado nesta empresa. Clique em <strong>Novo Vendedor</strong> para gerar um convite.
                         </div>
                     `;
                 }
 
-                // $-04: reaplica o paywall ao botão "Remover" recém-renderizado.
+                // $-04: reaplica o paywall aos botões recém-renderizados.
                 setWriteButtonsDisabled(writesBlocked);
             });
         }
@@ -1500,7 +1492,7 @@
                 closeAjustarModal();
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao ajustar pontos: " + err.message, "error");
+                showToast("Erro ao ajustar pontos. Tente novamente.", "error");
             } finally {
                 btnConfirm.disabled = false;
                 btnConfirm.innerText = "Confirmar Ajuste";
@@ -1509,57 +1501,78 @@
 
         // --- Gerenciamento de Equipe (Vendedores) ---
         window.openAddVendedorModal = function() {
-            document.getElementById("vendedor-nome").value = "";
-            document.getElementById("vendedor-email").value = "";
-            document.getElementById("modal-cadastrar-vendedor").classList.remove("hidden");
+            gerarConviteVendedor();
         };
 
-        window.closeAddVendedorModal = function() {
-            document.getElementById("modal-cadastrar-vendedor").classList.add("hidden");
-        };
+        function buildVendorInviteUrl(token) {
+            const baseUrl = window.location.origin + window.location.pathname.replace(/dashboard\.html$/, "");
+            return `${baseUrl}vendedor.html?empresa=${encodeURIComponent(empresaId)}&convite=${encodeURIComponent(token)}`;
+        }
 
-        // Submissão do Cadastro de Vendedor
-        document.getElementById("vendedor-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const nome = document.getElementById("vendedor-nome").value.trim();
-            const email = document.getElementById("vendedor-email").value.trim().toLowerCase();
-
+        async function copyTextSafe(text) {
             try {
-                // Para o MVP: Geramos o UID do Vendedor baseado no Hash do E-mail ou UUID simples
-                // Ao logar na vendedor.html, o app valida se o e-mail do vendedor está registrado
-                const cleanId = email.replace(/[^a-z0-9]/g, "_");
-                const vendedorRef = doc(db, "vendedores", cleanId);
-
-                await setDoc(vendedorRef, {
-                    nomeVendedor: nome,
-                    email: email,
-                    empresaId: empresaId,
-                    ativo: true
-                });
-
-                showToast("Vendedor autorizado com sucesso!", "success");
-                closeAddVendedorModal();
-            } catch (err) {
-                console.error(err);
-                showToast("Erro ao cadastrar vendedor: " + err.message, "error");
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (_) {
+                return false;
             }
-        });
+        }
 
-        // Exclusão/Desativação de Vendedor
-        window.deletarVendedor = async function(vUid) {
-            if (!(await confirmDialog({ title: "Remover vendedor", message: "Deseja realmente remover a autorização deste vendedor? Ele não conseguirá mais carimbar cartões.", confirmText: "Remover", danger: true }))) return;
+        window.gerarConviteVendedor = async function() {
+            if (!empresaId || !auth.currentUser) {
+                showToast("Dados da empresa ainda não carregados. Aguarde um instante.", "warn");
+                return;
+            }
             try {
-                const docRef = doc(db, "vendedores", vUid);
-                await docRef.delete ? await docRef.delete() : await updateDoc(docRef, { ativo: false }); // Ou deletar direto
-                // Deletando diretamente:
-                // Se não tiver suporte .delete() no compat:
-                // Utilizando a importação deleteDoc:
-                // Para simplificar, usamos updateDoc ativo = false
-                await updateDoc(docRef, { ativo: false });
-                showToast("Vendedor desativado.", "success");
+                const token = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`).replace(/[^A-Za-z0-9_-]/g, "");
+                await setDoc(doc(db, "empresas", empresaId, "convitesVendedores", token), {
+                    empresaId,
+                    ativo: true,
+                    criadoPor: auth.currentUser.uid,
+                    criadoEm: new Date(),
+                });
+                const inviteUrl = buildVendorInviteUrl(token);
+                const card = document.getElementById("vendor-invite-card");
+                const input = document.getElementById("vendor-invite-url");
+                input.value = inviteUrl;
+                card.classList.remove("hidden");
+                document.getElementById("btn-copy-vendor-invite").onclick = async () => {
+                    const copied = await copyTextSafe(inviteUrl);
+                    showToast(copied ? "Convite copiado!" : "Copie o link selecionado.", copied ? "success" : "warn");
+                    input.select();
+                };
+                const copied = await copyTextSafe(inviteUrl);
+                showToast(copied ? "Convite de vendedor criado e copiado." : "Convite de vendedor criado. Copie o link exibido.", copied ? "success" : "warn");
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao desativar vendedor: " + err.message, "error");
+                showToast("Erro ao gerar convite. Verifique sua conexão e tente novamente.", "error");
+            }
+        };
+
+        window.pausarVendedor = async function(vUid, estaAtivo) {
+            const acao = estaAtivo ? "pausar" : "retomar";
+            if (!(await confirmDialog({
+                title: `${estaAtivo ? "Pausar" : "Retomar"} vendedor`,
+                message: estaAtivo ? "Este vendedor ficará temporariamente sem acesso à câmera." : "Este vendedor voltará a acessar a câmera.",
+                confirmText: estaAtivo ? "Pausar" : "Retomar"
+            }))) return;
+            try {
+                await updateDoc(doc(db, "vendedores", vUid), { ativo: !estaAtivo, atualizadoEm: new Date() });
+                showToast(estaAtivo ? "Vendedor pausado." : "Vendedor retomado.", "success");
+            } catch (err) {
+                console.error(err);
+                showToast(`Erro ao ${acao} vendedor. Tente novamente.`, "error");
+            }
+        };
+
+        window.apagarVendedor = async function(vUid) {
+            if (!(await confirmDialog({ title: "Apagar vendedor", message: "Deseja apagar este vendedor da equipe? Ele perderá o acesso à câmera desta empresa.", confirmText: "Apagar", danger: true }))) return;
+            try {
+                await deleteDoc(doc(db, "vendedores", vUid));
+                showToast("Vendedor apagado.", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao apagar vendedor. Tente novamente.", "error");
             }
         };
 
@@ -1645,7 +1658,7 @@
                 console.error("Erro ao gerar cobrança PIX:", err);
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
-                showToast("Erro ao gerar cobrança: " + (err.message || "Tente novamente."), "error");
+                showToast("Erro ao gerar cobrança PIX. Tente novamente.", "error");
             }
         });
 
@@ -1738,8 +1751,10 @@
                 "[onclick^='openBulkAjustarModal']",    // Ajuste em massa
                 "[onclick^='bulkResetPoints']",         // Zerar em massa
                 "[onclick^='openEditarCampanhaModal']", // Editar Regras
-                "[onclick^='openAddVendedorModal']",    // Novo Vendedor
-                "[onclick^='deletarVendedor']"          // Remover vendedor (dinâmico)
+                "[onclick^='gerarConviteVendedor']",    // Novo Vendedor
+                "[onclick^='openAddVendedorModal']",    // Compat: Novo Vendedor
+                "[onclick^='pausarVendedor']",          // Pausar/retomar vendedor
+                "[onclick^='apagarVendedor']"           // Apagar vendedor
             ].join(", ");
 
             // id-based — botões estáticos de escrita.
@@ -1874,7 +1889,7 @@
                 toggleSelectAll(allCheckbox);
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao zerar pontuação: " + err.message, "error");
+                showToast("Erro ao zerar pontuação. Tente novamente.", "error");
             }
         };
 
@@ -1886,7 +1901,7 @@
                 showToast("Pontuação zerada com sucesso!", "success");
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao zerar pontuação: " + err.message, "error");
+                showToast("Erro ao zerar pontuação. Tente novamente.", "error");
             }
         };
 
@@ -1947,7 +1962,7 @@
                 await loadEmpresaData();
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao salvar campanha: " + err.message, "error");
+                showToast("Erro ao salvar campanha. Verifique os dados e tente novamente.", "error");
             }
         });
 
@@ -2045,7 +2060,8 @@
                     showToast("Nome da empresa atualizado!", "success");
                     await loadEmpresaData(); // Reload UI
                 } catch (e) {
-                    showToast("Erro ao salvar: " + e.message, "error");
+                    console.error("Erro ao salvar nome da empresa:", e);
+                    showToast("Erro ao salvar o nome da empresa. Tente novamente.", "error");
                 } finally {
                     btnSaveCompany.innerText = oldText;
                 }
@@ -2100,7 +2116,8 @@
                         showToast("Este já é o seu link atual.", "warn");
                     }
                 } catch (e) {
-                    showToast("Erro ao salvar link: " + e.message, "error");
+                    console.error("Erro ao salvar link da empresa:", e);
+                    showToast("Erro ao salvar o link da empresa. Tente novamente.", "error");
                 } finally {
                     btnSaveSlug.innerText = oldText;
                 }
@@ -2128,7 +2145,8 @@
                     showToast("Sua conta e dados foram removidos permanentemente.", "success");
                     await logoutUser();
                 } catch (e) {
-                    showToast("Erro ao apagar conta: " + e.message, "error");
+                    console.error("Erro ao apagar conta:", e);
+                    showToast("Erro ao apagar conta. Tente novamente.", "error");
                     btnDeleteController.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados';
                 }
             });

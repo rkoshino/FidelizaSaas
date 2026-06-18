@@ -77,13 +77,16 @@
                 <p class="text-stone-500 text-xs px-1 leading-relaxed">
                     Faça login para acessar a câmera e registrar carimbos.
                 </p>
+                <div id="invite-hint" class="hidden w-full rounded-2xl border border-brand-green/20 bg-brand-green/5 p-3 text-xs text-stone-700 leading-relaxed">
+                    Você foi convidado para ser atendente desta loja. Entre com Google ou crie uma senha com seu e-mail para ativar seu acesso.
+                </div>
             </div>
 
             <!-- Social Authentication Buttons -->
             <div class="flex flex-col gap-3">
                 <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white border border-stone-300 hover:bg-stone-50 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-stone-700">
                     <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
-                    <span>Logar com Google</span>
+                    <span>Entrar com Google</span>
                 </button>
                 
                 <div class="flex items-center my-1">
@@ -94,7 +97,7 @@
             </div>
 
             <!-- Login Form -->
-            <form id="login-form" class="flex flex-col gap-4 text-left">
+            <form id="login-form" class="flex flex-col gap-4 text-left" novalidate>
                 <div class="flex flex-col gap-1">
                     <label for="email" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail</label>
                     <input type="email" id="email" required placeholder="ex: joao@atendimento.com" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-stone-800 placeholder-stone-400">
@@ -107,10 +110,10 @@
                 </div>
 
                 <button type="submit" id="btn-login" class="mt-2 w-full py-4 bg-indigo-600 hover:bg-indigo-700 font-semibold text-white text-xs rounded-xl shadow-lg transition active:scale-[0.98]">
-                    Entrar no Scanner
+                    Entrar na câmera
                 </button>
             </form>
-            <span class="text-xs text-stone-500 leading-normal">Apenas atendentes pré-registrados pelo dono do estabelecimento conseguem acessar.</span>
+            <span class="text-xs text-stone-500 leading-normal">Atendentes entram por convite enviado pelo dono da loja.</span>
         </div>
 
         <!-- SCANNER APP SCREEN (Hidden initially) -->
@@ -254,10 +257,11 @@
             loginWithGoogle,
             increment
         } from "./config.js?v=2";
-        import { awardPoints, deliverPrize, removePoint, getCard, findClient } from "./points-api.js?v=2";
+        import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite } from "./points-api.js?v=2";
 
         // Variáveis de Estado
         let empresaId = "";
+        let inviteToken = "";
         let loggedVendedor = null;
         let metaConfig = { metaPontos: 10, descriçãoPremio: "Recompensa" };
         
@@ -312,8 +316,10 @@
         // Tenta obter o ID da empresa pela query param com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
         empresaId = urlParams.get("empresa") || urlParams.get("empresaId") || urlParams.get("id") || localStorage.getItem("tempontinho_vendedor_empresa") || "";
+        inviteToken = urlParams.get("convite") || "";
 
         if (empresaId) localStorage.setItem("tempontinho_vendedor_empresa", empresaId);
+        if (inviteToken) document.getElementById("invite-hint")?.classList.remove("hidden");
 
         // Web Audio Sintetizador de Feedback Sonoro
         let audioCtx = null;
@@ -461,49 +467,74 @@
 
         await fetchCompanyBranding();
 
+        function authErrorMessage(err) {
+            const code = err && err.code;
+            if (code === "auth/invalid-email") return "Digite um e-mail válido.";
+            if (code === "auth/missing-password") return "Digite sua senha.";
+            if (code === "auth/weak-password") return "Use uma senha com pelo menos 6 caracteres.";
+            if (code === "auth/email-already-in-use") return "Este e-mail já tem conta. Entre com a senha correta ou use Google.";
+            if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") return inviteToken ? "Não foi possível entrar. Confira a senha ou crie uma senha para este convite." : "E-mail/senha incorretos ou atendente não autorizado.";
+            if (code === "auth/popup-closed-by-user") return "Login cancelado antes de concluir.";
+            if (code === "auth/network-request-failed") return "Falha de conexão. Verifique sua internet e tente novamente.";
+            return "Não foi possível concluir o login. Tente novamente.";
+        }
+
+        async function liberarVendedor(user) {
+            const cleanId = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            const vendedorRef = doc(db, "vendedores", cleanId);
+            let vendedorSnap = await getDoc(vendedorRef);
+
+            if (!vendedorSnap.exists() && inviteToken) {
+                await acceptVendorInvite({ empresaId, token: inviteToken });
+                vendedorSnap = await getDoc(vendedorRef);
+                showToast("Convite aceito. Acesso de atendente ativado.", "success");
+            }
+
+            if (!vendedorSnap.exists()) {
+                showToast("Acesso negado. Peça ao dono da loja um convite de atendente.", "error");
+                await logoutUser();
+                return;
+            }
+
+            const vData = vendedorSnap.data();
+            if (vData.empresaId !== empresaId) {
+                showToast("Este atendente não pertence a esta empresa.", "error");
+                await logoutUser();
+                return;
+            }
+            if (vData.ativo === false) {
+                showToast("Seu acesso de atendente está pausado. Fale com o dono da loja.", "warn");
+                await logoutUser();
+                return;
+            }
+
+            loggedVendedor = vData;
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("app-screen").classList.remove("hidden");
+            document.getElementById("vendedor-nome").innerText = vData.nomeVendedor || user.displayName || user.email;
+            await teardownScanner();
+            html5QrcodeScanner = new Html5Qrcode("reader");
+        }
+
         // Finaliza o fluxo de redirect do mobile (se houver)
         try {
             await getRedirectResult(auth);
         } catch (err) {
             console.error("Erro ao recuperar resultado do redirecionamento:", err);
-            showToast("Erro no login: " + err.message, "error");
+            showToast(authErrorMessage(err), "error");
         }
 
         // Gerenciamento da Autenticação do Vendedor
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 try {
-                    const cleanId = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
-                    const vendedorRef = doc(db, "vendedores", cleanId);
-                    const vendedorSnap = await getDoc(vendedorRef);
-
-                    if (vendedorSnap.exists()) {
-                        const vData = vendedorSnap.data();
-                        
-                        if (vData.empresaId === empresaId && vData.ativo) {
-                            loggedVendedor = vData;
-                            document.getElementById("login-screen").classList.add("hidden");
-                            document.getElementById("app-screen").classList.remove("hidden");
-                            document.getElementById("vendedor-nome").innerText = vData.nomeVendedor;
-                            
-                            // Inicializa scanner — desmonta qualquer instância anterior
-                            // (relogin) antes de recriar, garantindo um #reader limpo (B-02).
-                            await teardownScanner();
-                            html5QrcodeScanner = new Html5Qrcode("reader");
-                            return;
-                        }
-                    }
-                    
-                    // Se não pertencer à empresa ou não for vendedor ativo, bloqueia e faz deslog
-                    showToast("Acesso negado! Você não está autorizado como vendedor desta empresa.", "error");
-                    await logoutUser();
+                    await liberarVendedor(user);
                 } catch (err) {
                     console.error("Erro ao verificar vendedor:", err);
-                    showToast("Erro ao checar permissão: " + err.message, "error");
+                    showToast("Não foi possível validar seu acesso de atendente. Tente novamente ou peça um novo convite.", "error");
                     await logoutUser();
                 }
             } else {
-                // Deslogado: desmonta o scanner para liberar a câmera e limpar o #reader (B-02).
                 await teardownScanner();
                 document.getElementById("login-screen").classList.remove("hidden");
                 document.getElementById("app-screen").classList.add("hidden");
@@ -517,39 +548,47 @@
             const password = document.getElementById("password").value;
             const btn = document.getElementById("btn-login");
 
+            if (!email) {
+                showToast("Digite seu e-mail.", "warn");
+                document.getElementById("email").focus();
+                return;
+            }
+            if (!password) {
+                showToast("Digite sua senha.", "warn");
+                document.getElementById("password").focus();
+                return;
+            }
+
             btn.disabled = true;
-            btn.innerText = "Verificando Credenciais...";
+            btn.innerText = "Verificando credenciais...";
 
             try {
-                // Primeiro faz login com e-mail/senha normais no Firebase Auth
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
-                // Se a conta não existir ainda no Auth, mas existir na coleção de vendedores,
-                // significa que o dono da empresa pré-registrou o email e o vendedor está acessando a primeira vez.
-                // Criamos o usuário no Auth automaticamente para facilitar.
-                if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") {
-                    try {
-                        const cleanId = email.replace(/[^a-z0-9]/g, "_");
-                        const vendedorSnap = await getDoc(doc(db, "vendedores", cleanId));
-                        
-                        if (vendedorSnap.exists() && vendedorSnap.data().empresaId === empresaId) {
-                            // Tenta criar a conta no Auth. Se der erro de email já em uso, significa que a senha
-                            // que ele digitou está simplesmente errada para a conta já existente.
-                            await createUserWithEmailAndPassword(auth, email, password);
-                            return; // AuthStateChanged cuidará do resto
-                        }
-                    } catch (innerErr) {
-                        if (innerErr.code === "auth/email-already-in-use") {
-                            showToast("Erro: Este e-mail já possui uma conta criada, mas a senha digitada está incorreta (ou você usa Login pelo Google). Tente usar o botão 'Logar com Google'.", "error");
-                        } else {
-                            console.error(innerErr);
-                        }
+                try {
+                    if (inviteToken && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                        return;
                     }
+
+                    const cleanId = email.replace(/[^a-z0-9]/g, "_");
+                    const vendedorSnap = await getDoc(doc(db, "vendedores", cleanId));
+                    if (vendedorSnap.exists() && vendedorSnap.data().empresaId === empresaId && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                        return;
+                    }
+                } catch (innerErr) {
+                    console.error(innerErr);
+                    showToast(authErrorMessage(innerErr), "error");
+                    btn.disabled = false;
+                    btn.innerText = "Entrar na câmera";
+                    return;
                 }
-                
-                showToast("Erro de Login: Senha incorreta ou atendente não autorizado.", "error");
+
+                console.error(err);
+                showToast(authErrorMessage(err), "error");
                 btn.disabled = false;
-                btn.innerText = "Entrar no Scanner";
+                btn.innerText = "Entrar na câmera";
             }
         });
 
@@ -563,7 +602,7 @@
                 await loginWithGoogleRedirect();
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao logar com Google: " + err.message, "error");
+                showToast(authErrorMessage(err), "error");
                 btn.innerHTML = originalText;
             }
         });
@@ -705,7 +744,7 @@
                     clientUid = r.clienteId;
                 } catch (err) {
                     console.error(err);
-                    showAlert("error", "Erro de Busca", err.message || "Falha ao buscar cliente.");
+                    showAlert("error", "Erro de busca", "Não foi possível buscar este cliente. Tente novamente.");
                     playSound("error");
                     document.getElementById("btn-manual-submit").disabled = false;
                     return;
@@ -761,7 +800,7 @@
                 console.error("Erro ao processar leitura:", err);
                 resetPanel();
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao processar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao processar a leitura."));
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível processar a leitura. Tente novamente.");
                 playSound("error");
             }
         }
@@ -878,7 +917,7 @@
             } catch (err) {
                 console.error("Erro ao adicionar pontos:", err);
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao pontuar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao registrar pontos."));
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível registrar os pontos. Tente novamente.");
                 playSound("error");
             } finally {
                 if (btnAddPoints) btnAddPoints.disabled = false;
@@ -898,7 +937,7 @@
             } catch (err) {
                 console.error("Erro ao remover ponto:", err);
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao remover",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : (err.message || "Falha ao remover ponto."));
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível remover o ponto. Tente novamente.");
                 playSound("error");
             } finally {
                 if (btnRemovePoint) btnRemovePoint.disabled = false;
@@ -925,7 +964,7 @@
                     if (isInativa) {
                         showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
                     } else {
-                        showAlert("error", "Erro ao entregar", err.message || "Falha ao entregar o prêmio.");
+                        showAlert("error", "Erro ao entregar", "Não foi possível entregar o prêmio. Tente novamente.");
                     }
                     playSound("error");
                     btnDeliverPrize.disabled = false;

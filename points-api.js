@@ -56,6 +56,9 @@ export const deleteMyData = call("deleteMyData");
 //   -> { status, subscriptionId, value, pixCopiaECola, pixQrCodeBase64, invoiceUrl }
 export const createSubscription = call("createSubscription");
 
+// acceptVendorInvite({ empresaId, token }) -> { ok, nomeVendedor, email }
+export const acceptVendorInvite = call("acceptVendorInvite");
+
 /* ---- Leitura / cadastro (client-side, permitido pelas regras) ---- */
 
 function cardRef(empresaId, clienteId) {

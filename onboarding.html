@@ -205,7 +205,7 @@
                 </div>
 
                 <!-- Form E-mail -->
-                <form id="auth-form" class="flex flex-col gap-4">
+                <form id="auth-form" class="flex flex-col gap-4" novalidate>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="flex flex-col gap-1.5 hidden">
                             <label for="company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
@@ -622,6 +622,24 @@
         // Toast element
         const toast = document.getElementById("toast");
         const toastText = document.getElementById("toast-text");
+        const initialParams = new URLSearchParams(window.location.search);
+        const initialEmail = initialParams.get("email");
+        const continueFromLogin = initialParams.get("continue") === "google";
+        if (initialEmail) emailInput.value = initialEmail;
+
+        function authErrorMessage(err) {
+            const code = err && err.code;
+            if (code === "auth/email-already-in-use") return "Este e-mail já está cadastrado. Faça login para acessar sua conta.";
+            if (code === "auth/invalid-email") return "Digite um e-mail válido.";
+            if (code === "auth/weak-password") return "Use uma senha com pelo menos 6 caracteres.";
+            if (code === "auth/missing-password") return "Digite uma senha.";
+            if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") {
+                return "E-mail ou senha incorretos. Confira os dados ou crie uma conta grátis.";
+            }
+            if (code === "auth/popup-closed-by-user") return "Login cancelado antes de concluir.";
+            if (code === "auth/network-request-failed") return "Falha de conexão. Verifique sua internet e tente novamente.";
+            return "Não foi possível concluir a autenticação. Tente novamente.";
+        }
 
         // --- Modos de Login / Cadastro (Cadastro por padrão) ---
         let isSignupMode = true;
@@ -941,12 +959,44 @@
             return false;
         }
 
+        auth.onAuthStateChanged(async (user) => {
+            if (!continueFromLogin || !user || loggedUser) return;
+            loggedUser = user;
+            createdCompanyId = user.uid;
+            if (await redirectIfAlreadyRegistered(user.uid)) return;
+            await setupCompanyDraft(user.uid, user.displayName || "Minha Empresa", user.email || "");
+            showToast("Conta conectada. Complete os dados da empresa para iniciar seu mês grátis.");
+            setStep(2);
+        });
+
         // Submissão do Formulário de Cadastro / Login por E-mail
         authForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
             const password = passwordInput.value;
             const companyName = companyNameInput.value.trim();
+
+            if (!email) {
+                showToast("Digite seu e-mail.");
+                emailInput.focus();
+                return;
+            }
+            if (!password) {
+                showToast("Digite sua senha.");
+                passwordInput.focus();
+                return;
+            }
+            if (isSignupMode && password.length < 6) {
+                showToast("Use uma senha com pelo menos 6 caracteres.");
+                passwordInput.focus();
+                return;
+            }
+            const lgpdCheckbox = document.getElementById("lgpd-consent");
+            if (isSignupMode && lgpdCheckbox && !lgpdCheckbox.checked) {
+                showToast("Aceite os Termos de Uso e a Política de Privacidade para continuar.");
+                lgpdCheckbox.focus();
+                return;
+            }
 
             btnSubmitStep1.disabled = true;
             btnSubmitStep1.innerText = "Processando...";
@@ -980,10 +1030,10 @@
                 console.error(err);
                 if (err.code === "auth/email-already-in-use") {
                     // B-08: e-mail já cadastrado — não permitir novo cadastro; orienta login.
-                    showToast("Este e-mail já está cadastrado. Faça login para acessar sua conta.");
+                    showToast(authErrorMessage(err));
                     if (isSignupMode) toggleAuthModeBtn.click(); // alterna para o modo Login
                 } else {
-                    showToast("Erro: " + err.message);
+                    showToast(authErrorMessage(err));
                 }
             } finally {
                 btnSubmitStep1.disabled = false;
@@ -1007,7 +1057,7 @@
                 setStep(2);
             } catch (err) {
                 console.error(err);
-                showToast("Erro de Autenticação: " + err.message);
+                showToast(authErrorMessage(err));
             }
         }
 
@@ -1171,7 +1221,7 @@
                 setStep(4);
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao salvar: " + err.message);
+                showToast("Erro ao salvar a campanha. Verifique os dados e tente novamente.");
             } finally {
                 btnNextStep3.disabled = false;
                 btnNextStep3.innerText = "Ativar Programa e Gerar Links";

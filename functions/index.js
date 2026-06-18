@@ -54,7 +54,9 @@ async function assertAutorizado(request, empresaId) {
       .get();
     if (!snap.empty) {
       const v = snap.docs[0].data();
-      return { papel: "vendedor", nome: v.nomeVendedor || email };
+      if (v.ativo !== false) {
+        return { papel: "vendedor", nome: v.nomeVendedor || email };
+      }
     }
   }
   throw new HttpsError("permission-denied", "Você não tem acesso a esta empresa.");
@@ -78,6 +80,10 @@ function validarIds(empresaId, clienteId) {
 
 function cartaoRef(empresaId, clienteId) {
   return db.collection("empresas").doc(empresaId).collection("clientes").doc(clienteId);
+}
+
+function emailSlug(email) {
+  return String(email || "").toLowerCase().replace(/[^a-z0-9]/g, "_");
 }
 
 /**
@@ -322,6 +328,64 @@ exports.findClient = onCall(async (request) => {
     pontos: cardSnap.exists ? Number(cardSnap.data().pontos) || 0 : 0,
     premiosPendentes: cardSnap.exists ? Number(cardSnap.data().premiosPendentes) || 0 : 0,
   };
+});
+
+/**
+ * acceptVendorInvite({ empresaId, token }) — vincula o usuário autenticado como
+ * vendedor ativo da empresa a partir de um convite gerado pelo dono.
+ */
+exports.acceptVendorInvite = onCall(async (request) => {
+  const { empresaId, token } = request.data || {};
+  if (typeof empresaId !== "string" || !empresaId) throw new HttpsError("invalid-argument", "empresaId inválido.");
+  if (typeof token !== "string" || !/^[A-Za-z0-9_-]{16,80}$/.test(token)) {
+    throw new HttpsError("invalid-argument", "Convite inválido.");
+  }
+  if (!request.auth) throw new HttpsError("unauthenticated", "Faça login para aceitar o convite.");
+
+  const email = String(request.auth.token && request.auth.token.email || "").toLowerCase();
+  if (!email) throw new HttpsError("failed-precondition", "Sua conta precisa ter e-mail para aceitar o convite.");
+
+  const uid = request.auth.uid;
+  const nome = String(request.auth.token && request.auth.token.name || "").trim() || email.split("@")[0] || "Atendente";
+  const inviteRef = db.collection("empresas").doc(empresaId).collection("convitesVendedores").doc(token);
+  const vendorRef = db.collection("vendedores").doc(emailSlug(email));
+
+  return db.runTransaction(async (tx) => {
+    const inviteSnap = await tx.get(inviteRef);
+    if (!inviteSnap.exists) throw new HttpsError("not-found", "Convite não encontrado ou expirado.");
+    const invite = inviteSnap.data();
+    if (invite.ativo === false) throw new HttpsError("failed-precondition", "Este convite já foi usado ou cancelado.");
+    if (invite.empresaId && invite.empresaId !== empresaId) throw new HttpsError("permission-denied", "Convite não pertence a esta empresa.");
+
+    const vendorSnap = await tx.get(vendorRef);
+    if (vendorSnap.exists) {
+      const current = vendorSnap.data();
+      if (current.empresaId && current.empresaId !== empresaId) {
+        throw new HttpsError("already-exists", "Este e-mail já está vinculado a outra empresa.");
+      }
+    }
+
+    tx.set(vendorRef, {
+      nomeVendedor: nome,
+      email,
+      uid,
+      empresaId,
+      ativo: true,
+      criadoViaConvite: true,
+      conviteToken: token,
+      atualizadoEm: FieldValue.serverTimestamp(),
+      criadoEm: vendorSnap.exists ? (vendorSnap.data().criadoEm || FieldValue.serverTimestamp()) : FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    tx.update(inviteRef, {
+      ativo: false,
+      aceitoPorUid: uid,
+      aceitoPorEmail: email,
+      aceitoEm: FieldValue.serverTimestamp(),
+    });
+
+    return { ok: true, nomeVendedor: nome, email };
+  });
 });
 
 /**
