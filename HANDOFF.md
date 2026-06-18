@@ -7,7 +7,7 @@
 > **Deploy production concluído** (`firebase deploy --only functions,hosting`) em `tempontinho.com` e
 > `nice-dreamks-fidelidade.web.app`: tema claro oficial nas 7 telas, modais X-01, fundo do cliente fixo
 > em creme `#F4EFE6`, e novo contrato de pontos/prêmio (cartão trava cheio, scan resgata, sobra entra só
-> depois do resgate). **PR #2 aberto** p/ main na branch `fix/onda-0-bugs-p0`.
+> depois do resgate). **PR #2 mergeado em `main`**; produção e GitHub sincronizados.
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -40,9 +40,9 @@ nota de segurança abaixo). Ordem de leitura recomendada para entender o roadmap
 - **Mandato-mestra:** *"MVP mínimo e completo funcional antes de luxos."*
 
 ### ✅ Concluído e DEPLOYADO em produção (`tempontinho.com`)
-Branch **`fix/onda-0-bugs-p0`** (Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + Onda 3 + **Fase B LIVE** +
-Onda 4 + Onda 5 parcial; **ainda NÃO mergeado em `main`**). Hosting deployado; **Functions também
-deployadas** (Fase B no ar com a chave Asaas nova — 2026-06-17).
+Branch **`main`** (PR #2 mergeado em 2026-06-18; Onda 0 + Rodada 2 + Onda 1 + Onda 2 parcial + Onda 3 +
+**Fase B LIVE** + Onda 4 + Onda 5 parcial). Hosting deployado; **Functions também deployadas**
+(Fase B no ar com a chave Asaas nova — 2026-06-17; fluxo scan/prêmio no ar — 2026-06-18).
 
 - **Onda 0 — bugs P0:** B-01, B-02, B-03, B-04, $-04, B-07.
 - **Rodada 2 — feedback do CEO:** VEND-07, B-08, O-01, TRIAL-01, VEND-08.
@@ -119,8 +119,7 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
    ✅ Feitas E DEPLOYADAS em 2026-06-17/18: X-02 (parcial), X-03, X-05, X-07, C-06, **C-01**
    (prévia de valor antes do login + Google 1-tap primário) e **D4/CAD-01 final** (Facebook/Apple removidos
    do onboarding/cliente/config; aviso de termos do Google no onboarding).
-   📦 **PR aberto:** `fix/onda-0-bugs-p0` → `main` = https://github.com/rkoshino/FidelizaSaas/pull/2
-   (33 commits; Ondas 0→5 + Fase B + X-01).
+   📦 **PR #2 mergeado em `main`**: https://github.com/rkoshino/FidelizaSaas/pull/2.
 5. **TRIAL-01 aviso 7 dias antes** — ✅ BACKEND PRONTO E DEPLOYADO (`functions/notifications.js`,
    `subscriptionReminderCron` onSchedule **10:00 BRT**, avisos em **15/7/3/1 dias antes do vencimento**
    (trialEndDate p/ trial, proximoVencimento p/ active), dedupe em `lembretesVencimentoEnviados`).
@@ -128,7 +127,7 @@ Onda 1, Onda 2 (parcial), Onda 3, Onda 4, Onda 5 (parcial) e **Fase B** concluí
 6. ~~**V-03 tema claro**~~ ✅ FEITO E DEPLOYADO. Paleta oficial atual: creme `#F4EFE6`, verde `#2A5A44`,
    terracota `#D96B43`, tinta `#2A2520`. Obs.: o logo SVG (pássaro) ainda tem degradê azul, mas é ON HOLD
    (logo definitivo é tarefa à parte).
-7. Em algum momento: **merge da `fix/onda-0-bugs-p0` em `main`** (a branch acumulou muita coisa).
+7. ~~**Merge da `fix/onda-0-bugs-p0` em `main`**~~ ✅ FEITO em 2026-06-18 via PR #2.
 
 8. **Novo fluxo de pontos/prêmio** ✅ **FEITO E DEPLOYADO (2026-06-18)**:
    - Backend (`functions/index.js`): `awardPoints` recusa pontuar se `premiosPendentes > 0`; ao completar,
@@ -172,7 +171,7 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 - **Repo local:** `/Users/claytonborges/WORK/FidelizaSaas` (NÃO é o portfólio em
   `ClaytonBorgesDev-portfolio-final` — não confunda; o `AGENTS.md`/`CLAUDE.md`
   sobre "not the Next.js you know" é do portfólio, não daqui).
-- **GitHub:** `rkoshino/FidelizaSaas` (branch de trabalho atual: `fix/onda-0-bugs-p0`, PR #2 para `main`).
+- **GitHub:** `rkoshino/FidelizaSaas` (branch de trabalho atual: `main`; PR #2 mergeado).
 - **Stack:** HTML + JS ES Modules **vanilla** (sem build step), TailwindCSS via CDN,
   Firebase SDK 10.8.0.
 - **Firebase:** projeto `nice-dreamks-fidelidade`, Functions v2 (Node 22, CommonJS),
@@ -340,7 +339,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] Rules endurecidas (anti auto-promoção a Pro) + índice
 - [x] Rebrand Tem Pontinho; domínio + SSL; preço R$19,90
 - [x] Fix do loop de login mobile (authDomain → tempontinho.com)
-- [x] Tudo desta branch deployado; merge em `main` ainda pendente via PR #2
+- [x] Tudo deployado e mergeado em `main` via PR #2
 - [x] **Auditoria de design completa** (web + mobile) → `docs/RELATORIO_DESIGN.md`
 - [x] **Review do CEO organizado em backlog** → `docs/TAREFAS_CEO.md`
 - [x] **Relatório master + plano de execução em ondas** → `docs/RELATORIO_FINAL.md` + `docs/PLANO_EXECUCAO.md`
