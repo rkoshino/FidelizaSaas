@@ -1,295 +1,406 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nice Dreamks - Fidelidade</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Tem Pontinho - A Evolução do Cartão Fidelidade</title>
+    <meta name="description" content="Tem pontinho? O fim do cartão de papel. O Tem Pontinho leva o cartão de fidelidade direto para o celular do seu cliente.">
+    <link rel="canonical" href="https://tempontinho.com/">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tem Pontinho">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:url" content="https://tempontinho.com/">
+    <meta property="og:title" content="Tem Pontinho - A Evolução do Cartão Fidelidade">
+    <meta property="og:description" content="Tem pontinho? O fim do cartão de papel. O cartão de fidelidade direto no celular do seu cliente.">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tem Pontinho - A Evolução do Cartão Fidelidade">
+    <meta name="twitter:description" content="Tem pontinho? O fim do cartão de papel. O cartão de fidelidade direto no celular do seu cliente.">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    // === PALETA OFICIAL (regra 60/30/10) =====================================
+                    // Fundo amendoado (60%) + verde forest (30%, ação) + terracota (10%, acento).
+                    // Centralizada: escalas indigo/emerald/teal remapeadas para VERDE e amber/
+                    // orange para TERRACOTA, então classes existentes herdam a paleta. Trocar = aqui.
+                    colors: {
+                        brand: {
+                            paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520',
+                            green:'#2A5A44', 'green-dark':'#214636',
+                            accent:'#D96B43', 'accent-dark':'#C25733',
+                            muted:'#6F6557', line:'#E3DBCC',
+                        },
+                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #F4EFE6; /* off-white amendoado */
+            color: #2A2520; /* espresso */
+            overflow-x: hidden;
+        }
+        .glassmorphism {
+            background: rgba(244, 239, 230, 0.85); /* papel translúcido */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(42, 37, 32, 0.08);
+        }
+        /* hero-glow removido: SEM degradê. Bloco vira um realce sólido sutil. */
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: #EADFCB; /* tom amendoado um pouco mais quente, sólido */
+            border-radius: 9999px;
+            filter: blur(120px);
+            opacity: 0.6;
+            top: -160px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .feature-card {
+            background: #FBF7F0;
+            border: 1px solid rgba(42, 37, 32, 0.08);
+            box-shadow: 0 4px 20px rgba(42,37,32,0.04);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(42, 90, 68, 0.30); /* verde forest */
+            box-shadow: 0 10px 30px rgba(42,90,68,0.10);
+        }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
+    </style>
 </head>
-<body>
+<body class="selection:bg-indigo-500 selection:text-white overflow-x-hidden">
 
-    <div class="container">
-        <div class="nice-scribble">✶</div>
+    <div class="hero-glow"></div>
 
-        <div class="brand-nice">Nice<br>Dreamks</div>
-        <div class="brand-fidelity">Fidelidade</div>
+    <!-- Header / Navbar -->
+    <header class="w-full fixed top-0 z-50 glassmorphism transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 md:px-12 h-20 flex justify-between items-center gap-3">
 
-        <div id="login-screen">
-            <p>Entre com seu Gmail para acumular pontos e ganhar drinks grátis na nossa casinha!</p>
-            <button class="btn-google" id="btn-login">
-                <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google" width="22">
-                Logar c/ Gmail
-            </button>
-        </div>
+            <!-- Logo: 2 Araras Azuis Minimalistas (SVG) -->
+            <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                <div class="w-9 h-9 md:w-10 md:h-10 flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-[0_0_8px_rgba(79,70,229,0.6)]">
+                        <!-- Arara 1 (Maior) -->
+                        <path d="M70,30 C60,20 40,20 30,40 C30,40 20,60 15,85 C25,75 35,65 50,60 C65,55 75,45 70,30 Z" fill="url(#grad1)"/>
+                        <path d="M70,30 C60,20 40,20 30,40" stroke="#38bdf8" stroke-width="2" fill="none"/>
+                        <circle cx="55" cy="35" r="2" fill="#0f172a"/>
+                        <!-- Arara 2 (Menor, Acompanhando) -->
+                        <path d="M50,15 C42,7 26,7 18,23 C18,23 10,39 6,59 C14,51 22,43 34,39 C46,35 54,27 50,15 Z" fill="url(#grad2)"/>
+                        <circle cx="38" cy="19" r="1.5" fill="#0f172a"/>
+                        <defs>
+                            <linearGradient id="grad1" x1="30" y1="20" x2="70" y2="85" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#818cf8" />
+                                <stop offset="1" stop-color="#4338ca" />
+                            </linearGradient>
+                            <linearGradient id="grad2" x1="18" y1="7" x2="50" y2="59" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#38bdf8" />
+                                <stop offset="1" stop-color="#1d4ed8" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="text-xl md:text-2xl font-extrabold tracking-tight font-outfit text-slate-900 truncate">Tem <span class="text-indigo-600">Pontinho</span></span>
+            </div>
 
-        <div id="app-screen" class="hidden">
-            <div id="qrcode"></div>
-            <div class="counter-box" id="counter">0 / 10</div>
-            <div id="win-message" class="win-banner hidden">
-                🎉 DRINK GRÁTIS DESBLOQUEADO! 🎉<br>Mostre essa tela no balcão agora!
+            <!-- Navigation Actions -->
+            <div class="flex items-center gap-3 md:gap-4 shrink-0">
+                <a href="login.html" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">Login</a>
+                <a href="onboarding.html" class="px-4 md:px-5 py-2.5 rounded-full bg-brand-green text-white font-bold text-xs md:text-sm hover:bg-brand-green-dark transition-colors shadow-lg whitespace-nowrap">Cadastrar Grátis</a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="ticker-wrap hidden" id="news-ticker">
-        <div class="ticker-move" id="ticker-text">
-            Carregando sistema Nice Dreamks...
+    <!-- Hero Section -->
+    <main class="min-h-screen flex items-center pt-24 pb-20 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+            
+            <!-- Left Copy -->
+            <div class="flex flex-col gap-8 text-center lg:text-left z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider w-fit mx-auto lg:mx-0">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </span>
+                    O Fim do Cartão de Papel
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-extrabold font-outfit leading-[1.1] tracking-tight text-slate-900">
+                    O fim dos cartõezinhos de <span class="text-brand-accent line-through decoration-brand-accent/40">papel</span>.
+                </h1>
+                
+                <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
+                    Pare de jogar dinheiro na gráfica toda semana para imprimir cartões que seus clientes perdem. Com o Tem Pontinho, o cartão de pontos vai direto para o celular do cliente.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center lg:justify-start">
+                    <a href="onboarding.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-bold text-lg transition-all shadow-[0_4px_20px_rgba(42,90,68,0.30)] transform hover:-translate-y-1">
+                        Criar Conta Grátis
+                    </a>
+                    <a href="login.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white border-2 border-brand-green/40 hover:border-brand-green hover:bg-brand-paper text-brand-green font-semibold text-lg transition-all shadow-sm">
+                        Fazer Login
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-center lg:justify-start gap-6 mt-4">
+                    <div class="flex items-center gap-2 text-sm font-medium text-slate-500">
+                        <i class="fa-solid fa-check text-brand-green"></i> Setup em 2 min
+                    </div>
+                    <div class="flex items-center gap-2 text-sm font-medium text-slate-500">
+                        <i class="fa-solid fa-check text-brand-green"></i> Sem cartão de crédito
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Visual Mockup (Smartphone) -->
+            <div class="relative w-full max-w-lg mx-auto lg:ml-auto z-10 animate-float">
+                <!-- Abstract blobs -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100 rounded-full blur-3xl -z-10"></div>
+                
+                <!-- Phone Mockup -->
+                <div class="relative bg-slate-900 border-[8px] border-slate-800 rounded-[3rem] shadow-2xl overflow-hidden aspect-[9/19] w-3/4 mx-auto rotate-[-2deg] transform transition hover:rotate-0 duration-500">
+                    <!-- Notch -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
+                    
+                    <!-- App UI Replica -->
+                    <div class="absolute inset-0 bg-white p-6 flex flex-col pt-12">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 mx-auto mb-4 flex items-center justify-center text-2xl shadow-sm">☕</div>
+                        <h3 class="text-slate-900 text-center font-bold text-xl font-outfit leading-tight mb-8">Café Premium</h3>
+                        
+                        <div class="grid grid-cols-4 gap-3 mb-8">
+                            <!-- Stamps -->
+                            <div class="aspect-square rounded-full bg-indigo-500 flex items-center justify-center text-xl shadow-md text-white">⭐</div>
+                            <div class="aspect-square rounded-full bg-indigo-500 flex items-center justify-center text-xl shadow-md text-white">⭐</div>
+                            <div class="aspect-square rounded-full bg-indigo-500 flex items-center justify-center text-xl shadow-md text-white">⭐</div>
+                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">4</div>
+                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">5</div>
+                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">6</div>
+                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">7</div>
+                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">8</div>
+                        </div>
+
+                        <div class="mt-auto bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-center shadow-inner">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=example" class="w-24 h-24" alt="QR Code">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Floating Print 1 (Barbearia) -->
+                <div class="absolute top-12 -left-12 bg-white border border-slate-100 p-3 rounded-2xl shadow-xl hidden sm:flex items-center gap-3 animate-bounce" style="animation-duration: 4s;">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center text-lg shadow-md">✂️</div>
+                    <div>
+                        <p class="text-slate-900 font-bold text-xs">Barbearia do Zé</p>
+                        <p class="text-slate-500 text-[10px] flex gap-1 mt-0.5">🟢 🟢 ⚪ ⚪</p>
+                    </div>
+                </div>
+
+                <!-- Floating Print 2 (Cachorro Quente) -->
+                <div class="absolute bottom-24 -right-8 bg-white border border-slate-100 p-3 rounded-2xl shadow-xl hidden sm:flex items-center gap-3 animate-bounce" style="animation-duration: 5s;">
+                    <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-lg shadow-md">🌭</div>
+                    <div>
+                        <p class="text-slate-900 font-bold text-xs">Dogão Lanches</p>
+                        <p class="text-slate-500 text-[10px] flex gap-1 mt-0.5">🟢 🟢 🟢 ⚪</p>
+                    </div>
+                </div>
+
+                <!-- Floating Print 3 (Petshop) -->
+                <div class="absolute -bottom-6 left-4 bg-white border border-slate-100 p-3 rounded-2xl shadow-xl hidden sm:flex items-center gap-3 animate-bounce" style="animation-duration: 3.5s;">
+                    <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-lg shadow-md">🐕</div>
+                    <div>
+                        <p class="text-slate-900 font-bold text-xs">Petshop Cão Feliz</p>
+                        <p class="text-slate-500 text-[10px] flex gap-1 mt-0.5">🟢 ⚪ ⚪ ⚪</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold font-outfit text-slate-900 mb-6">Tudo que você precisa em <span class="text-indigo-600">segundos</span>.</h2>
+                <p class="text-slate-600 text-lg">Deixe o trabalho pesado conosco. O Tem Pontinho automatiza a retenção dos seus clientes com uma facilidade absurda.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Features Grid -->
+                <div class="flex flex-col gap-6">
+                    <!-- Feature 1 -->
+                    <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 font-outfit">Sem Aplicativos</h3>
+                            <p class="text-slate-600 leading-relaxed text-sm">Seu cliente não precisa baixar nada. O cartão digital abre direto no navegador do celular dele, sem fricção, sem senhas complicadas.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-palette"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 font-outfit">100% Personalizável</h3>
+                            <p class="text-slate-600 leading-relaxed text-sm">Altere cores, fontes, títulos e os emojis dos carimbos. O cartão fica com a cara e a identidade visual da sua própria marca.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 font-outfit">Seguro & Antifraude</h3>
+                            <p class="text-slate-600 leading-relaxed text-sm">Apenas seus funcionários com o "Painel do Vendedor" podem validar os pontos via QR Code. Adeus carimbos falsificados.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 font-outfit">O cliente nunca perde</h3>
+                            <p class="text-slate-600 leading-relaxed text-sm">É igual ao cartão de papel — só que o cliente não perde, não amassa e não esquece em casa. Fica salvo no celular e ele sempre volta para completar.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Familiar Photos Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-4 mt-8">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Comerciante" class="rounded-3xl shadow-lg w-full h-48 object-cover">
+                        <img src="https://images.unsplash.com/photo-1604328698692-f76ea9498e76?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Dono de lanchonete" class="rounded-3xl shadow-lg w-full h-64 object-cover">
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <img src="https://images.unsplash.com/photo-1595246140625-573b715d11dc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Barbearia" class="rounded-3xl shadow-lg w-full h-64 object-cover">
+                        <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Petshop" class="rounded-3xl shadow-lg w-full h-48 object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="py-24 relative bg-slate-50" id="pricing">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-semibold uppercase tracking-wider w-fit mx-auto mb-4">
+                    Investimento
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold font-outfit text-slate-900 mb-6">Mais barato que a gráfica.</h2>
+                <p class="text-slate-600 text-lg">Planos simples e acessíveis para ajudar o seu negócio a crescer sem pesar no bolso.</p>
+            </div>
+
+            <div class="max-w-md mx-auto">
+                <!-- Plano Único -->
+                <div class="feature-card rounded-3xl p-8 flex flex-col relative border-indigo-200 shadow-[0_10px_40px_rgba(42,90,68,0.10)]">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-accent text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
+                        1º mês grátis
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2 font-outfit">Plano Único</h3>
+                    <p class="text-slate-500 text-sm mb-6">Simples e sem pegadinha. Comece grátis por 30 dias.</p>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-5xl font-extrabold text-slate-900">R$ 19,90</span>
+                        <span class="text-slate-500 text-sm">/mês</span>
+                    </div>
+                    <p class="text-brand-green text-sm font-semibold mb-8"><i class="fa-solid fa-gift"></i> O 1º mês é por nossa conta — sem cartão de crédito.</p>
+                    <ul class="flex flex-col gap-4 text-slate-600 text-sm mb-8 flex-grow">
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Clientes Ilimitados</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Vendedores Ilimitados</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Auto-Atendimento (Tutoriais)</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-indigo-600"></i> Pagamento via PIX, cancele quando quiser</li>
+                    </ul>
+                    <a href="onboarding.html" class="w-full py-4 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-bold text-center transition shadow-lg transform hover:scale-[1.02]">Começar Grátis</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-200 mt-0 bg-white">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+            <p>&copy; 2026 Tem Pontinho &middot; tempontinho.com. Feito para pequenos empreendedores brasileiros.</p>
+            <div class="flex gap-6">
+                <a href="termos.html" class="hover:text-indigo-600 transition">Termos de Uso</a>
+                <a href="privacidade.html" class="hover:text-indigo-600 transition">Política de Privacidade</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" class="fixed bottom-0 left-0 w-full bg-slate-900 border-t border-indigo-500/30 p-4 transform translate-y-full transition-transform duration-500 z-50">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs text-slate-300">
+                Utilizamos cookies para melhorar sua experiência, segurança e gerenciar sessões. Ao continuar navegando, você concorda com nossa <a href="privacidade.html" class="text-indigo-400 hover:underline">Política de Privacidade (LGPD)</a>.
+            </p>
+            <button id="btn-accept-cookies" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 whitespace-nowrap">
+                Aceitar e Fechar
+            </button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        // ⚠️ COLOQUE SEU BLOCO DO FIREBASE AQUI ⚠️
-        const firebaseConfig = {
-            apiKey: "AIzaSyAH5BxqOq3KoF48Nkz43eZd9IZleBjckz8",
-  authDomain: "nice-dreamks-fidelidade.firebaseapp.com",
-  projectId: "nice-dreamks-fidelidade",
-  storageBucket: "nice-dreamks-fidelidade.firebasestorage.app",
-  messagingSenderId: "287947707168",
-  appId: "1:287947707168:web:e6530a04124d9ed4ecfd45",
-measurementId: "G-9Z1VKST81Z"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        const loginScreen = document.getElementById('login-screen');
-        const appScreen = document.getElementById('app-screen');
-        const btnLogin = document.getElementById('btn-login');
-        const counterEl = document.getElementById('counter');
-        const winMessage = document.getElementById('win-message');
-        const newsTicker = document.getElementById('news-ticker');
-        const tickerText = document.getElementById('ticker-text');
-        
-        let qrcodeInstance = null;
-        let ultimoPontoConhecido = -1;
-
-        // ⚙️ CONFIGURAÇÕES DA CAMPANHA (Editável via Dashboard no futuro)
-        const campaignConfig = {
-            rewardEmoji: "🎆", // Emoji usado na animação de recompensa
-            animationStyle: "fireworks", // Estilos futuros: 'fireworks', 'confetti', etc.
-            pointsTarget: 10
-        };
-
-        // Função de Animação de Recompensa
-        function triggerRewardAnimation() {
-            if (campaignConfig.animationStyle === "fireworks") {
-                const numParticles = 40;
-                for (let i = 0; i < numParticles; i++) {
-                    const particle = document.createElement("div");
-                    particle.classList.add("emoji-firework");
-                    particle.innerText = campaignConfig.rewardEmoji;
-                    
-                    // Cálculo aleatório para direção e distância
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = Math.random() * 200 + 50; // Entre 50px e 250px
-                    const tx = Math.cos(angle) * distance + "px";
-                    const ty = Math.sin(angle) * distance + "px";
-                    
-                    particle.style.setProperty("--tx", tx);
-                    particle.style.setProperty("--ty", ty);
-                    
-                    // Atraso aleatório para efeito mais orgânico
-                    particle.style.animationDelay = (Math.random() * 0.2) + "s";
-                    
-                    document.body.appendChild(particle);
-                    
-                    // Remove após a animação (1.5s + delay)
-                    setTimeout(() => {
-                        particle.remove();
-                    }, 2000);
-                }
-            }
-        }
-
-        // Função para animar a chegada do ponto na tela
-        function animateIncomingPoint(novoPontoFinal, isWinner) {
-            const token = document.createElement("div");
-            token.innerText = "✨"; // Simbolo do ponto viajando
-            token.style.position = "fixed";
-            token.style.top = "50%";
-            token.style.left = "50%";
-            token.style.fontSize = "120px";
-            token.style.zIndex = "10000";
-            token.style.filter = "drop-shadow(0 0 30px rgba(255, 215, 0, 0.8))";
-            token.style.pointerEvents = "none";
-            token.style.transform = "translate(-50%, -50%) scale(0)";
+    <script>
+        // Cookie Banner Logic
+        document.addEventListener("DOMContentLoaded", () => {
+            const banner = document.getElementById("cookie-banner");
+            const btnAccept = document.getElementById("btn-accept-cookies");
             
-            document.body.appendChild(token);
+            if (!localStorage.getItem("tempontinho_cookies_accepted")) {
+                setTimeout(() => {
+                    banner.classList.remove("translate-y-full");
+                }, 1000);
+            }
 
-            // Calcula a posição atual do contador na tela
-            const counterRect = counterEl.getBoundingClientRect();
-            const targetX = counterRect.left + (counterRect.width / 2) - (window.innerWidth / 2);
-            const targetY = counterRect.top + (counterRect.height / 2) - (window.innerHeight / 2);
-
-            // Animação: Nasce grande no centro, espera um pouquinho, e voa pro contador diminuindo
-            const animation = token.animate([
-                { transform: 'translate(-50%, -50%) scale(0)', opacity: 0, offset: 0 },
-                { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 1, offset: 0.3 },
-                { transform: 'translate(-50%, -50%) scale(1.0)', opacity: 1, offset: 0.6 },
-                { transform: `translate(calc(-50% + ${targetX}px), calc(-50% + ${targetY}px)) scale(0.3)`, opacity: 0, offset: 1 }
-            ], {
-                duration: 1800, 
-                easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-                fill: 'forwards'
+            btnAccept.addEventListener("click", () => {
+                localStorage.setItem("tempontinho_cookies_accepted", "true");
+                banner.classList.add("translate-y-full");
             });
-
-            animation.onfinish = () => {
-                token.remove();
-                
-                // Atualiza o texto visual do contador apenas quando o ponto chega
-                counterEl.innerText = `${novoPontoFinal} / ${campaignConfig.pointsTarget}`;
-                
-                // Efeito do contador "engolindo" o ponto
-                counterEl.animate([
-                    { transform: 'scale(1)', boxShadow: 'inset 0 2px 10px rgba(0, 0, 0, 0.2)' },
-                    { transform: 'scale(1.1)', boxShadow: '0 0 20px rgba(52, 211, 153, 0.6)' },
-                    { transform: 'scale(1)', boxShadow: 'inset 0 2px 10px rgba(0, 0, 0, 0.2)' }
-                ], { duration: 400 });
-
-                if (isWinner) {
-                    winMessage.classList.remove('hidden');
-                    fraseAtual = "🏆 META ATINGIDA! RESGATE SEU DRINK GRÁTIS NO BALCÃO!";
-                    setTimeout(() => triggerRewardAnimation(), 200);
-                }
-            };
-        }
-
-        // SISTEMA DO LETREIRO
-        let climaPlanoPiloto = "--°C";
-        let fraseAtual = "Bem-vindo à Nice Dreamks! Peça seu drink no balcão.";
-
-        const listaFrases = [
-            "Um gole de felicidade para animar o seu dia!",
-            "Celebrando cada sabor com a Nice Dreamks.",
-            "Mais um ponto, mais perto da sua recompensa preferida.",
-            "O sabor autêntico de Brasília em cada drink.",
-            "Sua jornada para um brinde especial começa aqui.",
-            "Nice Dreamks: onde cada copo conta uma história.",
-            "Um brinde ao prazer de pontuar com estilo!",
-            "Descubra novas experiências, ponto por ponto.",
-            "A arte de beber bem, pontuar ainda melhor.",
-            "Sua fidelidade merece o melhor sabor da Nice Dreamks.",
-            "Vamos brindar à vida com um drink gelado!",
-            "Cada drink é uma celebração para o paladar.",
-            "Pontuar é doce, mas o drink grátis é ainda melhor!",
-            "Sinta a vibração em cada gole e ponto acumulado.",
-            "Uma explosão de sabores aguarda você no final da jornada.",
-            "Nice Dreamks é mais que um bar, é uma experiência!",
-            "Beba, ame, pontue e ganhe com Nice Dreamks.",
-            "Sua jornada de fidelidade está cheia de sabores.",
-            "Um brinde à sua paixão por bons drinks!",
-            "Prepare o paladar para a próxima surpresa da Nice Dreamks."
-        ];
-
-        // Busca a temperatura do Plano Piloto via API aberta
-        async function buscarClima() {
-            try {
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.7801&longitude=-47.9292&current_weather=true');
-                const data = await res.json();
-                climaPlanoPiloto = `${data.current_weather.temperature}°C`;
-            } catch (error) {
-                console.error("Erro ao buscar clima", error);
-            }
-        }
-        buscarClima();
-
-        // Monta a string do letreiro e atualiza em tempo real
-        function atualizarLetreiro() {
-            const agora = new Date();
-            const dataStr = agora.toLocaleDateString('pt-BR');
-            const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            
-            // Repetimos a string para criar o efeito infinito suave na tela
-            const info = `+++ 📅 ${dataStr} | ⏰ ${horaStr} | 🌤️ PLANO PILOTO: ${climaPlanoPiloto} | 🍹 ${fraseAtual} +++ `;
-            tickerText.innerText = info + info; 
-        }
-        
-        // Atualiza o relógio a cada 1 segundo
-        setInterval(atualizarLetreiro, 1000);
-
-        function sortearNovaFrase() {
-            const indice = Math.floor(Math.random() * listaFrases.length);
-            fraseAtual = listaFrases[indice];
-            atualizarLetreiro(); // Atualiza instantaneamente a frase
-        }
-
-        // LOGIN E FIREBASE
-        btnLogin.addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(err => console.error(err));
-        });
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                loginScreen.classList.add('hidden');
-                appScreen.classList.remove('hidden');
-                newsTicker.classList.remove('hidden'); // Mostra o letreiro
-
-                if (!qrcodeInstance) {
-                    qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
-                        text: user.uid,
-                        width: 140,
-                        height: 140,
-                        colorDark : "#000000",
-                        colorLight : "#ffffff"
-                    });
-                }
-
-                const userRef = doc(db, "clientes", user.uid);
-                const docSnap = await getDoc(userRef);
-                if (!docSnap.exists()) {
-                    await setDoc(userRef, { nome: user.displayName, pontos: 0 });
-                }
-
-                onSnapshot(userRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const pontos = snapshot.data().pontos || 0;
-
-                        // Primeira carga (apenas carrega o valor sem animar voo)
-                        if (ultimoPontoConhecido === -1) {
-                            counterEl.innerText = `${pontos} / ${campaignConfig.pointsTarget}`;
-                            ultimoPontoConhecido = pontos;
-                            if (pontos >= campaignConfig.pointsTarget) {
-                                winMessage.classList.remove('hidden');
-                                fraseAtual = "🏆 META ATINGIDA! RESGATE SEU DRINK GRÁTIS NO BALCÃO!";
-                            }
-                            return;
-                        }
-
-                        // Se ganhou pontos (animação de viagem)
-                        if (pontos > ultimoPontoConhecido) {
-                            sortearNovaFrase();
-                            const acabouDeGanhar = (ultimoPontoConhecido < campaignConfig.pointsTarget && pontos >= campaignConfig.pointsTarget);
-                            
-                            // Atraso mágico simulando o tempo de rede do celular do vendedor pro cliente
-                            setTimeout(() => {
-                                animateIncomingPoint(pontos, acabouDeGanhar);
-                            }, 600);
-                        } 
-                        // Se perdeu pontos (ex: resgatou o prêmio ou admin removeu)
-                        else if (pontos < ultimoPontoConhecido) {
-                            counterEl.innerText = `${pontos} / ${campaignConfig.pointsTarget}`;
-                            if (pontos < campaignConfig.pointsTarget) {
-                                winMessage.classList.add('hidden');
-                            }
-                        }
-
-                        ultimoPontoConhecido = pontos;
-                    }
-                });
-
-            } else {
-                loginScreen.classList.remove('hidden');
-                appScreen.classList.add('hidden');
-                newsTicker.classList.add('hidden');
-            }
         });
     </script>
+
 </body>
 </html>

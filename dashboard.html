@@ -1,126 +1,2168 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nice Dreamks - Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Painel do Empresário - Tem Pontinho</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                      brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                      indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                      orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- QRCode.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .glassmorphism {
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
+        }
+        @media print {
+            @page { size: auto; margin: 0mm; }
+            body * {
+                visibility: hidden !important;
+            }
+            #flyer-a4-preview, #flyer-a4-preview * {
+                visibility: visible !important;
+            }
+            #flyer-a4-preview {
+                position: fixed !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                width: 18cm !important;
+                height: 18cm !important;
+                background: white !important;
+                color: black !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 1cm !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 9999999 !important;
+            }
+            #flyer-a4-preview * {
+                color: black !important;
+            }
+            #flyer-qrcode-placeholder img, #flyer-qrcode-placeholder canvas {
+                width: 10cm !important;
+                height: 10cm !important;
+                margin: 0 auto !important;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+        }
+
+        /* M-02: tabela de clientes vira cards no mobile (< md) */
+        @media (max-width: 767px) {
+            #tab-content-clientes thead { display: none; }
+            #clientes-table-body, #clientes-table-body tr, #clientes-table-body td { display: block; width: 100%; }
+            #clientes-table-body tr {
+                position: relative;
+                border: 1px solid rgb(227 219 204);
+                border-radius: 1rem;
+                margin-bottom: 0.75rem;
+                padding: 0.25rem 0;
+            }
+            #clientes-table-body td {
+                padding: 0.4rem 1rem !important;
+                text-align: left !important;
+            }
+            #clientes-table-body td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: rgb(111 101 87);
+                margin-bottom: 2px;
+            }
+            #clientes-table-body td.col-check {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                width: auto;
+                padding: 0.5rem !important;
+            }
+            #clientes-table-body td.col-actions .flex { justify-content: flex-start !important; }
+        }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
+    </style>
 </head>
-<body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 class="brand-nice" style="font-size: 48px;">Dashboard</h1>
-            <div class="brand-fidelity" style="margin-bottom: 20px;">Painel Administrativo</div>
+<body class="h-full flex bg-brand-paper">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-stone-200 bg-white flex flex-col justify-between shrink-0 hidden md:flex">
+        <div class="flex flex-col gap-8 p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
+                    <i class="fa-solid fa-gem text-white text-base"></i>
+                </div>
+                <span class="text-lg font-bold font-outfit text-stone-800">Tem Pontinho</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1">
+                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-chart-line text-base"></i> Visão Geral
+                </button>
+                <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-users text-base"></i> Clientes
+                </button>
+                <button onclick="switchTab('equipe')" id="tab-btn-equipe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-user-shield text-base"></i> Equipe (Vendedores)
+                </button>
+                <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-qrcode text-base"></i> Assinatura
+                </button>
+            </nav>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-title">Total de Clientes</div>
-                <div class="stat-value" id="total-clients">0</div>
+        <!-- Logged In User Footer -->
+        <div class="p-6 border-t border-stone-200 flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center font-bold text-brand-green" id="user-avatar">E</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-stone-800 truncate" id="user-display-name">Empresário</p>
+                    <p class="text-[10px] text-stone-500 truncate" id="user-email">email@empresa.com</p>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Pontos Distribuídos (Ativos)</div>
-                <div class="stat-value text-warning" id="total-points">0</div>
-            </div>
+            <button id="btn-logout" class="w-full py-2.5 bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 rounded-xl text-xs font-semibold text-stone-500 hover:text-red-600 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair do Painel
+            </button>
         </div>
+    </aside>
 
-        <div class="clients-section">
-            <h2 class="section-title">Lista de Clientes</h2>
-            <div class="table-responsive">
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Nome do Cliente</th>
-                            <th>Pontuação Atual</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clients-list">
-                        <tr>
-                            <td colspan="3" style="text-align: center; color: #94a3b8;">Carregando dados...</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- Main Container -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Top bar -->
+        <header class="h-16 border-b border-stone-200 px-4 md:px-6 flex items-center justify-between gap-2 glassmorphism sticky top-0 z-30">
+            <div class="flex items-center gap-2 min-w-0">
+                <h1 class="text-base md:text-lg font-bold font-outfit text-stone-800 truncate" id="page-title">Visão Geral</h1>
+                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="trial-badge">Período de Teste</span>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="active-badge">Pro Ativo</span>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-xl transition flex items-center gap-1.5 min-h-[40px]" title="Abrir Cartão Digital">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden lg:inline">Página do Cliente</span>
+                </button>
+                <div class="flex items-center">
+                    <button id="btn-header-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0 min-h-[40px]">
+                        <i class="fa-solid fa-camera"></i> <span class="hidden lg:inline">Câmera do Vendedor</span><span class="lg:hidden">Câmera</span>
+                    </button>
+                    <button id="btn-header-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2 rounded-r-xl transition flex items-center gap-1.5 min-h-[40px]" title="Copiar link da Câmera">
+                        <i class="fa-regular fa-copy"></i> <span class="hidden lg:inline">Copiar Link</span>
+                    </button>
+                </div>
+                <!-- Logout (somente mobile; no desktop fica na sidebar) -->
+                <button id="btn-logout-mobile" class="md:hidden text-xs font-semibold bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 text-stone-500 hover:text-red-600 w-10 h-10 rounded-xl transition flex items-center justify-center shrink-0" title="Sair do Painel" aria-label="Sair do Painel">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <main class="flex-grow p-6 md:p-8 pb-28 md:pb-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
+
+            <!-- Banner Informativo de Trial -->
+            <div id="trial-alert" class="hidden p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm">Faltam <span id="trial-days-left">30</span> dias do seu mês grátis</h4>
+                        <p class="text-stone-500 text-xs mt-0.5">Assine por R$ 19,90/mês quando quiser — o pagamento só começa a valer no fim do período grátis, sem interromper seu programa.</p>
+                    </div>
+                </div>
+                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
+            </div>
+
+            <!-- A-01: Banner de verificação de e-mail (cadastro por e-mail/senha não confirmado) -->
+            <div id="verify-email-alert" class="hidden p-4 rounded-2xl border border-sky-500/20 bg-sky-500/5 flex items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shrink-0"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm">Confirme seu e-mail</h4>
+                        <p class="text-stone-500 text-xs mt-0.5">Enviamos um link de confirmação para <span id="verify-email-address" class="text-stone-700 font-semibold"></span>. Confirme para manter o acesso seguro à sua conta.</p>
+                    </div>
+                </div>
+                <button id="btn-resend-verification" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/15 transition shrink-0 active:scale-95">Reenviar</button>
+            </div>
+
+            <!-- TABS CONTENT -->
+
+            <!-- TAB 1: VISÃO GERAL -->
+            <div id="tab-content-dashboard" class="flex flex-col gap-6">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Clientes Cadastrados</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-clientes">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total de Carimbos</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-pontos">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios a Resgatar</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-disponiveis">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl"><i class="fa-solid fa-gift"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios Entregues</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-entregues">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                </div>
+
+                <!-- Resumo Campanha -->
+                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-4">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Regras da Campanha Ativa</h3>
+                        <div class="flex gap-2 flex-wrap justify-end">
+                            <button onclick="openEditarCampanhaModal()" class="text-sm font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-400 px-4 py-2 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar Regras
+                            </button>
+                            <button onclick="openProFeatureModal('Links Externos e HTML Customizado')" class="text-sm font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-4 py-2 rounded-xl transition flex items-center gap-2" id="btn-pro-links">
+                                <i class="fa-solid fa-lock text-amber-400"></i> Links / Visual Pro
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-circle-check"></i></div>
+                            <div>
+                                <p class="text-stone-500 text-xs">Meta do Cartão</p>
+                                <p class="text-stone-800 text-sm font-semibold mt-0.5"><span id="summary-meta-pontos">10</span> Pontos / Carimbos</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-trophy"></i></div>
+                            <div>
+                                <p class="text-stone-500 text-xs">Recompensa final</p>
+                                <p class="text-stone-800 text-sm font-semibold mt-0.5" id="summary-premio">1 Drink Especial</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Links e Materiais -->
+                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-6">
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Links e Divulgação</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Links Úteis -->
+                        <div class="flex flex-col gap-4">
+                            <!-- Client link -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-700 select-all">
+                                    <button id="btn-overview-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                                </div>
+                            </div>
+        
+                            <!-- Admin link -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Câmera do Vendedor (Validar/Carimbar)</span>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly id="overview-link-vendedor-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-700 select-all">
+                                    <button id="btn-overview-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Kit -->
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Texto Pronto para WhatsApp</span>
+                            <div class="relative h-full">
+                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full h-full min-h-[110px] bg-white border border-stone-200 rounded-xl p-4 text-xs text-stone-500 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                                <button id="btn-overview-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Texto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 pt-6 border-t border-stone-200">
+                        <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-stone-50 border border-stone-200">
+                            <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="overview-qrcode-box">
+                                <div id="overview-qrcode-placeholder" class="w-[120px] h-[120px] flex items-center justify-center text-stone-500">
+                                    <i class="fa-solid fa-qrcode text-4xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2 text-center sm:text-left">
+                                <h3 class="font-bold text-stone-800 text-base font-outfit">Flyer de Divulgação (A4)</h3>
+                                <p class="text-xs text-stone-500 max-w-sm">Imprima o seu flyer contendo o QR Code acima. Coloque-o no balcão e nas mesas para que seus clientes escaneiem e entrem no seu programa de fidelidade instantaneamente.</p>
+                                <button onclick="openFlyerModal()" class="mt-2 text-xs font-semibold text-stone-500 bg-white border border-stone-200 hover:bg-stone-100 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
+                                    <i class="fa-solid fa-file-pdf"></i> Abrir e Baixar Flyer PNG
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CLIENTES -->
+            <div id="tab-content-clientes" class="hidden flex flex-col gap-6">
+                <!-- Header search -->
+                <div class="flex justify-between items-center gap-4 flex-wrap">
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Clientes Participantes</h3>
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="flex items-center">
+                            <button id="btn-clientes-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
+                            </button>
+                            <button id="btn-clientes-copiar-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 border-l-0 text-stone-700 px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link do Cliente">
+                                <i class="fa-regular fa-copy"></i> Copiar Link
+                            </button>
+                        </div>
+                        <div class="relative w-full sm:max-w-xs flex-1 mt-3 md:mt-0">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-500 text-xs"></i>
+                            <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-white border border-stone-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-stone-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Bar -->
+                <div id="bulk-actions-bar" class="hidden glassmorphism px-4 py-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 flex items-center justify-between gap-4 mb-4">
+                    <span class="text-xs text-indigo-700 font-medium"><span id="selected-count">0</span> clientes selecionados</span>
+                    <div class="flex gap-2">
+                        <button onclick="openBulkAjustarModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition active:scale-95">Ajustar Pontos</button>
+                        <button onclick="bulkResetPoints()" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg transition active:scale-95">Zerar Pontos</button>
+                    </div>
+                </div>
+
+                <!-- Table box -->
+                <div class="glassmorphism rounded-2xl overflow-hidden border border-stone-200">
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-stone-200 bg-stone-50 text-stone-500 font-semibold uppercase tracking-wider">
+                                    <th class="py-4 px-6 w-12 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4"></th>
+                                    <th class="py-4 px-6">Nome Completo</th>
+                                    <th class="py-4 px-6">E-mail</th>
+                                    <th class="py-4 px-6 text-center">Pontuação</th>
+                                    <th class="py-4 px-6 text-center">Status</th>
+                                    <th class="py-4 px-6 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-table-body" class="divide-y divide-stone-200 text-stone-500">
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-stone-500">
+                                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando clientes cadastrados...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: EQUIPE (VENDEDORES) -->
+            <div id="tab-content-equipe" class="hidden flex flex-col gap-6">
+                <div class="flex justify-between items-center gap-4 flex-wrap">
+                    <div>
+                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe de Atendimento</h3>
+                        <p class="text-xs text-stone-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
+                        <button id="btn-equipe-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-camera"></i> Câmera do Vendedor
+                        </button>
+                        <button id="btn-novo-vendedor" type="button" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
+                            <i class="fa-solid fa-user-plus"></i> Novo Vendedor
+                        </button>
+                    </div>
+                </div>
+
+                <div id="vendor-invite-card" class="hidden glassmorphism rounded-2xl p-5 border border-brand-green/20 bg-brand-green/5 flex flex-col gap-3">
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm font-outfit">Convite de vendedor criado</h4>
+                        <p class="text-xs text-stone-600 mt-1">Envie este link para o atendente. Ele poderá criar login com Google ou e-mail/senha e cair direto na câmera desta empresa.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="vendor-invite-url" readonly class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs text-brand-green select-all focus:outline-none" value="">
+                        <button id="btn-copy-vendor-invite" class="px-4 py-3 bg-brand-green hover:bg-brand-green-dark text-white rounded-xl text-xs font-bold transition active:scale-95" type="button">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar convite
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vendedores Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-stone-500 col-span-full">
+                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando equipe...
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CONFIGURAÇÕES DA CONTA (Antigo Stripe) -->
+            <div id="tab-content-stripe" class="hidden flex flex-col gap-8">
+                <div class="flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold font-outfit text-stone-800">Configurações da Conta</h3>
+                        <p class="text-stone-500 text-xs mt-1">Gerencie os dados da sua empresa, assinatura e privacidade.</p>
+                    </div>
+                </div>
+
+                <!-- Formulário de Dados da Empresa -->
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-5 border border-stone-200">
+                    <h4 class="font-bold text-stone-800 text-base font-outfit">Informações do Controlador (LGPD)</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="config-company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="config-company-name" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                                <button id="btn-save-company-name" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="config-company-slug" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Personalizado</label>
+                            <div class="flex gap-2">
+                                <div class="flex-1 flex items-center bg-white border border-stone-200 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
+                                    <span class="text-stone-500 text-xs px-3 py-2.5 border-r border-stone-200 bg-stone-100">/cliente.html?link=</span>
+                                    <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-stone-800 transition" autocomplete="off">
+                                </div>
+                                <button id="btn-save-company-slug" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar Link</button>
+                            </div>
+                            <span class="text-[10px] text-stone-500">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial (Login)</label>
+                            <input type="text" id="config-owner-email" readonly class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-500 opacity-70 cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Privacidade / Danger Zone -->
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-4 border border-red-200 bg-red-50">
+                    <h4 class="font-bold text-red-600 text-base font-outfit"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Zona de Perigo (LGPD)</h4>
+                    <p class="text-xs text-stone-500 leading-relaxed max-w-3xl">Como Controlador de Dados, você tem o direito de solicitar a exclusão permanente da sua conta e de todos os dados associados a ela (incluindo todos os clientes cadastrados no seu programa de fidelidade). <strong>Esta ação é irreversível.</strong></p>
+                    <div>
+                        <button id="btn-delete-controller-account" class="mt-2 text-xs font-bold bg-red-50 hover:bg-red-600 border border-red-300 hover:border-red-600 text-red-600 hover:text-white px-4 py-3 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-stone-200 my-2">
+                
+                <!-- Plans Column Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-start">
+                    
+                    <!-- Free/Trial Card -->
+                    <div class="glassmorphism p-6 rounded-2xl border-stone-200/80 flex flex-col gap-5 bg-stone-50">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest">Plano Atual</span>
+                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Período de Testes</h4>
+                            <p class="text-stone-500 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
+                        </div>
+                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 0 <span class="text-xs font-normal text-stone-500">/ 30 dias</span></div>
+                        
+                        <div class="h-[1px] bg-stone-200 w-full"></div>
+
+                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Até 1 vendedor</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Tabela de clientes ativa</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Sem upload de Logotipo</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Suporte Prioritário</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pro Card (Active Stripe simulation) -->
+                    <div class="glassmorphism p-6 rounded-2xl border-brand-green/40 relative flex flex-col gap-5 bg-brand-green/5">
+                        <div class="absolute -top-3 right-5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-400/20 shadow-md">Mais Popular</div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Profissional</span>
+                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Plano Tem Pontinho</h4>
+                            <p class="text-stone-500 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
+                        </div>
+                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 19,90 <span class="text-xs font-normal text-stone-500">/ mensal</span></div>
+                        
+                        <div class="h-[1px] bg-stone-200 w-full"></div>
+
+                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Vendedores Ilimitados</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Envio de Logotipo da Marca</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Customizações Visuais Estendidas</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Exportação de Dados e Relatórios</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Suporte WhatsApp 24/7</li>
+                        </ul>
+
+                        <button id="btn-stripe-checkout" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-xs rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-2">
+                            <i class="fa-solid fa-qrcode text-base mr-1"></i> Pagar com PIX
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Barra de Navegação Inferior (somente mobile) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white backdrop-blur border-t border-stone-200 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
+        <button onclick="switchTab('dashboard')" id="mtab-btn-dashboard" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-indigo-400 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-chart-line text-lg"></i> Visão Geral
+        </button>
+        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-users text-lg"></i> Clientes
+        </button>
+        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-user-shield text-lg"></i> Equipe
+        </button>
+        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-qrcode text-lg"></i> Assinatura
+        </button>
+    </nav>
+
+    <!-- MODAL 1: AJUSTAR PONTOS -->
+    <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
+                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+                    <p class="text-stone-500">Cliente selecionado:</p>
+                    <p class="text-stone-800 font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
+                    <p class="text-indigo-400 font-bold mt-2">Pontuação Atual: <span id="modal-ajuste-pontos-atuais">0</span> Pontos</p>
+                </div>
+
+                <!-- Ações de Ajuste -->
+                <div class="flex gap-2">
+                    <button onclick="setAjusteAction('add')" id="btn-action-add" class="flex-1 py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-700 transition">+ Adicionar</button>
+                    <button onclick="setAjusteAction('remove')" id="btn-action-remove" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">- Remover</button>
+                    <button onclick="setAjusteAction('zero')" id="btn-action-zero" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">Zerar Pontos</button>
+                </div>
+
+                <!-- Campo de Entrada de Pontos -->
+                <div class="flex flex-col gap-1" id="input-pontos-container">
+                    <label for="ajuste-quantidade-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Quantidade de Pontos</label>
+                    <input type="number" id="ajuste-quantidade-pontos" value="1" min="1" max="100" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <!-- Campo Justificativa Obrigatória -->
+                <div class="flex flex-col gap-1">
+                    <label for="ajuste-justificativa" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
+                    <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-stone-500">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
+                </div>
+
+                <!-- Confirm buttons -->
+                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-stone-200 text-white disabled:text-stone-500 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar Ajuste
+                </button>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    <!-- MODAL 2: LINKS DE DIVULGAÇÃO -->
+    <div id="modal-promo-links" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Links de Divulgação</h3>
+                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-stone-500">Link do Cartão de Fidelidade do Cliente</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-client-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-indigo-700 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-client-url')" class="px-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">Copiar</button>
+                    </div>
+                </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAH5BxqOq3KoF48Nkz43eZd9IZleBjckz8",
-            authDomain: "nice-dreamks-fidelidade.firebaseapp.com",
-            projectId: "nice-dreamks-fidelidade",
-            storageBucket: "nice-dreamks-fidelidade.firebasestorage.app",
-            messagingSenderId: "287947707168",
-            appId: "1:287947707168:web:e6530a04124d9ed4ecfd45",
-            measurementId: "G-9Z1VKST81Z"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const clientsListEl = document.getElementById('clients-list');
-        const totalClientsEl = document.getElementById('total-clients');
-        const totalPointsEl = document.getElementById('total-points');
-
-        // Escuta a coleção 'clientes' em tempo real
-        const q = query(collection(db, "clientes"), orderBy("pontos", "desc"));
-
-        onSnapshot(q, (snapshot) => {
-            clientsListEl.innerHTML = '';
-            let totalClients = 0;
-            let totalPoints = 0;
-
-            if (snapshot.empty) {
-                clientsListEl.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8;">Nenhum cliente encontrado.</td></tr>`;
-                return;
-            }
-
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const nome = data.nome || "Cliente sem nome";
-                const pontos = data.pontos || 0;
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-stone-500">Link da câmera do vendedor (equipe)</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-violet-700 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-vendor-url')" class="px-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition">Copiar</button>
+                    </div>
+                </div>
                 
-                totalClients++;
-                totalPoints += pontos;
+                <p class="text-[10px] text-stone-500 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
+            </div>
+        </div>
+    </div>
 
-                // Define badge status based on points
-                let statusBadge = '';
-                if (pontos >= 10) {
-                    statusBadge = '<span class="badge badge-success">Recompensa Disponível</span>';
-                } else if (pontos >= 7) {
-                    statusBadge = '<span class="badge badge-warning">Quase lá!</span>';
-                } else {
-                    statusBadge = '<span class="badge badge-info">Acumulando</span>';
-                }
+    <!-- MODAL HISTÓRICO DE CARIMBOS -->
+    <div id="modal-historico" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Histórico de Carimbos</h3>
+                    <p class="text-[10px] text-stone-500 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-stone-800 font-medium">...</span></p>
+                </div>
+                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div id="historico-lista" class="flex flex-col gap-3 mt-2">
+                <div class="text-center text-stone-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL 4: EDITAR CAMPANHA -->
+    <div id="modal-editar-campanha" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Editar Página</h3>
+                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <label for="edit-theme-title" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Título da Página do Cliente</label>
+                    <input type="text" id="edit-theme-title" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                </div>
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div style="font-weight: 600; color: #f8fafc;">${nome}</div>
-                        <div style="font-size: 12px; color: #64748b; font-family: monospace;">ID: ${docSnap.id.substring(0, 8)}...</div>
-                    </td>
-                    <td>
-                        <div class="points-indicator">
-                            <span style="font-size: 20px; font-weight: 700; color: #38bdf8;">${pontos}</span> 
-                            <span style="color: #94a3b8; font-size: 14px;">/ 10</span>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="edit-premio-desc" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-color" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Cor de Fundo Principal</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="edit-theme-color" class="w-10 h-10 bg-transparent border-0 cursor-pointer rounded-lg">
+                            <input type="text" id="edit-theme-color-hex" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 uppercase focus:outline-none">
                         </div>
-                    </td>
-                    <td>${statusBadge}</td>
-                `;
-                clientsListEl.appendChild(tr);
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-font" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Tipografia (Fonte)</label>
+                        <select id="edit-theme-font" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                            <option value="sans">Inter</option>
+                            <option value="playfair">Playfair Display</option>
+                            <option value="space">Space Grotesk</option>
+                            <option value="mono">JetBrains Mono</option>
+                            <option value="bebas">Bebas Neue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5 relative">
+                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Emoji dos Carimbos</label>
+                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 transition text-center text-xl">
+                    <p class="text-[10px] text-stone-500 mt-1">Use o teclado para inserir 1 emoji.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar e Salvar Campanha
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: FLYER DE DIVULGAÇÃO A4 -->
+    <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 max-h-[90vh]">
+            <div class="flex justify-between items-center no-print">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Flyer de Divulgação</h3>
+                <div class="flex gap-2">
+                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
+                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            
+            <!-- Flyer Container (Designed for Printing) -->
+            <div class="overflow-y-auto flex justify-center p-4 bg-stone-100 border border-stone-200 rounded-xl max-h-[60vh] no-print">
+                <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
+                    <div class="flex flex-col items-center gap-4 mt-2">
+                        <!-- QR Code Grande no Topo -->
+                        <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
+                            <div id="flyer-qrcode-placeholder"></div>
+                        </div>
+
+                        <!-- Informações em baixo de forma simples -->
+                        <div class="flex flex-col items-center gap-1">
+                            <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
+                            <p class="text-[9px] uppercase tracking-widest text-stone-500 font-semibold mb-1">Clube de Fidelidade</p>
+                            
+                            <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
+                            <p class="text-[10px] text-stone-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-[8px] text-stone-500 font-semibold mt-3">Powered by Tem Pontinho</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRO FEATURE -->
+    <div id="modal-pro-feature" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-8 flex flex-col gap-4 shadow-2xl animate-fade-in text-stone-800 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl"></div>
+            
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-2xl mx-auto flex items-center justify-center text-slate-900 text-3xl shadow-lg shadow-amber-500/30 mb-2">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <h3 class="font-bold text-2xl text-stone-800 font-outfit">Recurso Premium</h3>
+            <p class="text-xs text-stone-500 mb-2">A funcionalidade <strong id="pro-feature-name" class="text-amber-400">Links Externos</strong> é exclusiva do plano Profissional (PRO).</p>
+            
+            <div class="bg-stone-50 border border-stone-200 p-4 rounded-xl text-left flex flex-col gap-2 mb-2">
+                <p class="text-xs font-semibold text-stone-500 mb-1">Com o Plano PRO você pode:</p>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Inserir botões de WhatsApp, Cardápio, etc.</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Trocar logotipo do cartão</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Modificar cores e estilo avançado</div>
+            </div>
+
+            <button onclick="closeProFeatureModal(); switchTab('stripe');" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95">
+                Ver Planos de Assinatura
+            </button>
+            <button onclick="closeProFeatureModal()" class="text-xs text-stone-500 hover:text-stone-800 mt-1">Agora não</button>
+        </div>
+    </div>
+
+    <!-- PAYWALL BANNER -->
+    <div id="paywall-banner" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-end justify-center p-4 pointer-events-none">
+        <div class="w-full max-w-2xl pointer-events-auto mb-6">
+            <div class="glassmorphism rounded-2xl border border-red-200 bg-red-50 p-5 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
+                <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-red-600 shrink-0 text-xl">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h4 class="font-bold text-stone-800 text-sm">Assinatura inativa — <span id="paywall-motivo">Período de teste encerrado</span></h4>
+                    <p class="text-stone-500 text-xs mt-0.5">Os carimbos e resgates estão bloqueados. Regularize sua assinatura para continuar operando seu programa de fidelidade.</p>
+                </div>
+                <button onclick="switchTab('stripe')" class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Pagar com PIX
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PIX CHECKOUT -->
+    <div id="modal-pix-checkout" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Assinar — Plano Tem Pontinho</h3>
+                    <p class="text-xs text-stone-500 mt-0.5">R$ 19,90 / mês via PIX</p>
+                </div>
+                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+
+            <!-- Step 1: Form -->
+            <div id="pix-checkout-form-step" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-cpfcnpj" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">CPF / CNPJ <span class="text-red-600">*</span></label>
+                    <input type="text" id="pix-cpfcnpj" placeholder="Somente números (11 ou 14 dígitos)" maxlength="18"
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                    <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-600">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-telefone" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Telefone <span class="text-stone-500">(opcional)</span></label>
+                    <input type="text" id="pix-telefone" placeholder="Ex: 11999990000"
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                </div>
+                <button id="btn-pix-submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-sm rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-1">
+                    <i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX
+                </button>
+                <p class="text-[10px] text-stone-500 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
+            </div>
+
+            <!-- Step 2: PIX Result -->
+            <div id="pix-result-step" class="hidden flex flex-col gap-5 items-center">
+                <div class="w-full p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-700 text-center">
+                    <i class="fa-solid fa-circle-check mr-1"></i>
+                    Cobrança gerada! Escaneie o QR no app do seu banco. A liberação é automática assim que o pagamento cair.
+                </div>
+
+                <!-- QR Code -->
+                <div class="bg-white p-3 rounded-2xl shadow-lg">
+                    <img id="pix-qr-image" src="" alt="QR Code PIX" class="w-48 h-48 object-contain">
+                </div>
+
+                <!-- Copia e Cola -->
+                <div class="w-full flex flex-col gap-1.5">
+                    <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">PIX Copia e Cola</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="pix-copia-cola" readonly
+                            class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-xs text-indigo-700 select-all focus:outline-none">
+                        <button id="btn-pix-copiar" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Link da fatura -->
+                <a id="pix-invoice-link" href="#" target="_blank" rel="noopener"
+                    class="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Abrir fatura no navegador
+                </a>
+
+                <button onclick="closePixCheckoutModal()" class="w-full py-2.5 bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl transition active:scale-95">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic connection -->
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            logoutUser,
+            onSnapshot,
+            deleteDoc,
+            sendEmailVerification
+        } from "./config.js?v=2";
+        import { setPoints, awardPoints, removePoint, createSubscription } from "./points-api.js?v=2";
+
+        // --- Toast de notificação ---
+        window.showToast = function(message, type = "success") {
+            const existing = document.getElementById("toast-notification");
+            if (existing) existing.remove();
+
+            const toast = document.createElement("div");
+            toast.id = "toast-notification";
+            const colorClass = type === "error"
+                ? "bg-red-900/90 border-red-500/40 text-red-200"
+                : type === "warn"
+                ? "bg-amber-900/90 border-amber-500/40 text-amber-100"
+                : "bg-brand-green text-white border-brand-green";
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-xl border backdrop-blur-md text-sm font-medium shadow-2xl transition-all duration-300 opacity-0 translate-y-2 ${colorClass}`;
+            toast.innerText = message;
+            document.body.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove("opacity-0", "translate-y-2");
+                toast.classList.add("opacity-100", "translate-y-0");
             });
 
-            // Atualiza os cards
-            totalClientsEl.innerText = totalClients;
-            totalPointsEl.innerText = totalPoints;
-        }, (error) => {
-            console.error("Erro ao buscar clientes:", error);
-            clientsListEl.innerHTML = `<tr><td colspan="3" class="text-danger" style="text-align: center;">Erro ao carregar dados. Verifique o console.</td></tr>`;
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // --- Modal de confirmação (substitui confirm/prompt nativos) ---
+        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
+          return new Promise((resolve) => {
+            const modal = document.getElementById("modal-confirm");
+            const elTitle = document.getElementById("confirm-title");
+            const elMsg = document.getElementById("confirm-message");
+            const elInput = document.getElementById("confirm-input");
+            const btnOk = document.getElementById("confirm-ok");
+            const btnCancel = document.getElementById("confirm-cancel");
+            const iconWrap = document.getElementById("confirm-icon-wrap");
+            const icon = document.getElementById("confirm-icon");
+            elTitle.textContent = title; elMsg.textContent = message;
+            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
+            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-600" : "bg-amber-500/15 text-amber-400"}`;
+            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
+            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
+            modal.classList.remove("hidden");
+            if (keyword) setTimeout(() => elInput.focus(), 50);
+            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
+            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
+            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
+            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
+            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
+            document.addEventListener("keydown", onKey);
+          });
+        }
+
+        // Variáveis Locais
+        let empresaId = "";
+        let targetClienteId = "";
+        let targetClienteIds = [];
+        let isBulkAjuste = false;
+        let currentAjusteAction = "add"; // add, remove, zero
+        let metaCampanha = 10;
+        let visualConfig = {};
+        let writesBlocked = false; // $-04: estado do paywall (reaplica em re-renders)
+        let fullEmpresaData = null;
+        let qrCodeFlyerInstance = null;
+
+        function getPublicBaseUrl() {
+            if (["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.protocol === "file:") {
+                return window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+            }
+            return "https://tempontinho.com/";
+        }
+
+        // Recupera empresaId pela query URL
+        const urlParams = new URLSearchParams(window.location.search);
+        empresaId = urlParams.get("empresa");
+
+        // Se não tiver empresa logada na query, tenta pegar no Auth
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                if (!empresaId) {
+                    empresaId = user.uid;
+                }
+                
+                // Preenche dados do rodapé lateral
+                document.getElementById("user-display-name").innerText = user.displayName || "Empresário";
+                document.getElementById("user-email").innerText = user.email;
+                document.getElementById("user-avatar").innerText = (user.displayName || "E").charAt(0).toUpperCase();
+
+                // A-01: cobra confirmação de e-mail para contas criadas por e-mail/senha.
+                checkEmailVerification(user);
+
+                // Busca dados da empresa
+                await loadEmpresaData();
+                // Assina escuta em tempo real dos clientes e vendedores
+                listenToData();
+                // Assina status da assinatura em tempo real (paywall + badges)
+                listenEmpresaStatus();
+            } else {
+                // Redireciona se não estiver logado
+                window.location.href = "./login.html";
+            }
         });
+
+        // A-01: banner de verificação de e-mail (só para login por e-mail/senha não confirmado).
+        function checkEmailVerification(user) {
+            const alertEl = document.getElementById("verify-email-alert");
+            if (!alertEl) return;
+            const isPasswordUser = (user.providerData || []).some(p => p.providerId === "password");
+            if (isPasswordUser && !user.emailVerified) {
+                document.getElementById("verify-email-address").innerText = user.email || "";
+                alertEl.classList.remove("hidden");
+            } else {
+                alertEl.classList.add("hidden");
+            }
+        }
+        document.getElementById("btn-resend-verification")?.addEventListener("click", async (e) => {
+            const btn = e.currentTarget;
+            btn.disabled = true;
+            const original = btn.innerText;
+            btn.innerText = "Enviando...";
+            try {
+                await sendEmailVerification(auth.currentUser);
+                showToast("Link de confirmação reenviado. Confira sua caixa de entrada.");
+            } catch (err) {
+                console.error(err);
+                showToast("Não foi possível reenviar agora. Tente novamente em instantes.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = original;
+            }
+        });
+
+        // Efetua Logout
+        const handleLogout = async () => {
+            await logoutUser();
+            window.location.href = "./login.html";
+        };
+        document.getElementById("btn-logout").addEventListener("click", handleLogout);
+        document.getElementById("btn-logout-mobile")?.addEventListener("click", handleLogout);
+
+        // Carrega dados da empresa no Firestore
+        async function loadEmpresaData() {
+            try {
+                const docRef = doc(db, "empresas", empresaId);
+                const docSnap = await docRef.get ? await docRef.get() : await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    fullEmpresaData = data;
+                    visualConfig = data.visualConfig || {};
+                    metaCampanha = data.metaConfig?.metaPontos || 10;
+
+                    // Atualiza elementos estáticos
+                    document.getElementById("summary-meta-pontos").innerText = metaCampanha;
+                    document.getElementById("summary-premio").innerText = data.metaConfig?.descriçãoPremio || "Prêmio";
+                    document.getElementById("stat-premios-entregues").innerText = data.totalPremiosEntregues || 0;
+                    
+                    // Configura URLs do modal de links e visão geral
+                    const baseUrl = getPublicBaseUrl();
+                    const linkSlug = data.linkUnicoCliente || data.donoUid;
+                    const clientUrl = `${baseUrl}cliente.html?link=${linkSlug}`;
+                    const vendorUrl = `${baseUrl}vendedor.html?empresa=${empresaId}`;
+                    
+                    // Modais originais (mantidos por segurança caso existam)
+                    const promoClientUrl = document.getElementById("promo-client-url");
+                    if (promoClientUrl) promoClientUrl.value = clientUrl;
+                    const promoVendorUrl = document.getElementById("promo-vendor-url");
+                    if (promoVendorUrl) promoVendorUrl.value = vendorUrl;
+                           // Preenche dados laterais e modal
+                    document.getElementById("config-company-name").value = data.nomeEmpresa || "";
+                    document.getElementById("config-company-slug").value = data.linkUnicoCliente || "";
+                    document.getElementById("config-owner-email").value = data.emailComercial || "";
+
+                    // Novos campos na Visão Geral
+                    document.getElementById("overview-link-cliente-url").value = clientUrl;
+                    document.getElementById("overview-link-vendedor-url").value = vendorUrl;
+                    
+                    const premio = data.metaConfig?.descriçãoPremio || "um super prêmio";
+                    document.getElementById("overview-whatsapp-kit-text").value = `🎉 Olá! Lançamos nosso sistema de fidelidade digital!\n\nCadastre-se agora e comece a acumular pontos para ganhar ${premio}.\n\nAcesse seu cartão aqui: ${clientUrl}`;
+
+                    // Gerar QR Code da Visão Geral
+                    const overviewQrContainer = document.getElementById("overview-qrcode-placeholder");
+                    overviewQrContainer.innerHTML = "";
+                    overviewQrContainer.className = ""; // Remover as classes de placeholder
+                    new QRCode(overviewQrContainer, {
+                        text: clientUrl,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#0f172a", // slate-900
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+
+                    // Botões do Cabeçalho
+                    document.getElementById("btn-header-pagina-cliente").onclick = () => window.open(clientUrl, '_blank');
+                    document.getElementById("btn-header-camera-vendedor").onclick = () => window.open(vendorUrl, '_blank');
+                    document.getElementById("btn-header-copiar-camera").onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link da câmera copiado!");
+                    };
+
+                    // Botões da aba Clientes
+                    const btnClientesPagina = document.getElementById("btn-clientes-pagina-cliente");
+                    if(btnClientesPagina) btnClientesPagina.onclick = () => window.open(clientUrl, '_blank');
+                    
+                    const btnClientesCopiar = document.getElementById("btn-clientes-copiar-cliente");
+                    if(btnClientesCopiar) btnClientesCopiar.onclick = () => {
+                        navigator.clipboard.writeText(clientUrl);
+                        showToast("Link do cliente copiado!");
+                    };
+
+                    // Botões da aba Equipe
+                    const btnEquipeCamera = document.getElementById("btn-equipe-camera-vendedor");
+                    if(btnEquipeCamera) btnEquipeCamera.onclick = () => window.open(vendorUrl, '_blank');
+                    
+                    // Preencher aba Sua Conta
+                    const inputCompanyName = document.getElementById("config-company-name");
+                    const inputOwnerEmail = document.getElementById("config-owner-email");
+                    if(inputCompanyName) inputCompanyName.value = data.nomeEmpresa || "";
+                    if(inputOwnerEmail) inputOwnerEmail.value = data.ownerEmail || "";
+
+                    // Botões de Copiar da Visão Geral
+                    document.getElementById("btn-overview-copy-cliente").onclick = () => {
+                        navigator.clipboard.writeText(clientUrl);
+                        showToast("Link do cliente copiado!");
+                    };
+                    document.getElementById("btn-overview-copy-vendedor").onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link do vendedor copiado!");
+                    };
+                    document.getElementById("btn-overview-copy-whatsapp").onclick = () => {
+                        navigator.clipboard.writeText(document.getElementById("overview-whatsapp-kit-text").value);
+                        showToast("Kit do WhatsApp copiado!");
+                    };
+                }
+            } catch (err) {
+                console.error("Erro ao ler dados da empresa: ", err);
+            }
+        }
+
+        // Assinatura em tempo real para Clientes e Vendedores
+        function listenToData() {
+            // Escuta Clientes — subcoleção já escopada à empresa (multi-tenant)
+            const clientesQuery = collection(db, "empresas", empresaId, "clientes");
+            onSnapshot(clientesQuery, (snapshot) => {
+                const tableBody = document.getElementById("clientes-table-body");
+                tableBody.innerHTML = "";
+
+                let totalClientes = 0;
+                let totalPontos = 0;
+                let premiosDisponiveis = 0;
+
+                let hasClientes = false;
+
+                snapshot.forEach((docSnap) => {
+                    const client = docSnap.data();
+                    const clientId = docSnap.id;
+                    const pontos = client.pontos || 0;
+                    const premios = client.premiosPendentes || 0;
+                    const nome = client.nome || client.nomeCompleto || "Sem nome";
+
+                    hasClientes = true;
+                    totalClientes++;
+                    totalPontos += pontos;
+
+                    window.clientesDataMap = window.clientesDataMap || {};
+                    window.clientesDataMap[clientId] = client;
+
+                    const isWin = premios > 0;
+                    if (isWin) premiosDisponiveis += premios;
+
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-stone-100 transition duration-150";
+                    tr.innerHTML = `
+                        <td class="col-check py-4 px-6 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" onchange="updateBulkBar()" class="client-checkbox cursor-pointer w-4 h-4 rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500"></td>
+                        <td data-label="Nome" class="py-4 px-6 font-medium text-stone-800">${nome}</td>
+                        <td data-label="E-mail" class="py-4 px-6 text-stone-500">${client.email || ""}</td>
+                        <td data-label="Pontuação" class="py-4 px-6 text-center font-bold font-outfit text-indigo-400">${pontos} / ${metaCampanha}</td>
+                        <td data-label="Status" class="py-4 px-6 text-center">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
+                                isWin
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                    : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                            }">
+                                ${isWin ? `${premios} prêmio(s) a entregar` : "Acumulando"}
+                            </span>
+                        </td>
+                        <td data-label="Ações" class="col-actions py-4 px-6 text-right">
+                            <div class="flex gap-2 justify-end">
+                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-xs bg-white hover:bg-emerald-50 hover:text-brand-green hover:border-emerald-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition" title="Ver Histórico">
+                                    <i class="fa-solid fa-list-ul"></i>
+                                </button>
+                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-white hover:bg-emerald-50 hover:text-brand-green hover:border-emerald-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition">
+                                    Ajustar
+                                </button>
+                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition">
+                                    Zerar
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                if (!hasClientes) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="py-12 text-center text-stone-500">
+                                Nenhum cliente ativo registrado no seu programa ainda.<br>
+                                <span class="text-[10px] text-indigo-400 mt-2 block">Compartilhe o link do cliente para começar!</span>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                // Atualiza contadores do dashboard
+                document.getElementById("stat-total-clientes").innerText = totalClientes;
+                document.getElementById("stat-total-pontos").innerText = totalPontos;
+                document.getElementById("stat-premios-disponiveis").innerText = premiosDisponiveis;
+
+                // $-04: reaplica o paywall aos botões recém-renderizados da tabela.
+                setWriteButtonsDisabled(writesBlocked);
+            });
+
+            // Escuta Vendedores
+            const vendedoresQuery = query(collection(db, "vendedores"), where("empresaId", "==", empresaId));
+            onSnapshot(vendedoresQuery, (snapshot) => {
+                const grid = document.getElementById("vendedores-grid");
+                grid.innerHTML = "";
+
+                let hasVendedores = false;
+
+                snapshot.forEach((docSnap) => {
+                    hasVendedores = true;
+                    const vended = docSnap.data();
+                    const vUid = docSnap.id;
+
+                    const card = document.createElement("div");
+                    card.className = "glassmorphism p-5 rounded-2xl flex flex-col justify-between gap-4";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-stone-200 flex items-center justify-center text-stone-500 text-lg">
+                                <i class="fa-solid fa-user-tag"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-stone-800 text-sm leading-tight truncate">${vended.nomeVendedor || "Atendente"}</h4>
+                                <p class="text-xs text-stone-500 mt-0.5 break-all">${vended.email || ""}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center gap-2 border-t border-stone-200 pt-3">
+                            <span class="text-xs font-bold uppercase tracking-wider ${vended.ativo !== false ? 'text-emerald-700' : 'text-stone-500'}">
+                                ${vended.ativo !== false ? 'Ativo' : 'Pausado'}
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="pausarVendedor('${vUid}', ${vended.ativo !== false})" class="text-xs text-stone-700 hover:text-brand-green font-semibold px-2 py-1.5 rounded border border-stone-200 hover:bg-stone-50 transition">
+                                    ${vended.ativo !== false ? 'Pausar' : 'Retomar'}
+                                </button>
+                                <button onclick="apagarVendedor('${vUid}')" class="text-xs text-red-600 hover:text-red-700 font-semibold px-2 py-1.5 rounded border border-red-200 hover:bg-red-50 transition">
+                                    Apagar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                if (!hasVendedores) {
+                    grid.innerHTML = `
+                        <div class="glassmorphism p-8 rounded-2xl text-center text-stone-500 col-span-full">
+                            Nenhum vendedor registrado nesta empresa. Clique em <strong>Novo Vendedor</strong> para gerar um convite.
+                        </div>
+                    `;
+                }
+
+                // $-04: reaplica o paywall aos botões recém-renderizados.
+                setWriteButtonsDisabled(writesBlocked);
+            });
+        }
+
+        // --- Modals e Funções de Escrita no Firestore ---
+
+        // Abrir Modal de Histórico de Carimbos
+        window.openHistoricoModal = async function(clientId, clientName) {
+            document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
+            const historicoLista = document.getElementById("historico-lista");
+            historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Carregando histórico...</div>`;
+            document.getElementById("modal-historico").classList.remove("hidden");
+
+            try {
+                // Logs ficam na subcoleção do cartão (gravados pelas Cloud Functions)
+                const logsRef = collection(db, "empresas", empresaId, "clientes", clientId, "logs");
+                const snap = await getDocs(logsRef);
+
+                if (snap.empty) {
+                    historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Nenhum registro no histórico.</div>`;
+                    return;
+                }
+
+                const logs = snap.docs.map(d => d.data());
+                logs.sort((a, b) => (b.data?.toMillis?.() || 0) - (a.data?.toMillis?.() || 0));
+
+                historicoLista.innerHTML = logs.map(log => {
+                    const dateObj = log.data?.toDate ? log.data.toDate() : new Date();
+                    const dateStr = dateObj.toLocaleDateString('pt-BR');
+                    const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    const desc = log.tipo === "resgate"
+                        ? `<i class="fa-solid fa-gift text-yellow-400 mr-1.5"></i> Prêmio entregue`
+                        : log.tipo === "remocao"
+                        ? `<i class="fa-solid fa-minus text-red-600 mr-1.5"></i> -1 Ponto`
+                        : log.tipo === "ajuste"
+                        ? `<i class="fa-solid fa-pen text-amber-400 mr-1.5"></i> Ajuste manual (${log.qtd ?? 0})`
+                        : `<i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.qtd || 1} Ponto(s)`;
+                    const sub = log.motivo ? `Motivo: ${log.motivo}` : `Vendedor: ${log.vendedor || "Sistema"}`;
+
+                    return `
+                        <div class="bg-stone-50 border border-stone-200 p-3 rounded-xl flex justify-between items-center text-xs">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-stone-800 font-medium">${desc}</span>
+                                <span class="text-stone-500 text-[10px]">${sub}</span>
+                            </div>
+                            <div class="text-right flex flex-col gap-0.5">
+                                <span class="text-stone-500">${dateStr}</span>
+                                <span class="text-stone-500 text-[10px]">${timeStr}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            } catch (err) {
+                console.error("Erro ao carregar histórico:", err);
+                historicoLista.innerHTML = `<div class="text-center text-red-600 py-6 text-xs">Erro ao carregar histórico.</div>`;
+            }
+        };
+
+        window.closeHistoricoModal = function() {
+            document.getElementById("modal-historico").classList.add("hidden");
+        };
+
+        // Abrir Modal de Feature Pro
+        window.openProFeatureModal = function(featureName) {
+            document.getElementById("pro-feature-name").innerText = featureName || "Recurso Premium";
+            document.getElementById("modal-pro-feature").classList.remove("hidden");
+        };
+
+        window.closeProFeatureModal = function() {
+            document.getElementById("modal-pro-feature").classList.add("hidden");
+        };
+
+        // Abrir Modal de Ajuste de Pontos
+        window.openAjustarModal = function(clientId, nome, email, pontosAtuais) {
+            isBulkAjuste = false;
+            targetClienteId = clientId;
+            document.getElementById("modal-ajuste-nome").innerText = nome;
+            document.getElementById("modal-ajuste-email").innerText = email;
+            document.getElementById("modal-ajuste-pontos-atuais").innerText = pontosAtuais;
+            
+            // Reseta inputs do modal
+            document.getElementById("ajuste-quantidade-pontos").value = 1;
+            document.getElementById("ajuste-justificativa").value = "";
+            document.getElementById("btn-confirm-ajuste").disabled = true;
+
+            setAjusteAction("add");
+            
+            document.getElementById("modal-ajustar-pontos").classList.remove("hidden");
+        };
+
+        window.closeAjustarModal = function() {
+            document.getElementById("modal-ajustar-pontos").classList.add("hidden");
+        };
+
+        // Gerenciamento da Ação Ativa do Modal
+        window.setAjusteAction = function(action) {
+            currentAjusteAction = action;
+            const btnAdd = document.getElementById("btn-action-add");
+            const btnRemove = document.getElementById("btn-action-remove");
+            const btnZero = document.getElementById("btn-action-zero");
+            const pointsContainer = document.getElementById("input-pontos-container");
+
+            // Reseta classes
+            [btnAdd, btnRemove, btnZero].forEach(btn => {
+                btn.className = "flex-grow py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition";
+            });
+
+            if (action === "add") {
+                btnAdd.className = "flex-grow py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-700 transition";
+                pointsContainer.classList.remove("hidden");
+            } else if (action === "remove") {
+                btnRemove.className = "flex-grow py-2.5 rounded-lg border-2 border-amber-600 bg-amber-600/10 font-bold text-xs text-amber-700 transition";
+                pointsContainer.classList.remove("hidden");
+            } else if (action === "zero") {
+                btnZero.className = "flex-grow py-2.5 rounded-lg border-2 border-red-600 bg-red-600/10 font-bold text-xs text-red-700 transition";
+                pointsContainer.classList.add("hidden");
+            }
+            
+            validateAjusteForm();
+        };
+
+        // Visual Emoji Feedback for Dashboard
+        window.showEmojiFeedback = function(qty) {
+            const emojiStr = window.metaConfig?.brandEmoji || "⭐";
+            const popup = document.createElement("div");
+            popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
+            popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
+            document.body.appendChild(popup);
+            
+            popup.offsetWidth; // force reflow
+            
+            popup.classList.remove("opacity-0", "scale-50");
+            popup.classList.add("opacity-100", "scale-110");
+            
+            setTimeout(() => {
+                popup.classList.remove("opacity-100", "scale-110");
+                popup.classList.add("opacity-0", "scale-150");
+                setTimeout(() => popup.remove(), 300);
+            }, 800);
+        };
+
+        // Validação da justificativa antes de habilitar submissão
+        const justificativaInput = document.getElementById("ajuste-justificativa");
+        justificativaInput.addEventListener("input", validateAjusteForm);
+
+        function validateAjusteForm() {
+            const justificativaLength = justificativaInput.value.trim().length;
+            const btnConfirm = document.getElementById("btn-confirm-ajuste");
+            
+            if (justificativaLength >= 5) {
+                btnConfirm.disabled = false;
+            } else {
+                btnConfirm.disabled = true;
+            }
+        }
+
+        // Submissão do Ajuste de Pontos
+        document.getElementById("btn-confirm-ajuste").addEventListener("click", async () => {
+            const btnConfirm = document.getElementById("btn-confirm-ajuste");
+            btnConfirm.disabled = true;
+            btnConfirm.innerText = "Salvando...";
+
+            try {
+                // Aplica o ajuste via Cloud Function (server-side, auditado):
+                //  add  -> awardPoints (carry-over + prêmio)
+                //  remove/zero -> setPoints (valor absoluto, com justificativa)
+                const aplicarAjusteCliente = async (cid, pontosAtuais) => {
+                    const qty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                    const motivo = justificativaInput.value.trim();
+                    if (currentAjusteAction === "add") {
+                        await awardPoints({ empresaId, clienteId: cid, qtd: qty });
+                    } else if (currentAjusteAction === "remove") {
+                        await setPoints({ empresaId, clienteId: cid, pontos: Math.max(0, pontosAtuais - qty), motivo });
+                    } else if (currentAjusteAction === "zero") {
+                        await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo });
+                    }
+                };
+
+                // Cartão travado (prêmio pendente): awardPoints recusa com PREMIO_PENDENTE.
+                // No "add" tratamos isso com mensagem clara (e, no lote, pulando o cliente).
+                const isPremioPendente = (e) => String(e && (e.message || e.code) || "").includes("PREMIO_PENDENTE");
+                if (isBulkAjuste) {
+                    let ajustados = 0;
+                    const bloqueados = [];
+                    for (const cid of targetClienteIds) {
+                        const atual = (window.clientesDataMap?.[cid]?.pontos) || 0;
+                        try {
+                            await aplicarAjusteCliente(cid, atual);
+                            ajustados++;
+                        } catch (e) {
+                            if (currentAjusteAction === "add" && isPremioPendente(e)) {
+                                bloqueados.push(window.clientesDataMap?.[cid]?.nome || "cliente");
+                            } else {
+                                throw e;
+                            }
+                        }
+                    }
+                    if (bloqueados.length) {
+                        showToast(`${ajustados} ajustado(s). ${bloqueados.length} com prêmio pendente foram pulados — resgate o prêmio antes de pontuar.`, ajustados ? "warn" : "error");
+                    } else {
+                        showToast("Pontuação ajustada com sucesso para os clientes selecionados!", "success");
+                    }
+                    const allCheckbox = document.getElementById("select-all-clients");
+                    if (allCheckbox) allCheckbox.checked = false;
+                    toggleSelectAll(allCheckbox);
+                } else {
+                    const atual = (window.clientesDataMap?.[targetClienteId]?.pontos) || 0;
+                    try {
+                        await aplicarAjusteCliente(targetClienteId, atual);
+                    } catch (e) {
+                        if (currentAjusteAction === "add" && isPremioPendente(e)) {
+                            showToast("Este cliente tem prêmio pendente. Resgate o prêmio antes de adicionar pontos.", "warn");
+                            closeAjustarModal();
+                            return;
+                        }
+                        throw e;
+                    }
+                    showToast("Pontuação ajustada com sucesso!", "success");
+
+                    if (currentAjusteAction === "add") {
+                        const addQty = parseInt(document.getElementById("ajuste-quantidade-pontos").value) || 1;
+                        showEmojiFeedback(addQty);
+                    }
+                }
+                closeAjustarModal();
+            } catch (err) {
+                console.error(err);
+                const premioPend = String(err && (err.message || err.code) || "").includes("PREMIO_PENDENTE");
+                showToast(premioPend ? "Cliente com prêmio pendente — resgate antes de pontuar." : "Erro ao ajustar pontos. Tente novamente.", "error");
+            } finally {
+                btnConfirm.disabled = false;
+                btnConfirm.innerText = "Confirmar Ajuste";
+            }
+        });
+
+        // --- Gerenciamento de Equipe (Vendedores) ---
+        window.openAddVendedorModal = function() {
+            gerarConviteVendedor();
+        };
+
+        // Liga "Novo Vendedor" via addEventListener (mais confiável que onclick inline).
+        document.getElementById("btn-novo-vendedor")?.addEventListener("click", () => gerarConviteVendedor());
+
+        function buildVendorInviteUrl(token) {
+            const baseUrl = getPublicBaseUrl();
+            return `${baseUrl}vendedor.html?empresa=${encodeURIComponent(empresaId)}&convite=${encodeURIComponent(token)}`;
+        }
+
+        async function copyTextSafe(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        window.gerarConviteVendedor = async function() {
+            if (!empresaId || !auth.currentUser) {
+                showToast("Dados da empresa ainda não carregados. Aguarde um instante.", "warn");
+                return;
+            }
+            try {
+                const token = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`).replace(/[^A-Za-z0-9_-]/g, "");
+                await setDoc(doc(db, "empresas", empresaId, "convitesVendedores", token), {
+                    empresaId,
+                    ativo: true,
+                    criadoPor: auth.currentUser.uid,
+                    criadoEm: new Date(),
+                });
+                const inviteUrl = buildVendorInviteUrl(token);
+                const card = document.getElementById("vendor-invite-card");
+                const input = document.getElementById("vendor-invite-url");
+                input.value = inviteUrl;
+                card.classList.remove("hidden");
+                document.getElementById("btn-copy-vendor-invite").onclick = async () => {
+                    const copied = await copyTextSafe(inviteUrl);
+                    showToast(copied ? "Convite copiado!" : "Copie o link selecionado.", copied ? "success" : "warn");
+                    input.select();
+                };
+                const copied = await copyTextSafe(inviteUrl);
+                showToast(copied ? "Convite de vendedor criado e copiado." : "Convite de vendedor criado. Copie o link exibido.", copied ? "success" : "warn");
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao gerar convite. Verifique sua conexão e tente novamente.", "error");
+            }
+        };
+
+        window.pausarVendedor = async function(vUid, estaAtivo) {
+            const acao = estaAtivo ? "pausar" : "retomar";
+            if (!(await confirmDialog({
+                title: `${estaAtivo ? "Pausar" : "Retomar"} vendedor`,
+                message: estaAtivo ? "Este vendedor ficará temporariamente sem acesso à câmera." : "Este vendedor voltará a acessar a câmera.",
+                confirmText: estaAtivo ? "Pausar" : "Retomar"
+            }))) return;
+            try {
+                await updateDoc(doc(db, "vendedores", vUid), { ativo: !estaAtivo, atualizadoEm: new Date() });
+                showToast(estaAtivo ? "Vendedor pausado." : "Vendedor retomado.", "success");
+            } catch (err) {
+                console.error(err);
+                showToast(`Erro ao ${acao} vendedor. Tente novamente.`, "error");
+            }
+        };
+
+        window.apagarVendedor = async function(vUid) {
+            if (!(await confirmDialog({ title: "Apagar vendedor", message: "Deseja apagar este vendedor da equipe? Ele perderá o acesso à câmera desta empresa.", confirmText: "Apagar", danger: true }))) return;
+            try {
+                await deleteDoc(doc(db, "vendedores", vUid));
+                showToast("Vendedor apagado.", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao apagar vendedor. Tente novamente.", "error");
+            }
+        };
+
+        // --- Links de Promoção ---
+        window.openPromoLinks = function() {
+            document.getElementById("modal-promo-links").classList.remove("hidden");
+        };
+
+        window.closePromoLinks = function() {
+            document.getElementById("modal-promo-links").classList.add("hidden");
+        };
+
+        window.copyPromoUrl = function(inputId) {
+            const urlInput = document.getElementById(inputId);
+            navigator.clipboard.writeText(urlInput.value);
+            showToast("URL copiada!", "success");
+        };
+
+        // --- Checkout PIX (createSubscription) ---
+        document.getElementById("btn-stripe-checkout").addEventListener("click", () => {
+            openPixCheckoutModal();
+        });
+
+        window.openPixCheckoutModal = function() {
+            document.getElementById("modal-pix-checkout").classList.remove("hidden");
+            document.getElementById("pix-checkout-form-step").classList.remove("hidden");
+            document.getElementById("pix-result-step").classList.add("hidden");
+            document.getElementById("pix-cpfcnpj").value = "";
+            document.getElementById("pix-telefone").value = "";
+            document.getElementById("pix-cpfcnpj-error").classList.add("hidden");
+            const btn = document.getElementById("btn-pix-submit");
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
+        };
+
+        window.closePixCheckoutModal = function() {
+            document.getElementById("modal-pix-checkout").classList.add("hidden");
+        };
+
+        // Validação CPF/CNPJ: apenas dígitos, 11 ou 14 caracteres
+        function validarCpfCnpj(valor) {
+            const digits = valor.replace(/\D/g, "");
+            return digits.length === 11 || digits.length === 14;
+        }
+
+        document.getElementById("btn-pix-submit").addEventListener("click", async () => {
+            const cpfCnpjRaw = document.getElementById("pix-cpfcnpj").value.trim();
+            const telefoneRaw = document.getElementById("pix-telefone").value.trim();
+            const errEl = document.getElementById("pix-cpfcnpj-error");
+
+            if (!validarCpfCnpj(cpfCnpjRaw)) {
+                errEl.classList.remove("hidden");
+                return;
+            }
+            errEl.classList.add("hidden");
+
+            const cpfCnpj = cpfCnpjRaw.replace(/\D/g, "");
+            const telefone = telefoneRaw.replace(/\D/g, "") || undefined;
+
+            const btn = document.getElementById("btn-pix-submit");
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i> Gerando cobrança...`;
+
+            try {
+                const result = await createSubscription({ empresaId, cpfCnpj, telefone });
+
+                // Mostra resultado
+                document.getElementById("pix-checkout-form-step").classList.add("hidden");
+                document.getElementById("pix-result-step").classList.remove("hidden");
+
+                // QR Code Base64
+                const qrImg = document.getElementById("pix-qr-image");
+                qrImg.src = `data:image/png;base64,${result.pixQrCodeBase64}`;
+
+                // Copia-e-cola
+                document.getElementById("pix-copia-cola").value = result.pixCopiaECola;
+
+                // Link da fatura
+                const linkFatura = document.getElementById("pix-invoice-link");
+                linkFatura.href = result.invoiceUrl;
+
+            } catch (err) {
+                console.error("Erro ao gerar cobrança PIX:", err);
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
+                showToast("Erro ao gerar cobrança PIX. Tente novamente.", "error");
+            }
+        });
+
+        document.getElementById("btn-pix-copiar").addEventListener("click", () => {
+            const val = document.getElementById("pix-copia-cola").value;
+            navigator.clipboard.writeText(val).then(() => {
+                showToast("Código PIX copiado!");
+            });
+        });
+
+        // --- Paywall: onSnapshot no doc da empresa para reagir em tempo real ---
+        function listenEmpresaStatus() {
+            const empRef = doc(db, "empresas", empresaId);
+            onSnapshot(empRef, (snap) => {
+                if (!snap.exists()) return;
+                const data = snap.data();
+                const status = data.statusAssinatura;
+                const trialEnd = data.trialEndDate ? data.trialEndDate.toDate() : null;
+
+                const agora = new Date();
+                const isActive = status === "active" ||
+                    (status === "trial" && trialEnd && trialEnd > agora);
+
+                const paywall = document.getElementById("paywall-banner");
+
+                if (!isActive) {
+                    // Mostrar paywall
+                    paywall.classList.remove("hidden");
+                    // Atualizar texto do motivo
+                    const motivo = (status === "overdue") ? "Pagamento em atraso" :
+                                   (status === "canceled") ? "Assinatura cancelada" :
+                                   "Período de teste encerrado";
+                    document.getElementById("paywall-motivo").innerText = motivo;
+                    // Desabilitar botões de escrita
+                    setWriteButtonsDisabled(true);
+                } else {
+                    // Liberar
+                    paywall.classList.add("hidden");
+                    setWriteButtonsDisabled(false);
+                }
+
+                // Atualizar badges
+                const trialAlert = document.getElementById("trial-alert");
+                if (status === "active") {
+                    document.getElementById("active-badge").classList.remove("hidden");
+                    document.getElementById("trial-badge").classList.add("hidden");
+                    trialAlert.classList.add("hidden");
+                } else {
+                    document.getElementById("active-badge").classList.add("hidden");
+                    document.getElementById("trial-badge").classList.remove("hidden");
+
+                    const diffDays = trialEnd
+                        ? Math.max(0, Math.ceil((trialEnd - agora) / (1000 * 60 * 60 * 24)))
+                        : 0;
+                    const el = document.getElementById("trial-days-left");
+                    if (el) el.innerText = diffDays;
+
+                    // $-02: durante o trial, mostra o banner amigável de contagem.
+                    // Expirado, o paywall já assume o bloqueio — esconde o alerta.
+                    if (isActive && status === "trial") {
+                        trialAlert.classList.remove("hidden");
+                    } else {
+                        trialAlert.classList.add("hidden");
+                    }
+                }
+            });
+        }
+
+        // Seletores dos botões de ação de escrita do dashboard
+        const WRITE_BUTTON_SELECTORS = [
+            "#btn-confirm-ajuste",
+            ".client-checkbox",
+            "#select-all-clients",
+        ];
+        const WRITE_BUTTON_IDS_STATIC = [
+            "btn-overview-copy-cliente", // não é escrita, mas deixar; só botões de mutação abaixo:
+        ];
+
+        function setWriteButtonsDisabled(disabled) {
+            // $-04: bloqueia TODAS as ações de escrita quando a assinatura está inativa.
+            // Exceção deliberada: o fluxo de assinatura/PIX (btn-pix-submit e o CTA
+            // "Pagar com PIX") permanece ativo — é justamente o que regulariza a conta.
+            writesBlocked = disabled;
+
+            // onclick-based — inclui botões gerados dinamicamente (tabela de clientes
+            // e lista de vendedores), por isso esta função é reaplicada após cada render.
+            // Gestão de equipe (Novo Vendedor / pausar / apagar) NÃO entra no paywall:
+            // é administração de conta, não escrita de pontos. O bloqueio de pontuar fica
+            // no backend (assertAssinaturaAtiva). Só pontos/campanha são travados aqui.
+            const onclickSelectors = [
+                "[onclick^='openAjustarModal']",        // Ajustar pontos
+                "[onclick^='resetClientePontos']",      // Zerar pontos
+                "[onclick^='openBulkAjustarModal']",    // Ajuste em massa
+                "[onclick^='bulkResetPoints']",         // Zerar em massa
+                "[onclick^='openEditarCampanhaModal']"  // Editar Regras
+            ].join(", ");
+
+            // id-based — botões estáticos de escrita.
+            const idButtons = [
+                "btn-save-company-slug",         // Salvar Link (slug)
+                "btn-delete-controller-account", // Apagar conta (LGPD)
+                "btn-confirm-ajuste"             // Confirmar ajuste no modal
+            ];
+
+            const els = [
+                ...document.querySelectorAll(onclickSelectors),
+                ...idButtons.map(id => document.getElementById(id)).filter(Boolean)
+            ];
+
+            els.forEach(btn => {
+                btn.disabled = disabled;
+                if (disabled) {
+                    btn.title = "Assinatura inativa — regularize para continuar operando";
+                    btn.classList.add("opacity-40", "cursor-not-allowed");
+                } else {
+                    btn.title = "";
+                    btn.classList.remove("opacity-40", "cursor-not-allowed");
+                }
+            });
+        }
+
+        // --- Gerenciamento Visual de Abas ---
+        window.switchTab = function(tabName) {
+            // Abas
+            const tabBtnDash = document.getElementById("tab-btn-dashboard");
+            const tabBtnClientes = document.getElementById("tab-btn-clientes");
+            const tabBtnEquipe = document.getElementById("tab-btn-equipe");
+            const tabBtnStripe = document.getElementById("tab-btn-stripe");
+
+            // Conteúdos
+            const contentDash = document.getElementById("tab-content-dashboard");
+            const contentClientes = document.getElementById("tab-content-clientes");
+            const contentEquipe = document.getElementById("tab-content-equipe");
+            const contentStripe = document.getElementById("tab-content-stripe");
+
+            // Reseta cores dos botões das abas
+            [tabBtnDash, tabBtnClientes, tabBtnEquipe, tabBtnStripe].forEach(btn => {
+                btn.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200";
+            });
+
+            // Reseta exibições de conteúdos
+            [contentDash, contentClientes, contentEquipe, contentStripe].forEach(content => {
+                content.classList.add("hidden");
+            });
+
+            // Define aba ativa
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            activeBtn.className = "flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200";
+
+            // Define conteúdo ativo
+            const activeContent = document.getElementById(`tab-content-${tabName}`);
+            activeContent.classList.remove("hidden");
+
+            // Sincroniza a barra de navegação inferior (mobile)
+            ["dashboard", "clientes", "equipe", "stripe"].forEach(t => {
+                const mBtn = document.getElementById(`mtab-btn-${t}`);
+                if (!mBtn) return;
+                mBtn.classList.toggle("text-indigo-400", t === tabName);
+                mBtn.classList.toggle("text-stone-500", t !== tabName);
+            });
+
+            // Define título da página
+            const pageTitle = document.getElementById("page-title");
+            if (tabName === "dashboard") pageTitle.innerText = "Visão Geral";
+            if (tabName === "clientes") pageTitle.innerText = "Painel de Clientes";
+            if (tabName === "equipe") pageTitle.innerText = "Gerenciar Equipe";
+            if (tabName === "stripe") pageTitle.innerText = "Minha Assinatura";
+        };
+
+        // --- Seleção em Massa de Clientes (Bulk Actions) ---
+        window.toggleSelectAll = function(master) {
+            const checkboxes = document.querySelectorAll(".client-checkbox");
+            checkboxes.forEach(cb => {
+                const row = cb.closest("tr");
+                if (row && row.style.display !== "none") {
+                    cb.checked = master.checked;
+                }
+            });
+            updateBulkBar();
+        };
+
+        window.updateBulkBar = function() {
+            const checkboxes = document.querySelectorAll(".client-checkbox:checked");
+            const count = checkboxes.length;
+            const bar = document.getElementById("bulk-actions-bar");
+            const countEl = document.getElementById("selected-count");
+            
+            if (count > 0) {
+                countEl.innerText = count;
+                bar.classList.remove("hidden");
+            } else {
+                bar.classList.add("hidden");
+                const allCheckbox = document.getElementById("select-all-clients");
+                if (allCheckbox) allCheckbox.checked = false;
+            }
+        };
+
+        window.openBulkAjustarModal = function() {
+            const checkboxes = document.querySelectorAll(".client-checkbox:checked");
+            targetClienteIds = Array.from(checkboxes).map(cb => cb.getAttribute("data-id"));
+            isBulkAjuste = true;
+
+            document.getElementById("modal-ajuste-nome").innerText = `${targetClienteIds.length} Clientes Selecionados`;
+            document.getElementById("modal-ajuste-email").innerText = "Ação em massa";
+            document.getElementById("modal-ajuste-pontos-atuais").innerText = "-";
+            
+            document.getElementById("ajuste-quantidade-pontos").value = 1;
+            document.getElementById("ajuste-justificativa").value = "";
+            document.getElementById("btn-confirm-ajuste").disabled = true;
+
+            setAjusteAction("add");
+            document.getElementById("modal-ajustar-pontos").classList.remove("hidden");
+        };
+
+        window.bulkResetPoints = async function() {
+            const checkboxes = document.querySelectorAll(".client-checkbox:checked");
+            const ids = Array.from(checkboxes).map(cb => cb.getAttribute("data-id"));
+            
+            if (!(await confirmDialog({ title: "Zerar pontuação", message: `Deseja realmente zerar a pontuação de ${ids.length} clientes selecionados nesta empresa?`, confirmText: "Zerar", danger: true }))) return;
+            try {
+                for (const cid of ids) {
+                    await setPoints({ empresaId, clienteId: cid, pontos: 0, motivo: "Zerado em massa pelo painel" });
+                }
+                showToast("Pontuação dos clientes selecionados zerada com sucesso!", "success");
+                const allCheckbox = document.getElementById("select-all-clients");
+                if (allCheckbox) allCheckbox.checked = false;
+                toggleSelectAll(allCheckbox);
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao zerar pontuação. Tente novamente.", "error");
+            }
+        };
+
+        // --- Resetar/Zerar Pontos de Cliente ---
+        window.resetClientePontos = async function(clientId, clientName) {
+            if (!(await confirmDialog({ title: "Zerar pontuação", message: `Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`, confirmText: "Zerar", danger: true }))) return;
+            try {
+                await setPoints({ empresaId, clienteId: clientId, pontos: 0, motivo: "Zerado pelo painel" });
+                showToast("Pontuação zerada com sucesso!", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao zerar pontuação. Tente novamente.", "error");
+            }
+        };
+
+        // --- Modals da Campanha ---
+        window.openEditarCampanhaModal = function() {
+            if (!fullEmpresaData) {
+                showToast("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.", "warn");
+                return;
+            }
+            document.getElementById("edit-theme-title").value = fullEmpresaData.visualConfig?.tituloPagina || "";
+            document.getElementById("edit-meta-pontos").value = fullEmpresaData.metaConfig?.metaPontos || 10;
+            document.getElementById("edit-premio-desc").value = fullEmpresaData.metaConfig?.descriçãoPremio || "";
+            document.getElementById("edit-theme-color").value = fullEmpresaData.visualConfig?.corFundo || "#4f46e5";
+            document.getElementById("edit-theme-color-hex").value = fullEmpresaData.visualConfig?.corFundo || "#4f46e5";
+            document.getElementById("edit-theme-font").value = fullEmpresaData.visualConfig?.fonte || "sans";
+            
+            const currentEmoji = fullEmpresaData.visualConfig?.emoji || "⭐";
+            document.getElementById("edit-theme-emoji").value = currentEmoji;
+            
+            document.getElementById("modal-editar-campanha").classList.remove("hidden");
+        };
+
+        window.closeEditarCampanhaModal = function() {
+            document.getElementById("modal-editar-campanha").classList.add("hidden");
+        };
+
+        // Color input sync in edit modal
+        document.getElementById("edit-theme-color").addEventListener("input", (e) => {
+            document.getElementById("edit-theme-color-hex").value = e.target.value.toUpperCase();
+        });
+        document.getElementById("edit-theme-color-hex").addEventListener("input", (e) => {
+            let val = e.target.value;
+            if (val.startsWith("#") && val.length === 7) {
+                document.getElementById("edit-theme-color").value = val.toLowerCase();
+            }
+        });
+
+        // Submit edit campaign rules
+        document.getElementById("edit-campanha-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!(await confirmDialog({ title: "Mudar campanha", message: "Tem certeza que quer mudar? Isso atualizará a campanha e a identidade visual sem resetar os carimbos existentes de seus clientes.", confirmText: "Mudar", danger: false }))) return;
+            try {
+                const docRef = doc(db, "empresas", empresaId);
+                await updateDoc(docRef, {
+                    metaConfig: {
+                        metaPontos: parseInt(document.getElementById("edit-meta-pontos").value) || 10,
+                        descriçãoPremio: document.getElementById("edit-premio-desc").value.trim()
+                    },
+                    visualConfig: {
+                        tituloPagina: document.getElementById("edit-theme-title").value.trim(),
+                        corFundo: document.getElementById("edit-theme-color").value,
+                        fonte: document.getElementById("edit-theme-font").value,
+                        emoji: document.getElementById("edit-theme-emoji").value
+                    }
+                });
+                showToast("Campanha atualizada com sucesso!", "success");
+                closeEditarCampanhaModal();
+                await loadEmpresaData();
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao salvar campanha. Verifique os dados e tente novamente.", "error");
+            }
+        });
+
+        // --- Flyer Modals ---
+        window.openFlyerModal = function() {
+            if (!fullEmpresaData) {
+                showToast("Dados da empresa ainda não carregados do Firebase. Por favor, aguarde um instante.", "warn");
+                return;
+            }
+            
+            // Set styles dynamically based on visual config
+            const previewEl = document.getElementById("flyer-a4-preview");
+            
+            const activeFont = fullEmpresaData.visualConfig?.fonte || "sans";
+            // Only update font class, preserve other classes
+            previewEl.className = `w-[320px] min-h-[420px] py-8 px-4 bg-white text-slate-900 flex flex-col justify-center items-center text-center shadow-2xl relative rounded-md select-none font-${activeFont} border-4 border-dashed border-slate-200`;
+            
+            document.getElementById("flyer-company-name").innerText = fullEmpresaData.visualConfig?.tituloPagina || fullEmpresaData.nomeEmpresa;
+            document.getElementById("flyer-prize-desc").innerText = fullEmpresaData.metaConfig?.descriçãoPremio || "Prêmio";
+            
+            // Generate QR Code inside Flyer
+            const baseUrl = getPublicBaseUrl();
+            const linkSlug = fullEmpresaData.linkUnicoCliente || fullEmpresaData.donoUid;
+            const targetUrl = `${baseUrl}cliente.html?link=${linkSlug}`;
+            
+            const qrContainer = document.getElementById("flyer-qrcode-placeholder");
+            qrContainer.innerHTML = "";
+            qrCodeFlyerInstance = new QRCode(qrContainer, {
+                text: targetUrl,
+                width: 140,
+                height: 140,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            document.getElementById("modal-flyer-divulgacao").classList.remove("hidden");
+        };
+
+        window.downloadFlyerPng = async function() {
+            const btn = document.getElementById("btn-download-png");
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gerando...`;
+            btn.disabled = true;
+
+            try {
+                const element = document.getElementById("flyer-a4-preview");
+                const canvas = await html2canvas(element, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+                const link = document.createElement("a");
+                link.download = "Flyer_Divulgacao.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao gerar a imagem do Flyer.", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        window.closeFlyerModal = function() {
+            document.getElementById("modal-flyer-divulgacao").classList.add("hidden");
+        };
+
+        // Filtro de Busca de Clientes
+        document.getElementById("search-cliente").addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll("#clientes-table-body tr");
+            
+            rows.forEach(row => {
+                const name = row.cells[0]?.textContent.toLowerCase() || "";
+                const email = row.cells[1]?.textContent.toLowerCase() || "";
+                
+                if (name.includes(query) || email.includes(query)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+
+        // --- Configurações da Conta ---
+        const btnSaveCompany = document.getElementById("btn-save-company-name");
+        if (btnSaveCompany) {
+            btnSaveCompany.addEventListener("click", async () => {
+                const newName = document.getElementById("config-company-name").value.trim();
+                if (!newName) { showToast("O nome não pode ser vazio.", "warn"); return; }
+                
+                const oldText = btnSaveCompany.innerText;
+                btnSaveCompany.innerText = "Salvando...";
+                try {
+                    const empRef = doc(db, "empresas", empresaId);
+                    await updateDoc(empRef, { nomeEmpresa: newName });
+                    showToast("Nome da empresa atualizado!", "success");
+                    await loadEmpresaData(); // Reload UI
+                } catch (e) {
+                    console.error("Erro ao salvar nome da empresa:", e);
+                    showToast("Erro ao salvar o nome da empresa. Tente novamente.", "error");
+                } finally {
+                    btnSaveCompany.innerText = oldText;
+                }
+            });
+        }
+
+        const btnSaveSlug = document.getElementById("btn-save-company-slug");
+        if (btnSaveSlug) {
+            document.getElementById("config-company-slug").addEventListener("input", (e) => {
+                e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+            });
+
+            btnSaveSlug.addEventListener("click", async () => {
+                const newSlug = document.getElementById("config-company-slug").value.trim();
+                if (!newSlug) { showToast("O link não pode ser vazio.", "warn"); return; }
+                
+                const oldText = btnSaveSlug.innerText;
+                btnSaveSlug.innerText = "Verificando...";
+                
+                try {
+                    // Verifica se o slug já está em uso
+                    const q1 = query(collection(db, "empresas"), where("linkUnicoCliente", "==", newSlug));
+                    const q2 = query(collection(db, "empresas"), where("slugsAntigos", "array-contains", newSlug));
+                    
+                    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                    
+                    let isTaken = false;
+                    snap1.forEach(d => { if (d.id !== empresaId) isTaken = true; });
+                    snap2.forEach(d => { if (d.id !== empresaId) isTaken = true; });
+
+                    if (isTaken) {
+                        showToast("Este link já está em uso por outra empresa. Escolha outro.", "warn");
+                        return;
+                    }
+
+                    // Se não está em uso e for diferente do atual, salvamos o antigo no array
+                    if (fullEmpresaData.linkUnicoCliente !== newSlug) {
+                        const oldSlug = fullEmpresaData.linkUnicoCliente;
+                        let aliases = fullEmpresaData.slugsAntigos || [];
+                        if (oldSlug && !aliases.includes(oldSlug)) {
+                            aliases.push(oldSlug);
+                        }
+
+                        const empRef = doc(db, "empresas", empresaId);
+                        await updateDoc(empRef, { 
+                            linkUnicoCliente: newSlug,
+                            slugsAntigos: aliases
+                        });
+                        showToast("Link atualizado com sucesso! Códigos QR antigos funcionarão normalmente.", "success");
+                        await loadEmpresaData(); // Isso também regera os links exibidos e o Flyer!
+                    } else {
+                        showToast("Este já é o seu link atual.", "warn");
+                    }
+                } catch (e) {
+                    console.error("Erro ao salvar link da empresa:", e);
+                    showToast("Erro ao salvar o link da empresa. Tente novamente.", "error");
+                } finally {
+                    btnSaveSlug.innerText = oldText;
+                }
+            });
+        }
+
+        const btnDeleteController = document.getElementById("btn-delete-controller-account");
+        if (btnDeleteController) {
+            btnDeleteController.addEventListener("click", async () => {
+                const confirmMsg = "ATENÇÃO CONTROLADOR (LGPD):\n\nVocê está prestes a apagar todos os dados da sua empresa. Isso removerá o programa de fidelidade e impedirá o acesso aos dados dos seus clientes.\n\nEsta ação é IRREVERSÍVEL. Digite 'APAGAR' para confirmar:";
+                const ok = await confirmDialog({ title: "Excluir conta", message: confirmMsg, confirmText: "Excluir", danger: true, keyword: "APAGAR" });
+                if (!ok) { showToast("Ação cancelada.", "warn"); return; }
+
+                btnDeleteController.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
+                try {
+                    const empRef = doc(db, "empresas", empresaId);
+                    await deleteDoc(empRef);
+                    
+                    try {
+                        await auth.currentUser.delete();
+                    } catch(e) {
+                        console.warn("Auth user não deletado. Os dados públicos foram apagados.");
+                    }
+                    
+                    showToast("Sua conta e dados foram removidos permanentemente.", "success");
+                    await logoutUser();
+                } catch (e) {
+                    console.error("Erro ao apagar conta:", e);
+                    showToast("Erro ao apagar conta. Tente novamente.", "error");
+                    btnDeleteController.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados';
+                }
+            });
+        }
+
     </script>
+
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+      <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-start gap-3">
+          <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+            <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+            <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
+            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-800 font-semibold hover:bg-stone-100 transition">Cancelar</button>
+          <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+        </div>
+      </div>
+    </div>
 </body>
 </html>
