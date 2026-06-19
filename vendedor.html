@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validador de Pontos - Vendedor</title>
+    <script>
+        if (["nice-dreamks-fidelidade.web.app", "nice-dreamks-fidelidade.firebaseapp.com"].includes(window.location.hostname)) {
+            window.location.replace(`https://tempontinho.com${window.location.pathname}${window.location.search}${window.location.hash}`);
+        }
+    </script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -323,6 +328,13 @@
 
         // Web Audio Sintetizador de Feedback Sonoro
         let audioCtx = null;
+
+        function getPublicBaseUrl() {
+            if (["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.protocol === "file:") {
+                return window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
+            }
+            return "https://tempontinho.com/";
+        }
         
         function playSound(type) {
             try {
@@ -447,7 +459,7 @@
                     // C-02: QR da página do cliente (novos clientes escaneiam para entrar)
                     const slug = data.linkUnicoCliente || empresaId;
                     if (slug && typeof QRCode !== "undefined") {
-                        const base = location.origin + location.pathname.replace(/[^/]*$/, "");
+                        const base = getPublicBaseUrl();
                         const clienteUrl = `${base}cliente.html?link=${encodeURIComponent(slug)}`;
                         const qrBox = document.getElementById("cliente-qr");
                         const qrCard = document.getElementById("cliente-qr-card");
