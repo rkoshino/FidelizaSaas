@@ -417,7 +417,7 @@
                                 <i class="fa-regular fa-copy"></i> Copiar Link
                             </button>
                         </div>
-                        <button onclick="gerarConviteVendedor()" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
+                        <button id="btn-novo-vendedor" type="button" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
                             <i class="fa-solid fa-user-plus"></i> Novo Vendedor
                         </button>
                     </div>
@@ -1548,6 +1548,9 @@
             gerarConviteVendedor();
         };
 
+        // Liga "Novo Vendedor" via addEventListener (mais confiável que onclick inline).
+        document.getElementById("btn-novo-vendedor")?.addEventListener("click", () => gerarConviteVendedor());
+
         function buildVendorInviteUrl(token) {
             const baseUrl = window.location.origin + window.location.pathname.replace(/dashboard\.html$/, "");
             return `${baseUrl}vendedor.html?empresa=${encodeURIComponent(empresaId)}&convite=${encodeURIComponent(token)}`;
@@ -1789,16 +1792,15 @@
 
             // onclick-based — inclui botões gerados dinamicamente (tabela de clientes
             // e lista de vendedores), por isso esta função é reaplicada após cada render.
+            // Gestão de equipe (Novo Vendedor / pausar / apagar) NÃO entra no paywall:
+            // é administração de conta, não escrita de pontos. O bloqueio de pontuar fica
+            // no backend (assertAssinaturaAtiva). Só pontos/campanha são travados aqui.
             const onclickSelectors = [
                 "[onclick^='openAjustarModal']",        // Ajustar pontos
                 "[onclick^='resetClientePontos']",      // Zerar pontos
                 "[onclick^='openBulkAjustarModal']",    // Ajuste em massa
                 "[onclick^='bulkResetPoints']",         // Zerar em massa
-                "[onclick^='openEditarCampanhaModal']", // Editar Regras
-                "[onclick^='gerarConviteVendedor']",    // Novo Vendedor
-                "[onclick^='openAddVendedorModal']",    // Compat: Novo Vendedor
-                "[onclick^='pausarVendedor']",          // Pausar/retomar vendedor
-                "[onclick^='apagarVendedor']"           // Apagar vendedor
+                "[onclick^='openEditarCampanhaModal']"  // Editar Regras
             ].join(", ");
 
             // id-based — botões estáticos de escrita.
