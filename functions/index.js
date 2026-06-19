@@ -348,7 +348,9 @@ exports.acceptVendorInvite = onCall(async (request) => {
   const uid = request.auth.uid;
   const nome = String(request.auth.token && request.auth.token.name || "").trim() || email.split("@")[0] || "Atendente";
   const inviteRef = db.collection("empresas").doc(empresaId).collection("convitesVendedores").doc(token);
-  const vendorRef = db.collection("vendedores").doc(emailSlug(email));
+  // Chave COMPOSTA (empresa + e-mail): permite o mesmo e-mail atender em lojas
+  // diferentes e elimina a colisão global que barrava o aceite.
+  const vendorRef = db.collection("vendedores").doc(`${empresaId}__${emailSlug(email)}`);
 
   return db.runTransaction(async (tx) => {
     const inviteSnap = await tx.get(inviteRef);

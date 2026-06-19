@@ -408,38 +408,13 @@
                         <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe de Atendimento</h3>
                         <p class="text-xs text-stone-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
                     </div>
-                    <div class="flex items-center gap-4 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
-                        <div class="flex items-center">
-                            <button id="btn-equipe-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2.5 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
-                                <i class="fa-solid fa-camera"></i> Câmera do Vendedor
-                            </button>
-                            <button id="btn-equipe-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2.5 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link da Câmera">
-                                <i class="fa-regular fa-copy"></i> Copiar Link
-                            </button>
-                        </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
+                        <button id="btn-equipe-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-camera"></i> Câmera do Vendedor
+                        </button>
                         <button id="btn-novo-vendedor" type="button" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
                             <i class="fa-solid fa-user-plus"></i> Novo Vendedor
                         </button>
-                    </div>
-                </div>
-
-                <!-- Link da câmera do vendedor visível (ao lado do Copiar, dá pra ver/selecionar) -->
-                <div class="flex items-center gap-2">
-                    <input type="text" readonly id="equipe-link-vendedor-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs text-violet-700 select-all focus:outline-none" value="" placeholder="Link da câmera do vendedor…">
-                    <button id="btn-equipe-copy-vendedor-box" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95 shrink-0"><i class="fa-regular fa-copy mr-1"></i> Copiar</button>
-                </div>
-
-                <!-- VEND-08: QR de acesso rápido do vendedor -->
-                <div class="glassmorphism rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5 border border-stone-200">
-                    <div class="bg-white p-3 rounded-xl shrink-0 shadow-lg shadow-black/20">
-                        <div id="vendor-access-qrcode" class="w-[120px] h-[120px] flex items-center justify-center text-stone-500"><i class="fa-solid fa-qrcode text-4xl"></i></div>
-                    </div>
-                    <div class="flex flex-col gap-2 text-center sm:text-left">
-                        <h4 class="font-bold text-stone-800 text-sm font-outfit">Acesso rápido do vendedor</h4>
-                        <p class="text-xs text-stone-500 leading-relaxed">Este QR abre a câmera do vendedor para quem já está autorizado. Para adicionar alguém novo, use <strong>Novo Vendedor</strong> e envie o link de convite gerado.</p>
-                        <div class="flex gap-2 justify-center sm:justify-start mt-1">
-                            <button id="btn-vendor-qr-copy" class="text-[11px] font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-3 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-copy"></i> Copiar link</button>
-                        </div>
                     </div>
                 </div>
 
@@ -1111,42 +1086,6 @@
                     const btnEquipeCamera = document.getElementById("btn-equipe-camera-vendedor");
                     if(btnEquipeCamera) btnEquipeCamera.onclick = () => window.open(vendorUrl, '_blank');
                     
-                    const btnEquipeCopiar = document.getElementById("btn-equipe-copiar-camera");
-                    if(btnEquipeCopiar) btnEquipeCopiar.onclick = () => {
-                        navigator.clipboard.writeText(vendorUrl);
-                        showToast("Link da câmera copiado!");
-                    };
-
-                    // Caixa visível com o link da câmera (na aba Equipe).
-                    const equipeLinkInput = document.getElementById("equipe-link-vendedor-url");
-                    if (equipeLinkInput) equipeLinkInput.value = vendorUrl;
-                    const btnEquipeCopyBox = document.getElementById("btn-equipe-copy-vendedor-box");
-                    if (btnEquipeCopyBox) btnEquipeCopyBox.onclick = () => {
-                        navigator.clipboard.writeText(vendorUrl);
-                        if (equipeLinkInput) equipeLinkInput.select();
-                        showToast("Link da câmera copiado!");
-                    };
-
-                    // VEND-08: QR de acesso do vendedor (leva ao login do vendedor).
-                    const vendorQrBox = document.getElementById("vendor-access-qrcode");
-                    if (vendorQrBox) {
-                        vendorQrBox.innerHTML = "";
-                        vendorQrBox.className = "";
-                        new QRCode(vendorQrBox, {
-                            text: vendorUrl,
-                            width: 120,
-                            height: 120,
-                            colorDark: "#0f172a",
-                            colorLight: "#ffffff",
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                    }
-                    const btnVendorQrCopy = document.getElementById("btn-vendor-qr-copy");
-                    if (btnVendorQrCopy) btnVendorQrCopy.onclick = () => {
-                        navigator.clipboard.writeText(vendorUrl);
-                        showToast("Link de acesso do vendedor copiado!");
-                    };
-
                     // Preencher aba Sua Conta
                     const inputCompanyName = document.getElementById("config-company-name");
                     const inputOwnerEmail = document.getElementById("config-owner-email");

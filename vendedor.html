@@ -481,26 +481,51 @@
             return "Não foi possível concluir o login. Tente novamente.";
         }
 
+        // Lê o vínculo do vendedor; a regra nega leitura de doc inexistente, então
+        // tratamos erro/inexistência como "ainda não vinculado" (e seguimos pro convite).
+        async function safeGetVendor(ref) {
+            try {
+                const snap = await getDoc(ref);
+                return snap.exists() ? snap.data() : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function conviteErrMsg(err) {
+            const m = String((err && err.message) || "");
+            if (m.includes("já foi usado") || m.includes("cancelado")) return "Este convite já foi usado. Peça um novo ao dono da loja.";
+            if (m.includes("não encontrado") || m.includes("expirado") || m.includes("inválido")) return "Convite inválido ou expirado. Peça um novo ao dono da loja.";
+            if (m.includes("outra empresa")) return "Este e-mail já está vinculado a outra loja.";
+            return "Não foi possível validar seu acesso de atendente. Tente novamente ou peça um novo convite.";
+        }
+
         async function liberarVendedor(user) {
-            const cleanId = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
-            const vendedorRef = doc(db, "vendedores", cleanId);
-            let vendedorSnap = await getDoc(vendedorRef);
+            const slug = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            // Chave COMPOSTA (empresa + e-mail): some a colisão global que dava
+            // "este atendente não pertence a esta empresa".
+            const vendedorRef = doc(db, "vendedores", `${empresaId}__${slug}`);
 
-            if (!vendedorSnap.exists() && inviteToken) {
-                await acceptVendorInvite({ empresaId, token: inviteToken });
-                vendedorSnap = await getDoc(vendedorRef);
-                showToast("Convite aceito. Acesso de atendente ativado.", "success");
+            let vData = await safeGetVendor(vendedorRef);
+
+            // Sem vínculo nesta loja + tem convite → aceita via Cloud Function (Admin SDK).
+            if (!vData && inviteToken) {
+                try {
+                    const res = await acceptVendorInvite({ empresaId, token: inviteToken });
+                    const d = (res && res.data) || {};
+                    // Confia no retorno da função (não depende de reler o doc logo após criar).
+                    vData = { nomeVendedor: d.nomeVendedor || user.displayName || user.email, email: d.email || user.email, empresaId, ativo: true };
+                    showToast("Convite aceito. Acesso de atendente ativado.", "success");
+                } catch (err) {
+                    console.error("Erro ao aceitar convite:", err);
+                    showToast(conviteErrMsg(err), "error");
+                    await logoutUser();
+                    return;
+                }
             }
 
-            if (!vendedorSnap.exists()) {
+            if (!vData) {
                 showToast("Acesso negado. Peça ao dono da loja um convite de atendente.", "error");
-                await logoutUser();
-                return;
-            }
-
-            const vData = vendedorSnap.data();
-            if (vData.empresaId !== empresaId) {
-                showToast("Este atendente não pertence a esta empresa.", "error");
                 await logoutUser();
                 return;
             }
