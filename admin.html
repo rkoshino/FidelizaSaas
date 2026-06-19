@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nice Dreamks - Garçom</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Área do Garçom</h1>
+        <p>Escaneie o QR Code do cliente para adicionar pontos ou resgatar drinks.</p>
+        
+        <div id="reader"></div>
+        
+        <button class="btn-primary" id="start-scan">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+            Iniciar Câmera
+        </button>
+
+        <p id="scan-result" style="margin-top: 20px; font-weight: 600; font-size: 16px; min-height: 24px; transition: all 0.3s;"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // ⚠️ SUBSTITUA ESTE BLOCO PELO SEU DO FIREBASE IGUAL FEZ NO INDEX.HTML ⚠️
+        const firebaseConfig = {
+            apiKey: "AIzaSyAH5BxqOq3KoF48Nkz43eZd9IZleBjckz8",
+            authDomain: "nice-dreamks-fidelidade.firebaseapp.com",
+            projectId: "nice-dreamks-fidelidade",
+            storageBucket: "nice-dreamks-fidelidade.firebasestorage.app",
+            messagingSenderId: "287947707168",
+            appId: "1:287947707168:web:e6530a04124d9ed4ecfd45",
+            measurementId: "G-9Z1VKST81Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const btnScan = document.getElementById('start-scan');
+        const resultText = document.getElementById('scan-result');
+        let html5QrcodeScanner;
+
+        btnScan.addEventListener('click', () => {
+            btnScan.classList.add('hidden');
+            resultText.innerText = "";
+            resultText.className = "";
+            
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        });
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            html5QrcodeScanner.clear();
+            resultText.innerText = "⏳ Atualizando pontos...";
+            resultText.className = "text-warning";
+
+            try {
+                const userRef = doc(db, "clientes", decodedText);
+                const docSnap = await getDoc(userRef);
+
+                if (docSnap.exists()) {
+                    let pontosAtuais = docSnap.data().pontos || 0;
+                    
+                    if (pontosAtuais >= 10) {
+                        await updateDoc(userRef, { pontos: 0 });
+                        resultText.innerText = "🎉 Drink resgatado! O contador foi zerado.";
+                        resultText.className = "text-success";
+                    } else {
+                        await updateDoc(userRef, { pontos: pontosAtuais + 1 });
+                        resultText.innerText = `✅ Sucesso! O cliente agora tem ${pontosAtuais + 1} pontos.`;
+                        resultText.className = "text-success";
+                    }
+                    
+                    setTimeout(() => {
+                        btnScan.classList.remove('hidden');
+                        resultText.innerText = "";
+                    }, 4000);
+
+                } else {
+                    resultText.innerText = "❌ Cliente não encontrado.";
+                    resultText.className = "text-danger";
+                    btnScan.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Erro ao atualizar:", error);
+                resultText.innerText = "❌ Erro ao conectar com o banco.";
+                resultText.className = "text-danger";
+                btnScan.classList.remove('hidden');
+            }
+        }
+
+        function onScanFailure(error) {
+            // Fica em silêncio
+        }
+    </script>
+</body>
+</html>

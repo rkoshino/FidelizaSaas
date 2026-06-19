@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nice Dreamks - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="brand-nice" style="font-size: 48px;">Dashboard</h1>
+            <div class="brand-fidelity" style="margin-bottom: 20px;">Painel Administrativo</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total de Clientes</div>
+                <div class="stat-value" id="total-clients">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Pontos Distribuídos (Ativos)</div>
+                <div class="stat-value text-warning" id="total-points">0</div>
+            </div>
+        </div>
+
+        <div class="clients-section">
+            <h2 class="section-title">Lista de Clientes</h2>
+            <div class="table-responsive">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Cliente</th>
+                            <th>Pontuação Atual</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-list">
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #94a3b8;">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAH5BxqOq3KoF48Nkz43eZd9IZleBjckz8",
+            authDomain: "nice-dreamks-fidelidade.firebaseapp.com",
+            projectId: "nice-dreamks-fidelidade",
+            storageBucket: "nice-dreamks-fidelidade.firebasestorage.app",
+            messagingSenderId: "287947707168",
+            appId: "1:287947707168:web:e6530a04124d9ed4ecfd45",
+            measurementId: "G-9Z1VKST81Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const clientsListEl = document.getElementById('clients-list');
+        const totalClientsEl = document.getElementById('total-clients');
+        const totalPointsEl = document.getElementById('total-points');
+
+        // Escuta a coleção 'clientes' em tempo real
+        const q = query(collection(db, "clientes"), orderBy("pontos", "desc"));
+
+        onSnapshot(q, (snapshot) => {
+            clientsListEl.innerHTML = '';
+            let totalClients = 0;
+            let totalPoints = 0;
+
+            if (snapshot.empty) {
+                clientsListEl.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8;">Nenhum cliente encontrado.</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const nome = data.nome || "Cliente sem nome";
+                const pontos = data.pontos || 0;
+                
+                totalClients++;
+                totalPoints += pontos;
+
+                // Define badge status based on points
+                let statusBadge = '';
+                if (pontos >= 10) {
+                    statusBadge = '<span class="badge badge-success">Recompensa Disponível</span>';
+                } else if (pontos >= 7) {
+                    statusBadge = '<span class="badge badge-warning">Quase lá!</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-info">Acumulando</span>';
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight: 600; color: #f8fafc;">${nome}</div>
+                        <div style="font-size: 12px; color: #64748b; font-family: monospace;">ID: ${docSnap.id.substring(0, 8)}...</div>
+                    </td>
+                    <td>
+                        <div class="points-indicator">
+                            <span style="font-size: 20px; font-weight: 700; color: #38bdf8;">${pontos}</span> 
+                            <span style="color: #94a3b8; font-size: 14px;">/ 10</span>
+                        </div>
+                    </td>
+                    <td>${statusBadge}</td>
+                `;
+                clientsListEl.appendChild(tr);
+            });
+
+            // Atualiza os cards
+            totalClientsEl.innerText = totalClients;
+            totalPointsEl.innerText = totalPoints;
+        }, (error) => {
+            console.error("Erro ao buscar clientes:", error);
+            clientsListEl.innerHTML = `<tr><td colspan="3" class="text-danger" style="text-align: center;">Erro ao carregar dados. Verifique o console.</td></tr>`;
+        });
+    </script>
+</body>
+</html>

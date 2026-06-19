@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protótipo: Comercial Tempontinho</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .scene {
+            position: relative;
+            width: 360px;
+            height: 640px;
+            background-color: #222;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* Ambient Elements */
+        .counter {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to top, #3a2218, transparent);
+            z-index: 1;
+        }
+
+        /* Characters / Phones */
+        .phone {
+            position: absolute;
+            width: 160px;
+            height: 320px;
+            background-color: #000;
+            border-radius: 20px;
+            border: 4px solid #333;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+
+        /* Seller's Phone (Dark UI) */
+        .phone-seller {
+            top: 250px;
+            left: -200px; /* starts off-screen */
+            transform: rotate(10deg);
+            background-color: #0d111d;
+        }
+        
+        .ui-seller {
+            padding: 10px;
+            box-sizing: border-box;
+            color: white;
+        }
+        .ui-seller-header {
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ui-seller-camera {
+            width: 100%;
+            height: 120px;
+            background-color: #ff3333; /* scanning the red screen */
+            border-radius: 8px;
+            border: 2px solid white;
+            position: relative;
+            overflow: hidden;
+        }
+        .scanner-line {
+            width: 100%;
+            height: 2px;
+            background-color: #00ff00;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+        .ui-seller-btn {
+            background-color: #5d5fef;
+            color: white;
+            font-size: 10px;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        /* Client's Phone (Red UI) */
+        .phone-client {
+            bottom: -350px; /* starts off-screen */
+            right: 20px;
+            transform: rotate(-10deg);
+            background-color: #ff3333;
+        }
+
+        .ui-client {
+            padding: 10px;
+            box-sizing: border-box;
+            color: white;
+            text-align: center;
+        }
+        .ui-client-header {
+            font-size: 10px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .ui-client-qr {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            margin: 0 auto;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ui-client-qr::after {
+            content: "QR";
+            color: black;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .ui-client-stamps {
+            margin-top: 15px;
+            background-color: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .stamp-grid {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        .stamp {
+            width: 18px;
+            height: 18px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .stamp.filled {
+            content: "🥬"; /* Lettuce emoji */
+        }
+        .stamp.filled::after {
+            content: "🥬";
+            font-size: 12px;
+        }
+        
+        .stamp.new-point::after {
+            content: "🥬";
+            font-size: 12px;
+            position: absolute;
+            transform: scale(0);
+            animation: none;
+        }
+
+        /* Animations */
+        .play-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #5d5fef;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .play-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Script Subtitles */
+        .subtitle {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* Animation Classes */
+        .animating .phone-seller {
+            animation: seller-enter 2s forwards;
+        }
+        .animating .phone-client {
+            animation: client-enter 2s forwards 2s;
+        }
+        .animating .scanner-line {
+            animation: scan 1s infinite 4s;
+        }
+        .animating .stamp.new-point::after {
+            animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 5.5s;
+        }
+        .animating .hat {
+            animation: hat-drop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 7s;
+        }
+
+        @keyframes seller-enter {
+            0% { left: -200px; transform: rotate(10deg); }
+            100% { left: 20px; transform: rotate(5deg); }
+        }
+
+        @keyframes client-enter {
+            0% { bottom: -350px; right: 20px; transform: rotate(-10deg); }
+            100% { bottom: 100px; right: 40px; transform: rotate(-5deg); scale: 1.1; z-index: 20; }
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 1; }
+            50% { top: 120px; opacity: 1; }
+            100% { top: 0; opacity: 1; }
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(5) translate(-50px, -50px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1) translate(0, 0); opacity: 1; }
+        }
+
+        /* Pizza Hat */
+        .hat {
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 100px;
+            z-index: 50;
+        }
+        @keyframes hat-drop {
+            0% { top: -200px; transform: translateX(-50%) rotate(-20deg); }
+            100% { top: 100px; transform: translateX(-50%) rotate(10deg); }
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 40;
+            display: none;
+        }
+        .animating .confetti-container {
+            display: block;
+            animation: show-confetti 0.1s forwards 5.5s;
+        }
+        @keyframes show-confetti {
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <button class="play-btn" onclick="startAnimation()">▶ Assistir Comercial</button>
+
+    <div class="scene" id="scene">
+        
+        <div class="hat">🍕</div>
+
+        <!-- Seller Phone -->
+        <div class="phone phone-seller">
+            <div class="ui-seller">
+                <div class="ui-seller-header">📸 BAFO DO DRAGAO 061</div>
+                <div class="ui-seller-camera">
+                    <div class="scanner-line"></div>
+                </div>
+                <div class="ui-seller-btn">+1 Ponto</div>
+            </div>
+        </div>
+
+        <!-- Client Phone -->
+        <div class="phone phone-client">
+            <div class="ui-client">
+                <div class="ui-client-header">BAFO DO DRAGAO 061</div>
+                <div class="ui-client-qr"></div>
+                <div class="ui-client-stamps">
+                    <div style="font-size: 8px;">Pontuação Acumulada: <span id="score">4 / 10</span></div>
+                    <div class="stamp-grid">
+                        <div class="stamp filled"></div>
+                        <div class="stamp filled"></div>
+                        <div class="stamp filled"></div>
+                        <div class="stamp filled"></div>
+                        <div class="stamp new-point"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="counter"></div>
+        
+        <div class="subtitle" id="subtitle"></div>
+        <div class="confetti-container" id="confetti"></div>
+    </div>
+
+    <!-- Audio Effects -->
+    <audio id="sfx-scan" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="sfx-point" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+    <audio id="sfx-dance" src="https://assets.mixkit.co/active_storage/sfx/135/135-preview.mp3"></audio>
+
+    <script>
+        const scene = document.getElementById('scene');
+        const subtitle = document.getElementById('subtitle');
+        const score = document.getElementById('score');
+
+        const sfxPoint = document.getElementById('sfx-point');
+        const sfxDance = document.getElementById('sfx-dance');
+
+        // Confetti generation
+        const confettiContainer = document.getElementById('confetti');
+        for(let i=0; i<30; i++) {
+            let conf = document.createElement('div');
+            conf.style.position = 'absolute';
+            conf.style.width = '8px';
+            conf.style.height = '8px';
+            conf.style.backgroundColor = ['#ff0', '#f00', '#0f0', '#00f'][Math.floor(Math.random()*4)];
+            conf.style.left = Math.random() * 100 + '%';
+            conf.style.top = '-10px';
+            conf.style.animation = `fall ${Math.random()*2 + 1}s linear infinite`;
+            conf.style.animationDelay = (5.5 + Math.random()) + 's';
+            confettiContainer.appendChild(conf);
+        }
+
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes fall {
+                to { transform: translateY(640px) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        function setSubtitle(text, delay) {
+            setTimeout(() => {
+                subtitle.innerText = text;
+                subtitle.style.opacity = 1;
+            }, delay * 1000);
+            
+            setTimeout(() => {
+                subtitle.style.opacity = 0;
+            }, (delay + 1.8) * 1000);
+        }
+
+        function startAnimation() {
+            // Reset
+            scene.classList.remove('animating');
+            void scene.offsetWidth; // trigger reflow
+            score.innerText = "4 / 10";
+            
+            // Start
+            scene.classList.add('animating');
+
+            // Timeline
+            setSubtitle("- Tem pontinho?", 0.5);
+            setSubtitle("- Tem.", 2);
+            setSubtitle("- Pontinho.", 3.5);
+            
+            setSubtitle("🎵 Teeeem pontinhoooo... 🎵", 5.5);
+            
+            setTimeout(() => {
+                sfxPoint.play();
+                score.innerText = "5 / 10";
+            }, 5500);
+
+            setTimeout(() => {
+                sfxDance.play();
+            }, 7000);
+
+            setSubtitle("🍕 CHAPÉU LENDÁRIO DESBLOQUEADO! 🍕", 7.5);
+        }
+    </script>
+</body>
+</html>

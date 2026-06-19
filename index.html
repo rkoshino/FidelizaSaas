@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nice Dreamks - Fidelidade</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="nice-scribble">✶</div>
+
+        <div class="brand-nice">Nice<br>Dreamks</div>
+        <div class="brand-fidelity">Fidelidade</div>
+
+        <div id="login-screen">
+            <p>Entre com seu Gmail para acumular pontos e ganhar drinks grátis na nossa casinha!</p>
+            <button class="btn-google" id="btn-login">
+                <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" alt="Google" width="22">
+                Logar c/ Gmail
+            </button>
+        </div>
+
+        <div id="app-screen" class="hidden">
+            <div id="qrcode"></div>
+            <div class="counter-box" id="counter">0 / 10</div>
+            <div id="win-message" class="win-banner hidden">
+                🎉 DRINK GRÁTIS DESBLOQUEADO! 🎉<br>Mostre essa tela no balcão agora!
+            </div>
+        </div>
+    </div>
+
+    <div class="ticker-wrap hidden" id="news-ticker">
+        <div class="ticker-move" id="ticker-text">
+            Carregando sistema Nice Dreamks...
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // ⚠️ COLOQUE SEU BLOCO DO FIREBASE AQUI ⚠️
+        const firebaseConfig = {
+            apiKey: "AIzaSyAH5BxqOq3KoF48Nkz43eZd9IZleBjckz8",
+  authDomain: "nice-dreamks-fidelidade.firebaseapp.com",
+  projectId: "nice-dreamks-fidelidade",
+  storageBucket: "nice-dreamks-fidelidade.firebasestorage.app",
+  messagingSenderId: "287947707168",
+  appId: "1:287947707168:web:e6530a04124d9ed4ecfd45",
+measurementId: "G-9Z1VKST81Z"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const btnLogin = document.getElementById('btn-login');
+        const counterEl = document.getElementById('counter');
+        const winMessage = document.getElementById('win-message');
+        const newsTicker = document.getElementById('news-ticker');
+        const tickerText = document.getElementById('ticker-text');
+        
+        let qrcodeInstance = null;
+        let ultimoPontoConhecido = -1;
+
+        // ⚙️ CONFIGURAÇÕES DA CAMPANHA (Editável via Dashboard no futuro)
+        const campaignConfig = {
+            rewardEmoji: "🎆", // Emoji usado na animação de recompensa
+            animationStyle: "fireworks", // Estilos futuros: 'fireworks', 'confetti', etc.
+            pointsTarget: 10
+        };
+
+        // Função de Animação de Recompensa
+        function triggerRewardAnimation() {
+            if (campaignConfig.animationStyle === "fireworks") {
+                const numParticles = 40;
+                for (let i = 0; i < numParticles; i++) {
+                    const particle = document.createElement("div");
+                    particle.classList.add("emoji-firework");
+                    particle.innerText = campaignConfig.rewardEmoji;
+                    
+                    // Cálculo aleatório para direção e distância
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 200 + 50; // Entre 50px e 250px
+                    const tx = Math.cos(angle) * distance + "px";
+                    const ty = Math.sin(angle) * distance + "px";
+                    
+                    particle.style.setProperty("--tx", tx);
+                    particle.style.setProperty("--ty", ty);
+                    
+                    // Atraso aleatório para efeito mais orgânico
+                    particle.style.animationDelay = (Math.random() * 0.2) + "s";
+                    
+                    document.body.appendChild(particle);
+                    
+                    // Remove após a animação (1.5s + delay)
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 2000);
+                }
+            }
+        }
+
+        // Função para animar a chegada do ponto na tela
+        function animateIncomingPoint(novoPontoFinal, isWinner) {
+            const token = document.createElement("div");
+            token.innerText = "✨"; // Simbolo do ponto viajando
+            token.style.position = "fixed";
+            token.style.top = "50%";
+            token.style.left = "50%";
+            token.style.fontSize = "120px";
+            token.style.zIndex = "10000";
+            token.style.filter = "drop-shadow(0 0 30px rgba(255, 215, 0, 0.8))";
+            token.style.pointerEvents = "none";
+            token.style.transform = "translate(-50%, -50%) scale(0)";
+            
+            document.body.appendChild(token);
+
+            // Calcula a posição atual do contador na tela
+            const counterRect = counterEl.getBoundingClientRect();
+            const targetX = counterRect.left + (counterRect.width / 2) - (window.innerWidth / 2);
+            const targetY = counterRect.top + (counterRect.height / 2) - (window.innerHeight / 2);
+
+            // Animação: Nasce grande no centro, espera um pouquinho, e voa pro contador diminuindo
+            const animation = token.animate([
+                { transform: 'translate(-50%, -50%) scale(0)', opacity: 0, offset: 0 },
+                { transform: 'translate(-50%, -50%) scale(1.2)', opacity: 1, offset: 0.3 },
+                { transform: 'translate(-50%, -50%) scale(1.0)', opacity: 1, offset: 0.6 },
+                { transform: `translate(calc(-50% + ${targetX}px), calc(-50% + ${targetY}px)) scale(0.3)`, opacity: 0, offset: 1 }
+            ], {
+                duration: 1800, 
+                easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                fill: 'forwards'
+            });
+
+            animation.onfinish = () => {
+                token.remove();
+                
+                // Atualiza o texto visual do contador apenas quando o ponto chega
+                counterEl.innerText = `${novoPontoFinal} / ${campaignConfig.pointsTarget}`;
+                
+                // Efeito do contador "engolindo" o ponto
+                counterEl.animate([
+                    { transform: 'scale(1)', boxShadow: 'inset 0 2px 10px rgba(0, 0, 0, 0.2)' },
+                    { transform: 'scale(1.1)', boxShadow: '0 0 20px rgba(52, 211, 153, 0.6)' },
+                    { transform: 'scale(1)', boxShadow: 'inset 0 2px 10px rgba(0, 0, 0, 0.2)' }
+                ], { duration: 400 });
+
+                if (isWinner) {
+                    winMessage.classList.remove('hidden');
+                    fraseAtual = "🏆 META ATINGIDA! RESGATE SEU DRINK GRÁTIS NO BALCÃO!";
+                    setTimeout(() => triggerRewardAnimation(), 200);
+                }
+            };
+        }
+
+        // SISTEMA DO LETREIRO
+        let climaPlanoPiloto = "--°C";
+        let fraseAtual = "Bem-vindo à Nice Dreamks! Peça seu drink no balcão.";
+
+        const listaFrases = [
+            "Um gole de felicidade para animar o seu dia!",
+            "Celebrando cada sabor com a Nice Dreamks.",
+            "Mais um ponto, mais perto da sua recompensa preferida.",
+            "O sabor autêntico de Brasília em cada drink.",
+            "Sua jornada para um brinde especial começa aqui.",
+            "Nice Dreamks: onde cada copo conta uma história.",
+            "Um brinde ao prazer de pontuar com estilo!",
+            "Descubra novas experiências, ponto por ponto.",
+            "A arte de beber bem, pontuar ainda melhor.",
+            "Sua fidelidade merece o melhor sabor da Nice Dreamks.",
+            "Vamos brindar à vida com um drink gelado!",
+            "Cada drink é uma celebração para o paladar.",
+            "Pontuar é doce, mas o drink grátis é ainda melhor!",
+            "Sinta a vibração em cada gole e ponto acumulado.",
+            "Uma explosão de sabores aguarda você no final da jornada.",
+            "Nice Dreamks é mais que um bar, é uma experiência!",
+            "Beba, ame, pontue e ganhe com Nice Dreamks.",
+            "Sua jornada de fidelidade está cheia de sabores.",
+            "Um brinde à sua paixão por bons drinks!",
+            "Prepare o paladar para a próxima surpresa da Nice Dreamks."
+        ];
+
+        // Busca a temperatura do Plano Piloto via API aberta
+        async function buscarClima() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.7801&longitude=-47.9292&current_weather=true');
+                const data = await res.json();
+                climaPlanoPiloto = `${data.current_weather.temperature}°C`;
+            } catch (error) {
+                console.error("Erro ao buscar clima", error);
+            }
+        }
+        buscarClima();
+
+        // Monta a string do letreiro e atualiza em tempo real
+        function atualizarLetreiro() {
+            const agora = new Date();
+            const dataStr = agora.toLocaleDateString('pt-BR');
+            const horaStr = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            // Repetimos a string para criar o efeito infinito suave na tela
+            const info = `+++ 📅 ${dataStr} | ⏰ ${horaStr} | 🌤️ PLANO PILOTO: ${climaPlanoPiloto} | 🍹 ${fraseAtual} +++ `;
+            tickerText.innerText = info + info; 
+        }
+        
+        // Atualiza o relógio a cada 1 segundo
+        setInterval(atualizarLetreiro, 1000);
+
+        function sortearNovaFrase() {
+            const indice = Math.floor(Math.random() * listaFrases.length);
+            fraseAtual = listaFrases[indice];
+            atualizarLetreiro(); // Atualiza instantaneamente a frase
+        }
+
+        // LOGIN E FIREBASE
+        btnLogin.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(err => console.error(err));
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                newsTicker.classList.remove('hidden'); // Mostra o letreiro
+
+                if (!qrcodeInstance) {
+                    qrcodeInstance = new QRCode(document.getElementById("qrcode"), {
+                        text: user.uid,
+                        width: 140,
+                        height: 140,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff"
+                    });
+                }
+
+                const userRef = doc(db, "clientes", user.uid);
+                const docSnap = await getDoc(userRef);
+                if (!docSnap.exists()) {
+                    await setDoc(userRef, { nome: user.displayName, pontos: 0 });
+                }
+
+                onSnapshot(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const pontos = snapshot.data().pontos || 0;
+
+                        // Primeira carga (apenas carrega o valor sem animar voo)
+                        if (ultimoPontoConhecido === -1) {
+                            counterEl.innerText = `${pontos} / ${campaignConfig.pointsTarget}`;
+                            ultimoPontoConhecido = pontos;
+                            if (pontos >= campaignConfig.pointsTarget) {
+                                winMessage.classList.remove('hidden');
+                                fraseAtual = "🏆 META ATINGIDA! RESGATE SEU DRINK GRÁTIS NO BALCÃO!";
+                            }
+                            return;
+                        }
+
+                        // Se ganhou pontos (animação de viagem)
+                        if (pontos > ultimoPontoConhecido) {
+                            sortearNovaFrase();
+                            const acabouDeGanhar = (ultimoPontoConhecido < campaignConfig.pointsTarget && pontos >= campaignConfig.pointsTarget);
+                            
+                            // Atraso mágico simulando o tempo de rede do celular do vendedor pro cliente
+                            setTimeout(() => {
+                                animateIncomingPoint(pontos, acabouDeGanhar);
+                            }, 600);
+                        } 
+                        // Se perdeu pontos (ex: resgatou o prêmio ou admin removeu)
+                        else if (pontos < ultimoPontoConhecido) {
+                            counterEl.innerText = `${pontos} / ${campaignConfig.pointsTarget}`;
+                            if (pontos < campaignConfig.pointsTarget) {
+                                winMessage.classList.add('hidden');
+                            }
+                        }
+
+                        ultimoPontoConhecido = pontos;
+                    }
+                });
+
+            } else {
+                loginScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
+                newsTicker.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
