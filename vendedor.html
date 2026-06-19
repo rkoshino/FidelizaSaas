@@ -501,6 +501,22 @@
         }
 
         async function liberarVendedor(user) {
+            if (user.uid === empresaId) {
+                loggedVendedor = {
+                    nomeVendedor: user.displayName || "Dono da loja",
+                    email: user.email || "",
+                    empresaId,
+                    ativo: true,
+                    papel: "dono"
+                };
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("app-screen").classList.remove("hidden");
+                document.getElementById("vendedor-nome").innerText = loggedVendedor.nomeVendedor;
+                await teardownScanner();
+                html5QrcodeScanner = new Html5Qrcode("reader");
+                return;
+            }
+
             const slug = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
             // Chave COMPOSTA (empresa + e-mail): some a colisão global que dava
             // "este atendente não pertence a esta empresa".

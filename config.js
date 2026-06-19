@@ -61,10 +61,15 @@ const db = getFirestore(app);
 // Provedores de Autenticação Social
 const googleProvider = new GoogleAuthProvider();
 
+function prepareGoogleProvider({ selectAccount = false } = {}) {
+    googleProvider.setCustomParameters(selectAccount ? { prompt: "select_account" } : {});
+    return googleProvider;
+}
+
 // Helpers de Login (Popup - Desktop)
-async function loginWithGoogle() {
+async function loginWithGoogle(options = {}) {
     try {
-        const result = await signInWithPopup(auth, googleProvider);
+        const result = await signInWithPopup(auth, prepareGoogleProvider(options));
         return result.user;
     } catch (error) {
         console.error("Erro no login com Google: ", error);
@@ -73,9 +78,9 @@ async function loginWithGoogle() {
 }
 
 // Helpers de Login (Redirect - Mobile)
-async function loginWithGoogleRedirect() {
+async function loginWithGoogleRedirect(options = {}) {
     try {
-        await signInWithRedirect(auth, googleProvider);
+        await signInWithRedirect(auth, prepareGoogleProvider(options));
     } catch (error) {
         console.error("Erro no redirect do Google: ", error);
         throw error;

@@ -345,6 +345,8 @@
         // Variáveis Locais do Sistema
         let slugEmpresa = "";
         let idEmpresa = "";
+        let appEntering = false;
+        let appEntered = false; // evita entrar 2x (onAuthStateChanged + branding async)
         let metaPontos = 10;
         let visualConfig = null;
         let loggedUser = null;
@@ -357,11 +359,18 @@
 
         // Recupera slug/empresaId pelos parâmetros de URL com fallback de localStorage
         const urlParams = new URLSearchParams(window.location.search);
-        slugEmpresa = urlParams.get("link") || localStorage.getItem("tempontinho_cliente_link") || "";
-        idEmpresa = urlParams.get("empresa") || localStorage.getItem("tempontinho_cliente_empresa") || "";
+        const linkParam = urlParams.get("link");
+        const empresaParam = urlParams.get("empresa");
+        slugEmpresa = linkParam || (!empresaParam ? localStorage.getItem("tempontinho_cliente_link") : "") || "";
+        idEmpresa = slugEmpresa ? "" : (empresaParam || localStorage.getItem("tempontinho_cliente_empresa") || "");
 
-        if (slugEmpresa) localStorage.setItem("tempontinho_cliente_link", slugEmpresa);
-        if (idEmpresa) localStorage.setItem("tempontinho_cliente_empresa", idEmpresa);
+        if (linkParam) {
+            localStorage.setItem("tempontinho_cliente_link", linkParam);
+            localStorage.removeItem("tempontinho_cliente_empresa");
+        } else if (empresaParam) {
+            localStorage.setItem("tempontinho_cliente_empresa", empresaParam);
+            localStorage.removeItem("tempontinho_cliente_link");
+        }
 
         // 1. Inicializa o App buscando a empresa para carregar identidade visual
         async function fetchCompanyBranding() {
@@ -376,6 +385,7 @@
                     if (!querySnapshot.empty) {
                         const firstDoc = querySnapshot.docs[0];
                         idEmpresa = firstDoc.id;
+                        localStorage.setItem("tempontinho_cliente_empresa", idEmpresa);
                         companyRef = doc(db, "empresas", idEmpresa);
                     } else {
                         // Busca no histórico (Redirecionamento Inteligente de QR Code antigo)
@@ -398,6 +408,10 @@
                 }
 
                 if (companyRef) {
+                    // idEmpresa resolvido (inclusive no caso ?link=slug, que é assíncrono):
+                    // se o cliente já logou (ex.: voltou do redirect do Google) antes do
+                    // branding terminar, entra no app agora. Senão, o onAuthStateChanged entra.
+                    if (loggedUser) enterApp(loggedUser);
                     // Escuta alterações na empresa em tempo real
                     onSnapshot(companyRef, (docSnap) => {
                         if (docSnap.exists()) {
@@ -521,12 +535,16 @@
             }
         })();
 
-        // 2. Controla o estado de Autenticação do Usuário (Cliente)
-        auth.onAuthStateChanged(async (user) => {
-            if (user && idEmpresa) {
-                loggedUser = user;
-                
-                // Grava / Atualiza o cadastro do cliente
+        // Entra no app quando user E idEmpresa estiverem prontos — em qualquer ordem.
+        // (Com URL ?link=slug o idEmpresa resolve async no branding, então o redirect do
+        // Google pode voltar antes disso; este desacoplamento evita o loop pro login.)
+        async function enterApp(user) {
+            if (appEntered || appEntering || !user || !idEmpresa) return;
+            appEntering = true;
+            loggedUser = user;
+
+            try {
+                // Grava / Atualiza o cadastro do cliente (garante o cartão).
                 await syncClientProfile(user);
 
                 // Alterna Telas
@@ -548,12 +566,34 @@
 
                 // Assina escuta em tempo real dos pontos do cliente
                 setupPointsRealtimeListener(user.uid);
-            } else {
-                // Se deslogar, reseta visualização
+                appEntered = true;
+            } catch (err) {
+                console.error("Erro ao entrar no cartão do cliente:", err);
+                showToast("Não foi possível carregar seu cartão. Tente novamente.", "error");
+            } finally {
+                appEntering = false;
+            }
+        }
+
+        // 2. Controla o estado de Autenticação do Usuário (Cliente)
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                // Deslogou: reseta visualização e permite reentrar depois.
+                appEntering = false;
+                appEntered = false;
+                loggedUser = null;
                 document.getElementById("login-screen").classList.remove("hidden");
                 document.getElementById("app-screen").classList.add("hidden");
-                if (unsubscribeListener) unsubscribeListener();
+                if (unsubscribeListener) {
+                    unsubscribeListener();
+                    unsubscribeListener = null;
+                }
+                return;
             }
+            loggedUser = user;
+            // Se o idEmpresa já está pronto, entra agora; senão, o branding (fetchCompanyBranding)
+            // chama enterApp() assim que resolver o idEmpresa. NÃO mostramos o login aqui (evita o loop).
+            if (idEmpresa) enterApp(user);
         });
 
         // Garante o cartão (zerado) na empresa + perfil do consumidor.

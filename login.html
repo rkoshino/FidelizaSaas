@@ -167,6 +167,7 @@
 
         const toast = document.getElementById("toast");
         const toastText = document.getElementById("toast-text");
+        const OWNER_GOOGLE_PENDING_KEY = "tempontinho_owner_google_pending";
 
         function showToast(message) {
             toastText.innerText = message;
@@ -219,32 +220,54 @@
             });
         }
 
-        let routingSession = false;
-        async function routeOwnerSession(user) {
-            if (routingSession) return;
-            routingSession = true;
-            if (await companyExists(user.uid)) {
-                showToast("Sessão encontrada! Redirecionando...");
-                setTimeout(() => {
-                    window.location.href = `./dashboard.html?empresa=${user.uid}`;
-                }, 600);
-                return;
-            }
+        let routingSessionPromise = null;
+        async function routeOwnerSession(user, { allowCreatePrompt = false } = {}) {
+            if (routingSessionPromise) return routingSessionPromise;
 
-            const wantsCreate = await askCreateGoogleAccount();
-            if (wantsCreate) {
-                window.location.href = "./onboarding.html?continue=google";
-            } else {
-                await logoutUser();
-                showToast("Cadastro cancelado. Nenhuma empresa foi criada.");
-                routingSession = false;
-            }
+            routingSessionPromise = (async () => {
+                try {
+                    if (await companyExists(user.uid)) {
+                        showToast("Sessão encontrada! Redirecionando...");
+                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                        setTimeout(() => {
+                            window.location.href = `./dashboard.html?empresa=${user.uid}`;
+                        }, 600);
+                        return "redirecting";
+                    }
+
+                    if (!allowCreatePrompt) return "no-company";
+
+                    const wantsCreate = await askCreateGoogleAccount();
+                    if (wantsCreate) {
+                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                        window.location.href = "./onboarding.html?continue=google";
+                        return "redirecting";
+                    }
+
+                    await logoutUser();
+                    showToast("Cadastro cancelado. Nenhuma empresa foi criada.");
+                    return "cancelled";
+                } catch (err) {
+                    console.error("Erro ao rotear sessão da empresa:", err);
+                    showToast("Não foi possível validar sua empresa. Tente novamente.");
+                    return "error";
+                } finally {
+                    if (allowCreatePrompt) {
+                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                    }
+                    routingSessionPromise = null;
+                }
+            })();
+
+            return routingSessionPromise;
         }
 
         // Roteia o dono assim que há sessão (volta de redirect no mobile OU sessão
-        // persistida). routeOwnerSession tem guarda (routingSession) contra duplicação.
+        // persistida). Se a sessão atual for só de cliente, não abre criação de empresa
+        // automaticamente; o prompt de criação só aparece após clique explícito no Google.
         auth.onAuthStateChanged(async (user) => {
-            if (user) await routeOwnerSession(user);
+            const pendingGoogleLogin = sessionStorage.getItem(OWNER_GOOGLE_PENDING_KEY) === "1";
+            if (user) await routeOwnerSession(user, { allowCreatePrompt: pendingGoogleLogin });
         });
 
         // Finaliza o redirect do mobile SEM bloquear o módulo. IMPORTANTE: um
@@ -252,11 +275,22 @@
         // abaixo (o clique do botão Google) enquanto o Auth inicializa — no celular,
         // que é mais lento, o botão "ficava sem efeito". Por isso roda em IIFE.
         (async () => {
+            let pendingGoogleLogin = false;
+            let redirectedUser = null;
             try {
-                await getRedirectResult(auth);
+                const result = await getRedirectResult(auth);
+                pendingGoogleLogin = sessionStorage.getItem(OWNER_GOOGLE_PENDING_KEY) === "1";
+                redirectedUser = result?.user || (pendingGoogleLogin ? auth.currentUser : null);
+                if (redirectedUser) {
+                    await routeOwnerSession(redirectedUser, { allowCreatePrompt: true });
+                }
             } catch (err) {
                 console.error("Erro no redirecionamento:", err);
                 showToast(authErrorMessage(err));
+            } finally {
+                if (!pendingGoogleLogin || redirectedUser) {
+                    sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                }
             }
         })();
 
@@ -319,19 +353,29 @@
         // Google Login — popup no desktop, redirect no mobile
         document.getElementById("btn-login-google").addEventListener("click", async () => {
             const btn = document.getElementById("btn-login-google");
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando...`;
             try {
+                sessionStorage.setItem(OWNER_GOOGLE_PENDING_KEY, "1");
                 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
                 if (isMobile) {
-                    await loginWithGoogleRedirect();
+                    await loginWithGoogleRedirect({ selectAccount: true });
                 } else {
-                    const user = await loginWithGoogle();
-                    await routeOwnerSession(user);
+                    const user = await loginWithGoogle({ selectAccount: true });
+                    const result = await routeOwnerSession(user, { allowCreatePrompt: true });
+                    if (result !== "redirecting") {
+                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
                 }
             } catch (err) {
                 console.error(err);
                 showToast(authErrorMessage(err));
-                btn.innerHTML = `<img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google"> Entrar com o Google`;
+                sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
         });
     </script>
