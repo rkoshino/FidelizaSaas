@@ -131,12 +131,12 @@
             </div>
 
             <!-- C-01: prévia de valor (loja/prêmio/progresso) ANTES da barreira de login -->
-            <div id="reward-preview" class="rounded-2xl border border-stone-200 bg-white p-4 flex flex-col items-center gap-2.5 text-center">
+            <div id="reward-preview" class="rounded-2xl border border-white/15 p-4 flex flex-col items-center gap-2.5 text-center text-white shadow-lg" style="background-color:#2A5A44;">
                 <div id="preview-stamps" class="flex items-center justify-center gap-1 flex-wrap"></div>
-                <p class="text-xs text-stone-600 font-medium leading-relaxed">
-                    Junte <span id="preview-meta" class="font-bold text-stone-800">10</span> carimbos e ganhe
+                <p class="text-xs text-white/85 font-medium leading-relaxed">
+                    Junte <span id="preview-meta" class="font-bold text-white">10</span> carimbos e ganhe
                 </p>
-                <p id="preview-prize" class="text-sm font-bold text-brand-accent">seu prêmio</p>
+                <p id="preview-prize" class="text-sm font-bold text-amber-200">seu prêmio</p>
             </div>
 
             <!-- Authentication Buttons (C-01: Google 1-tap como primário; e-mail como alternativa) -->
@@ -204,11 +204,11 @@
                 </div>
             </div>
 
-            <!-- Stamped Point Area (Card Deck style) -->
-            <div class="glassmorphism rounded-3xl p-5 flex flex-col gap-4">
-                <div class="flex justify-between items-center text-xs border-b border-stone-200 pb-3">
-                    <span class="text-stone-600 font-medium">Pontuação Acumulada</span>
-                    <span id="points-counter" class="font-bold text-brand-green bg-brand-green/10 px-2.5 py-1 rounded-lg">0 / 10</span>
+            <!-- Stamped Point Area — cartão na COR DA LOJA (definida no editor visual) -->
+            <div id="loyalty-card" class="rounded-3xl p-5 flex flex-col gap-4 shadow-xl text-white" style="background-color:#2A5A44;">
+                <div class="flex justify-between items-center text-xs border-b border-white/20 pb-3">
+                    <span class="text-white/80 font-medium">Pontuação Acumulada</span>
+                    <span id="points-counter" class="font-bold text-white bg-white/15 px-2.5 py-1 rounded-lg">0 / 10</span>
                 </div>
 
                 <!-- Stamps Grid -->
@@ -217,9 +217,9 @@
                 </div>
 
                 <!-- Goal Banner and Prize Detail -->
-                <div class="p-3 bg-brand-paper border border-stone-200 rounded-2xl text-xs text-stone-600 leading-relaxed font-medium">
-                    Meta de <span id="points-target" class="font-bold underline text-brand-green">10</span> carimbos =
-                    <span id="prize-description" class="font-bold text-brand-accent">Carregando Prêmio...</span>
+                <div class="p-3 bg-white/10 border border-white/20 rounded-2xl text-xs text-white/90 leading-relaxed font-medium">
+                    Meta de <span id="points-target" class="font-bold underline text-white">10</span> carimbos =
+                    <span id="prize-description" class="font-bold text-amber-200">Carregando Prêmio...</span>
                 </div>
             </div>
 
@@ -414,6 +414,12 @@
                             // Ignora visualConfig.corFundo de propósito (decisão de produto) para evitar fundos como rosa.
                             document.documentElement.style.backgroundColor = "#F4EFE6";
                             document.getElementById("body-container").style.backgroundColor = "#F4EFE6";
+                            // ...mas o CARTÃO usa a cor escolhida pela loja (igual ao preview do onboarding).
+                            const corCartao = (visualConfig && visualConfig.corFundo) || "#2A5A44";
+                            ["loyalty-card", "reward-preview"].forEach((cid) => {
+                                const el = document.getElementById(cid);
+                                if (el) el.style.backgroundColor = corCartao;
+                            });
                             
                             // Altera fontes
                             const activeFont = visualConfig.fonte || "sans";
@@ -443,9 +449,9 @@
                                 const shown = Math.min(metaPontos, 5);
                                 let html = "";
                                 for (let i = 0; i < shown; i++) {
-                                    html += `<span class="w-7 h-7 rounded-full border border-stone-300 bg-white flex items-center justify-center text-xs text-stone-400">${brandEmoji}</span>`;
+                                    html += `<span class="w-8 h-8 flex items-center justify-center text-2xl">${brandEmoji}</span>`;
                                 }
-                                if (metaPontos > shown) html += `<span class="text-stone-500 text-xs px-1">+${metaPontos - shown}</span>`;
+                                if (metaPontos > shown) html += `<span class="text-white/70 text-xs px-1">+${metaPontos - shown}</span>`;
                                 previewStamps.innerHTML = html;
                             }
                             
@@ -660,9 +666,9 @@
             function fillStamp(i) {
                 const slot = document.getElementById(`stamp-slot-${i}`);
                 if (!slot) return;
-                slot.classList.remove("bg-white", "text-stone-400", "border-stone-300", "text-xs");
-                slot.classList.add("bg-brand-accent", "border-brand-accent", "text-white", "scale-110", "stamp-pop");
-                slot.innerHTML = `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`;
+                slot.classList.remove("bg-white/15", "text-white/60", "border-white/25", "text-xs", "rounded-full", "border-2");
+                slot.classList.add("bg-transparent", "border-transparent", "scale-110", "stamp-pop");
+                slot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`;
             }
             // Sequência de resgate: cartão antigo rasga → novo cartão entra → sobra entra ponto a ponto.
             function runRedeemSequence(novoPontos) {
@@ -737,9 +743,9 @@
                 giantEmoji.remove();
                 const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
                 if (targetSlot) {
-                    targetSlot.classList.remove("bg-white", "text-stone-400", "border-stone-300", "text-xs");
-                    targetSlot.classList.add("bg-brand-accent", "border-brand-accent", "text-white", "scale-110");
-                    targetSlot.innerHTML = `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`;
+                    targetSlot.classList.remove("bg-white/15", "text-white/60", "border-white/25", "text-xs", "rounded-full", "border-2");
+                    targetSlot.classList.add("bg-transparent", "border-transparent", "scale-110");
+                    targetSlot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`;
                 }
             }, 1100);
         }
@@ -763,14 +769,14 @@
                 stamp.id = `stamp-slot-${i}`;
                 const isStamped = i <= pointsCount;
 
-                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 rounded-full border-2 ${
+                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
                     isStamped
-                        ? "bg-brand-accent border-brand-accent text-white scale-110"
-                        : "bg-white text-stone-400 border-stone-300 text-xs"
+                        ? "bg-transparent border-transparent scale-110"
+                        : "rounded-full border-2 bg-white/15 text-white/60 border-white/25 text-xs"
                 }`;
 
                 stamp.innerHTML = isStamped
-                    ? `<span class="text-2xl filter drop-shadow-[0_2px_6px_rgba(194,87,51,0.45)]">${brandEmoji}</span>`
+                    ? `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`
                     : `${i}`;
 
                 grid.appendChild(stamp);

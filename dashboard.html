@@ -423,6 +423,12 @@
                     </div>
                 </div>
 
+                <!-- Link da câmera do vendedor visível (ao lado do Copiar, dá pra ver/selecionar) -->
+                <div class="flex items-center gap-2">
+                    <input type="text" readonly id="equipe-link-vendedor-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs text-violet-700 select-all focus:outline-none" value="" placeholder="Link da câmera do vendedor…">
+                    <button id="btn-equipe-copy-vendedor-box" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95 shrink-0"><i class="fa-regular fa-copy mr-1"></i> Copiar</button>
+                </div>
+
                 <!-- VEND-08: QR de acesso rápido do vendedor -->
                 <div class="glassmorphism rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5 border border-stone-200">
                     <div class="bg-white p-3 rounded-xl shrink-0 shadow-lg shadow-black/20">
@@ -1108,6 +1114,16 @@
                     const btnEquipeCopiar = document.getElementById("btn-equipe-copiar-camera");
                     if(btnEquipeCopiar) btnEquipeCopiar.onclick = () => {
                         navigator.clipboard.writeText(vendorUrl);
+                        showToast("Link da câmera copiado!");
+                    };
+
+                    // Caixa visível com o link da câmera (na aba Equipe).
+                    const equipeLinkInput = document.getElementById("equipe-link-vendedor-url");
+                    if (equipeLinkInput) equipeLinkInput.value = vendorUrl;
+                    const btnEquipeCopyBox = document.getElementById("btn-equipe-copy-vendedor-box");
+                    if (btnEquipeCopyBox) btnEquipeCopyBox.onclick = () => {
+                        navigator.clipboard.writeText(vendorUrl);
+                        if (equipeLinkInput) equipeLinkInput.select();
                         showToast("Link da câmera copiado!");
                     };
 
