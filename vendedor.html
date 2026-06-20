@@ -2710,7 +2710,7 @@ window.switchAppTab = function(tabId) {
             
             const qrContainer = document.getElementById("flyer-qrcode-placeholder");
             qrContainer.innerHTML = "";
-            qrCodeFlyerInstance = new QRCode(qrContainer, {
+            const qrCodeFlyerInstance = new QRCode(qrContainer, {
                 text: targetUrl,
                 width: 140,
                 height: 140,
