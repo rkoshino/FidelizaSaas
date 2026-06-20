@@ -1233,7 +1233,7 @@ window.switchAppTab = function(tabId) {
                     const fontInput = document.getElementById("edit-theme-font");
                     if (fontInput) fontInput.value = data.visualConfig?.fonte || "sans";
                     
-                    const emojiInput = document.getElementById("edit-carimbo-emoji");
+                    const emojiInput = document.getElementById("edit-theme-emoji");
                     if (emojiInput) emojiInput.value = data.visualConfig?.emoji || "⭐";
 
                     if (typeof window.updatePreviewCartao === 'function') {
@@ -2993,7 +2993,7 @@ window.updatePreviewCartao = function() {
     const premio = document.getElementById('edit-premio-desc').value || "Recompensa";
     const bg = document.getElementById('edit-theme-color').value || "#4f46e5";
     const title = document.getElementById('edit-theme-title').value || "Seu Programa";
-    const emoji = document.getElementById('edit-carimbo-emoji').value || "🌟";
+    const emoji = document.getElementById('edit-theme-emoji').value || "🌟";
     
     const container = document.getElementById('preview-cartao-container');
     container.style.backgroundColor = bg;
@@ -3041,7 +3041,7 @@ window.updatePreviewCartao = function() {
 };
 
 document?.addEventListener('DOMContentLoaded', () => {
-    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-carimbo-emoji'];
+    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-theme-emoji'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
