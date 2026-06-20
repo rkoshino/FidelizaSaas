@@ -232,14 +232,14 @@
                     <div id="qrcode-placeholder"></div>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <p class="text-sm text-stone-800 font-semibold mt-1">Mostre esse QR Code para o vendedor.</p>
+                    <p class="text-sm text-[var(--text-main)] font-semibold mt-1">Mostre esse QR Code para o vendedor.</p>
                 </div>
             </div>
 
             <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
-            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-white text-brand-accent-dark flex flex-col items-center gap-2 text-center shadow-md relative z-30">
+            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-[var(--border-glass)] bg-[var(--bg-glass)] text-[var(--text-main)] flex flex-col items-center gap-2 text-center shadow-md relative z-30 transition-colors duration-500">
                 <h4 id="victory-title" class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou um prêmio!</h4>
-                <p id="victory-desc" class="text-xs text-stone-700 font-medium">Mostre este QR ao vendedor para resgatar.</p>
+                <p id="victory-desc" class="text-xs font-medium opacity-90">Mostre este QR ao vendedor para resgatar.</p>
             </div>
 
             <!-- Stamped Point Area — cartão na COR DA LOJA (definida no editor visual) -->
@@ -687,9 +687,17 @@
                 if (completou) {
                     // Cartão fica cheio e travado; prêmio pendente nos dois aparelhos.
                     setCounter(pontos);
-                    renderStamps(pontos, true);
-                    playLandingAnimation(metaPontos, true);            // o carimbo final "pousa"
-                    showVictory(premios, false);
+                    if (pontos > lastPoints) {
+                        renderStamps(pontos - 1, false);
+                        playLandingAnimation(metaPontos, true);            // o carimbo final "pousa"
+                        setTimeout(() => {
+                            if (!animando) renderStamps(pontos, true);
+                            showVictory(premios, false);
+                        }, prefersReducedMotion ? 0 : 1100);
+                    } else {
+                        renderStamps(pontos, true);
+                        showVictory(premios, false);
+                    }
                     setTimeout(() => fireVictoryConfetti(), prefersReducedMotion ? 0 : 1100);
                 } else if (resgatou) {
                     if (premios > 0) {
@@ -735,9 +743,9 @@
                 const premioName = document.getElementById("prize-description")?.innerText || "prêmio";
                 
                 document.getElementById("victory-title").innerHTML = isReturn 
-                    ? `<i class="fa-solid fa-gift mr-1.5"></i>🎁 Você tem ${plural} para resgatar!`
-                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou: ${premioName}!`;
-                document.getElementById("victory-desc").innerText = "Mostre este QR ao vendedor para resgatar.";
+                    ? `<i class="fa-solid fa-gift mr-1.5"></i>🎁 Recompensa disponível`
+                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você completou o cartão!`;
+                document.getElementById("victory-desc").innerHTML = `Mostre este QR Code ao vendedor para resgatar <strong>${premioName}</strong>.`;
                 banner.classList.remove("hidden");
                 banner.classList.add("reward-pulse");
             }

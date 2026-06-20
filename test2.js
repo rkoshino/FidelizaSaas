@@ -1,1087 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validador de Pontos - Vendedor</title>
-    <script>
-        if (["nice-dreamks-fidelidade.web.app", "nice-dreamks-fidelidade.firebaseapp.com"].includes(window.location.hostname)) {
-            window.location.replace(`https://tempontinho.com${window.location.pathname}${window.location.search}${window.location.hash}`);
-        }
-    </script>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        playfair: ['Playfair Display', 'serif'],
-                        space: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                        bebas: ['Bebas Neue', 'sans-serif'],
-                        outfit: ['Outfit', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
-                        indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
-                        emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
-                        teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
-                        amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
-                        orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html5-qrcode Library -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <!-- QRCode.js (gera o QR da página do cliente) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <style>
-        .glassmorphism {
-            background: #FFFFFF;
-            border: 1px solid #E3DBCC;
-            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
-        }
-        #reader__scan_region video {
-            object-fit: cover !important;
-            border-radius: 16px;
-        }
-        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
-        :focus-visible {
-            outline: 2px solid #2A5A44 !important;
-            outline-offset: 2px !important;
-            border-radius: 6px;
-        }
-    </style>
-</head>
-<body class="h-full flex flex-col justify-between overflow-x-hidden bg-brand-paper p-4 font-sans">
 
-    <div id="toast" class="fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none" style="opacity:0;transform:translateY(-8px);transition:all .3s">
-      <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
-      <span id="toast-text"></span>
-    </div>
-
-    <!-- Main Container -->
-    <main class="flex-grow flex items-center justify-center py-4 w-full max-w-sm mx-auto">
-
-        <!-- LOGIN SCREEN (VENDEDOR) -->
-        <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-5 text-center">
-            <div class="flex flex-col items-center gap-2">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-brand-green flex items-center justify-center text-2xl">
-                    <i class="fa-solid fa-user-shield"></i>
-                </div>
-                <h2 class="text-xl font-bold font-outfit text-stone-800" id="login-empresa-nome">Área do Atendente</h2>
-                <p class="text-stone-500 text-xs px-1 leading-relaxed">
-                    Faça login para acessar a câmera e registrar carimbos.
-                </p>
-                <div id="invite-hint" class="hidden w-full rounded-2xl border border-brand-green/20 bg-brand-green/5 p-3 text-xs text-stone-700 leading-relaxed">
-                    Você foi convidado para ser atendente desta loja. Entre com Google ou crie uma senha com seu e-mail para ativar seu acesso.
-                </div>
-            </div>
-
-            <!-- Social Authentication Buttons -->
-            <div class="flex flex-col gap-3">
-                <button id="btn-login-google" class="flex items-center justify-center gap-3 w-full py-3.5 bg-white border border-stone-300 hover:bg-stone-50 rounded-2xl transition font-medium text-xs active:scale-[0.98] text-stone-700">
-                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5" alt="Google">
-                    <span>Entrar com Google</span>
-                </button>
-                
-                <div class="flex items-center my-1">
-                    <div class="h-[1px] flex-grow bg-stone-200"></div>
-                    <span class="px-2 text-xs text-stone-500 uppercase tracking-widest">ou</span>
-                    <div class="h-[1px] flex-grow bg-stone-200"></div>
-                </div>
-            </div>
-
-            <!-- Login Form -->
-            <form id="login-form" class="flex flex-col gap-4 text-left" novalidate>
-                <div class="flex flex-col gap-1">
-                    <label for="email" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail</label>
-                    <input type="email" id="email" required placeholder="ex: joao@atendimento.com" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-stone-800 placeholder-stone-400">
-                </div>
-                
-                <div class="flex flex-col gap-1">
-                    <label for="password" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Senha (Crie ou Digite)</label>
-                    <input type="password" id="password" required placeholder="Digite sua senha" class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500 text-stone-800 placeholder-stone-400">
-                    <span class="text-xs text-brand-green leading-normal mt-1"><i class="fa-solid fa-circle-info mr-1"></i>Se for seu primeiro acesso, a senha digitada acima será registrada como sua senha oficial.</span>
-                </div>
-
-                <button type="submit" id="btn-login" class="mt-2 w-full py-4 bg-indigo-600 hover:bg-indigo-700 font-semibold text-white text-xs rounded-xl shadow-lg transition active:scale-[0.98]">
-                    Entrar na câmera
-                </button>
-            </form>
-            <span class="text-xs text-stone-500 leading-normal">Atendentes entram por convite enviado pelo dono da loja.</span>
-        </div>
-
-        <!-- SCANNER APP SCREEN (Hidden initially) -->
-        <div id="app-screen" class="hidden w-full flex flex-col gap-4 text-center pb-20 relative">
-
-            <!-- TAB: CÂMERA (Scanner original) -->
-            <div id="tab-camera" class="app-tab flex flex-col gap-4 transition-opacity duration-300">
-            
-            <!-- Branding Header -->
-            <div class="flex justify-between items-center glassmorphism px-4 py-3 rounded-2xl">
-                <div class="flex items-center gap-2 text-left">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-sm">
-                        <i class="fa-solid fa-camera"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-xs text-stone-800 leading-tight" id="empresa-nome">Minha Empresa</h3>
-                        <p class="text-xs text-stone-500" id="vendedor-nome">Atendente Logado</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button id="btn-logout" class="text-xs font-bold text-red-500 hover:text-red-600 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition"><i class="fa-solid fa-power-off"></i> Sair</button>
-                </div>
-            </div>
-
-            <!-- $-01: Banner de trial (mês grátis) -->
-            <div id="trial-banner" class="hidden items-center justify-between gap-3 p-3 rounded-2xl border border-amber-200 bg-amber-50 text-left">
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 shrink-0"><i class="fa-solid fa-hourglass-half text-xs"></i></div>
-                    <p class="text-xs text-stone-700 leading-tight">Faltam <span id="trial-banner-days" class="font-bold text-stone-900">30</span> dias do mês grátis. Depois, R$ 19,90/mês.</p>
-                </div>
-                <a href="dashboard.html" class="shrink-0 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 px-3 min-h-[40px] inline-flex items-center rounded-lg transition active:scale-95">Assinar</a>
-            </div>
-
-            <!-- Camera Scanner Box -->
-            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3 relative">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Leitor de QR Code</span>
-                    <span class="w-2 h-2 rounded-full bg-stone-300 animate-pulse" id="scanner-status-dot"></span>
-                </div>
-
-                <!-- Video Element viewport -->
-                <div id="reader" class="w-full overflow-hidden border border-stone-200 rounded-2xl bg-black flex items-center justify-center"></div>
-
-                <!-- Scanner Actions Buttons -->
-                <div class="flex gap-2">
-                    <button id="btn-start-scanner" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
-                        <i class="fa-solid fa-play"></i> Iniciar Câmera
-                    </button>
-                    <button id="btn-stop-scanner" disabled class="flex-1 py-3 bg-white border border-stone-300 disabled:border-stone-200 text-stone-600 disabled:text-stone-300 hover:bg-stone-50 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition active:scale-95">
-                        <i class="fa-solid fa-stop"></i> Parar
-                    </button>
-                </div>
-
-                <!-- Quantidade de pontos creditada a cada leitura (definida ANTES de escanear) -->
-                <div class="flex items-center gap-2 pt-2 border-t border-stone-200">
-                    <label for="scan-qty" class="text-xs font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap">Pontos por leitura</label>
-                    <select id="scan-qty" class="flex-1 bg-white border border-stone-300 rounded-xl px-2 py-2.5 text-xs text-brand-green font-bold focus:outline-none focus:border-brand-green"></select>
-                </div>
-            </div>
-
-            <!-- Manual Fallback box -->
-            <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3">
-                <span class="text-xs font-bold uppercase tracking-wider text-stone-500 text-left">Carimbar Manualmente</span>
-                <div class="flex gap-2">
-                    <input type="text" id="manual-client-input" placeholder="Digite UID ou e-mail do cliente..." class="flex-grow bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:border-indigo-500">
-                    <button id="btn-manual-submit" class="px-4 bg-white border border-stone-300 hover:bg-stone-50 text-stone-600 font-bold text-xs rounded-xl active:scale-95 transition">Carimbar</button>
-                </div>
-            </div>
-
-            <!-- Cliente escaneado: painel de resultado + correção manual -->
-            <div id="client-panel" class="hidden glassmorphism rounded-3xl p-4 flex flex-col gap-4 text-left">
-                <div class="flex justify-between items-center gap-2">
-                    <div class="min-w-0">
-                        <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Cliente</span>
-                        <p class="text-sm font-bold text-stone-800 truncate" id="client-name">Cliente</p>
-                    </div>
-                    <button id="btn-next-client" class="shrink-0 text-xs font-bold text-stone-600 hover:text-stone-800 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Próximo</button>
-                </div>
-
-                <!-- Prêmio pendente (C-03: caixa de prêmio antes dos pontos) -->
-                <div id="prize-box" class="hidden flex-col gap-2 p-3 rounded-2xl bg-yellow-50 border-2 border-yellow-300">
-                    <p class="text-xs font-bold text-yellow-700 flex items-center gap-2"><i class="fa-solid fa-gift"></i> <span id="prize-count-text">1 prêmio a entregar</span></p>
-                    <button id="btn-deliver-prize" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-stone-900 font-bold text-xs rounded-xl active:scale-95 transition disabled:opacity-50">Marcar prêmio como entregue</button>
-                </div>
-
-                <!-- Progresso do cartão -->
-                <div class="flex flex-col gap-1.5">
-                    <p class="text-3xl font-extrabold text-stone-800 leading-none"><span id="client-points">0</span><span class="text-lg text-stone-500">/<span id="client-meta">10</span></span></p>
-                    <div class="w-full h-2 rounded-full bg-stone-200 overflow-hidden">
-                        <div id="client-progress" class="h-full bg-indigo-500 transition-all duration-300" style="width:0%"></div>
-                    </div>
-                </div>
-
-                <!-- Correção manual (o scan já credita/resgata automaticamente) -->
-                <button id="btn-remove-point" class="w-full min-h-[44px] bg-transparent border border-stone-300 hover:bg-stone-50 text-stone-600 hover:text-stone-700 font-semibold text-xs rounded-xl active:scale-95 transition">Tirar 1 ponto (correção)</button>
-            </div>
-
-            <!-- Feedbacks Popup Area (Dynamic states alerts) -->
-            <div id="alert-card" class="hidden p-4 rounded-2xl flex items-start gap-3 text-left transition-all duration-300">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg shrink-0" id="alert-icon-box">
-                    <i class="fa-solid fa-info"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-xs" id="alert-title">Sucesso!</h4>
-                    <p class="text-xs text-stone-500 mt-0.5" id="alert-message">Detalhes do alerta.</p>
-                </div>
-            </div>
-
-            <!-- C-02: QR da página do cliente (para novos clientes entrarem) -->
-            <div id="cliente-qr-card" class="hidden glassmorphism rounded-3xl p-4 flex-col items-center gap-3 text-center">
-                <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Cliente novo? Aponte a câmera aqui</span>
-                <div id="cliente-qr" class="bg-white p-3 rounded-2xl inline-flex border border-stone-200"></div>
-                <a id="cliente-qr-link" href="#" target="_blank" rel="noopener" class="text-xs font-semibold text-brand-green hover:text-brand-green-dark break-all">Abrir página do cliente</a>
-            </div>
-
-            </div> <!-- Fim TAB CAMERA -->
-
-            <!-- TABS VAZIAS (Para o Dono) -->
-            <div id="tab-status" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left">
-                <h3 class="text-xl font-bold font-outfit text-stone-800 px-4 pt-2">Visão Geral</h3>
-                
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-2 gap-4 px-4">
-                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-users"></i></div>
-                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Clientes</span>
-                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-clientes">0</span>
-                    </div>
-                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-star"></i></div>
-                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Carimbos</span>
-                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-pontos">0</span>
-                    </div>
-                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
-                        <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-gift"></i></div>
-                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">A Resgatar</span>
-                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-disponiveis">0</span>
-                    </div>
-                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-circle-check"></i></div>
-                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Entregues</span>
-                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-entregues">0</span>
-                    </div>
-                </div>
-
-                <!-- Gráfico de Performance (Futuro) -->
-                <div class="px-4">
-                    <div class="glassmorphism p-4 rounded-2xl">
-                        <h4 class="text-sm font-bold text-stone-800 mb-4">Engajamento</h4>
-                        <div class="h-40 bg-stone-50 rounded-xl flex items-center justify-center text-stone-400 text-xs border border-stone-200">Gráfico em breve...</div>
-                    </div>
-                </div>
-            </div>
-            <div id="tab-cartao" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left">
-                <h3 class="text-xl font-bold font-outfit text-stone-800">Cartão</h3>
-                <p class="text-sm text-stone-600">Edite as configurações visuais e meta de pontos em breve.</p>
-<div class="glassmorphism p-5 rounded-2xl mt-2"><form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
-                <div class="flex flex-col gap-1">
-                    <label for="edit-theme-title" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Título da Página do Cliente</label>
-                    <input type="text" id="edit-theme-title" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1">
-                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
-                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
-                        <input type="text" id="edit-premio-desc" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1">
-                        <label for="edit-theme-color" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Cor de Fundo Principal</label>
-                        <div class="flex gap-2 items-center">
-                            <input type="color" id="edit-theme-color" class="w-10 h-10 bg-transparent border-0 cursor-pointer rounded-lg">
-                            <input type="text" id="edit-theme-color-hex" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 uppercase focus:outline-none">
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label for="edit-theme-font" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Tipografia (Fonte)</label>
-                        <select id="edit-theme-font" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                            <option value="sans">Inter</option>
-                            <option value="playfair">Playfair Display</option>
-                            <option value="space">Space Grotesk</option>
-                            <option value="mono">JetBrains Mono</option>
-                            <option value="bebas">Bebas Neue</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-1.5 relative">
-                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Emoji dos Carimbos</label>
-                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 transition text-center text-xl">
-                    <p class="text-[10px] text-stone-500 mt-1">Use o teclado para inserir 1 emoji.</p>
-                </div>
-
-                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
-                    Confirmar e Salvar Campanha
-                </button>
-            </form></div>
-
-            </div>
-            <div id="tab-divulgue" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left px-4">
-                <h3 class="text-xl font-bold font-outfit text-stone-800">Divulgue</h3>
-                <div class="glassmorphism p-4 rounded-2xl flex flex-col gap-6">
-                    <div class="flex flex-col gap-4">
-                        <!-- Client link -->
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Link do Cliente (Cartão Digital)</span>
-                            <div class="flex gap-2">
-                                <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none text-indigo-700 select-all">
-                                <button id="btn-overview-copy-cliente" class="px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- WhatsApp Kit -->
-                        <div class="flex flex-col gap-1.5 mt-2">
-                            <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Texto para WhatsApp</span>
-                            <div class="relative">
-                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full min-h-[100px] bg-white border border-stone-200 rounded-xl p-3 text-[10px] text-stone-500 focus:outline-none resize-none leading-relaxed select-all"></textarea>
-                                <button id="btn-overview-copy-whatsapp" class="absolute bottom-2 right-2 bg-indigo-600/80 hover:bg-indigo-600 text-white px-2 py-1 rounded-lg text-[10px] font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Flyer -->
-                        <div class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-stone-50 border border-stone-200 mt-2">
-                            <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 shadow-sm" id="overview-qrcode-box">
-                                <div id="overview-qrcode-placeholder" class="w-[80px] h-[80px] flex items-center justify-center text-stone-400">
-                                    <i class="fa-solid fa-qrcode text-3xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-1 text-center">
-                                <h3 class="font-bold text-stone-800 text-sm font-outfit">Flyer de Divulgação</h3>
-                                <p class="text-[10px] text-stone-500">Imprima e coloque no balcão para os clientes escanearem.</p>
-                                <button onclick="openFlyerModal()" class="mt-2 text-[10px] font-semibold text-stone-600 bg-white border border-stone-200 hover:bg-stone-100 px-3 py-2 rounded-xl inline-flex items-center justify-center gap-1 transition">
-                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Baixar Flyer (A4)
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="tab-menu" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left px-4">
-                <h3 class="text-xl font-bold font-outfit text-stone-800">Menu</h3>
-                <div class="flex flex-col gap-3">
-                    <button onclick="openSubTab('sub-clientes')" class="glassmorphism p-4 rounded-2xl flex items-center justify-between hover:bg-stone-50 transition active:scale-[0.98]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div>
-                            <span class="font-bold text-stone-800 text-sm">Clientes Participantes</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-stone-400"></i>
-                    </button>
-                    <button onclick="openSubTab('sub-equipe')" class="glassmorphism p-4 rounded-2xl flex items-center justify-between hover:bg-stone-50 transition active:scale-[0.98]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-user-shield"></i></div>
-                            <span class="font-bold text-stone-800 text-sm">Equipe (Vendedores)</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-stone-400"></i>
-                    </button>
-                    <button onclick="openSubTab('sub-conta')" class="glassmorphism p-4 rounded-2xl flex items-center justify-between hover:bg-stone-50 transition active:scale-[0.98]">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-lg"><i class="fa-solid fa-gear"></i></div>
-                            <span class="font-bold text-stone-800 text-sm">Configurações e Assinatura</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-stone-400"></i>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- SUB-TABS (Telas sobrepostas ao Menu) -->
-        <div id="sub-clientes" class="sub-tab fixed inset-0 bg-brand-paper z-[60] hidden flex-col overflow-y-auto pb-20 transition-transform duration-300 translate-x-full">
-            <div class="flex items-center gap-3 p-4 glassmorphism sticky top-0 z-10 border-b border-stone-200">
-                <button onclick="closeSubTab('sub-clientes')" class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-600 transition active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
-                <h3 class="font-bold text-lg text-stone-800 font-outfit">Clientes Participantes</h3>
-            </div>
-            <div class="p-4 flex flex-col gap-4">
-                <div class="relative w-full">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-500 text-xs"></i>
-                    <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-white border border-stone-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-stone-500">
-                </div>
-                <div class="glassmorphism rounded-2xl overflow-hidden border border-stone-200">
-                    <div class="overflow-x-auto w-full">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="border-b border-stone-200 bg-stone-50 text-stone-500 font-semibold uppercase tracking-wider">
-                                    <th class="py-3 px-4 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-stone-200 w-4 h-4 text-indigo-600"></th>
-                                    <th class="py-3 px-4">Nome</th>
-                                    <th class="py-3 px-4 text-center">Pts</th>
-                                    <th class="py-3 px-4 text-right">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientes-table-body" class="divide-y divide-stone-200 text-stone-500">
-                                <tr><td colspan="4" class="py-6 text-center text-stone-500"><i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="sub-equipe" class="sub-tab fixed inset-0 bg-brand-paper z-[60] hidden flex-col overflow-y-auto pb-20 transition-transform duration-300 translate-x-full">
-            <div class="flex items-center gap-3 p-4 glassmorphism sticky top-0 z-10 border-b border-stone-200">
-                <button onclick="closeSubTab('sub-equipe')" class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-600 transition active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
-                <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe</h3>
-            </div>
-            <div class="p-4 flex flex-col gap-4">
-                <button id="btn-novo-vendedor" type="button" class="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex justify-center items-center gap-2 shadow-lg transition active:scale-95">
-                    <i class="fa-solid fa-user-plus"></i> Convidar Vendedor
-                </button>
-                <div id="vendor-invite-card" class="hidden glassmorphism rounded-2xl p-4 border border-brand-green/20 bg-brand-green/5 flex flex-col gap-3">
-                    <div class="flex gap-2">
-                        <input id="vendor-invite-url" readonly class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-[10px] text-brand-green select-all focus:outline-none" value="">
-                        <button id="btn-copy-vendor-invite" class="px-3 bg-brand-green text-white rounded-xl text-[10px] font-bold" type="button"><i class="fa-regular fa-copy"></i></button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-4" id="vendedores-grid">
-                    <div class="glassmorphism p-6 rounded-2xl text-center text-stone-500"><i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando...</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="sub-conta" class="sub-tab fixed inset-0 bg-brand-paper z-[60] hidden flex-col overflow-y-auto pb-20 transition-transform duration-300 translate-x-full">
-            <div class="flex items-center gap-3 p-4 glassmorphism sticky top-0 z-10 border-b border-stone-200">
-                <button onclick="closeSubTab('sub-conta')" class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-600 transition active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
-                <h3 class="font-bold text-lg text-stone-800 font-outfit">Conta</h3>
-            </div>
-            <div class="p-4 flex flex-col gap-4">
-                <div class="glassmorphism p-5 rounded-2xl flex flex-col gap-4 border border-stone-200">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="config-company-name" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 transition">
-                            <button id="btn-save-company-name" class="px-4 bg-indigo-600 text-white rounded-xl text-xs font-semibold active:scale-95">Salvar</button>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-1.5">
-                        <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial</label>
-                        <input type="text" id="config-owner-email" readonly class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-500 opacity-70">
-                    </div>
-                </div>
-                <div class="glassmorphism p-5 rounded-2xl flex flex-col gap-3 border border-red-200 bg-red-50">
-                    <h4 class="font-bold text-red-600 text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Excluir Conta</h4>
-                    <p class="text-[10px] text-stone-500">Ação irreversível de exclusão de dados (LGPD).</p>
-                    <button id="btn-delete-controller-account" class="text-[10px] font-bold bg-red-50 border border-red-300 text-red-600 px-3 py-2 rounded-xl active:scale-95">Apagar Minha Conta e Dados</button>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer id="app-footer" class="w-full text-center text-xs text-stone-500 pb-2">
-        <p>Validador Tem Pontinho &copy; 2026. Segurança lógica ativa.</p>
-    </footer>
-
-    <!-- Bottom Navigation (Exclusivo para o Dono) -->
-    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white border-t border-stone-200 pb-safe z-50 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
-        <div class="flex justify-around items-center pt-2 pb-2">
-            <button onclick="switchAppTab('tab-camera')" class="nav-btn flex flex-col items-center gap-1 w-16 text-indigo-600 transition" data-target="tab-camera">
-                <i class="fa-solid fa-camera text-xl mb-0.5"></i>
-                <span class="text-[10px] font-bold">Câmera</span>
-            </button>
-            <button onclick="switchAppTab('tab-status')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-status">
-                <i class="fa-solid fa-chart-pie text-xl mb-0.5"></i>
-                <span class="text-[10px] font-bold">Status</span>
-            </button>
-            <button onclick="switchAppTab('tab-cartao')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-cartao">
-                <i class="fa-solid fa-palette text-xl mb-0.5"></i>
-                <span class="text-[10px] font-bold">Cartão</span>
-            </button>
-            <button onclick="switchAppTab('tab-divulgue')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-divulgue">
-                <i class="fa-solid fa-bullhorn text-xl mb-0.5"></i>
-                <span class="text-[10px] font-bold">Divulgue</span>
-            </button>
-            <button onclick="switchAppTab('tab-menu')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-menu">
-                <i class="fa-solid fa-bars text-xl mb-0.5"></i>
-                <span class="text-[10px] font-bold">Menu</span>
-            </button>
-        </div>
-    </nav>
-
-    <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Empresário - Tem Pontinho</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        playfair: ['Playfair Display', 'serif'],
-                        space: ['Space Grotesk', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                        bebas: ['Bebas Neue', 'sans-serif'],
-                        outfit: ['Outfit', 'sans-serif'],
-                    },
-                    colors: {
-                      brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
-                      indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
-                      emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
-                      teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
-                      amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
-                      orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- QRCode.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- html2canvas for PNG Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        .glassmorphism {
-            background: #FFFFFF;
-            border: 1px solid #E3DBCC;
-            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
-        }
-        @media print {
-            @page { size: auto; margin: 0mm; }
-            body * {
-                visibility: hidden !important;
-            }
-            #flyer-a4-preview, #flyer-a4-preview * {
-                visibility: visible !important;
-            }
-            #flyer-a4-preview {
-                position: fixed !important;
-                left: 50% !important;
-                top: 50% !important;
-                transform: translate(-50%, -50%) scale(1.5) !important;
-                width: 18cm !important;
-                height: 18cm !important;
-                background: white !important;
-                color: black !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 1cm !important;
-                box-shadow: none !important;
-                border: none !important;
-                z-index: 9999999 !important;
-            }
-            #flyer-a4-preview * {
-                color: black !important;
-            }
-            #flyer-qrcode-placeholder img, #flyer-qrcode-placeholder canvas {
-                width: 10cm !important;
-                height: 10cm !important;
-                margin: 0 auto !important;
-            }
-            .no-print, .no-print * {
-                display: none !important;
-            }
-        }
-
-        /* M-02: tabela de clientes vira cards no mobile (< md) */
-        @media (max-width: 767px) {
-            #tab-content-clientes thead { display: none; }
-            #clientes-table-body, #clientes-table-body tr, #clientes-table-body td { display: block; width: 100%; }
-            #clientes-table-body tr {
-                position: relative;
-                border: 1px solid rgb(227 219 204);
-                border-radius: 1rem;
-                margin-bottom: 0.75rem;
-                padding: 0.25rem 0;
-            }
-            #clientes-table-body td {
-                padding: 0.4rem 1rem !important;
-                text-align: left !important;
-            }
-            #clientes-table-body td[data-label]::before {
-                content: attr(data-label);
-                display: block;
-                font-size: 10px;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: rgb(111 101 87);
-                margin-bottom: 2px;
-            }
-            #clientes-table-body td.col-check {
-                position: absolute;
-                top: 0.5rem;
-                right: 0.5rem;
-                width: auto;
-                padding: 0.5rem !important;
-            }
-            #clientes-table-body td.col-actions .flex { justify-content: flex-start !important; }
-        }
-        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
-        :focus-visible {
-            outline: 2px solid #2A5A44 !important;
-            outline-offset: 2px !important;
-            border-radius: 6px;
-        }
-    </style>
-</head>
-<body class="h-full flex bg-brand-paper">
-
-    <!-- Sidebar Navigation -->
-    <aside class="w-64 border-r border-stone-200 bg-white flex flex-col justify-between shrink-0 hidden md:flex">
-        <div class="flex flex-col gap-8 p-6">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
-                    <i class="fa-solid fa-gem text-white text-base"></i>
-                </div>
-                <span class="text-lg font-bold font-outfit text-stone-800">Tem Pontinho</span>
-            </div>
-            
-            <nav class="flex flex-col gap-1">
-                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200">
-                    <i class="fa-solid fa-chart-line text-base"></i> Visão Geral
-                </button>
-                <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
-                    <i class="fa-solid fa-users text-base"></i> Clientes
-                </button>
-                <button onclick="switchTab('equipe')" id="tab-btn-equipe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
-                    <i class="fa-solid fa-user-shield text-base"></i> Equipe (Vendedores)
-                </button>
-                <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
-                    <i class="fa-solid fa-qrcode text-base"></i> Assinatura
-                </button>
-            </nav>
-        </div>
-
-        <!-- Logged In User Footer -->
-        <div class="p-6 border-t border-stone-200 flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center font-bold text-brand-green" id="user-avatar">E</div>
-                <div class="overflow-hidden">
-                    <p class="text-xs font-semibold text-stone-800 truncate" id="user-display-name">Empresário</p>
-                    <p class="text-[10px] text-stone-500 truncate" id="user-email">email@empresa.com</p>
-                </div>
-            </div>
-            <button id="btn-logout" class="w-full py-2.5 bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 rounded-xl text-xs font-semibold text-stone-500 hover:text-red-600 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-right-from-bracket"></i> Sair do Painel
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Container -->
-    <div class="flex-1 flex flex-col overflow-y-auto">
-        <!-- Top bar -->
-        <header class="h-16 border-b border-stone-200 px-4 md:px-6 flex items-center justify-between gap-2 glassmorphism sticky top-0 z-30">
-            <div class="flex items-center gap-2 min-w-0">
-                <h1 class="text-base md:text-lg font-bold font-outfit text-stone-800 truncate" id="page-title">Visão Geral</h1>
-                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="trial-badge">Período de Teste</span>
-                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="active-badge">Pro Ativo</span>
-            </div>
-
-            <div class="flex items-center gap-2 shrink-0">
-                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-xl transition flex items-center gap-1.5 min-h-[40px]" title="Abrir Cartão Digital">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden lg:inline">Página do Cliente</span>
-                </button>
-                <div class="flex items-center">
-                    <button id="btn-header-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0 min-h-[40px]">
-                        <i class="fa-solid fa-camera"></i> <span class="hidden lg:inline">Câmera do Vendedor</span><span class="lg:hidden">Câmera</span>
-                    </button>
-                    <button id="btn-header-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2 rounded-r-xl transition flex items-center gap-1.5 min-h-[40px]" title="Copiar link da Câmera">
-                        <i class="fa-regular fa-copy"></i> <span class="hidden lg:inline">Copiar Link</span>
-                    </button>
-                </div>
-                <!-- Logout (somente mobile; no desktop fica na sidebar) -->
-                <button id="btn-logout-mobile" class="md:hidden text-xs font-semibold bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 text-stone-500 hover:text-red-600 w-10 h-10 rounded-xl transition flex items-center justify-center shrink-0" title="Sair do Painel" aria-label="Sair do Painel">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </header>
-
-        <!-- Dynamic Content Area -->
-        <main class="flex-grow p-6 md:p-8 pb-28 md:pb-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
-
-            <!-- Banner Informativo de Trial -->
-            <div id="trial-alert" class="hidden p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex items-center justify-between gap-4">
-                <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
-                    <div>
-                        <h4 class="font-bold text-stone-800 text-sm">Faltam <span id="trial-days-left">30</span> dias do seu mês grátis</h4>
-                        <p class="text-stone-500 text-xs mt-0.5">Assine por R$ 19,90/mês quando quiser — o pagamento só começa a valer no fim do período grátis, sem interromper seu programa.</p>
-                    </div>
-                </div>
-                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
-            </div>
-
-            <!-- A-01: Banner de verificação de e-mail (cadastro por e-mail/senha não confirmado) -->
-            <div id="verify-email-alert" class="hidden p-4 rounded-2xl border border-sky-500/20 bg-sky-500/5 flex items-center justify-between gap-4">
-                <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shrink-0"><i class="fa-solid fa-envelope-circle-check"></i></div>
-                    <div>
-                        <h4 class="font-bold text-stone-800 text-sm">Confirme seu e-mail</h4>
-                        <p class="text-stone-500 text-xs mt-0.5">Enviamos um link de confirmação para <span id="verify-email-address" class="text-stone-700 font-semibold"></span>. Confirme para manter o acesso seguro à sua conta.</p>
-                    </div>
-                </div>
-                <button id="btn-resend-verification" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/15 transition shrink-0 active:scale-95">Reenviar</button>
-            </div>
-
-            <!-- TABS CONTENT -->
-
-            <!-- TAB 1: VISÃO GERAL -->
-            <div id="tab-content-dashboard" class="flex flex-col gap-6">
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Clientes Cadastrados</span>
-                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-clientes">0</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
-                    </div>
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total de Carimbos</span>
-                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-pontos">0</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-star"></i></div>
-                    </div>
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios a Resgatar</span>
-                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-disponiveis">0</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl"><i class="fa-solid fa-gift"></i></div>
-                    </div>
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios Entregues</span>
-                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-entregues">0</span>
-                        </div>
-                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
-                    </div>
-                </div>
-
-                <!-- Resumo Campanha -->
-                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-4">
-                    <div class="flex justify-between items-center flex-wrap gap-2">
-                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Regras da Campanha Ativa</h3>
-                        <div class="flex gap-2 flex-wrap justify-end">
-                            <button onclick="openEditarCampanhaModal()" class="text-sm font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-400 px-4 py-2 rounded-xl transition flex items-center gap-2">
-                                <i class="fa-solid fa-pen-to-square"></i> Editar Regras
-                            </button>
-                            <button onclick="openProFeatureModal('Links Externos e HTML Customizado')" class="text-sm font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-4 py-2 rounded-xl transition flex items-center gap-2" id="btn-pro-links">
-                                <i class="fa-solid fa-lock text-amber-400"></i> Links / Visual Pro
-                            </button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-circle-check"></i></div>
-                            <div>
-                                <p class="text-stone-500 text-xs">Meta do Cartão</p>
-                                <p class="text-stone-800 text-sm font-semibold mt-0.5"><span id="summary-meta-pontos">10</span> Pontos / Carimbos</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-trophy"></i></div>
-                            <div>
-                                <p class="text-stone-500 text-xs">Recompensa final</p>
-                                <p class="text-stone-800 text-sm font-semibold mt-0.5" id="summary-premio">1 Drink Especial</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Links e Materiais -->
-                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-6">
-                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Links e Divulgação</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Links Úteis -->
-                        <div class="flex flex-col gap-4">
-                            <!-- Client link -->
-                            <div class="flex flex-col gap-1.5">
-                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
-                                <div class="flex gap-2">
-                                    <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-700 select-all">
-                                    <button id="btn-overview-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
-                                </div>
-                            </div>
-        
-                            <!-- Admin link -->
-                            <div class="flex flex-col gap-1.5">
-                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Câmera do Vendedor (Validar/Carimbar)</span>
-                                <div class="flex gap-2">
-                                    <input type="text" readonly id="overview-link-vendedor-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-700 select-all">
-                                    <button id="btn-overview-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- WhatsApp Kit -->
-                        <div class="flex flex-col gap-1.5">
-                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Texto Pronto para WhatsApp</span>
-                            <div class="relative h-full">
-                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full h-full min-h-[110px] bg-white border border-stone-200 rounded-xl p-4 text-xs text-stone-500 focus:outline-none resize-none leading-relaxed select-all"></textarea>
-                                <button id="btn-overview-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Texto</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-2 pt-6 border-t border-stone-200">
-                        <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-stone-50 border border-stone-200">
-                            <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="overview-qrcode-box">
-                                <div id="overview-qrcode-placeholder" class="w-[120px] h-[120px] flex items-center justify-center text-stone-500">
-                                    <i class="fa-solid fa-qrcode text-4xl"></i>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-2 text-center sm:text-left">
-                                <h3 class="font-bold text-stone-800 text-base font-outfit">Flyer de Divulgação (A4)</h3>
-                                <p class="text-xs text-stone-500 max-w-sm">Imprima o seu flyer contendo o QR Code acima. Coloque-o no balcão e nas mesas para que seus clientes escaneiem e entrem no seu programa de fidelidade instantaneamente.</p>
-                                <button onclick="openFlyerModal()" class="mt-2 text-xs font-semibold text-stone-500 bg-white border border-stone-200 hover:bg-stone-100 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
-                                    <i class="fa-solid fa-file-pdf"></i> Abrir e Baixar Flyer PNG
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 2: CLIENTES -->
-            <div id="tab-content-clientes" class="hidden flex flex-col gap-6">
-                <!-- Header search -->
-                <div class="flex justify-between items-center gap-4 flex-wrap">
-                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Clientes Participantes</h3>
-                    <div class="flex items-center gap-4 w-full md:w-auto">
-                        <div class="flex items-center">
-                            <button id="btn-clientes-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
-                            </button>
-                            <button id="btn-clientes-copiar-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 border-l-0 text-stone-700 px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link do Cliente">
-                                <i class="fa-regular fa-copy"></i> Copiar Link
-                            </button>
-                        </div>
-                        <div class="relative w-full sm:max-w-xs flex-1 mt-3 md:mt-0">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-500 text-xs"></i>
-                            <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-white border border-stone-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-stone-500">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bulk Actions Bar -->
-                <div id="bulk-actions-bar" class="hidden glassmorphism px-4 py-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 flex items-center justify-between gap-4 mb-4">
-                    <span class="text-xs text-indigo-700 font-medium"><span id="selected-count">0</span> clientes selecionados</span>
-                    <div class="flex gap-2">
-                        <button onclick="openBulkAjustarModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition active:scale-95">Ajustar Pontos</button>
-                        <button onclick="bulkResetPoints()" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg transition active:scale-95">Zerar Pontos</button>
-                    </div>
-                </div>
-
-                <!-- Table box -->
-                <div class="glassmorphism rounded-2xl overflow-hidden border border-stone-200">
-                    <div class="overflow-x-auto w-full">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="border-b border-stone-200 bg-stone-50 text-stone-500 font-semibold uppercase tracking-wider">
-                                    <th class="py-4 px-6 w-12 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4"></th>
-                                    <th class="py-4 px-6">Nome Completo</th>
-                                    <th class="py-4 px-6">E-mail</th>
-                                    <th class="py-4 px-6 text-center">Pontuação</th>
-                                    <th class="py-4 px-6 text-center">Status</th>
-                                    <th class="py-4 px-6 text-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clientes-table-body" class="divide-y divide-stone-200 text-stone-500">
-                                <tr>
-                                    <td colspan="5" class="py-8 text-center text-stone-500">
-                                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando clientes cadastrados...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 3: EQUIPE (VENDEDORES) -->
-            <div id="tab-content-equipe" class="hidden flex flex-col gap-6">
-                <div class="flex justify-between items-center gap-4 flex-wrap">
-                    <div>
-                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe de Atendimento</h3>
-                        <p class="text-xs text-stone-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
-                    </div>
-                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
-                        <button id="btn-equipe-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-camera"></i> Câmera do Vendedor
-                        </button>
-                        <button id="btn-novo-vendedor" type="button" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
-                            <i class="fa-solid fa-user-plus"></i> Novo Vendedor
-                        </button>
-                    </div>
-                </div>
-
-                <div id="vendor-invite-card" class="hidden glassmorphism rounded-2xl p-5 border border-brand-green/20 bg-brand-green/5 flex flex-col gap-3">
-                    <div>
-                        <h4 class="font-bold text-stone-800 text-sm font-outfit">Convite de vendedor criado</h4>
-                        <p class="text-xs text-stone-600 mt-1">Envie este link para o atendente. Ele poderá criar login com Google ou e-mail/senha e cair direto na câmera desta empresa.</p>
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input id="vendor-invite-url" readonly class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs text-brand-green select-all focus:outline-none" value="">
-                        <button id="btn-copy-vendor-invite" class="px-4 py-3 bg-brand-green hover:bg-brand-green-dark text-white rounded-xl text-xs font-bold transition active:scale-95" type="button">
-                            <i class="fa-regular fa-copy mr-1"></i> Copiar convite
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Vendedores Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
-                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-stone-500 col-span-full">
-                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando equipe...
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB 4: CONFIGURAÇÕES DA CONTA (Antigo Stripe) -->
-            <div id="tab-content-stripe" class="hidden flex flex-col gap-8">
-                <div class="flex justify-between items-center flex-wrap gap-4">
-                    <div>
-                        <h3 class="text-2xl font-bold font-outfit text-stone-800">Configurações da Conta</h3>
-                        <p class="text-stone-500 text-xs mt-1">Gerencie os dados da sua empresa, assinatura e privacidade.</p>
-                    </div>
-                </div>
-
-                <!-- Formulário de Dados da Empresa -->
-                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-5 border border-stone-200">
-                    <h4 class="font-bold text-stone-800 text-base font-outfit">Informações do Controlador (LGPD)</h4>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="flex flex-col gap-1.5">
-                            <label for="config-company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="config-company-name" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
-                                <button id="btn-save-company-name" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar</button>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label for="config-company-slug" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Personalizado</label>
-                            <div class="flex gap-2">
-                                <div class="flex-1 flex items-center bg-white border border-stone-200 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
-                                    <span class="text-stone-500 text-xs px-3 py-2.5 border-r border-stone-200 bg-stone-100">/cliente.html?link=</span>
-                                    <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-stone-800 transition" autocomplete="off">
-                                </div>
-                                <button id="btn-save-company-slug" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar Link</button>
-                            </div>
-                            <span class="text-[10px] text-stone-500">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial (Login)</label>
-                            <input type="text" id="config-owner-email" readonly class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-500 opacity-70 cursor-not-allowed">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Área de Privacidade / Danger Zone -->
-                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-4 border border-red-200 bg-red-50">
-                    <h4 class="font-bold text-red-600 text-base font-outfit"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Zona de Perigo (LGPD)</h4>
-                    <p class="text-xs text-stone-500 leading-relaxed max-w-3xl">Como Controlador de Dados, você tem o direito de solicitar a exclusão permanente da sua conta e de todos os dados associados a ela (incluindo todos os clientes cadastrados no seu programa de fidelidade). <strong>Esta ação é irreversível.</strong></p>
-                    <div>
-                        <button id="btn-delete-controller-account" class="mt-2 text-xs font-bold bg-red-50 hover:bg-red-600 border border-red-300 hover:border-red-600 text-red-600 hover:text-white px-4 py-3 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados
-                        </button>
-                    </div>
-                </div>
-
-                <hr class="border-stone-200 my-2">
-                
-                <!-- Plans Column Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-start">
-                    
-                    <!-- Free/Trial Card -->
-                    <div class="glassmorphism p-6 rounded-2xl border-stone-200/80 flex flex-col gap-5 bg-stone-50">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest">Plano Atual</span>
-                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Período de Testes</h4>
-                            <p class="text-stone-500 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
-                        </div>
-                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 0 <span class="text-xs font-normal text-stone-500">/ 30 dias</span></div>
-                        
-                        <div class="h-[1px] bg-stone-200 w-full"></div>
-
-                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Até 1 vendedor</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Tabela de clientes ativa</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Sem upload de Logotipo</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Suporte Prioritário</li>
-                        </ul>
-                    </div>
-
-                    <!-- Pro Card (Active Stripe simulation) -->
-                    <div class="glassmorphism p-6 rounded-2xl border-brand-green/40 relative flex flex-col gap-5 bg-brand-green/5">
-                        <div class="absolute -top-3 right-5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-400/20 shadow-md">Mais Popular</div>
-                        
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Profissional</span>
-                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Plano Tem Pontinho</h4>
-                            <p class="text-stone-500 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
-                        </div>
-                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 19,90 <span class="text-xs font-normal text-stone-500">/ mensal</span></div>
-                        
-                        <div class="h-[1px] bg-stone-200 w-full"></div>
-
-                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Vendedores Ilimitados</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Envio de Logotipo da Marca</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Customizações Visuais Estendidas</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Exportação de Dados e Relatórios</li>
-                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Suporte WhatsApp 24/7</li>
-                        </ul>
-
-                        <button id="btn-stripe-checkout" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-xs rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-2">
-                            <i class="fa-solid fa-qrcode text-base mr-1"></i> Pagar com PIX
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    
-
-    <!-- Firebase SDK Logic connection -->
-<script>
-
-window.switchAppTab = function(tabId) {
-    document.querySelectorAll('.app-tab').forEach(t => {
-        t.classList.add('hidden');
-    });
-    document.getElementById(tabId).classList.remove('hidden');
-    
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.dataset.target === tabId) {
-            btn.classList.remove('text-stone-400');
-            btn.classList.add('text-indigo-600');
-        } else {
-            btn.classList.remove('text-indigo-600');
-            btn.classList.add('text-stone-400');
-        }
-    });
-
-    if (tabId === 'tab-camera' && typeof window.initScanner === 'function') {
-        window.initScanner();
-    } else if (typeof window.teardownScanner === 'function') {
-        window.teardownScanner();
-    }
-};
-
-</script>
-<script type="module">
 
         import { 
             auth, 
@@ -1260,16 +177,16 @@ window.switchAppTab = function(tabId) {
                 // Se não tiver empresaId na URL, bloqueia login e mostra aviso com diagnóstico
                 document.getElementById("login-empresa-nome").innerText = "Link de Vendedor Inválido";
                 document.getElementById("login-form").outerHTML = `
-                    <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs leading-relaxed text-left font-medium flex flex-col gap-2">
-                        <div>
-                            <i class="fa-solid fa-triangle-exclamation mr-1 text-sm"></i>
-                            <strong>Erro:</strong> O link do vendedor está incompleto.
-                        </div>
-                        <div class="bg-red-100/50 p-2 rounded border border-red-200 font-mono text-xs break-all select-all">
+                    
+                        
+                            
+                            Erro: O link do vendedor está incompleto.
+                        
+                        
                             URL Detectada: ${window.location.href}
-                        </div>
-                        <p>Por favor, use a URL completa fornecida no painel (ex: <code>vendedor.html?empresa=ID_DA_EMPRESA</code>).</p>
-                    </div>
+                        
+                        Por favor, use a URL completa fornecida no painel (ex: vendedor.html?empresa=ID_DA_EMPRESA).
+                    
                 `;
                 return;
             }
@@ -1550,7 +467,7 @@ window.switchAppTab = function(tabId) {
         document.getElementById("btn-login-google").addEventListener("click", async () => {
             const btn = document.getElementById("btn-login-google");
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Redirecionando...`;
+            btn.innerHTML = ` Redirecionando...`;
             try {
                 // Usando Redirect ao invés de Popup porque Popup é bloqueado por navegadores mobile in-app
                 await loginWithGoogleRedirect();
@@ -1618,7 +535,7 @@ window.switchAppTab = function(tabId) {
         }
 
         // B-02: desmonta o scanner por completo (stop + clear + libera a instância).
-        // Sem isto, ao relogar criávamos um novo Html5Qrcode sobre o <div id="reader">
+        // Sem isto, ao relogar criávamos um novo Html5Qrcode sobre o 
         // que ainda continha o vídeo/canvas da sessão anterior → tela preta.
         async function teardownScanner() {
             if (!html5QrcodeScanner) return;
@@ -1803,10 +720,9 @@ window.switchAppTab = function(tabId) {
         function populateQtyOptions(meta) {
             if (!selectPointsQty) return;
             const opts = [...new Set([1, 2, 3, Math.floor(meta / 2), meta])]
-                .filter((n) => n >= 1 && n <= meta)
-                .sort((a, b) => a - b);
+                .filter((n) => n >= 1 && n  a - b);
             selectPointsQty.innerHTML = opts
-                .map((n) => `<option value="${n}">+${n}${n === meta ? " (cartão)" : ""}</option>`)
+                .map((n) => `+${n}${n === meta ? " (cartão)" : ""}`)
                 .join("");
             selectPointsQty.value = "1";
         }
@@ -1931,7 +847,7 @@ window.switchAppTab = function(tabId) {
         function showEmojiFeedback(qty) {
             const emojiStr = visualConfig.emoji || "⭐";
             const popup = document.createElement("div");
-            popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
+            popup.innerHTML = qty > 1 ? `+${qty} ${emojiStr}` : `+1 ${emojiStr}`;
             popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
             document.body.appendChild(popup);
             
@@ -1959,15 +875,15 @@ window.switchAppTab = function(tabId) {
             if (type === "success") {
                 card.classList.add("bg-emerald-50", "border-2", "border-emerald-200", "text-emerald-700");
                 iconBox.className = "w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 text-lg shrink-0";
-                iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                iconBox.innerHTML = '';
             } else if (type === "win") {
                 card.classList.add("bg-yellow-50", "border-2", "border-yellow-300", "text-yellow-700");
                 iconBox.className = "w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-700 text-lg shrink-0";
-                iconBox.innerHTML = '<i class="fa-solid fa-trophy animate-bounce"></i>';
+                iconBox.innerHTML = '';
             } else if (type === "error") {
                 card.classList.add("bg-red-50", "border-2", "border-red-200", "text-red-600");
                 iconBox.className = "w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-lg shrink-0";
-                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                iconBox.innerHTML = '';
             }
 
             titleEl.innerText = title;
@@ -2033,16 +949,16 @@ window.switchAppTab = function(tabId) {
                         const tr = document.createElement("tr");
                         tr.className = "hover:bg-stone-100 transition duration-150";
                         tr.innerHTML = `
-                            <td class="col-check py-4 px-4 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" class="client-checkbox cursor-pointer w-4 h-4 rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500"></td>
-                            <td data-label="Nome" class="py-4 px-4 font-medium text-stone-800">${nome}<br><span class="text-[10px] text-stone-400 font-normal">${client.email || ""}</span></td>
-                            <td data-label="Pontuação" class="py-4 px-4 text-center font-bold font-outfit text-indigo-400">${pontos}</td>
-                            <td data-label="Ações" class="col-actions py-4 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-indigo-600 hover:text-indigo-800 text-sm font-semibold transition bg-indigo-50 px-2 py-1.5 rounded-lg active:scale-95" title="Ver Histórico"><i class="fa-solid fa-clock-rotate-left"></i></button>
-                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ''}', ${pontos})" class="text-amber-600 hover:text-amber-800 text-sm font-semibold transition bg-amber-50 px-2 py-1.5 rounded-lg active:scale-95" title="Ajustar Pontos"><i class="fa-solid fa-pen"></i></button>
-                                <span class="px-2 py-1 rounded-md text-[9px] font-semibold border ${isWin ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-stone-100 text-stone-500 border-stone-200'}">${isWin ? `${premios} prêmios` : "Acumulando"}</span>
-                            </div>
-                            </td>
+                            
+                            ${nome}${client.email || ""}
+                            ${pontos}
+                            
+                                
+                                
+                                
+                                ${isWin ? `${premios} prêmios` : "Acumulando"}
+                            
+                            
                         `;
                         tableBody.appendChild(tr);
                     }
@@ -2050,11 +966,11 @@ window.switchAppTab = function(tabId) {
 
                 if (!hasClientes && tableBody) {
                     tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="py-12 text-center text-stone-500">
-                                Nenhum cliente registrado.<br>
-                            </td>
-                        </tr>
+                        
+                            
+                                Nenhum cliente registrado.
+                            
+                        
                     `;
                 }
 
@@ -2081,20 +997,20 @@ window.switchAppTab = function(tabId) {
                         const card = document.createElement("div");
                         card.className = "glassmorphism p-5 rounded-2xl flex flex-col justify-between gap-4";
                         card.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-white border border-stone-200 flex items-center justify-center text-stone-500 text-lg">
-                                    <i class="fa-solid fa-user-tag"></i>
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="font-bold text-stone-800 text-sm leading-tight truncate">${vended.nomeVendedor || "Atendente"}</h4>
-                                    <p class="text-[10px] text-stone-500 mt-0.5 break-all">${vended.email || ""}</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center gap-2 border-t border-stone-200 pt-3">
-                                <span class="text-[10px] font-bold uppercase tracking-wider ${vended.ativo !== false ? 'text-emerald-700' : 'text-stone-500'}">
+                            
+                                
+                                    
+                                
+                                
+                                    ${vended.nomeVendedor || "Atendente"}
+                                    ${vended.email || ""}
+                                
+                            
+                            
+                                
                                     ${vended.ativo !== false ? 'Ativo' : 'Pausado'}
-                                </span>
-                            </div>
+                                
+                            
                         `;
                         grid.appendChild(card);
                     }
@@ -2102,9 +1018,9 @@ window.switchAppTab = function(tabId) {
 
                 if (!hasVendedores && grid) {
                     grid.innerHTML = `
-                        <div class="glassmorphism p-8 rounded-2xl text-center text-stone-500 col-span-full">
+                        
                             Nenhum vendedor registrado.
-                        </div>
+                        
                     `;
                 }
             });
@@ -2116,7 +1032,7 @@ window.switchAppTab = function(tabId) {
         window.openHistoricoModal = async function(clientId, clientName) {
             document.getElementById("historico-cliente-nome").innerText = clientName || "Sem Nome";
             const historicoLista = document.getElementById("historico-lista");
-            historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Carregando histórico...</div>`;
+            historicoLista.innerHTML = `Carregando histórico...`;
             document.getElementById("modal-historico").classList.remove("hidden");
 
             try {
@@ -2125,7 +1041,7 @@ window.switchAppTab = function(tabId) {
                 const snap = await getDocs(logsRef);
 
                 if (snap.empty) {
-                    historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Nenhum registro no histórico.</div>`;
+                    historicoLista.innerHTML = `Nenhum registro no histórico.`;
                     return;
                 }
 
@@ -2138,30 +1054,30 @@ window.switchAppTab = function(tabId) {
                     const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
                     const desc = log.tipo === "resgate"
-                        ? `<i class="fa-solid fa-gift text-yellow-400 mr-1.5"></i> Prêmio entregue`
+                        ? ` Prêmio entregue`
                         : log.tipo === "remocao"
-                        ? `<i class="fa-solid fa-minus text-red-600 mr-1.5"></i> -1 Ponto`
+                        ? ` -1 Ponto`
                         : log.tipo === "ajuste"
-                        ? `<i class="fa-solid fa-pen text-amber-400 mr-1.5"></i> Ajuste manual (${log.qtd ?? 0})`
-                        : `<i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> +${log.qtd || 1} Ponto(s)`;
+                        ? ` Ajuste manual (${log.qtd ?? 0})`
+                        : ` +${log.qtd || 1} Ponto(s)`;
                     const sub = log.motivo ? `Motivo: ${log.motivo}` : `Vendedor: ${log.vendedor || "Sistema"}`;
 
                     return `
-                        <div class="bg-stone-50 border border-stone-200 p-3 rounded-xl flex justify-between items-center text-xs">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-stone-800 font-medium">${desc}</span>
-                                <span class="text-stone-500 text-[10px]">${sub}</span>
-                            </div>
-                            <div class="text-right flex flex-col gap-0.5">
-                                <span class="text-stone-500">${dateStr}</span>
-                                <span class="text-stone-500 text-[10px]">${timeStr}</span>
-                            </div>
-                        </div>
+                        
+                            
+                                ${desc}
+                                ${sub}
+                            
+                            
+                                ${dateStr}
+                                ${timeStr}
+                            
+                        
                     `;
                 }).join("");
             } catch (err) {
                 console.error("Erro ao carregar histórico:", err);
-                historicoLista.innerHTML = `<div class="text-center text-red-600 py-6 text-xs">Erro ao carregar histórico.</div>`;
+                historicoLista.innerHTML = `Erro ao carregar histórico.`;
             }
         };
 
@@ -2232,7 +1148,7 @@ window.switchAppTab = function(tabId) {
         window.showEmojiFeedback = function(qty) {
             const emojiStr = window.metaConfig?.brandEmoji || "⭐";
             const popup = document.createElement("div");
-            popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
+            popup.innerHTML = qty > 1 ? `+${qty} ${emojiStr}` : `+1 ${emojiStr}`;
             popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
             document.body.appendChild(popup);
             
@@ -2451,7 +1367,7 @@ window.switchAppTab = function(tabId) {
             document.getElementById("pix-cpfcnpj-error").classList.add("hidden");
             const btn = document.getElementById("btn-pix-submit");
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
+            btn.innerHTML = ` Gerar cobrança PIX`;
         };
 
         window.closePixCheckoutModal = function() {
@@ -2480,7 +1396,7 @@ window.switchAppTab = function(tabId) {
 
             const btn = document.getElementById("btn-pix-submit");
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin mr-1"></i> Gerando cobrança...`;
+            btn.innerHTML = ` Gerando cobrança...`;
 
             try {
                 const result = await createSubscription({ empresaId, cpfCnpj, telefone });
@@ -2503,7 +1419,7 @@ window.switchAppTab = function(tabId) {
             } catch (err) {
                 console.error("Erro ao gerar cobrança PIX:", err);
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
+                btn.innerHTML = ` Gerar cobrança PIX`;
                 showToast("Erro ao gerar cobrança PIX. Tente novamente.", "error");
             }
         });
@@ -2850,7 +1766,7 @@ window.switchAppTab = function(tabId) {
         window.downloadFlyerPng = async function() {
             const btn = document.getElementById("btn-download-png");
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Gerando...`;
+            btn.innerHTML = ` Gerando...`;
             btn.disabled = true;
 
             try {
@@ -2976,7 +1892,7 @@ window.switchAppTab = function(tabId) {
                 const ok = await confirmDialog({ title: "Excluir conta", message: confirmMsg, confirmText: "Excluir", danger: true, keyword: "APAGAR" });
                 if (!ok) { showToast("Ação cancelada.", "warn"); return; }
 
-                btnDeleteController.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
+                btnDeleteController.innerHTML = ' Apagando...';
                 try {
                     const empRef = doc(db, "empresas", empresaId);
                     await deleteDoc(empRef);
@@ -2992,10 +1908,9 @@ window.switchAppTab = function(tabId) {
                 } catch (e) {
                     console.error("Erro ao apagar conta:", e);
                     showToast("Erro ao apagar conta. Tente novamente.", "error");
-                    btnDeleteController.innerHTML = '<i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados';
+                    btnDeleteController.innerHTML = ' Apagar Minha Conta e Dados';
                 }
             });
         }
 
     
-</script>
