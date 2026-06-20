@@ -2045,11 +2045,13 @@ window.gerarConviteVendedor = async function() {
 
 
 window.toggleEditCard = function() {
-    const el = document.getElementById('edit-cartao-container');
+    const el = document.getElementById('modal-edit-cartao');
     if (el.classList.contains('hidden')) {
         el.classList.remove('hidden');
+        el.classList.add('flex');
     } else {
         el.classList.add('hidden');
+        el.classList.remove('flex');
     }
 };
 
