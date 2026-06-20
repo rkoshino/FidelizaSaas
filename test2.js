@@ -27,6 +27,7 @@
         let loggedVendedor = null;
         let metaConfig = { metaPontos: 10, descriçãoPremio: "Recompensa" };
         let visualConfig = {};
+        let fullEmpresaData = null;
         
         let html5QrcodeScanner = null;
         let isScannerRunning = false;
@@ -72,7 +73,7 @@
             function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
             btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
             modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
-            document.addEventListener("keydown", onKey);
+            document?.addEventListener("keydown", onKey);
           });
         }
 
@@ -197,6 +198,34 @@
                     metaConfig = data.metaConfig;
                     visualConfig = data.visualConfig || {};
                     populateQtyOptions((metaConfig && metaConfig.metaPontos) || 10);
+
+                    fullEmpresaData = data;
+                    
+                    const titleInput = document.getElementById("edit-theme-title");
+                    if (titleInput) titleInput.value = data.visualConfig?.tituloPagina || "Seu Programa";
+                    
+                    const metaInput = document.getElementById("edit-meta-pontos");
+                    if (metaInput) metaInput.value = data.metaConfig?.metaPontos || 10;
+                    
+                    const premioInput = document.getElementById("edit-premio-desc");
+                    if (premioInput) premioInput.value = data.metaConfig?.descriçãoPremio || "Recompensa";
+                    
+                    const colorInput = document.getElementById("edit-theme-color");
+                    if (colorInput) colorInput.value = data.visualConfig?.corFundo || "#4f46e5";
+                    
+                    const hexInput = document.getElementById("edit-theme-color-hex");
+                    if (hexInput) hexInput.value = (data.visualConfig?.corFundo || "#4f46e5").toUpperCase();
+                    
+                    const fontInput = document.getElementById("edit-theme-font");
+                    if (fontInput) fontInput.value = data.visualConfig?.fonte || "sans";
+                    
+                    const emojiInput = document.getElementById("edit-carimbo-emoji");
+                    if (emojiInput) emojiInput.value = data.visualConfig?.emoji || "⭐";
+
+                    if (typeof window.updatePreviewCartao === 'function') {
+                        window.updatePreviewCartao();
+                    }
+
 
                     // Exibe nome da empresa no topo e na tela de login
                     document.getElementById("empresa-nome").innerText = data.nomeEmpresa;
@@ -413,7 +442,7 @@
         });
 
         // Form Login do Vendedor
-        document.getElementById("login-form").addEventListener("submit", async (e) => {
+        document.getElementById("login-form")?.addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = document.getElementById("email").value.trim().toLowerCase();
             const password = document.getElementById("password").value;
@@ -464,7 +493,7 @@
         });
 
         // Login Social Google
-        document.getElementById("btn-login-google").addEventListener("click", async () => {
+        document.getElementById("btn-login-google")?.addEventListener("click", async () => {
             const btn = document.getElementById("btn-login-google");
             const originalText = btn.innerHTML;
             btn.innerHTML = ` Redirecionando...`;
@@ -479,7 +508,7 @@
         });
 
         // Logout
-        document.getElementById("btn-logout").addEventListener("click", async () => {
+        document.getElementById("btn-logout")?.addEventListener("click", async () => {
             // B-02: desmonta totalmente (stop + clear) antes de deslogar.
             await teardownScanner();
             await logoutUser();
@@ -490,8 +519,8 @@
         const btnStop = document.getElementById("btn-stop-scanner");
         const statusDot = document.getElementById("scanner-status-dot");
 
-        btnStart.addEventListener("click", () => startScanner());
-        btnStop.addEventListener("click", () => stopScanner());
+        btnStart?.addEventListener("click", () => startScanner());
+        btnStop?.addEventListener("click", () => stopScanner());
 
         async function startScanner() {
             if (!html5QrcodeScanner) return;
@@ -583,7 +612,7 @@
         }
 
         // Manual Submit Button
-        document.getElementById("btn-manual-submit").addEventListener("click", async () => {
+        document.getElementById("btn-manual-submit")?.addEventListener("click", async () => {
             const input = document.getElementById("manual-client-input");
             const val = input.value.trim();
             
@@ -816,12 +845,12 @@
             }
         }
 
-        if (btnAddPoints) btnAddPoints.addEventListener("click", addPoints);
-        if (btnRemovePoint) btnRemovePoint.addEventListener("click", removeOnePoint);
-        if (btnNextClient) btnNextClient.addEventListener("click", resetPanel);
+        if (btnAddPoints) btnAddPoints?.addEventListener("click", addPoints);
+        if (btnRemovePoint) btnRemovePoint?.addEventListener("click", removeOnePoint);
+        if (btnNextClient) btnNextClient?.addEventListener("click", resetPanel);
 
         if (btnDeliverPrize) {
-            btnDeliverPrize.addEventListener("click", async () => {
+            btnDeliverPrize?.addEventListener("click", async () => {
                 if (!panelClienteId) return;
                 btnDeliverPrize.disabled = true; // idempotência: trava no clique
                 try {
@@ -1166,7 +1195,7 @@
 
         // Validação da justificativa antes de habilitar submissão
         const justificativaInput = document.getElementById("ajuste-justificativa");
-        justificativaInput.addEventListener("input", validateAjusteForm);
+        justificativaInput?.addEventListener("input", validateAjusteForm);
 
         function validateAjusteForm() {
             const justificativaLength = justificativaInput.value.trim().length;
@@ -1180,7 +1209,7 @@
         }
 
         // Submissão do Ajuste de Pontos
-        document.getElementById("btn-confirm-ajuste").addEventListener("click", async () => {
+        document.getElementById("btn-confirm-ajuste")?.addEventListener("click", async () => {
             const btnConfirm = document.getElementById("btn-confirm-ajuste");
             btnConfirm.disabled = true;
             btnConfirm.innerText = "Salvando...";
@@ -1354,7 +1383,7 @@
         };
 
         // --- Checkout PIX (createSubscription) ---
-        document.getElementById("btn-stripe-checkout").addEventListener("click", () => {
+        document.getElementById("btn-stripe-checkout")?.addEventListener("click", () => {
             openPixCheckoutModal();
         });
 
@@ -1380,7 +1409,7 @@
             return digits.length === 11 || digits.length === 14;
         }
 
-        document.getElementById("btn-pix-submit").addEventListener("click", async () => {
+        document.getElementById("btn-pix-submit")?.addEventListener("click", async () => {
             const cpfCnpjRaw = document.getElementById("pix-cpfcnpj").value.trim();
             const telefoneRaw = document.getElementById("pix-telefone").value.trim();
             const errEl = document.getElementById("pix-cpfcnpj-error");
@@ -1424,7 +1453,7 @@
             }
         });
 
-        document.getElementById("btn-pix-copiar").addEventListener("click", () => {
+        document.getElementById("btn-pix-copiar")?.addEventListener("click", () => {
             const val = document.getElementById("pix-copia-cola").value;
             navigator.clipboard.writeText(val).then(() => {
                 showToast("Código PIX copiado!");
@@ -1690,10 +1719,10 @@
         };
 
         // Color input sync in edit modal
-        document.getElementById("edit-theme-color").addEventListener("input", (e) => {
+        document.getElementById("edit-theme-color")?.addEventListener("input", (e) => {
             document.getElementById("edit-theme-color-hex").value = e.target.value.toUpperCase();
         });
-        document.getElementById("edit-theme-color-hex").addEventListener("input", (e) => {
+        document.getElementById("edit-theme-color-hex")?.addEventListener("input", (e) => {
             let val = e.target.value;
             if (val.startsWith("#") && val.length === 7) {
                 document.getElementById("edit-theme-color").value = val.toLowerCase();
@@ -1701,7 +1730,7 @@
         });
 
         // Submit edit campaign rules
-        document.getElementById("edit-campanha-form").addEventListener("submit", async (e) => {
+        document.getElementById("edit-campanha-form")?.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!(await confirmDialog({ title: "Mudar campanha", message: "Tem certeza que quer mudar? Isso atualizará a campanha e a identidade visual sem resetar os carimbos existentes de seus clientes.", confirmText: "Mudar", danger: false }))) return;
             try {
@@ -1790,7 +1819,7 @@
         };
 
         // Filtro de Busca de Clientes
-        document.getElementById("search-cliente").addEventListener("input", (e) => {
+        document.getElementById("search-cliente")?.addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
             const rows = document.querySelectorAll("#clientes-table-body tr");
             
@@ -1809,7 +1838,7 @@
         // --- Configurações da Conta ---
         const btnSaveCompany = document.getElementById("btn-save-company-name");
         if (btnSaveCompany) {
-            btnSaveCompany.addEventListener("click", async () => {
+            btnSaveCompany?.addEventListener("click", async () => {
                 const newName = document.getElementById("config-company-name").value.trim();
                 if (!newName) { showToast("O nome não pode ser vazio.", "warn"); return; }
                 
@@ -1831,11 +1860,11 @@
 
         const btnSaveSlug = document.getElementById("btn-save-company-slug");
         if (btnSaveSlug) {
-            document.getElementById("config-company-slug").addEventListener("input", (e) => {
+            document.getElementById("config-company-slug")?.addEventListener("input", (e) => {
                 e.target.value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
             });
 
-            btnSaveSlug.addEventListener("click", async () => {
+            btnSaveSlug?.addEventListener("click", async () => {
                 const newSlug = document.getElementById("config-company-slug").value.trim();
                 if (!newSlug) { showToast("O link não pode ser vazio.", "warn"); return; }
                 
@@ -1887,7 +1916,7 @@
 
         const btnDeleteController = document.getElementById("btn-delete-controller-account");
         if (btnDeleteController) {
-            btnDeleteController.addEventListener("click", async () => {
+            btnDeleteController?.addEventListener("click", async () => {
                 const confirmMsg = "ATENÇÃO CONTROLADOR (LGPD):\n\nVocê está prestes a apagar todos os dados da sua empresa. Isso removerá o programa de fidelidade e impedirá o acesso aos dados dos seus clientes.\n\nEsta ação é IRREVERSÍVEL. Digite 'APAGAR' para confirmar:";
                 const ok = await confirmDialog({ title: "Excluir conta", message: confirmMsg, confirmText: "Excluir", danger: true, keyword: "APAGAR" });
                 if (!ok) { showToast("Ação cancelada.", "warn"); return; }
@@ -1985,12 +2014,12 @@ window.updatePreviewCartao = function() {
     grid.innerHTML = html;
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+document?.addEventListener('DOMContentLoaded', () => {
     const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-carimbo-emoji'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
-            el.addEventListener('input', window.updatePreviewCartao);
+            el?.addEventListener('input', window.updatePreviewCartao);
         }
     });
 });
