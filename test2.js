@@ -1914,3 +1914,94 @@
         }
 
     
+
+
+window.downloadFlyerPdf = function() {
+    window.print();
+};
+
+window.downloadFlyerPng = async function() {
+    const el = document.getElementById("flyer-capture-area");
+    if(!el) return;
+    try {
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = 'flyer-tempontinho.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch(e) {
+        console.error("Erro png:", e);
+        alert("Erro ao baixar. Tente PDF.");
+    }
+};
+
+window.copiarLink = function(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        if(typeof showToast === 'function') showToast("Link copiado para a área de transferência!", "success");
+    }).catch(e => {
+        console.error(e);
+        alert("Erro ao copiar o link.");
+    });
+};
+
+window.updatePreviewCartao = function() {
+    const meta = document.getElementById('edit-meta-pontos').value || 10;
+    const premio = document.getElementById('edit-premio-desc').value || "Recompensa";
+    const bg = document.getElementById('edit-theme-color').value || "#4f46e5";
+    const title = document.getElementById('edit-theme-title').value || "Seu Programa";
+    const emoji = document.getElementById('edit-carimbo-emoji').value || "🌟";
+    
+    document.getElementById('preview-cartao-container').style.backgroundColor = bg;
+    document.getElementById('preview-title').innerText = title;
+    document.getElementById('preview-premio').innerText = premio;
+    
+    let c = bg.substring(1);      
+    let rgb = parseInt(c, 16);   
+    let r = (rgb >> 16) & 0xff;  
+    let g = (rgb >>  8) & 0xff;  
+    let b = (rgb >>  0) & 0xff;  
+
+    let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; 
+    
+    const isDark = luma  10 && meta  15) cols = 5;
+    grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    
+    let html = '';
+    for(let i=0; i
+                ${isStamped ? emoji : ''}
+            
+        `;
+    }
+    grid.innerHTML = html;
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-carimbo-emoji'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            el.addEventListener('input', window.updatePreviewCartao);
+        }
+    });
+});
+
+window.gerarConviteVendedor = async function() {
+    const btn = document.getElementById('btn-gerar-convite');
+    if(btn) btn.innerHTML = ' Gerando...';
+    try {
+        const nToken = Math.random().toString(36).substring(2, 10).toUpperCase();
+        await updateDoc(doc(db, "empresas", empresaId), {
+            inviteToken: nToken
+        });
+        inviteToken = nToken;
+        document.getElementById('link-convite-vendedor').value = `https://tempontinho.com/vendedor.html?invite=${nToken}`;
+        document.getElementById('caixa-convite').classList.remove('hidden');
+        if(typeof showToast === 'function') showToast("Novo link de convite gerado!", "success");
+    } catch(e) {
+        console.error(e);
+        if(typeof showToast === 'function') showToast("Erro ao gerar convite", "error");
+    }
+    if(btn) btn.innerHTML = ' Gerar Link de Convite';
+};
+
+
