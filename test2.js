@@ -2005,3 +2005,14 @@ window.gerarConviteVendedor = async function() {
 };
 
 
+
+window.toggleEditCard = function() {
+    const el = document.getElementById('edit-cartao-container');
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+};
+
+window.isBulkAjuste = false;

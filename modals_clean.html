@@ -1,0 +1,297 @@
+<!-- MODAL 1: AJUSTAR PONTOS -->
+    <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
+                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+                    <p class="text-stone-500">Cliente selecionado:</p>
+                    <p class="text-stone-800 font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
+                    <p class="text-indigo-400 font-bold mt-2">Pontuação Atual: <span id="modal-ajuste-pontos-atuais">0</span> Pontos</p>
+                </div>
+
+                <!-- Ações de Ajuste -->
+                <div class="flex gap-2">
+                    <button onclick="setAjusteAction('add')" id="btn-action-add" class="flex-1 py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-700 transition">+ Adicionar</button>
+                    <button onclick="setAjusteAction('remove')" id="btn-action-remove" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">- Remover</button>
+                    <button onclick="setAjusteAction('zero')" id="btn-action-zero" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">Zerar Pontos</button>
+                </div>
+
+                <!-- Campo de Entrada de Pontos -->
+                <div class="flex flex-col gap-1" id="input-pontos-container">
+                    <label for="ajuste-quantidade-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Quantidade de Pontos</label>
+                    <input type="number" id="ajuste-quantidade-pontos" value="1" min="1" max="100" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <!-- Campo Justificativa Obrigatória -->
+                <div class="flex flex-col gap-1">
+                    <label for="ajuste-justificativa" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
+                    <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-stone-500">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
+                </div>
+
+                <!-- Confirm buttons -->
+                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-stone-200 text-white disabled:text-stone-500 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar Ajuste
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: LINKS DE DIVULGAÇÃO -->
+    <div id="modal-promo-links" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Links de Divulgação</h3>
+                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-stone-500">Link do Cartão de Fidelidade do Cliente</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-client-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-indigo-700 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-client-url')" class="px-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">Copiar</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-stone-500">Link da câmera do vendedor (equipe)</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-violet-700 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-vendor-url')" class="px-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition">Copiar</button>
+                    </div>
+                </div>
+                
+                <p class="text-[10px] text-stone-500 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTÓRICO DE CARIMBOS -->
+    <div id="modal-historico" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Histórico de Carimbos</h3>
+                    <p class="text-[10px] text-stone-500 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-stone-800 font-medium">...</span></p>
+                </div>
+                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div id="historico-lista" class="flex flex-col gap-3 mt-2">
+                <div class="text-center text-stone-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL 4: EDITAR CAMPANHA -->
+    <div id="modal-editar-campanha" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Editar Página</h3>
+                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <label for="edit-theme-title" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Título da Página do Cliente</label>
+                    <input type="text" id="edit-theme-title" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="edit-premio-desc" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-color" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Cor de Fundo Principal</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="edit-theme-color" class="w-10 h-10 bg-transparent border-0 cursor-pointer rounded-lg">
+                            <input type="text" id="edit-theme-color-hex" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 uppercase focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-font" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Tipografia (Fonte)</label>
+                        <select id="edit-theme-font" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                            <option value="sans">Inter</option>
+                            <option value="playfair">Playfair Display</option>
+                            <option value="space">Space Grotesk</option>
+                            <option value="mono">JetBrains Mono</option>
+                            <option value="bebas">Bebas Neue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5 relative">
+                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Emoji dos Carimbos</label>
+                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 transition text-center text-xl">
+                    <p class="text-[10px] text-stone-500 mt-1">Use o teclado para inserir 1 emoji.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar e Salvar Campanha
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: FLYER DE DIVULGAÇÃO A4 -->
+    <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 max-h-[90vh]">
+            <div class="flex justify-between items-center no-print">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Flyer de Divulgação</h3>
+                <div class="flex gap-2">
+                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
+                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            
+            <!-- Flyer Container (Designed for Printing) -->
+            <div class="overflow-y-auto flex justify-center p-4 bg-stone-100 border border-stone-200 rounded-xl max-h-[60vh] no-print">
+                <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
+                    <div class="flex flex-col items-center gap-4 mt-2">
+                        <!-- QR Code Grande no Topo -->
+                        <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
+                            <div id="flyer-qrcode-placeholder"></div>
+                        </div>
+
+                        <!-- Informações em baixo de forma simples -->
+                        <div class="flex flex-col items-center gap-1">
+                            <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
+                            <p class="text-[9px] uppercase tracking-widest text-stone-500 font-semibold mb-1">Clube de Fidelidade</p>
+                            
+                            <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
+                            <p class="text-[10px] text-stone-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-[8px] text-stone-500 font-semibold mt-3">Powered by Tem Pontinho</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRO FEATURE -->
+    <div id="modal-pro-feature" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-8 flex flex-col gap-4 shadow-2xl animate-fade-in text-stone-800 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl"></div>
+            
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-2xl mx-auto flex items-center justify-center text-slate-900 text-3xl shadow-lg shadow-amber-500/30 mb-2">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <h3 class="font-bold text-2xl text-stone-800 font-outfit">Recurso Premium</h3>
+            <p class="text-xs text-stone-500 mb-2">A funcionalidade <strong id="pro-feature-name" class="text-amber-400">Links Externos</strong> é exclusiva do plano Profissional (PRO).</p>
+            
+            <div class="bg-stone-50 border border-stone-200 p-4 rounded-xl text-left flex flex-col gap-2 mb-2">
+                <p class="text-xs font-semibold text-stone-500 mb-1">Com o Plano PRO você pode:</p>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Inserir botões de WhatsApp, Cardápio, etc.</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Trocar logotipo do cartão</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Modificar cores e estilo avançado</div>
+            </div>
+
+            <button onclick="closeProFeatureModal(); switchTab('stripe');" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95">
+                Ver Planos de Assinatura
+            </button>
+            <button onclick="closeProFeatureModal()" class="text-xs text-stone-500 hover:text-stone-800 mt-1">Agora não</button>
+        </div>
+    </div>
+
+    <!-- PAYWALL BANNER -->
+    <div id="paywall-banner" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-end justify-center p-4 pointer-events-none">
+        <div class="w-full max-w-2xl pointer-events-auto mb-6">
+            <div class="glassmorphism rounded-2xl border border-red-200 bg-red-50 p-5 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
+                <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-red-600 shrink-0 text-xl">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h4 class="font-bold text-stone-800 text-sm">Assinatura inativa — <span id="paywall-motivo">Período de teste encerrado</span></h4>
+                    <p class="text-stone-500 text-xs mt-0.5">Os carimbos e resgates estão bloqueados. Regularize sua assinatura para continuar operando seu programa de fidelidade.</p>
+                </div>
+                <button onclick="switchTab('stripe')" class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Pagar com PIX
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PIX CHECKOUT -->
+    <div id="modal-pix-checkout" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Assinar — Plano Tem Pontinho</h3>
+                    <p class="text-xs text-stone-500 mt-0.5">R$ 19,90 / mês via PIX</p>
+                </div>
+                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+
+            <!-- Step 1: Form -->
+            <div id="pix-checkout-form-step" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-cpfcnpj" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">CPF / CNPJ <span class="text-red-600">*</span></label>
+                    <input type="text" id="pix-cpfcnpj" placeholder="Somente números (11 ou 14 dígitos)" maxlength="18"
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                    <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-600">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-telefone" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Telefone <span class="text-stone-500">(opcional)</span></label>
+                    <input type="text" id="pix-telefone" placeholder="Ex: 11999990000"
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                </div>
+                <button id="btn-pix-submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-sm rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-1">
+                    <i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX
+                </button>
+                <p class="text-[10px] text-stone-500 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
+            </div>
+
+            <!-- Step 2: PIX Result -->
+            <div id="pix-result-step" class="hidden flex flex-col gap-5 items-center">
+                <div class="w-full p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-700 text-center">
+                    <i class="fa-solid fa-circle-check mr-1"></i>
+                    Cobrança gerada! Escaneie o QR no app do seu banco. A liberação é automática assim que o pagamento cair.
+                </div>
+
+                <!-- QR Code -->
+                <div class="bg-white p-3 rounded-2xl shadow-lg">
+                    <img id="pix-qr-image" src="" alt="QR Code PIX" class="w-48 h-48 object-contain">
+                </div>
+
+                <!-- Copia e Cola -->
+                <div class="w-full flex flex-col gap-1.5">
+                    <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">PIX Copia e Cola</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="pix-copia-cola" readonly
+                            class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-xs text-indigo-700 select-all focus:outline-none">
+                        <button id="btn-pix-copiar" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Link da fatura -->
+                <a id="pix-invoice-link" href="#" target="_blank" rel="noopener"
+                    class="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Abrir fatura no navegador
+                </a>
+
+                <button onclick="closePixCheckoutModal()" class="w-full py-2.5 bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl transition active:scale-95">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic connection -->
+    
