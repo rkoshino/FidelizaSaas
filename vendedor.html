@@ -269,6 +269,7 @@
         let inviteToken = "";
         let loggedVendedor = null;
         let metaConfig = { metaPontos: 10, descriçãoPremio: "Recompensa" };
+        let visualConfig = {};
         
         let html5QrcodeScanner = null;
         let isScannerRunning = false;
@@ -437,6 +438,7 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     metaConfig = data.metaConfig;
+                    visualConfig = data.visualConfig || {};
                     populateQtyOptions((metaConfig && metaConfig.metaPontos) || 10);
 
                     // Exibe nome da empresa no topo e na tela de login
@@ -1030,7 +1032,7 @@
         }
         // Visual Emoji Feedback for Vendor
         function showEmojiFeedback(qty) {
-            const emojiStr = metaConfig.brandEmoji || "⭐";
+            const emojiStr = visualConfig.emoji || "⭐";
             const popup = document.createElement("div");
             popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
             popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
