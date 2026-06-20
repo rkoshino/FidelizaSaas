@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Empresário - Tem Pontinho</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                      brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                      indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                      orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- QRCode.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .glassmorphism {
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
+        }
+        @media print {
+            @page { size: auto; margin: 0mm; }
+            body * {
+                visibility: hidden !important;
+            }
+            #flyer-a4-preview, #flyer-a4-preview * {
+                visibility: visible !important;
+            }
+            #flyer-a4-preview {
+                position: fixed !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                width: 18cm !important;
+                height: 18cm !important;
+                background: white !important;
+                color: black !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 1cm !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 9999999 !important;
+            }
+            #flyer-a4-preview * {
+                color: black !important;
+            }
+            #flyer-qrcode-placeholder img, #flyer-qrcode-placeholder canvas {
+                width: 10cm !important;
+                height: 10cm !important;
+                margin: 0 auto !important;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+        }
+
+        /* M-02: tabela de clientes vira cards no mobile (< md) */
+        @media (max-width: 767px) {
+            #tab-content-clientes thead { display: none; }
+            #clientes-table-body, #clientes-table-body tr, #clientes-table-body td { display: block; width: 100%; }
+            #clientes-table-body tr {
+                position: relative;
+                border: 1px solid rgb(227 219 204);
+                border-radius: 1rem;
+                margin-bottom: 0.75rem;
+                padding: 0.25rem 0;
+            }
+            #clientes-table-body td {
+                padding: 0.4rem 1rem !important;
+                text-align: left !important;
+            }
+            #clientes-table-body td[data-label]::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: rgb(111 101 87);
+                margin-bottom: 2px;
+            }
+            #clientes-table-body td.col-check {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                width: auto;
+                padding: 0.5rem !important;
+            }
+            #clientes-table-body td.col-actions .flex { justify-content: flex-start !important; }
+        }
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="h-full flex bg-brand-paper">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-stone-200 bg-white flex flex-col justify-between shrink-0 hidden md:flex">
+        <div class="flex flex-col gap-8 p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center">
+                    <i class="fa-solid fa-gem text-white text-base"></i>
+                </div>
+                <span class="text-lg font-bold font-outfit text-stone-800">Tem Pontinho</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1">
+                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-chart-line text-base"></i> Visão Geral
+                </button>
+                <button onclick="switchTab('clientes')" id="tab-btn-clientes" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-users text-base"></i> Clientes
+                </button>
+                <button onclick="switchTab('equipe')" id="tab-btn-equipe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-user-shield text-base"></i> Equipe (Vendedores)
+                </button>
+                <button onclick="switchTab('stripe')" id="tab-btn-stripe" class="flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:text-brand-green hover:bg-stone-100 font-medium text-sm transition-all duration-200">
+                    <i class="fa-solid fa-qrcode text-base"></i> Assinatura
+                </button>
+            </nav>
+        </div>
+
+        <!-- Logged In User Footer -->
+        <div class="p-6 border-t border-stone-200 flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-brand-green/10 flex items-center justify-center font-bold text-brand-green" id="user-avatar">E</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-stone-800 truncate" id="user-display-name">Empresário</p>
+                    <p class="text-[10px] text-stone-500 truncate" id="user-email">email@empresa.com</p>
+                </div>
+            </div>
+            <button id="btn-logout" class="w-full py-2.5 bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 rounded-xl text-xs font-semibold text-stone-500 hover:text-red-600 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair do Painel
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Container -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Top bar -->
+        <header class="h-16 border-b border-stone-200 px-4 md:px-6 flex items-center justify-between gap-2 glassmorphism sticky top-0 z-30">
+            <div class="flex items-center gap-2 min-w-0">
+                <h1 class="text-base md:text-lg font-bold font-outfit text-stone-800 truncate" id="page-title">Visão Geral</h1>
+                <span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="trial-badge">Período de Teste</span>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold ml-2 hidden shrink-0" id="active-badge">Pro Ativo</span>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btn-header-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-xl transition flex items-center gap-1.5 min-h-[40px]" title="Abrir Cartão Digital">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden lg:inline">Página do Cliente</span>
+                </button>
+                <div class="flex items-center">
+                    <button id="btn-header-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0 min-h-[40px]">
+                        <i class="fa-solid fa-camera"></i> <span class="hidden lg:inline">Câmera do Vendedor</span><span class="lg:hidden">Câmera</span>
+                    </button>
+                    <button id="btn-header-copiar-camera" class="text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 border border-indigo-500 border-l-0 text-white px-3 py-2 rounded-r-xl transition flex items-center gap-1.5 min-h-[40px]" title="Copiar link da Câmera">
+                        <i class="fa-regular fa-copy"></i> <span class="hidden lg:inline">Copiar Link</span>
+                    </button>
+                </div>
+                <!-- Logout (somente mobile; no desktop fica na sidebar) -->
+                <button id="btn-logout-mobile" class="md:hidden text-xs font-semibold bg-stone-100 hover:bg-red-50 border border-stone-200 hover:border-red-300 text-stone-500 hover:text-red-600 w-10 h-10 rounded-xl transition flex items-center justify-center shrink-0" title="Sair do Painel" aria-label="Sair do Painel">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Area -->
+        <main class="flex-grow p-6 md:p-8 pb-28 md:pb-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
+
+            <!-- Banner Informativo de Trial -->
+            <div id="trial-alert" class="hidden p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 shrink-0"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm">Faltam <span id="trial-days-left">30</span> dias do seu mês grátis</h4>
+                        <p class="text-stone-500 text-xs mt-0.5">Assine por R$ 19,90/mês quando quiser — o pagamento só começa a valer no fim do período grátis, sem interromper seu programa.</p>
+                    </div>
+                </div>
+                <button onclick="switchTab('stripe')" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-amber-500/15 transition shrink-0 active:scale-95">Assinar agora</button>
+            </div>
+
+            <!-- A-01: Banner de verificação de e-mail (cadastro por e-mail/senha não confirmado) -->
+            <div id="verify-email-alert" class="hidden p-4 rounded-2xl border border-sky-500/20 bg-sky-500/5 flex items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-400 shrink-0"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm">Confirme seu e-mail</h4>
+                        <p class="text-stone-500 text-xs mt-0.5">Enviamos um link de confirmação para <span id="verify-email-address" class="text-stone-700 font-semibold"></span>. Confirme para manter o acesso seguro à sua conta.</p>
+                    </div>
+                </div>
+                <button id="btn-resend-verification" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/15 transition shrink-0 active:scale-95">Reenviar</button>
+            </div>
+
+            <!-- TABS CONTENT -->
+
+            <!-- TAB 1: VISÃO GERAL -->
+            <div id="tab-content-dashboard" class="flex flex-col gap-6">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Clientes Cadastrados</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-clientes">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total de Carimbos</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-pontos">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-star"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios a Resgatar</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-disponiveis">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-400 flex items-center justify-center text-xl"><i class="fa-solid fa-gift"></i></div>
+                    </div>
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-between">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Prêmios Entregues</span>
+                            <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-entregues">0</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                </div>
+
+                <!-- Resumo Campanha -->
+                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-4">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Regras da Campanha Ativa</h3>
+                        <div class="flex gap-2 flex-wrap justify-end">
+                            <button onclick="openEditarCampanhaModal()" class="text-sm font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/30 text-indigo-400 px-4 py-2 rounded-xl transition flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar Regras
+                            </button>
+                            <button onclick="openProFeatureModal('Links Externos e HTML Customizado')" class="text-sm font-semibold bg-white hover:bg-stone-100 border border-stone-200 text-stone-500 px-4 py-2 rounded-xl transition flex items-center gap-2" id="btn-pro-links">
+                                <i class="fa-solid fa-lock text-amber-400"></i> Links / Visual Pro
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-circle-check"></i></div>
+                            <div>
+                                <p class="text-stone-500 text-xs">Meta do Cartão</p>
+                                <p class="text-stone-800 text-sm font-semibold mt-0.5"><span id="summary-meta-pontos">10</span> Pontos / Carimbos</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400"><i class="fa-solid fa-trophy"></i></div>
+                            <div>
+                                <p class="text-stone-500 text-xs">Recompensa final</p>
+                                <p class="text-stone-800 text-sm font-semibold mt-0.5" id="summary-premio">1 Drink Especial</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Links e Materiais -->
+                <div class="glassmorphism p-6 rounded-2xl flex flex-col gap-6">
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Links e Divulgação</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Links Úteis -->
+                        <div class="flex flex-col gap-4">
+                            <!-- Client link -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Único do Cliente (Cartão Digital)</span>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-indigo-700 select-all">
+                                    <button id="btn-overview-copy-cliente" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                                </div>
+                            </div>
+        
+                            <!-- Admin link -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Câmera do Vendedor (Validar/Carimbar)</span>
+                                <div class="flex gap-2">
+                                    <input type="text" readonly id="overview-link-vendedor-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs focus:outline-none text-violet-700 select-all">
+                                    <button id="btn-overview-copy-vendedor" class="px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Kit -->
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Texto Pronto para WhatsApp</span>
+                            <div class="relative h-full">
+                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full h-full min-h-[110px] bg-white border border-stone-200 rounded-xl p-4 text-xs text-stone-500 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                                <button id="btn-overview-copy-whatsapp" class="absolute bottom-3 right-3 bg-indigo-600/80 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy mr-1"></i> Copiar Texto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 pt-6 border-t border-stone-200">
+                        <div class="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-stone-50 border border-stone-200">
+                            <div class="bg-white p-3 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-black/20" id="overview-qrcode-box">
+                                <div id="overview-qrcode-placeholder" class="w-[120px] h-[120px] flex items-center justify-center text-stone-500">
+                                    <i class="fa-solid fa-qrcode text-4xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2 text-center sm:text-left">
+                                <h3 class="font-bold text-stone-800 text-base font-outfit">Flyer de Divulgação (A4)</h3>
+                                <p class="text-xs text-stone-500 max-w-sm">Imprima o seu flyer contendo o QR Code acima. Coloque-o no balcão e nas mesas para que seus clientes escaneiem e entrem no seu programa de fidelidade instantaneamente.</p>
+                                <button onclick="openFlyerModal()" class="mt-2 text-xs font-semibold text-stone-500 bg-white border border-stone-200 hover:bg-stone-100 px-4 py-2.5 rounded-xl self-center sm:self-start inline-flex items-center gap-2 transition duration-200">
+                                    <i class="fa-solid fa-file-pdf"></i> Abrir e Baixar Flyer PNG
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CLIENTES -->
+            <div id="tab-content-clientes" class="hidden flex flex-col gap-6">
+                <!-- Header search -->
+                <div class="flex justify-between items-center gap-4 flex-wrap">
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Clientes Participantes</h3>
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <div class="flex items-center">
+                            <button id="btn-clientes-pagina-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 px-3 py-2 rounded-l-xl transition flex items-center gap-1.5 border-r-0">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Página do Cliente
+                            </button>
+                            <button id="btn-clientes-copiar-cliente" class="text-xs font-semibold bg-white hover:bg-stone-100 border border-stone-300 border-l-0 text-stone-700 px-3 py-2 rounded-r-xl transition flex items-center gap-1.5" title="Copiar link do Cliente">
+                                <i class="fa-regular fa-copy"></i> Copiar Link
+                            </button>
+                        </div>
+                        <div class="relative w-full sm:max-w-xs flex-1 mt-3 md:mt-0">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-500 text-xs"></i>
+                            <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-white border border-stone-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-stone-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Bar -->
+                <div id="bulk-actions-bar" class="hidden glassmorphism px-4 py-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 flex items-center justify-between gap-4 mb-4">
+                    <span class="text-xs text-indigo-700 font-medium"><span id="selected-count">0</span> clientes selecionados</span>
+                    <div class="flex gap-2">
+                        <button onclick="openBulkAjustarModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition active:scale-95">Ajustar Pontos</button>
+                        <button onclick="bulkResetPoints()" class="text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg transition active:scale-95">Zerar Pontos</button>
+                    </div>
+                </div>
+
+                <!-- Table box -->
+                <div class="glassmorphism rounded-2xl overflow-hidden border border-stone-200">
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="border-b border-stone-200 bg-stone-50 text-stone-500 font-semibold uppercase tracking-wider">
+                                    <th class="py-4 px-6 w-12 text-center"><input type="checkbox" id="select-all-clients" onclick="toggleSelectAll(this)" class="rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4"></th>
+                                    <th class="py-4 px-6">Nome Completo</th>
+                                    <th class="py-4 px-6">E-mail</th>
+                                    <th class="py-4 px-6 text-center">Pontuação</th>
+                                    <th class="py-4 px-6 text-center">Status</th>
+                                    <th class="py-4 px-6 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-table-body" class="divide-y divide-stone-200 text-stone-500">
+                                <tr>
+                                    <td colspan="5" class="py-8 text-center text-stone-500">
+                                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando clientes cadastrados...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: EQUIPE (VENDEDORES) -->
+            <div id="tab-content-equipe" class="hidden flex flex-col gap-6">
+                <div class="flex justify-between items-center gap-4 flex-wrap">
+                    <div>
+                        <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe de Atendimento</h3>
+                        <p class="text-xs text-stone-500 mt-0.5">Cadastre seus funcionários para que eles possam escanear os QR Codes dos clientes e adicionar carimbos.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap justify-end">
+                        <button id="btn-equipe-camera-vendedor" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 text-white px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-camera"></i> Câmera do Vendedor
+                        </button>
+                        <button id="btn-novo-vendedor" type="button" class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 transition">
+                            <i class="fa-solid fa-user-plus"></i> Novo Vendedor
+                        </button>
+                    </div>
+                </div>
+
+                <div id="vendor-invite-card" class="hidden glassmorphism rounded-2xl p-5 border border-brand-green/20 bg-brand-green/5 flex flex-col gap-3">
+                    <div>
+                        <h4 class="font-bold text-stone-800 text-sm font-outfit">Convite de vendedor criado</h4>
+                        <p class="text-xs text-stone-600 mt-1">Envie este link para o atendente. Ele poderá criar login com Google ou e-mail/senha e cair direto na câmera desta empresa.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input id="vendor-invite-url" readonly class="flex-1 bg-white border border-stone-200 rounded-xl px-4 py-3 text-xs text-brand-green select-all focus:outline-none" value="">
+                        <button id="btn-copy-vendor-invite" class="px-4 py-3 bg-brand-green hover:bg-brand-green-dark text-white rounded-xl text-xs font-bold transition active:scale-95" type="button">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar convite
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vendedores Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="vendedores-grid">
+                    <div class="glassmorphism p-6 rounded-2xl flex items-center justify-center text-stone-500 col-span-full">
+                        <i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando equipe...
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CONFIGURAÇÕES DA CONTA (Antigo Stripe) -->
+            <div id="tab-content-stripe" class="hidden flex flex-col gap-8">
+                <div class="flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold font-outfit text-stone-800">Configurações da Conta</h3>
+                        <p class="text-stone-500 text-xs mt-1">Gerencie os dados da sua empresa, assinatura e privacidade.</p>
+                    </div>
+                </div>
+
+                <!-- Formulário de Dados da Empresa -->
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-5 border border-stone-200">
+                    <h4 class="font-bold text-stone-800 text-base font-outfit">Informações do Controlador (LGPD)</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="config-company-name" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="config-company-name" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                                <button id="btn-save-company-name" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="config-company-slug" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Link Personalizado</label>
+                            <div class="flex gap-2">
+                                <div class="flex-1 flex items-center bg-white border border-stone-200 rounded-xl focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 transition overflow-hidden pr-4">
+                                    <span class="text-stone-500 text-xs px-3 py-2.5 border-r border-stone-200 bg-stone-100">/cliente.html?link=</span>
+                                    <input type="text" id="config-company-slug" class="w-full bg-transparent border-none px-3 py-2.5 text-sm focus:outline-none text-stone-800 transition" autocomplete="off">
+                                </div>
+                                <button id="btn-save-company-slug" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">Salvar Link</button>
+                            </div>
+                            <span class="text-[10px] text-stone-500">QR Codes antigos continuarão funcionando automaticamente (redirecionamento inteligente).</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial (Login)</label>
+                            <input type="text" id="config-owner-email" readonly class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-500 opacity-70 cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área de Privacidade / Danger Zone -->
+                <div class="glassmorphism p-6 md:p-8 rounded-2xl flex flex-col gap-4 border border-red-200 bg-red-50">
+                    <h4 class="font-bold text-red-600 text-base font-outfit"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Zona de Perigo (LGPD)</h4>
+                    <p class="text-xs text-stone-500 leading-relaxed max-w-3xl">Como Controlador de Dados, você tem o direito de solicitar a exclusão permanente da sua conta e de todos os dados associados a ela (incluindo todos os clientes cadastrados no seu programa de fidelidade). <strong>Esta ação é irreversível.</strong></p>
+                    <div>
+                        <button id="btn-delete-controller-account" class="mt-2 text-xs font-bold bg-red-50 hover:bg-red-600 border border-red-300 hover:border-red-600 text-red-600 hover:text-white px-4 py-3 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> Apagar Minha Conta e Dados
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-stone-200 my-2">
+                
+                <!-- Plans Column Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-start">
+                    
+                    <!-- Free/Trial Card -->
+                    <div class="glassmorphism p-6 rounded-2xl border-stone-200/80 flex flex-col gap-5 bg-stone-50">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-stone-500 uppercase tracking-widest">Plano Atual</span>
+                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Período de Testes</h4>
+                            <p class="text-stone-500 text-xs mt-1">Conheça o sistema por 30 dias gratuitamente com recursos básicos.</p>
+                        </div>
+                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 0 <span class="text-xs font-normal text-stone-500">/ 30 dias</span></div>
+                        
+                        <div class="h-[1px] bg-stone-200 w-full"></div>
+
+                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Até 1 vendedor</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-500"></i> Tabela de clientes ativa</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Sem upload de Logotipo</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-xmark text-red-500"></i> Suporte Prioritário</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pro Card (Active Stripe simulation) -->
+                    <div class="glassmorphism p-6 rounded-2xl border-brand-green/40 relative flex flex-col gap-5 bg-brand-green/5">
+                        <div class="absolute -top-3 right-5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-indigo-400/20 shadow-md">Mais Popular</div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <span class="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Profissional</span>
+                            <h4 class="text-xl font-bold text-stone-800 font-outfit">Plano Tem Pontinho</h4>
+                            <p class="text-stone-500 text-xs mt-1">Sua marca, suas regras. Customize do seu jeito para escalar seu negócio.</p>
+                        </div>
+                        <div class="text-2xl font-bold font-outfit text-stone-800">R$ 19,90 <span class="text-xs font-normal text-stone-500">/ mensal</span></div>
+                        
+                        <div class="h-[1px] bg-stone-200 w-full"></div>
+
+                        <ul class="flex flex-col gap-3 text-xs text-stone-500">
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Vendedores Ilimitados</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Envio de Logotipo da Marca</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Customizações Visuais Estendidas</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Exportação de Dados e Relatórios</li>
+                            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400"></i> Suporte WhatsApp 24/7</li>
+                        </ul>
+
+                        <button id="btn-stripe-checkout" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-xs rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-2">
+                            <i class="fa-solid fa-qrcode text-base mr-1"></i> Pagar com PIX
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Barra de Navegação Inferior (somente mobile) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white backdrop-blur border-t border-stone-200 flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
+        <button onclick="switchTab('dashboard')" id="mtab-btn-dashboard" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-indigo-400 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-chart-line text-lg"></i> Visão Geral
+        </button>
+        <button onclick="switchTab('clientes')" id="mtab-btn-clientes" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-users text-lg"></i> Clientes
+        </button>
+        <button onclick="switchTab('equipe')" id="mtab-btn-equipe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-user-shield text-lg"></i> Equipe
+        </button>
+        <button onclick="switchTab('stripe')" id="mtab-btn-stripe" class="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] text-stone-500 font-medium text-[10px] transition-colors">
+            <i class="fa-solid fa-qrcode text-lg"></i> Assinatura
+        </button>
+    </nav>
+
+    
