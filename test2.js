@@ -1951,19 +1951,29 @@ window.updatePreviewCartao = function() {
     const title = document.getElementById('edit-theme-title').value || "Seu Programa";
     const emoji = document.getElementById('edit-carimbo-emoji').value || "🌟";
     
-    document.getElementById('preview-cartao-container').style.backgroundColor = bg;
+    const container = document.getElementById('preview-cartao-container');
+    container.style.backgroundColor = bg;
+    
     document.getElementById('preview-title').innerText = title;
     document.getElementById('preview-premio').innerText = premio;
+    document.getElementById('preview-meta-txt').innerText = meta;
+    document.getElementById('preview-points-counter').innerText = "2 / " + meta;
     
-    let c = bg.substring(1);      
-    let rgb = parseInt(c, 16);   
-    let r = (rgb >> 16) & 0xff;  
-    let g = (rgb >>  8) & 0xff;  
-    let b = (rgb >>  0) & 0xff;  
-
-    let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; 
+    // Calc Brightness (theme-light or theme-dark)
+    const hexColor = bg.replace('#', '');
+    const r = parseInt(hexColor.substr(0, 2), 16) || 0;
+    const g = parseInt(hexColor.substr(2, 2), 16) || 0;
+    const b = parseInt(hexColor.substr(4, 2), 16) || 0;
+    const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    const isLightTheme = brightness > 155;
     
-    const isDark = luma  10 && meta  15) cols = 5;
+    container.classList.remove('theme-light', 'theme-dark');
+    container.classList.add(isLightTheme ? 'theme-light' : 'theme-dark');
+    
+    const grid = document.getElementById('preview-stamps-grid');
+    
+    let cols = 5;
+    if(meta  10 && meta  15) cols = 5;
     grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
     
     let html = '';
