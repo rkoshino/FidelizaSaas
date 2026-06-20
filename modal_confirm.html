@@ -1,0 +1,17 @@
+<div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+      <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-start gap-3">
+          <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+            <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+            <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
+            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-800 font-semibold hover:bg-stone-100 transition">Cancelar</button>
+          <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+        </div>
+      </div>

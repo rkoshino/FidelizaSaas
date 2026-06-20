@@ -688,7 +688,24 @@
         }
     </style>
 </head>
-<!-- MODAL 1: AJUSTAR PONTOS -->
+<div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+      <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-start gap-3">
+          <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+            <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+            <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
+            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-800 font-semibold hover:bg-stone-100 transition">Cancelar</button>
+          <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+        </div>
+      </div>
+    <!-- MODAL 1: AJUSTAR PONTOS -->
     <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
             <div class="flex justify-between items-center">
@@ -779,28 +796,7 @@
         </div>
     </div>
     <!-- MODAL 4: EDITAR CAMPANHA -->
-    <div id="modal-editar-campanha" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-stone-800 font-outfit">Editar Página</h3>
-                <button onclick="closeEditarCampanhaModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-            </div>
-            
-            <form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
-                <div class="flex flex-col gap-1">
-                    <label for="edit-theme-title" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Título da Página do Cliente</label>
-                    <input type="text" id="edit-theme-title" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1">
-                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
-                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
-                        <input type="text" id="edit-premio-desc" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
-                    </div>
+    
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -2763,8 +2759,7 @@ window.switchAppTab = function(tabId) {
                     }
                 });
                 showToast("Campanha atualizada com sucesso!", "success");
-                closeEditarCampanhaModal();
-                await loadEmpresaData();
+                if (typeof toggleEditCard === 'function') toggleEditCard();
             } catch (err) {
                 console.error(err);
                 showToast("Erro ao salvar campanha. Verifique os dados e tente novamente.", "error");
@@ -2863,7 +2858,7 @@ window.switchAppTab = function(tabId) {
                     const empRef = doc(db, "empresas", empresaId);
                     await updateDoc(empRef, { nomeEmpresa: newName });
                     showToast("Nome da empresa atualizado!", "success");
-                    await loadEmpresaData(); // Reload UI
+                    // await loadEmpresaData(); // Reload UI
                 } catch (e) {
                     console.error("Erro ao salvar nome da empresa:", e);
                     showToast("Erro ao salvar o nome da empresa. Tente novamente.", "error");
@@ -2916,7 +2911,7 @@ window.switchAppTab = function(tabId) {
                             slugsAntigos: aliases
                         });
                         showToast("Link atualizado com sucesso! Códigos QR antigos funcionarão normalmente.", "success");
-                        await loadEmpresaData(); // Isso também regera os links exibidos e o Flyer!
+                        // await loadEmpresaData();
                     } else {
                         showToast("Este já é o seu link atual.", "warn");
                     }

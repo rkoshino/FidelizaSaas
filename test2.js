@@ -219,7 +219,7 @@
                     const fontInput = document.getElementById("edit-theme-font");
                     if (fontInput) fontInput.value = data.visualConfig?.fonte || "sans";
                     
-                    const emojiInput = document.getElementById("edit-carimbo-emoji");
+                    const emojiInput = document.getElementById("edit-theme-emoji");
                     if (emojiInput) emojiInput.value = data.visualConfig?.emoji || "⭐";
 
                     if (typeof window.updatePreviewCartao === 'function') {
@@ -1748,8 +1748,7 @@
                     }
                 });
                 showToast("Campanha atualizada com sucesso!", "success");
-                closeEditarCampanhaModal();
-                await loadEmpresaData();
+                if (typeof toggleEditCard === 'function') toggleEditCard();
             } catch (err) {
                 console.error(err);
                 showToast("Erro ao salvar campanha. Verifique os dados e tente novamente.", "error");
@@ -1848,7 +1847,7 @@
                     const empRef = doc(db, "empresas", empresaId);
                     await updateDoc(empRef, { nomeEmpresa: newName });
                     showToast("Nome da empresa atualizado!", "success");
-                    await loadEmpresaData(); // Reload UI
+                    // await loadEmpresaData(); // Reload UI
                 } catch (e) {
                     console.error("Erro ao salvar nome da empresa:", e);
                     showToast("Erro ao salvar o nome da empresa. Tente novamente.", "error");
@@ -1901,7 +1900,7 @@
                             slugsAntigos: aliases
                         });
                         showToast("Link atualizado com sucesso! Códigos QR antigos funcionarão normalmente.", "success");
-                        await loadEmpresaData(); // Isso também regera os links exibidos e o Flyer!
+                        // await loadEmpresaData();
                     } else {
                         showToast("Este já é o seu link atual.", "warn");
                     }
@@ -1978,7 +1977,7 @@ window.updatePreviewCartao = function() {
     const premio = document.getElementById('edit-premio-desc').value || "Recompensa";
     const bg = document.getElementById('edit-theme-color').value || "#4f46e5";
     const title = document.getElementById('edit-theme-title').value || "Seu Programa";
-    const emoji = document.getElementById('edit-carimbo-emoji').value || "🌟";
+    const emoji = document.getElementById('edit-theme-emoji').value || "🌟";
     
     const container = document.getElementById('preview-cartao-container');
     container.style.backgroundColor = bg;
@@ -2015,7 +2014,7 @@ window.updatePreviewCartao = function() {
 };
 
 document?.addEventListener('DOMContentLoaded', () => {
-    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-carimbo-emoji'];
+    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-theme-emoji'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
