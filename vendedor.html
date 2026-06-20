@@ -906,13 +906,19 @@
         // (deduplicadas e ≤ x). O maior valor completa um cartão inteiro num scan.
         function populateQtyOptions(meta) {
             if (!selectPointsQty) return;
+            const prevValue = selectPointsQty.value;
             const opts = [...new Set([1, 2, 3, Math.floor(meta / 2), meta])]
                 .filter((n) => n >= 1 && n <= meta)
                 .sort((a, b) => a - b);
             selectPointsQty.innerHTML = opts
                 .map((n) => `<option value="${n}">+${n}${n === meta ? " (cartão)" : ""}</option>`)
                 .join("");
-            selectPointsQty.value = "1";
+                
+            if (prevValue && Array.from(selectPointsQty.options).some(o => o.value === prevValue)) {
+                selectPointsQty.value = prevValue;
+            } else {
+                selectPointsQty.value = "1";
+            }
         }
 
         function renderClientPanel(clienteId, pontos, premiosPendentes, nome) {
