@@ -881,6 +881,7 @@
                     triggerVibration(150);
                 }
                 showEmojiFeedback(qty);
+                if (selectPointsQty) selectPointsQty.value = "1"; // Reset automático por segurança
             } catch (err) {
                 if (String(err && err.message).includes("PREMIO_PENDENTE")) {
                     await autoRedeem(clientUid);
@@ -906,19 +907,13 @@
         // (deduplicadas e ≤ x). O maior valor completa um cartão inteiro num scan.
         function populateQtyOptions(meta) {
             if (!selectPointsQty) return;
-            const prevValue = selectPointsQty.value;
             const opts = [...new Set([1, 2, 3, Math.floor(meta / 2), meta])]
                 .filter((n) => n >= 1 && n <= meta)
                 .sort((a, b) => a - b);
             selectPointsQty.innerHTML = opts
                 .map((n) => `<option value="${n}">+${n}${n === meta ? " (cartão)" : ""}</option>`)
                 .join("");
-                
-            if (prevValue && Array.from(selectPointsQty.options).some(o => o.value === prevValue)) {
-                selectPointsQty.value = prevValue;
-            } else {
-                selectPointsQty.value = "1";
-            }
+            selectPointsQty.value = "1";
         }
 
         function renderClientPanel(clienteId, pontos, premiosPendentes, nome) {
@@ -979,6 +974,7 @@
                     triggerVibration(150);
                 }
                 showEmojiFeedback(qtyToAdd);
+                if (selectPointsQty) selectPointsQty.value = "1"; // Reset automático por segurança
             } catch (err) {
                 console.error("Erro ao adicionar pontos:", err);
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao pontuar",
