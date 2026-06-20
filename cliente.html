@@ -227,12 +227,12 @@
             </div>
 
             <!-- Unique Client QR Code Section (Moved to top) -->
-            <div class="glassmorphism rounded-3xl p-3 flex flex-col items-center gap-2 text-stone-800 relative z-30">
-                <div class="bg-white p-1 rounded-xl flex items-center justify-center shrink-0 border border-stone-200 shadow-sm relative z-50" id="qrcode-box">
+            <div class="glassmorphism rounded-3xl p-4 w-fit mx-auto flex flex-col items-center gap-2 text-stone-800 relative z-30">
+                <div class="bg-white p-1 rounded-2xl flex items-center justify-center shrink-0 border border-stone-200 shadow-sm relative z-50" id="qrcode-box">
                     <div id="qrcode-placeholder"></div>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <p class="text-xs text-[var(--text-main)] font-semibold mt-1">Mostre esse QR Code para o vendedor.</p>
+                <div class="flex flex-col gap-1 text-center">
+                    <p class="text-[10px] text-[var(--text-main)] font-semibold mt-1 px-2">Mostre esse QR Code para o vendedor.</p>
                 </div>
             </div>
 
@@ -604,8 +604,8 @@
                 qrBox.innerHTML = "";
                 qrCodeInstance = new QRCode(qrBox, {
                     text: user.uid,
-                    width: 200,
-                    height: 200,
+                    width: 180,
+                    height: 180,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.M
