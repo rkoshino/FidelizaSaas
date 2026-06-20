@@ -1,0 +1,762 @@
+import { 
+            auth, 
+            db, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            deleteDoc,
+            collection, 
+            query, 
+            where, 
+            getDocs, 
+            onSnapshot,
+            logoutUser,
+            loginWithGoogleRedirect,
+            getRedirectResult,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword
+        } from "./config.js?v=2";
+        import { ensureClientCard, listenCard, deleteMyData } from "./points-api.js?v=2";
+
+        // Toast não-bloqueante (substitui alert) + modal de confirmação (substitui confirm)
+        function showToast(message, type = "success") {
+          const toast = document.getElementById("toast");
+          const toastText = document.getElementById("toast-text");
+          const toastIcon = document.getElementById("toast-icon");
+          toastText.textContent = message;
+          const configs = {
+            success: { bg: "bg-indigo-600", icon: "fa-circle-check" },
+            error:   { bg: "bg-red-600",    icon: "fa-circle-xmark" },
+            warn:    { bg: "bg-amber-500",  icon: "fa-triangle-exclamation" },
+          };
+          const cfg = configs[type] || configs.success;
+          toast.className = `fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white ${cfg.bg}`;
+          toastIcon.className = `fa-solid ${cfg.icon} text-base`;
+          toast.style.opacity = "1"; toast.style.transform = "translateY(0)"; toast.style.pointerEvents = "auto";
+          clearTimeout(toast._hideTimer);
+          toast._hideTimer = setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(-8px)"; toast.style.pointerEvents = "none"; }, 3500);
+        }
+
+        function authErrorMessage(err) {
+            const code = err && err.code;
+            if (code === "auth/invalid-email") return "Digite um e-mail válido.";
+            if (code === "auth/missing-password") return "Digite sua senha.";
+            if (code === "auth/weak-password") return "Use uma senha com pelo menos 6 caracteres.";
+            if (code === "auth/email-already-in-use") return "Este e-mail já tem conta. Entre com a senha correta ou use Google.";
+            if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") return "E-mail ou senha incorretos.";
+            if (code === "auth/popup-closed-by-user") return "Login cancelado antes de concluir.";
+            if (code === "auth/network-request-failed") return "Falha de conexão. Verifique sua internet e tente novamente.";
+            return "Não foi possível concluir a autenticação. Tente novamente.";
+        }
+
+        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
+          return new Promise((resolve) => {
+            const modal = document.getElementById("modal-confirm");
+            const elTitle = document.getElementById("confirm-title");
+            const elMsg = document.getElementById("confirm-message");
+            const elInput = document.getElementById("confirm-input");
+            const btnOk = document.getElementById("confirm-ok");
+            const btnCancel = document.getElementById("confirm-cancel");
+            const iconWrap = document.getElementById("confirm-icon-wrap");
+            const icon = document.getElementById("confirm-icon");
+            elTitle.textContent = title; elMsg.textContent = message;
+            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
+            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
+            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"}`;
+            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
+            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
+            modal.classList.remove("hidden");
+            if (keyword) setTimeout(() => elInput.focus(), 50);
+            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
+            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
+            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
+            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
+            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
+            document.addEventListener("keydown", onKey);
+          });
+        }
+
+        // Variáveis Locais do Sistema
+        let slugEmpresa = "";
+        let idEmpresa = "";
+        let appEntering = false;
+        let appEntered = false; // evita entrar 2x (onAuthStateChanged + branding async)
+        let metaPontos = 10;
+        let visualConfig = null;
+        let loggedUser = null;
+        let qrCodeInstance = null;
+        let unsubscribeListener = null;
+        let brandEmoji = "⭐";
+
+        // X-07: usuários que pedem menos movimento não recebem confete/voo de emoji.
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        // Recupera slug/empresaId pelos parâmetros de URL com fallback de localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const linkParam = urlParams.get("link");
+        const empresaParam = urlParams.get("empresa");
+        slugEmpresa = linkParam || (!empresaParam ? localStorage.getItem("tempontinho_cliente_link") : "") || "";
+        idEmpresa = slugEmpresa ? "" : (empresaParam || localStorage.getItem("tempontinho_cliente_empresa") || "");
+
+        if (linkParam) {
+            localStorage.setItem("tempontinho_cliente_link", linkParam);
+            localStorage.removeItem("tempontinho_cliente_empresa");
+        } else if (empresaParam) {
+            localStorage.setItem("tempontinho_cliente_empresa", empresaParam);
+            localStorage.removeItem("tempontinho_cliente_link");
+        }
+
+        // 1. Inicializa o App buscando a empresa para carregar identidade visual
+        async function fetchCompanyBranding() {
+            try {
+                let companyRef = null;
+
+                if (slugEmpresa) {
+                    // Busca por linkUnicoCliente (Slug)
+                    const q = query(collection(db, "empresas"), where("linkUnicoCliente", "==", slugEmpresa));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        const firstDoc = querySnapshot.docs[0];
+                        idEmpresa = firstDoc.id;
+                        localStorage.setItem("tempontinho_cliente_empresa", idEmpresa);
+                        companyRef = doc(db, "empresas", idEmpresa);
+                    } else {
+                        // Busca no histórico (Redirecionamento Inteligente de QR Code antigo)
+                        const qAlias = query(collection(db, "empresas"), where("slugsAntigos", "array-contains", slugEmpresa));
+                        const aliasSnapshot = await getDocs(qAlias);
+                        
+                        if (!aliasSnapshot.empty) {
+                            const aliasDoc = aliasSnapshot.docs[0].data();
+                            const novoLink = aliasDoc.linkUnicoCliente;
+                            if (novoLink) {
+                                localStorage.setItem("tempontinho_cliente_link", novoLink);
+                                window.location.replace(`cliente.html?link=${novoLink}`);
+                                return;
+                            }
+                        }
+                    }
+                } else if (idEmpresa) {
+                    // Busca por ID direto do Firestore
+                    companyRef = doc(db, "empresas", idEmpresa);
+                }
+
+                if (companyRef) {
+                    // idEmpresa resolvido (inclusive no caso ?link=slug, que é assíncrono):
+                    // se o cliente já logou (ex.: voltou do redirect do Google) antes do
+                    // branding terminar, entra no app agora. Senão, o onAuthStateChanged entra.
+                    if (loggedUser) enterApp(loggedUser);
+                    // Escuta alterações na empresa em tempo real
+                    onSnapshot(companyRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const companyData = docSnap.data();
+                            metaPontos = companyData.metaConfig?.metaPontos || 10;
+                            visualConfig = companyData.visualConfig || {};
+                            brandEmoji = visualConfig.emoji || "⭐";
+
+                            // Ajusta a Identidade Visual Dinamicamente
+                            const pageTitle = visualConfig.tituloPagina || companyData.nomeEmpresa || "Empresa";
+                            document.title = pageTitle;
+                            
+                            // TEMA GLOBAL: Aplica a cor do cartão como o fundo de toda a página (Pedido do usuário)
+                            const corCartao = (visualConfig && visualConfig.corFundo) || "#2A5A44";
+                            document.documentElement.style.backgroundColor = corCartao;
+                            document.getElementById("body-container").style.backgroundColor = corCartao;
+                            
+                            ["loyalty-card", "reward-preview"].forEach((cid) => {
+                                const el = document.getElementById(cid);
+                                if (el) el.style.backgroundColor = corCartao;
+                            });
+                            
+                            // Lógica para detectar se a cor de fundo é clara ou escura
+                            const hexColor = corCartao.replace('#', '');
+                            const r = parseInt(hexColor.substr(0, 2), 16) || 0;
+                            const g = parseInt(hexColor.substr(2, 2), 16) || 0;
+                            const b = parseInt(hexColor.substr(4, 2), 16) || 0;
+                            const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                            const isLightTheme = brightness > 155;
+                            
+                            const themeClass = isLightTheme ? "theme-light" : "theme-dark";
+                            
+                            // Aplica o tema inteligente ao body e cards
+                            document.getElementById("body-container").classList.remove("theme-light", "theme-dark");
+                            document.getElementById("body-container").classList.add(themeClass);
+                            document.getElementById("reward-preview").classList.remove("theme-light", "theme-dark");
+                            document.getElementById("reward-preview").classList.add(themeClass);
+
+                            // Altera fontes
+                            const activeFont = visualConfig.fonte || "sans";
+                            document.getElementById("body-container").className = `h-full flex flex-col justify-between overflow-x-hidden p-4 font-${activeFont} transition-all duration-500 relative text-[var(--text-main)] ${themeClass}`;
+                            document.getElementById("app-title").className = `font-bold text-lg text-[var(--text-main)] leading-tight font-${activeFont}`;
+                            document.getElementById("app-title").innerText = pageTitle;
+                            
+                            const lgpdName = document.getElementById("lgpd-store-name");
+                            if (lgpdName) lgpdName.innerText = pageTitle;
+
+                            // Atualiza textos
+                            document.getElementById("prize-description").innerText = companyData.metaConfig?.descriçãoPremio || "Prêmio";
+                            document.getElementById("points-target").innerText = metaPontos;
+
+                            // Configura os textos de boas-vindas da tela de login
+                            document.getElementById("login-welcome-title").innerText = `Fidelidade - ${pageTitle}`;
+                            document.getElementById("login-welcome-desc").innerText = `Entre e comece a acumular pontos para ganhar: ${companyData.metaConfig?.descriçãoPremio || "um prêmio especial"}`;
+
+                            // C-01: prévia de valor antes do login (meta, prêmio e carimbos vazios).
+                            const previewMeta = document.getElementById("preview-meta");
+                            const previewPrize = document.getElementById("preview-prize");
+                            const previewStamps = document.getElementById("preview-stamps");
+                            if (previewMeta) previewMeta.innerText = metaPontos;
+                            if (previewPrize) previewPrize.innerText = companyData.metaConfig?.descriçãoPremio || "um prêmio especial";
+                            if (previewStamps) {
+                                // Mostra até 5 slots de carimbo (resumo visual do cartão) + "…" se a meta for maior.
+                                const shown = Math.min(metaPontos, 5);
+                                let html = "";
+                                for (let i = 0; i < shown; i++) {
+                                    html += `<span class="w-8 h-8 flex items-center justify-center text-2xl">${brandEmoji}</span>`;
+                                }
+                                if (metaPontos > shown) html += `<span class="text-white/70 text-xs px-1">+${metaPontos - shown}</span>`;
+                                previewStamps.innerHTML = html;
+                            }
+                            
+                            // Se o usuário já estiver logado, forçar um re-render dos carimbos com a nova meta/emoji
+                            if (loggedUser) {
+                                // Dispara fake event para re-renderizar sem adicionar ponto
+                                // Pois setupPointsRealtimeListener usa a variável global metaPontos e brandEmoji
+                                setupPointsRealtimeListener(loggedUser.uid);
+                            }
+                        }
+                    });
+                } else {
+                    document.getElementById("login-welcome-title").innerText = "Link Inválido";
+                    document.getElementById("login-welcome-desc").innerHTML = `<span class="text-red-600 font-bold block mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Link inválido</span> Abra o cartão pelo link que a loja compartilhou com você.`;
+                    // Oculta entradas de login (mantém o header com a mensagem de erro)
+                    hideLoginInputs();
+                }
+            } catch (err) {
+                console.error("Erro ao carregar branding da empresa: ", err);
+                // X-05: erro de rede deixava o título em "Carregando…" para sempre.
+                showLoadError();
+            }
+        }
+
+        // Esconde botões/form/prévia de login, preservando o header (e sua mensagem).
+        function hideLoginInputs() {
+            ["social-login-container", "email-login-form", "reward-preview"].forEach(id => {
+                document.getElementById(id)?.classList.add("hidden");
+            });
+        }
+
+        // X-05: estado de erro/offline na tela inicial (corrige "Carregando…" eterno, B-06).
+        function showLoadError() {
+            const title = document.getElementById("login-welcome-title");
+            const desc = document.getElementById("login-welcome-desc");
+            const offline = !navigator.onLine;
+            title.innerText = offline ? "Você está sem conexão" : "Não foi possível carregar";
+            desc.innerHTML = `<span class="text-amber-400 font-bold block mb-2"><i class="fa-solid fa-wifi mr-1"></i> ${offline ? "Sem internet" : "Erro de rede"}</span> ${offline ? "Verifique sua conexão e tente de novo." : "Tente novamente em instantes."} <button id="btn-retry-load" class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition active:scale-95"><i class="fa-solid fa-rotate-right"></i> Tentar de novo</button>`;
+            hideLoginInputs();
+            document.getElementById("btn-retry-load")?.addEventListener("click", () => window.location.reload());
+        }
+
+        // X-05: se já abrir offline, não fica preso no "Carregando…".
+        if (!navigator.onLine) {
+            showLoadError();
+        } else {
+            // Branding NÃO bloqueia o registro dos listeners abaixo. Um top-level
+            // await aqui travava o botão de login no mobile (init mais lenta no celular).
+            fetchCompanyBranding().catch((e) => console.error("Erro no branding:", e));
+        }
+
+        // X-05: recupera automaticamente quando a conexão volta.
+        window.addEventListener("online", () => {
+            const title = document.getElementById("login-welcome-title");
+            if (title && (title.innerText === "Você está sem conexão" || title.innerText === "Não foi possível carregar")) {
+                window.location.reload();
+            }
+        });
+
+        // Finaliza o fluxo de redirect do mobile SEM bloquear o módulo (IIFE).
+        (async () => {
+            try {
+                await getRedirectResult(auth);
+            } catch (err) {
+                console.error("Erro ao recuperar resultado do redirecionamento:", err);
+                showToast(authErrorMessage(err), "error");
+            }
+        })();
+
+        // Entra no app quando user E idEmpresa estiverem prontos — em qualquer ordem.
+        // (Com URL ?link=slug o idEmpresa resolve async no branding, então o redirect do
+        // Google pode voltar antes disso; este desacoplamento evita o loop pro login.)
+        async function enterApp(user) {
+            if (appEntered || appEntering || !user || !idEmpresa) return;
+            appEntering = true;
+            loggedUser = user;
+
+            try {
+                // Grava / Atualiza o cadastro do cliente (garante o cartão).
+                await syncClientProfile(user);
+
+                // Alterna Telas
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("app-screen").classList.remove("hidden");
+                document.getElementById("client-name").innerText = user.displayName || user.email;
+
+                // Limpa e inicializa o QR Code
+                const qrBox = document.getElementById("qrcode-placeholder");
+                qrBox.innerHTML = "";
+                qrCodeInstance = new QRCode(qrBox, {
+                    text: user.uid,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+
+                // Assina escuta em tempo real dos pontos do cliente
+                setupPointsRealtimeListener(user.uid);
+                appEntered = true;
+            } catch (err) {
+                console.error("Erro ao entrar no cartão do cliente:", err);
+                showToast("Não foi possível carregar seu cartão. Tente novamente.", "error");
+            } finally {
+                appEntering = false;
+            }
+        }
+
+        // 2. Controla o estado de Autenticação do Usuário (Cliente)
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                // Deslogou: reseta visualização e permite reentrar depois.
+                appEntering = false;
+                appEntered = false;
+                loggedUser = null;
+                document.getElementById("login-screen").classList.remove("hidden");
+                document.getElementById("app-screen").classList.add("hidden");
+                if (unsubscribeListener) {
+                    unsubscribeListener();
+                    unsubscribeListener = null;
+                }
+                return;
+            }
+            loggedUser = user;
+            // Se o idEmpresa já está pronto, entra agora; senão, o branding (fetchCompanyBranding)
+            // chama enterApp() assim que resolver o idEmpresa. NÃO mostramos o login aqui (evita o loop).
+            if (idEmpresa) enterApp(user);
+        });
+
+        // Garante o cartão (zerado) na empresa + perfil do consumidor.
+        async function syncClientProfile(user) {
+            await ensureClientCard(idEmpresa, {
+                nome: user.displayName || "Cliente Fidelidade",
+                email: user.email || ""
+            });
+        }
+
+        // 3. Ouvinte em tempo real do cartão do cliente (subcoleção da empresa)
+        // Máquina de estados: pontuar / completar (prêmio) / resgatar (rasga + novo cartão + sobra).
+        function setupPointsRealtimeListener(clientUid) {
+            if (unsubscribeListener) unsubscribeListener();
+
+            let firstLoad = true;
+            let lastPoints = 0;
+            let lastPremios = 0;
+            let animando = false; // trava enquanto roda a sequência de resgate
+
+            unsubscribeListener = listenCard(idEmpresa, clientUid, (card) => {
+                if (!card) return;
+                const pontos = card.pontos || 0;
+                const premios = card.premiosPendentes || 0;
+
+                // Primeiro carregamento: sincroniza sem animar "ganhou agora".
+                // Se já vier com prêmio pendente (cliente voltou), mostra o estado persistente.
+                if (firstLoad) {
+                    setCounter(pontos);
+                    renderStamps(pontos, premios > 0);
+                    if (premios > 0) showVictory(premios, /*retorno=*/true);
+                    else hideVictory();
+                    toggleWelcome(pontos === 0 && premios === 0);
+                    lastPoints = pontos; lastPremios = premios; firstLoad = false;
+                    return;
+                }
+
+                if (animando) { lastPoints = pontos; lastPremios = premios; return; }
+
+                const completou   = premios > lastPremios;                       // fechou um cartão
+                const resgatou    = premios < lastPremios;                       // vendedor entregou prêmio
+                const ganhouPonto = !completou && !resgatou && pontos > lastPoints;
+
+                if (completou) {
+                    // Cartão fica cheio e travado; prêmio pendente nos dois aparelhos.
+                    setCounter(pontos);
+                    if (pontos > lastPoints) {
+                        renderStamps(pontos - 1, false);
+                        playLandingAnimation(metaPontos, true);            // o carimbo final "pousa"
+                        setTimeout(() => {
+                            if (!animando) renderStamps(pontos, true);
+                            showVictory(premios, false);
+                        }, prefersReducedMotion ? 0 : 1100);
+                    } else {
+                        renderStamps(pontos, true);
+                        showVictory(premios, false);
+                    }
+                    setTimeout(() => fireVictoryConfetti(), prefersReducedMotion ? 0 : 1100);
+                } else if (resgatou) {
+                    if (premios > 0) {
+                        // Ainda restam prêmios: mantém o cartão cheio.
+                        setCounter(pontos);
+                        renderStamps(pontos, true);
+                        showVictory(premios, true);
+                        showRedeemBanner(`Prêmio resgatado! Ainda resta${premios > 1 ? "m" : ""} ${premios}.`);
+                    } else {
+                        // Último prêmio resgatado: rasga o cartão e injeta a sobra ponto a ponto.
+                        hideVictory();
+                        showRedeemBanner("Prêmio resgatado! 🎁");
+                        toggleWelcome(false);
+                        runRedeemSequence(pontos);
+                    }
+                } else if (ganhouPonto) {
+                    setCounter(pontos);
+                    renderStamps(pontos, false);
+                    for (let p = lastPoints + 1; p <= pontos; p++) playLandingAnimation(p, false);
+                } else {
+                    // Sem transição relevante: só sincroniza.
+                    setCounter(pontos);
+                    renderStamps(pontos, premios > 0);
+                    if (premios > 0) showVictory(premios, true); else hideVictory();
+                    toggleWelcome(pontos === 0 && premios === 0);
+                }
+
+                lastPoints = pontos; lastPremios = premios;
+            });
+
+            // ---- helpers de UI do cartão (closure sobre `animando`) ----
+            function setCounter(p) {
+                document.getElementById("points-counter").innerText = `${p} / ${metaPontos}`;
+            }
+            function toggleWelcome(show) {
+                const welcome = document.getElementById("welcome-banner");
+                if (welcome) welcome.classList.toggle("hidden", !show);
+            }
+            function showVictory(premios, isReturn) {
+                if (prefersReducedMotion) return;
+                const banner = document.getElementById("victory-banner");
+                const plural = premios > 1 ? `${premios} prêmios` : "um prêmio";
+                const premioName = document.getElementById("prize-description")?.innerText || "prêmio";
+                
+                document.getElementById("victory-title").innerHTML = isReturn 
+                    ? `<i class="fa-solid fa-gift mr-1.5"></i>🎁 Recompensa disponível`
+                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você completou o cartão!`;
+                document.getElementById("victory-desc").innerHTML = `Mostre este QR Code ao vendedor para resgatar <strong>${premioName}</strong>.`;
+                banner.classList.remove("hidden");
+                banner.classList.add("reward-pulse");
+            }
+            function hideVictory() {
+                stopVictory();
+                const banner = document.getElementById("victory-banner");
+                banner.classList.add("hidden");
+                banner.classList.remove("reward-pulse");
+            }
+            function showRedeemBanner(msg) {
+                const rb = document.getElementById("redeem-banner");
+                document.getElementById("redeem-text").innerText = msg;
+                rb.classList.remove("hidden");
+                clearTimeout(rb._t);
+                rb._t = setTimeout(() => rb.classList.add("hidden"), 4500);
+            }
+            function fillStamp(i) {
+                const slot = document.getElementById(`stamp-slot-${i}`);
+                if (!slot) return;
+                slot.classList.remove("bg-[var(--bg-glass)]", "text-[var(--text-muted)]", "border-[var(--border-glass)]", "text-xs", "rounded-full", "border-2");
+                slot.classList.add("bg-transparent", "border-transparent", "scale-110", "stamp-pop");
+                slot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`;
+            }
+            // Sequência de resgate: cartão antigo rasga → novo cartão entra → sobra entra ponto a ponto.
+            function runRedeemSequence(novoPontos) {
+                const grid = document.getElementById("stamps-grid");
+                setCounter(0);
+                if (prefersReducedMotion || !grid) {
+                    renderStamps(novoPontos, false);
+                    setCounter(novoPontos);
+                    return;
+                }
+                animando = true;
+                grid.classList.add("tear-bottom-anim");
+                setTimeout(() => {
+                    grid.classList.remove("tear-bottom-anim");
+                    renderStamps(0, false);
+                    grid.classList.add("card-enter");
+                    setTimeout(() => grid.classList.remove("card-enter"), 500);
+                    let i = 0;
+                    const step = () => {
+                        i++;
+                        if (i > novoPontos) { animando = false; return; }
+                        fillStamp(i);
+                        setCounter(i);
+                        setTimeout(step, 430);
+                    };
+                    setTimeout(step, 450);
+                }, 880);
+            }
+        }
+
+        // Animação de Pouso Rápido do Ponto
+        function playLandingAnimation(pointIndex, isVictory = false) {
+            // X-07: sem movimento — renderStamps() já desenhou o carimbo, então não anima.
+            if (prefersReducedMotion) return;
+            const giantEmoji = document.createElement("div");
+            giantEmoji.innerText = brandEmoji;
+            giantEmoji.style.position = "fixed";
+            giantEmoji.style.zIndex = "9999";
+            giantEmoji.style.pointerEvents = "none";
+            giantEmoji.style.left = "50%";
+            giantEmoji.style.top = "50%";
+            giantEmoji.style.transform = "translate(-50%, -50%) scale(20)";
+            giantEmoji.style.opacity = "0";
+            giantEmoji.style.transition = "all 0.1s ease-out";
+            
+            document.body.appendChild(giantEmoji);
+            
+            // Força reflow
+            giantEmoji.offsetWidth;
+            
+            // Aparece gigante no centro rapidamente
+            giantEmoji.style.opacity = "1";
+            giantEmoji.style.transform = "translate(-50%, -50%) scale(20)";
+            
+            // Pausa no centro da tela para o cliente visualizar o ganho (Delay de 700ms)
+            // Depois, voa para o slot 30% mais devagar (Duração de 400ms)
+            setTimeout(() => {
+                const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
+                if (targetSlot) {
+                    const rect = targetSlot.getBoundingClientRect();
+                    
+                    giantEmoji.style.transition = "all 0.4s cubic-bezier(0.25, 1, 0.5, 1)";
+                    giantEmoji.style.left = `${rect.left + rect.width / 2}px`;
+                    giantEmoji.style.top = `${rect.top + rect.height / 2}px`;
+                    giantEmoji.style.transform = "translate(-50%, -50%) scale(0.3) rotate(360deg)";
+                    giantEmoji.style.opacity = "0.2";
+                }
+            }, 700);
+            
+            // Remove o elemento após a animação pousar (700ms espera + 400ms transição = 1100ms total)
+            setTimeout(() => {
+                giantEmoji.remove();
+                const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
+                if (targetSlot) {
+                    targetSlot.classList.remove("bg-[var(--bg-glass)]", "text-[var(--text-muted)]", "border-[var(--border-glass)]", "text-xs", "rounded-full", "border-2");
+                    targetSlot.classList.add("bg-transparent", "border-transparent", "scale-110");
+                    const emojiClass = isVictory ? "dance-stamp text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]" : "text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]";
+                    targetSlot.innerHTML = `<span class="${emojiClass}">${brandEmoji}</span>`;
+                }
+            }, 1100);
+        }
+
+        // Renderização visual dos carimbos (stamps)
+        function renderStamps(pointsCount, isVictory = false) {
+            const grid = document.getElementById("stamps-grid");
+            grid.innerHTML = "";
+
+            // Ajusta o número de colunas do grid
+            if (metaPontos <= 8) {
+                grid.className = "grid grid-cols-4 gap-2.5 py-3 justify-center";
+            } else if (metaPontos <= 12) {
+                grid.className = "grid grid-cols-5 gap-2 py-3 justify-center";
+            } else {
+                grid.className = "grid grid-cols-6 gap-1.5 py-3 justify-center";
+            }
+
+            for (let i = 1; i <= metaPontos; i++) {
+                const stamp = document.createElement("div");
+                stamp.id = `stamp-slot-${i}`;
+                const isStamped = i <= pointsCount;
+                
+                const emojiSpanClass = isVictory ? "dance-stamp text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]" : "text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]";
+
+                stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
+                    isStamped
+                        ? "bg-transparent border-transparent scale-110"
+                        : "rounded-full border-2 bg-[var(--bg-glass)] text-[var(--text-muted)] border-[var(--border-glass)] text-xs"
+                }`;
+
+                stamp.innerHTML = isStamped
+                    ? `<span class="${emojiSpanClass}">${brandEmoji}</span>`
+                    : `${i}`;
+
+                grid.appendChild(stamp);
+            }
+        }
+
+        let isCelebrating = false;
+        let particleInterval;
+
+        function fireVictoryConfetti() {
+            if (isCelebrating) return;
+            isCelebrating = true;
+            if (prefersReducedMotion) return; // X-07
+            
+            const container = document.getElementById("particles-container");
+            if(container) container.innerHTML = "";
+            
+            particleInterval = setInterval(() => {
+                if (!isCelebrating) {
+                    clearInterval(particleInterval);
+                    return;
+                }
+                
+                const emoji = document.createElement("div");
+                emoji.innerText = brandEmoji;
+                emoji.className = "absolute text-3xl filter drop-shadow-md";
+                
+                const startX = Math.random() * window.innerWidth;
+                emoji.style.left = startX + "px";
+                emoji.style.bottom = "-50px";
+                
+                emoji.style.transition = "transform 4s linear, opacity 4s ease-out";
+                if(container) container.appendChild(emoji);
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const endY = -(window.innerHeight + 150);
+                        const endX = (Math.random() - 0.5) * 400;
+                        const rotate = (Math.random() - 0.5) * 720;
+                        
+                        emoji.style.transform = `translate(${endX}px, ${endY}px) rotate(${rotate}deg)`;
+                        emoji.style.opacity = "0";
+                    });
+                });
+                
+                setTimeout(() => {
+                    if (emoji.parentNode) emoji.remove();
+                }, 4000);
+                
+            }, 200);
+        }
+
+        function stopVictory() {
+            isCelebrating = false;
+            if (particleInterval) clearInterval(particleInterval);
+            const container = document.getElementById("particles-container");
+            if (container) container.innerHTML = "";
+        }
+
+        // --- Social Login Actions ---
+        document.getElementById("btn-login-google").addEventListener("click", () => loginWithGoogleRedirect());
+
+        // Alternância de Telas (Social vs E-mail)
+        const socialContainer = document.getElementById("social-login-container");
+        const emailForm = document.getElementById("email-login-form");
+        const toggleEmailBtn = document.getElementById("btn-toggle-email");
+        const backSocialBtn = document.getElementById("btn-back-social");
+
+        if (toggleEmailBtn && backSocialBtn) {
+            toggleEmailBtn.addEventListener("click", () => {
+                socialContainer.classList.add("hidden");
+                emailForm.classList.remove("hidden");
+            });
+
+            backSocialBtn.addEventListener("click", () => {
+                socialContainer.classList.remove("hidden");
+                emailForm.classList.add("hidden");
+            });
+        }
+
+        // Submissão do Formulário de E-mail do Cliente
+        if (emailForm) {
+            emailForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const email = document.getElementById("client-email").value.trim().toLowerCase();
+                const password = document.getElementById("client-password").value;
+                const btn = document.getElementById("btn-submit-client-email");
+
+                if (!email) {
+                    showToast("Digite seu e-mail.", "warn");
+                    document.getElementById("client-email").focus();
+                    return;
+                }
+                if (!password) {
+                    showToast("Digite sua senha.", "warn");
+                    document.getElementById("client-password").focus();
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerText = "Processando...";
+
+                try {
+                    // Tenta efetuar login
+                    await signInWithEmailAndPassword(auth, email, password);
+                } catch (err) {
+                    // Se o usuário não existir no Auth, cria a conta automaticamente
+                    if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential" || err.code === "auth/cannot-find-user") {
+                        try {
+                            await createUserWithEmailAndPassword(auth, email, password);
+                        } catch (createErr) {
+                            showToast(authErrorMessage(createErr), "error");
+                        }
+                    } else {
+                        showToast(authErrorMessage(err), "error");
+                    }
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = "Entrar / Criar Conta";
+                }
+            });
+        }
+
+        // Logout
+        document.getElementById("btn-logout").addEventListener("click", async () => {
+            await logoutUser();
+        });
+        // Menu (kebab) do cliente — abre/fecha o dropdown de conta
+        const btnMenuToggle = document.getElementById("btn-menu-toggle");
+        const accountMenu = document.getElementById("account-menu");
+        if (btnMenuToggle && accountMenu) {
+            btnMenuToggle.addEventListener("click", (e) => {
+                e.stopPropagation();
+                accountMenu.classList.toggle("hidden");
+            });
+            document.addEventListener("click", () => accountMenu.classList.add("hidden"));
+        }
+
+        // Exclusão de Conta (LGPD) — apaga cartões + perfil via Cloud Function
+        const btnDeleteAccount = document.getElementById("btn-delete-account");
+        if (btnDeleteAccount) {
+            btnDeleteAccount.addEventListener("click", async () => {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const confirmMessage = "ATENÇÃO: Você vai excluir TODOS os seus dados da plataforma " +
+                    "(Direito ao Esquecimento - LGPD): seus pontos e cartões de fidelidade em todas as lojas.\n\n" +
+                    "Esta ação é IRREVERSÍVEL. Deseja continuar?";
+                if (!(await confirmDialog({ title: "Excluir meus dados", message: confirmMessage, confirmText: "Excluir", danger: true }))) return;
+
+                try {
+                    btnDeleteAccount.disabled = true;
+                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
+
+                    // 1. Apaga cartões + perfil server-side (client não pode apagar cartões).
+                    await deleteMyData();
+
+                    // 2. Tenta remover a conta de autenticação (pode exigir re-login recente).
+                    try {
+                        await user.delete();
+                        showToast("Seus dados e sua conta foram removidos permanentemente.", "success");
+                    } catch (e) {
+                        if (e && e.code === "auth/requires-recent-login") {
+                            showToast("Seus dados (pontos e cartões) foram apagados. Para remover também o login, " +
+                                "entre novamente e repita a exclusão. Você será desconectado agora.", "success");
+                        } else {
+                            console.warn("Auth não removida:", e);
+                            showToast("Seus dados foram apagados. Sua conta de login será encerrada agora.", "success");
+                        }
+                    }
+                    await logoutUser();
+                } catch (err) {
+                    console.error("Erro ao apagar dados:", err);
+                    showToast("Ocorreu um erro ao processar sua solicitação. Tente novamente.", "error");
+                    btnDeleteAccount.disabled = false;
+                    btnDeleteAccount.innerHTML = '<i class="fa-solid fa-trash-can w-4"></i> Apagar meus dados (LGPD)';
+                }
+            });
+        }

@@ -1,19 +1,54 @@
 const fs = require('fs');
-let txt = fs.readFileSync('c:/Users/rkosh/Documents/nice-dreamks-fidelidade/vendedor.html', 'utf-8');
-const startId = '<div id="edit-cartao-container"';
-const startIdx = txt.indexOf(startId);
-if (startIdx === -1) {
-    console.log('Not found');
-    process.exit(1);
+const path = require('path');
+
+function extractLastInlineScript(filename, jsFilename) {
+    let txt = fs.readFileSync(filename, 'utf-8');
+    
+    // Find all script tags
+    const scripts = [];
+    let start = 0;
+    while ((start = txt.indexOf('<script', start)) !== -1) {
+        const end = txt.indexOf('</script>', start) + 9;
+        scripts.push({ start, end, content: txt.substring(start, end) });
+        start = end;
+    }
+    
+    // Find the last inline script
+    let lastInline = null;
+    for (let i = scripts.length - 1; i >= 0; i--) {
+        if (!scripts[i].content.includes('src=')) {
+            lastInline = scripts[i];
+            break;
+        }
+    }
+    
+    if (lastInline) {
+        // Extract the JS code inside the tag
+        let jsCode = lastInline.content.replace(/<script[^>]*>/, '').replace(/<\/script>/, '');
+        // Trim leading/trailing whitespace
+        jsCode = jsCode.trim();
+        
+        // Ensure js directory exists
+        const jsDir = path.join(path.dirname(filename), 'js');
+        if (!fs.existsSync(jsDir)) {
+            fs.mkdirSync(jsDir);
+        }
+        
+        // Write JS file
+        const jsPath = path.join(jsDir, jsFilename);
+        fs.writeFileSync(jsPath, jsCode);
+        
+        // Replace script tag in HTML with external reference
+        const newTag = `<script src="js/${jsFilename}?v=${Date.now()}"></script>`; // Added query string for cache busting
+        txt = txt.substring(0, lastInline.start) + newTag + txt.substring(lastInline.end);
+        
+        fs.writeFileSync(filename, txt);
+        console.log(`Successfully extracted ${jsFilename} from ${filename}`);
+    } else {
+        console.log(`No inline script found in ${filename}`);
+    }
 }
-const endString = '</form></div>';
-const endIdx = txt.indexOf(endString, startIdx) + endString.length;
-const formContent = txt.substring(startIdx, endIdx);
 
-fs.writeFileSync('form-extract.html', formContent);
-
-// Remove the inline form from its current position
-txt = txt.substring(0, startIdx) + txt.substring(endIdx);
-fs.writeFileSync('c:/Users/rkosh/Documents/nice-dreamks-fidelidade/vendedor.html', txt);
-
-console.log('Extracted and removed inline form.');
+extractLastInlineScript('c:/Users/rkosh/Documents/nice-dreamks-fidelidade/vendedor.html', 'vendedor.js');
+extractLastInlineScript('c:/Users/rkosh/Documents/nice-dreamks-fidelidade/cliente.html', 'cliente.js');
+extractLastInlineScript('c:/Users/rkosh/Documents/nice-dreamks-fidelidade/dashboard.html', 'dashboard.js');
