@@ -5,3 +5,12 @@ firebase-debug.log
 
 # Claude Code local helpers
 .claude/
+
+# Firebase Functions local secrets (emulador/testes)
+functions/.secret.local
+
+# Logs do emulador
+*-debug.log
+firestore-debug.log
+ui-debug.log
+pubsub-debug.log

@@ -21,7 +21,9 @@ const { getFirestore, Timestamp } = require("firebase-admin/firestore");
 const ASAAS_API_KEY = defineSecret("ASAAS_API_KEY");
 const ASAAS_WEBHOOK_TOKEN = defineSecret("ASAAS_WEBHOOK_TOKEN");
 
-const ASAAS_BASE = "https://api.asaas.com/v3";
+// Base URL da API Asaas. Em produção usa o endpoint real; nos testes
+// (emulador) pode ser sobrescrita via ASAAS_BASE_URL para apontar a um mock.
+const ASAAS_BASE = process.env.ASAAS_BASE_URL || "https://api.asaas.com/v3";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
