@@ -955,8 +955,8 @@ import {
             // Escuta Clientes
             const clientesQuery = query(collection(db, "empresas", empresaId, "clientes"));
             onSnapshot(clientesQuery, (snapshot) => {
-                const tableBody = document.getElementById("clientes-table-body");
-                if (tableBody) tableBody.innerHTML = "";
+                const listContainer = document.getElementById("clientes-list");
+                if (listContainer) listContainer.innerHTML = "";
 
                 let totalClientes = 0;
                 let totalPontos = 0;
@@ -981,32 +981,44 @@ import {
                     const isWin = premios > 0;
                     if (isWin) premiosDisponiveis += premios;
 
-                    if (tableBody) {
-                        const tr = document.createElement("tr");
-                        tr.className = "hover:bg-stone-100 transition duration-150";
-                        tr.innerHTML = `
-                            <td class="col-check py-4 px-4 text-center"><input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" class="client-checkbox cursor-pointer w-4 h-4 rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500"></td>
-                            <td data-label="Nome" class="py-4 px-4 font-medium text-stone-800">${nome}<br><span class="text-[10px] text-stone-400 font-normal">${client.email || ""}</span></td>
-                            <td data-label="Pontuação" class="py-4 px-4 text-center font-bold font-outfit text-indigo-400">${pontos}</td>
-                            <td data-label="Ações" class="col-actions py-4 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="text-indigo-600 hover:text-indigo-800 text-sm font-semibold transition bg-indigo-50 px-2 py-1.5 rounded-lg active:scale-95" title="Ver Histórico"><i class="fa-solid fa-clock-rotate-left"></i></button>
-                                <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ''}', ${pontos})" class="text-amber-600 hover:text-amber-800 text-sm font-semibold transition bg-amber-50 px-2 py-1.5 rounded-lg active:scale-95" title="Ajustar Pontos"><i class="fa-solid fa-pen"></i></button>
-                                <span class="px-2 py-1 rounded-md text-[9px] font-semibold border ${isWin ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-stone-100 text-stone-500 border-stone-200'}">${isWin ? `${premios} prêmios` : "Acumulando"}</span>
+                    if (listContainer) {
+                        const card = document.createElement("div");
+                        card.className = "client-card glassmorphism p-4 rounded-2xl flex flex-col gap-3 border border-stone-200 hover:bg-stone-50 transition-colors";
+                        card.dataset.name = nome;
+                        card.dataset.email = client.email || "";
+                        card.innerHTML = `
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-center gap-3 w-full">
+                                    <input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" class="client-checkbox mt-1 cursor-pointer w-4 h-4 rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-stone-800 text-sm leading-tight truncate">${nome}</h4>
+                                        <p class="text-[10px] text-stone-500 mt-0.5 truncate">${client.email || ""}</p>
+                                    </div>
+                                    <div class="text-right shrink-0 flex flex-col items-end">
+                                        <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Pontos</span>
+                                        <span class="font-bold font-outfit text-indigo-500 text-lg leading-none">${pontos}</span>
+                                    </div>
+                                </div>
                             </div>
-                            </td>
+                            <div class="flex items-center justify-between gap-2 border-t border-stone-100 pt-3 mt-1">
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold border ${isWin ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-stone-100 text-stone-500 border-stone-200'}">
+                                    ${isWin ? `<i class="fa-solid fa-gift mr-1"></i> ${premios} prêmio${premios > 1 ? 's' : ''}` : "Acumulando"}
+                                </span>
+                                <div class="flex gap-2">
+                                    <button onclick="openHistoricoModal('${clientId}', '${nome}')" class="w-8 h-8 flex items-center justify-center text-indigo-600 hover:text-indigo-800 transition bg-indigo-50 border border-indigo-100 rounded-lg active:scale-95 shadow-sm" title="Ver Histórico"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                                    <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ''}', ${pontos})" class="w-8 h-8 flex items-center justify-center text-amber-600 hover:text-amber-800 transition bg-amber-50 border border-amber-100 rounded-lg active:scale-95 shadow-sm" title="Ajustar Pontos"><i class="fa-solid fa-pen"></i></button>
+                                </div>
+                            </div>
                         `;
-                        tableBody.appendChild(tr);
+                        listContainer.appendChild(card);
                     }
                 });
 
-                if (!hasClientes && tableBody) {
-                    tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="py-12 text-center text-stone-500">
-                                Nenhum cliente registrado.<br>
-                            </td>
-                        </tr>
+                if (!hasClientes && listContainer) {
+                    listContainer.innerHTML = `
+                        <div class="glassmorphism p-8 rounded-2xl text-center text-stone-500 w-full">
+                            Nenhum cliente participante ainda.
+                        </div>
                     `;
                 }
 
@@ -1846,16 +1858,16 @@ import {
         // Filtro de Busca de Clientes
         document.getElementById("search-cliente")?.addEventListener("input", (e) => {
             const query = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll("#clientes-table-body tr");
+            const cards = document.querySelectorAll("#clientes-list > .client-card");
             
-            rows.forEach(row => {
-                const name = row.cells[0]?.textContent.toLowerCase() || "";
-                const email = row.cells[1]?.textContent.toLowerCase() || "";
+            cards.forEach(card => {
+                const name = card.dataset.name?.toLowerCase() || "";
+                const email = card.dataset.email?.toLowerCase() || "";
                 
                 if (name.includes(query) || email.includes(query)) {
-                    row.style.display = "";
+                    card.style.display = "";
                 } else {
-                    row.style.display = "none";
+                    card.style.display = "none";
                 }
             });
         });
