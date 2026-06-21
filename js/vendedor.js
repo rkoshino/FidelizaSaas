@@ -27,6 +27,10 @@ import {
         let visualConfig = {};
         let fullEmpresaData = null;
         
+        let targetClienteId = null;
+        let targetClienteIds = [];
+        let isBulkAjuste = false;
+
         let html5QrcodeScanner = null;
         let isScannerRunning = false;
 
