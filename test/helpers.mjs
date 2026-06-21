@@ -13,6 +13,7 @@ export const PORTS = {
   auth: 9099,
   functions: 5001,
   firestore: 8085,
+  hosting: 5055,
   asaasMock: 9100,
 };
 

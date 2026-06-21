@@ -13,10 +13,16 @@
  */
 
 import { app, auth, db, doc, getDoc, setDoc, onSnapshot } from "./config.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 import { serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const functions = getFunctions(app, "southamerica-east1");
+
+// Emulador (SOMENTE testes E2E): config.js seta window.__USE_EMULATOR__ quando
+// localStorage.USE_EMULATOR === "1" em host local. Inócuo em produção.
+if (typeof window !== "undefined" && window.__USE_EMULATOR__) {
+  connectFunctionsEmulator(functions, window.location.hostname, 5001);
+}
 
 function call(name) {
   const fn = httpsCallable(functions, name);

@@ -1,8 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-    getAuth, 
-    signInWithPopup, 
-    signInWithRedirect, 
+import {
+    getAuth,
+    connectAuthEmulator,
+    signInWithPopup,
+    signInWithRedirect,
     getRedirectResult,
     GoogleAuthProvider, 
     signOut,
@@ -11,10 +12,11 @@ import {
     sendPasswordResetEmail,
     sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { 
-    getFirestore, 
-    doc, 
-    setDoc, 
+import {
+    getFirestore,
+    connectFirestoreEmulator,
+    doc,
+    setDoc,
     getDoc, 
     updateDoc, 
     deleteDoc,
@@ -57,6 +59,28 @@ if (APP_CHECK_SITE_KEY) {
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// --- Emulador Firebase (SOMENTE para testes E2E) ---------------------------
+// Ativado apenas quando localStorage.USE_EMULATOR === "1" E o host é local.
+// Em produção (tempontinho.com) nunca dispara, então é inócuo. Os testes
+// Playwright setam a flag via addInitScript antes de carregar a página.
+// Portas batem com firebase.json: auth 9099 · firestore 8085 · functions 5001.
+try {
+    const useEmu =
+        typeof window !== "undefined" &&
+        window.localStorage &&
+        window.localStorage.getItem("USE_EMULATOR") === "1" &&
+        ["localhost", "127.0.0.1"].includes(window.location.hostname);
+    if (useEmu) {
+        const h = window.location.hostname;
+        connectAuthEmulator(auth, `http://${h}:9099`, { disableWarnings: true });
+        connectFirestoreEmulator(db, h, 8085);
+        window.__USE_EMULATOR__ = true; // sinaliza para o points-api.js ligar Functions
+        console.info("[config] Firebase apontando para os EMULADORES (modo teste).");
+    }
+} catch (e) {
+    console.warn("[config] Falha ao conectar emuladores (ignorado):", e);
+}
 
 // Provedores de Autenticação Social
 const googleProvider = new GoogleAuthProvider();
