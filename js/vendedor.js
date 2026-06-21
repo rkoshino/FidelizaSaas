@@ -2048,9 +2048,26 @@ window.gerarConviteVendedor = async function() {
             inviteToken: nToken
         });
         inviteToken = nToken;
-        document.getElementById('vendor-invite-url').value = `https://tempontinho.com/vendedor.html?invite=${nToken}`;
+        const inviteUrl = `https://tempontinho.com/vendedor.html?invite=${nToken}`;
+        const inputUrl = document.getElementById('vendor-invite-url');
+        inputUrl.value = inviteUrl;
         document.getElementById('vendor-invite-card').classList.remove('hidden');
-        if(typeof showToast === 'function') showToast("Novo link de convite gerado!", "success");
+        
+        // Remove 'readonly' temporariamente para mobile conseguir focar/selecionar
+        inputUrl.removeAttribute('readonly');
+        
+        document.getElementById("btn-copy-vendor-invite").onclick = async () => {
+            try {
+                await navigator.clipboard.writeText(inviteUrl);
+                if(typeof showToast === 'function') showToast("Convite copiado!", "success");
+                inputUrl.select();
+                inputUrl.setSelectionRange(0, 99999); // Mobile
+            } catch(e) {
+                if(typeof showToast === 'function') showToast("Copie o link manualmente.", "warn");
+            }
+        };
+        
+        if(typeof showToast === 'function') showToast("Novo link gerado! Clique no botão para copiar.", "success");
     } catch(e) {
         console.error(e);
         if(typeof showToast === 'function') showToast("Erro ao gerar convite", "error");
