@@ -18,6 +18,25 @@ import {
         } from "../config.js?v=2";
         import { ensureClientCard, listenCard, deleteMyData } from "../points-api.js?v=2";
 
+        // Globais
+        let slugEmpresa = "";
+        let idEmpresa = "";
+        let companyRef = null;
+        let metaPontos = 10;
+        let visualConfig = {};
+        let brandEmoji = "⭐";
+        let appEntering = false;
+        let loggedUser = null;
+        let qrCodeInstance = null;
+        let appEntered = false;
+        let unsubscribeListener = null;
+        let lastPoints = -1;
+        let lastPremios = -1;
+        let firstLoad = true;
+        let animando = false;
+        let isCelebrating = false;
+        let particleInterval = null;
+
         // Toast não-bloqueante (substitui alert) + modal de confirmação (substitui confirm)
         function showToast(message, type = "success") {
           const toast = document.getElementById("toast");
