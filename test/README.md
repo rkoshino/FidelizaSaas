@@ -17,8 +17,8 @@ npm test            # rápido: rules + functions + billing (44 testes, sem brows
 npm run test:rules      # só as Security Rules (Firestore)
 npm run test:functions  # callables de pontos + enforcement de assinatura
 npm run test:billing    # createSubscription (idempotência) + webhook Asaas
-npm run test:e2e        # E2E em browser real (Playwright): login + paywall
-npm run test:all        # tudo: npm test + test:e2e (48 testes)
+npm run test:e2e        # E2E browser real (Playwright): dono/vendedor/cliente
+npm run test:all        # tudo: npm test + test:e2e (50 testes)
 ```
 O hook `pretest` cria automaticamente `functions/.secret.local` (valores dummy)
 caso não exista — sem ele o emulador trava pedindo o secret.
@@ -36,13 +36,18 @@ caso não exista — sem ele o emulador trava pedindo o secret.
   reaproveita (idempotência), e recria após cancelamento; `asaasWebhook`:
   rejeição de token, `PAYMENT_CONFIRMED→active`, `PAYMENT_OVERDUE→overdue`,
   `PAYMENT_REFUNDED→canceled`, evento desconhecido ignorado.
-- **test/e2e.test.mjs** — browser real (Chromium): login por e-mail/senha em
-  `login.html` → redireciona ao dashboard; paywall aparece com `overdue`;
-  reativar a assinatura (simulando o webhook) esconde o paywall em tempo real
-  (onSnapshot); reload com `active` não mostra paywall. As páginas falam com o
-  emulador porque `config.js`/`points-api.js` conectam aos emuladores quando
-  `localStorage.USE_EMULATOR === "1"` (setado pelo teste). Um static server
-  local serve os arquivos (evita um bug do hosting emulator/superstatic).
+- **test/e2e.test.mjs** — browser real (Chromium), 3 cenários isolados:
+  - **dono**: login por e-mail/senha em `login.html` → dashboard; paywall com
+    `overdue`; reativar (simulando webhook) esconde o paywall em tempo real
+    (onSnapshot); reload com `active` não mostra paywall.
+  - **vendedor**: atendente loga numa loja inativa → banner `#inativa-banner`
+    visível e botões de pontuação desabilitados (fix P1 do vendedor).
+  - **cliente**: `cliente.html?link=slug` renderiza o branding público da loja
+    (título) sem login.
+
+  As páginas falam com o emulador porque `config.js`/`points-api.js` conectam
+  aos emuladores quando `localStorage.USE_EMULATOR === "1"` (setado pelo teste).
+  Um static server local serve os arquivos (evita bug do hosting/superstatic).
 
   > Nota: o E2E roda com `--project=nice-dreamks-fidelidade` (o projectId real
   > do `config.js`) para que browser, Admin SDK e emulador usem o MESMO projeto.
@@ -55,9 +60,10 @@ ajuste em `firebase.json` e `test/helpers.mjs`. (Obs.: 8080 e 5050 costumam
 estar ocupadas nesta máquina; por isso 8085 e 5055.)
 
 ## Limitações (cobertura manual)
-- **Login Google (popup)** e o **wizard de onboarding** não são automatizados —
-  o E2E cobre login por e-mail/senha e o paywall do dashboard.
-- **Vendedor/cliente em browser** ainda não têm E2E (a lógica está coberta por
-  rules + functions). Dá pra estender `e2e.test.mjs` no mesmo molde.
+- **Login Google (popup)** e o **wizard de onboarding** visual não são
+  automatizados — o E2E cobre login por e-mail/senha.
+- **Checkout PIX no cliente** (entrar no cartão exige login Google) e o fluxo de
+  pontuar/resgatar carimbo na câmera do vendedor: cobertos no backend (functions)
+  mas não na UI — exigiriam login Google automatizado.
 - Teste **ponta-a-ponta contra o Asaas sandbox** (chave real, PIX de verdade)
   é manual.
