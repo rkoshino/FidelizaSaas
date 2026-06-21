@@ -99,6 +99,15 @@ service cloud.firestore {
       allow delete: if request.auth != null && (
         resource.data.empresaId == request.auth.uid || isSuperAdmin()
       );
+
+      // Logs do vendedor (lidos pelo dono da empresa)
+      match /logs/{logId} {
+        allow read: if request.auth != null && (
+          get(/databases/$(database)/documents/vendedores/$(vendedorId)).data.empresaId == request.auth.uid ||
+          isSuperAdmin()
+        );
+        allow write: if false; // Somente Cloud Functions escrevem aqui
+      }
     }
 
     // --- Super Admin ---
