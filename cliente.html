@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
+<html lang="pt-BR" class="h-full font-inter">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,8 +36,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QRCode.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Canvas Confetti CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         .glassmorphism {
@@ -106,9 +104,44 @@
             60%  { transform: scale(1.18); }
             100% { transform: scale(1.1); opacity: 1; }
         }
+
+        /* Animação de comemoração: Pontos girando 360 graus e pulsando */
+        .dance-stamp { 
+            animation: dance-spin 1.5s linear infinite; 
+            display: inline-block; 
+            transform-origin: center center;
+        }
+        @keyframes dance-spin {
+            0%   { transform: scale(1.1) rotate(0deg); }
+            50%  { transform: scale(1.25) rotate(180deg); }
+            100% { transform: scale(1.1) rotate(360deg); }
+        }
+        
+        /* Tema Dinâmico - Contraste Inteligente */
+        .theme-light {
+            --text-main: #2A2520;
+            --text-muted: rgba(42, 37, 32, 0.7);
+            --bg-glass: rgba(0, 0, 0, 0.05);
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --prize-color: #C25733;
+            --icon-bg: #2A2520;
+            --icon-text: #FFFFFF;
+        }
+        .theme-dark {
+            --text-main: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.2);
+            --prize-color: #FDE68A;
+            --icon-bg: #FFFFFF;
+            --icon-text: #2A5A44;
+        }
 </style>
 </head>
-<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500" style="background-color: #F4EFE6;">
+<body id="body-container" class="h-full flex flex-col justify-between overflow-x-hidden p-4 transition-all duration-500 relative text-[var(--text-main)] theme-dark" style="background-color: #2A5A44;">
+
+    <!-- Container de Partículas Dançantes (Atrás de tudo, z-10) -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-10 overflow-hidden"></div>
 
 <div id="toast" class="fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white pointer-events-none" style="opacity:0;transform:translateY(-8px);transition:all .3s">
   <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
@@ -119,7 +152,7 @@
     <main class="flex-grow flex items-center justify-center py-6 w-full max-w-sm mx-auto">
         
         <!-- LOGIN CARD -->
-        <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-6 text-center">
+        <div id="login-screen" class="w-full glassmorphism rounded-3xl p-6 flex flex-col gap-6 text-center text-stone-800 relative z-30">
             <div class="flex flex-col items-center gap-3">
                 <div class="w-14 h-14 rounded-2xl bg-brand-green text-white flex items-center justify-center text-3xl">
                     ✶
@@ -131,12 +164,12 @@
             </div>
 
             <!-- C-01: prévia de valor (loja/prêmio/progresso) ANTES da barreira de login -->
-            <div id="reward-preview" class="rounded-2xl border border-white/15 p-4 flex flex-col items-center gap-2.5 text-center text-white shadow-lg" style="background-color:#2A5A44;">
+            <div id="reward-preview" class="rounded-2xl border border-[var(--border-glass)] p-4 flex flex-col items-center gap-2.5 text-center text-[var(--text-main)] shadow-lg theme-dark" style="background-color:#2A5A44;">
                 <div id="preview-stamps" class="flex items-center justify-center gap-1 flex-wrap"></div>
-                <p class="text-xs text-white/85 font-medium leading-relaxed">
-                    Junte <span id="preview-meta" class="font-bold text-white">10</span> carimbos e ganhe
+                <p class="text-xs text-[var(--text-muted)] font-medium leading-relaxed">
+                    Junte <span id="preview-meta" class="font-bold text-[var(--text-main)]">10</span> carimbos e ganhe
                 </p>
-                <p id="preview-prize" class="text-sm font-bold text-amber-200">seu prêmio</p>
+                <p id="preview-prize" class="text-sm font-bold text-[var(--prize-color)]">seu prêmio</p>
             </div>
 
             <!-- Authentication Buttons (C-01: Google 1-tap como primário; e-mail como alternativa) -->
@@ -185,30 +218,35 @@
         <div id="app-screen" class="hidden w-full flex flex-col gap-5 text-center">
             
             <!-- Branding Header -->
-            <div class="flex flex-col items-center gap-1.5 mt-2">
-                <div class="w-10 h-10 rounded-full bg-brand-green text-white flex items-center justify-center text-lg">
+            <div class="flex flex-col items-center gap-1.5 mt-2 relative z-30">
+                <div class="w-10 h-10 rounded-full bg-[var(--icon-bg)] text-[var(--icon-text)] flex items-center justify-center text-lg shadow-sm transition-colors duration-500">
                     ✶
                 </div>
-                <h2 id="app-title" class="font-bold text-lg text-brand-green leading-tight">Clube de Fidelidade</h2>
-                <span class="text-xs bg-brand-green/10 text-brand-green border border-brand-green/20 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Cartão de Pontos</span>
+                <h2 id="app-title" class="font-bold text-lg text-[var(--text-main)] leading-tight">Clube de Fidelidade</h2>
+                <span class="text-xs bg-[var(--bg-glass)] text-[var(--text-main)] border border-[var(--border-glass)] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm transition-colors duration-500">Cartão de Pontos</span>
             </div>
 
             <!-- Unique Client QR Code Section (Moved to top) -->
-            <div class="glassmorphism rounded-3xl p-6 flex flex-col items-center gap-4">
-                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 border border-stone-200 shadow-sm" id="qrcode-box">
+            <div class="glassmorphism rounded-3xl p-6 flex flex-col items-center gap-4 text-stone-800 relative z-30">
+                <div class="bg-white p-3 rounded-2xl flex items-center justify-center shrink-0 border border-stone-200 shadow-sm relative z-50" id="qrcode-box">
                     <div id="qrcode-placeholder"></div>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <p class="text-xs text-stone-800 font-semibold">Seu QR Code de Pontuação</p>
-                    <p class="text-xs text-stone-500">Apresente este código ao vendedor no balcão para registrar carimbos.</p>
+                    <p class="text-sm text-stone-800 font-semibold mt-1">Mostre esse QR Code para o vendedor.</p>
                 </div>
             </div>
 
+            <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
+            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-white text-brand-accent-dark flex flex-col items-center gap-2 text-center shadow-md relative z-30">
+                <h4 id="victory-title" class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou um prêmio!</h4>
+                <p id="victory-desc" class="text-xs text-stone-700 font-medium">Mostre este QR ao vendedor para resgatar.</p>
+            </div>
+
             <!-- Stamped Point Area — cartão na COR DA LOJA (definida no editor visual) -->
-            <div id="loyalty-card" class="rounded-3xl p-5 flex flex-col gap-4 shadow-xl text-white" style="background-color:#2A5A44;">
-                <div class="flex justify-between items-center text-xs border-b border-white/20 pb-3">
-                    <span class="text-white/80 font-medium">Pontuação Acumulada</span>
-                    <span id="points-counter" class="font-bold text-white bg-white/15 px-2.5 py-1 rounded-lg">0 / 10</span>
+            <div id="loyalty-card" class="rounded-3xl p-5 flex flex-col gap-4 shadow-2xl border border-[var(--border-glass)] text-[var(--text-main)] relative z-30 transition-colors duration-500" style="background-color:#2A5A44;">
+                <div class="flex justify-between items-center text-xs border-b border-[var(--border-glass)] pb-3">
+                    <span class="text-[var(--text-muted)] font-medium">Pontuação Acumulada</span>
+                    <span id="points-counter" class="font-bold text-[var(--text-main)] bg-[var(--bg-glass)] px-2.5 py-1 rounded-lg">0 / 10</span>
                 </div>
 
                 <!-- Stamps Grid -->
@@ -217,20 +255,14 @@
                 </div>
 
                 <!-- Goal Banner and Prize Detail -->
-                <div class="p-3 bg-white/10 border border-white/20 rounded-2xl text-xs text-white/90 leading-relaxed font-medium">
-                    Meta de <span id="points-target" class="font-bold underline text-white">10</span> carimbos =
-                    <span id="prize-description" class="font-bold text-amber-200">Carregando Prêmio...</span>
+                <div class="p-3 bg-[var(--bg-glass)] border border-[var(--border-glass)] rounded-2xl text-xs text-[var(--text-main)] opacity-90 leading-relaxed font-medium transition-colors duration-500">
+                    Meta de <span id="points-target" class="font-bold underline text-[var(--text-main)]">10</span> carimbos =
+                    <span id="prize-description" class="font-bold text-[var(--prize-color)]">Carregando Prêmio...</span>
                 </div>
             </div>
 
-            <!-- Victory Banner (exibido quando há prêmio(s) pendente(s)) -->
-            <div id="victory-banner" class="hidden p-4 rounded-2xl border-2 border-brand-accent bg-brand-accent/10 text-brand-accent-dark flex flex-col items-center gap-2 text-center">
-                <h4 id="victory-title" class="font-bold text-sm uppercase tracking-wider"><i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou um prêmio!</h4>
-                <p id="victory-desc" class="text-xs text-stone-700 font-medium">Mostre este QR ao vendedor para resgatar.</p>
-            </div>
-
             <!-- Toast/estado transitório de RESGATE (efêmero, some sozinho) -->
-            <div id="redeem-banner" class="hidden p-3 rounded-2xl border border-brand-green/30 bg-brand-green/10 text-brand-green flex items-center justify-center gap-2 text-center">
+            <div id="redeem-banner" class="hidden p-3 rounded-2xl border border-brand-green/30 bg-brand-green/10 text-brand-green flex items-center justify-center gap-2 text-center relative z-30">
                 <i class="fa-solid fa-circle-check"></i>
                 <span id="redeem-text" class="text-xs font-semibold">Prêmio resgatado!</span>
             </div>
@@ -424,21 +456,36 @@
                             const pageTitle = visualConfig.tituloPagina || companyData.nomeEmpresa || "Empresa";
                             document.title = pageTitle;
                             
-                            // TEMA CLARO PADRONIZADO: o fundo da página é SEMPRE o creme da paleta.
-                            // Ignora visualConfig.corFundo de propósito (decisão de produto) para evitar fundos como rosa.
-                            document.documentElement.style.backgroundColor = "#F4EFE6";
-                            document.getElementById("body-container").style.backgroundColor = "#F4EFE6";
-                            // ...mas o CARTÃO usa a cor escolhida pela loja (igual ao preview do onboarding).
+                            // TEMA GLOBAL: Aplica a cor do cartão como o fundo de toda a página (Pedido do usuário)
                             const corCartao = (visualConfig && visualConfig.corFundo) || "#2A5A44";
+                            document.documentElement.style.backgroundColor = corCartao;
+                            document.getElementById("body-container").style.backgroundColor = corCartao;
+                            
                             ["loyalty-card", "reward-preview"].forEach((cid) => {
                                 const el = document.getElementById(cid);
                                 if (el) el.style.backgroundColor = corCartao;
                             });
                             
+                            // Lógica para detectar se a cor de fundo é clara ou escura
+                            const hexColor = corCartao.replace('#', '');
+                            const r = parseInt(hexColor.substr(0, 2), 16) || 0;
+                            const g = parseInt(hexColor.substr(2, 2), 16) || 0;
+                            const b = parseInt(hexColor.substr(4, 2), 16) || 0;
+                            const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                            const isLightTheme = brightness > 155;
+                            
+                            const themeClass = isLightTheme ? "theme-light" : "theme-dark";
+                            
+                            // Aplica o tema inteligente ao body e cards
+                            document.getElementById("body-container").classList.remove("theme-light", "theme-dark");
+                            document.getElementById("body-container").classList.add(themeClass);
+                            document.getElementById("reward-preview").classList.remove("theme-light", "theme-dark");
+                            document.getElementById("reward-preview").classList.add(themeClass);
+
                             // Altera fontes
                             const activeFont = visualConfig.fonte || "sans";
-                            document.getElementById("body-container").className = `h-full flex flex-col justify-between overflow-x-hidden p-4 font-${activeFont} transition-all duration-500`;
-                            document.getElementById("app-title").className = `font-bold text-lg text-brand-green leading-tight font-${activeFont}`;
+                            document.getElementById("body-container").className = `h-full flex flex-col justify-between overflow-x-hidden p-4 font-${activeFont} transition-all duration-500 relative text-[var(--text-main)] ${themeClass}`;
+                            document.getElementById("app-title").className = `font-bold text-lg text-[var(--text-main)] leading-tight font-${activeFont}`;
                             document.getElementById("app-title").innerText = pageTitle;
                             
                             const lgpdName = document.getElementById("lgpd-store-name");
@@ -623,7 +670,7 @@
                 // Se já vier com prêmio pendente (cliente voltou), mostra o estado persistente.
                 if (firstLoad) {
                     setCounter(pontos);
-                    renderStamps(pontos);
+                    renderStamps(pontos, premios > 0);
                     if (premios > 0) showVictory(premios, /*retorno=*/true);
                     else hideVictory();
                     toggleWelcome(pontos === 0 && premios === 0);
@@ -640,15 +687,15 @@
                 if (completou) {
                     // Cartão fica cheio e travado; prêmio pendente nos dois aparelhos.
                     setCounter(pontos);
-                    renderStamps(pontos);
-                    playLandingAnimation(metaPontos);            // o carimbo final "pousa"
+                    renderStamps(pontos, true);
+                    playLandingAnimation(metaPontos, true);            // o carimbo final "pousa"
                     showVictory(premios, false);
                     setTimeout(() => fireVictoryConfetti(), prefersReducedMotion ? 0 : 1100);
                 } else if (resgatou) {
                     if (premios > 0) {
                         // Ainda restam prêmios: mantém o cartão cheio.
                         setCounter(pontos);
-                        renderStamps(pontos);
+                        renderStamps(pontos, true);
                         showVictory(premios, true);
                         showRedeemBanner(`Prêmio resgatado! Ainda resta${premios > 1 ? "m" : ""} ${premios}.`);
                     } else {
@@ -660,12 +707,12 @@
                     }
                 } else if (ganhouPonto) {
                     setCounter(pontos);
-                    renderStamps(pontos);
-                    for (let p = lastPoints + 1; p <= pontos; p++) playLandingAnimation(p);
+                    renderStamps(pontos, false);
+                    for (let p = lastPoints + 1; p <= pontos; p++) playLandingAnimation(p, false);
                 } else {
                     // Sem transição relevante: só sincroniza.
                     setCounter(pontos);
-                    renderStamps(pontos);
+                    renderStamps(pontos, premios > 0);
                     if (premios > 0) showVictory(premios, true); else hideVictory();
                     toggleWelcome(pontos === 0 && premios === 0);
                 }
@@ -681,17 +728,21 @@
                 const welcome = document.getElementById("welcome-banner");
                 if (welcome) welcome.classList.toggle("hidden", !show);
             }
-            function showVictory(premios, retorno) {
+            function showVictory(premios, isReturn) {
+                if (prefersReducedMotion) return;
                 const banner = document.getElementById("victory-banner");
                 const plural = premios > 1 ? `${premios} prêmios` : "um prêmio";
-                document.getElementById("victory-title").innerHTML = retorno
+                const premioName = document.getElementById("prize-description")?.innerText || "prêmio";
+                
+                document.getElementById("victory-title").innerHTML = isReturn 
                     ? `<i class="fa-solid fa-gift mr-1.5"></i>🎁 Você tem ${plural} para resgatar!`
-                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou ${plural}!`;
+                    : `<i class="fa-solid fa-gift mr-1.5"></i>🎉 Você ganhou: ${premioName}!`;
                 document.getElementById("victory-desc").innerText = "Mostre este QR ao vendedor para resgatar.";
                 banner.classList.remove("hidden");
                 banner.classList.add("reward-pulse");
             }
             function hideVictory() {
+                stopVictory();
                 const banner = document.getElementById("victory-banner");
                 banner.classList.add("hidden");
                 banner.classList.remove("reward-pulse");
@@ -706,7 +757,7 @@
             function fillStamp(i) {
                 const slot = document.getElementById(`stamp-slot-${i}`);
                 if (!slot) return;
-                slot.classList.remove("bg-white/15", "text-white/60", "border-white/25", "text-xs", "rounded-full", "border-2");
+                slot.classList.remove("bg-[var(--bg-glass)]", "text-[var(--text-muted)]", "border-[var(--border-glass)]", "text-xs", "rounded-full", "border-2");
                 slot.classList.add("bg-transparent", "border-transparent", "scale-110", "stamp-pop");
                 slot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`;
             }
@@ -715,7 +766,7 @@
                 const grid = document.getElementById("stamps-grid");
                 setCounter(0);
                 if (prefersReducedMotion || !grid) {
-                    renderStamps(novoPontos);
+                    renderStamps(novoPontos, false);
                     setCounter(novoPontos);
                     return;
                 }
@@ -723,7 +774,7 @@
                 grid.classList.add("tear-bottom-anim");
                 setTimeout(() => {
                     grid.classList.remove("tear-bottom-anim");
-                    renderStamps(0);
+                    renderStamps(0, false);
                     grid.classList.add("card-enter");
                     setTimeout(() => grid.classList.remove("card-enter"), 500);
                     let i = 0;
@@ -740,7 +791,7 @@
         }
 
         // Animação de Pouso Rápido do Ponto
-        function playLandingAnimation(pointIndex) {
+        function playLandingAnimation(pointIndex, isVictory = false) {
             // X-07: sem movimento — renderStamps() já desenhou o carimbo, então não anima.
             if (prefersReducedMotion) return;
             const giantEmoji = document.createElement("div");
@@ -783,15 +834,16 @@
                 giantEmoji.remove();
                 const targetSlot = document.getElementById(`stamp-slot-${pointIndex}`);
                 if (targetSlot) {
-                    targetSlot.classList.remove("bg-white/15", "text-white/60", "border-white/25", "text-xs", "rounded-full", "border-2");
+                    targetSlot.classList.remove("bg-[var(--bg-glass)]", "text-[var(--text-muted)]", "border-[var(--border-glass)]", "text-xs", "rounded-full", "border-2");
                     targetSlot.classList.add("bg-transparent", "border-transparent", "scale-110");
-                    targetSlot.innerHTML = `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`;
+                    const emojiClass = isVictory ? "dance-stamp text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]" : "text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]";
+                    targetSlot.innerHTML = `<span class="${emojiClass}">${brandEmoji}</span>`;
                 }
             }, 1100);
         }
 
         // Renderização visual dos carimbos (stamps)
-        function renderStamps(pointsCount) {
+        function renderStamps(pointsCount, isVictory = false) {
             const grid = document.getElementById("stamps-grid");
             grid.innerHTML = "";
 
@@ -808,59 +860,74 @@
                 const stamp = document.createElement("div");
                 stamp.id = `stamp-slot-${i}`;
                 const isStamped = i <= pointsCount;
+                
+                const emojiSpanClass = isVictory ? "dance-stamp text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]" : "text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]";
 
                 stamp.className = `w-10 h-10 flex items-center justify-center font-bold transition-all duration-300 ${
                     isStamped
                         ? "bg-transparent border-transparent scale-110"
-                        : "rounded-full border-2 bg-white/15 text-white/60 border-white/25 text-xs"
+                        : "rounded-full border-2 bg-[var(--bg-glass)] text-[var(--text-muted)] border-[var(--border-glass)] text-xs"
                 }`;
 
                 stamp.innerHTML = isStamped
-                    ? `<span class="text-3xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]">${brandEmoji}</span>`
+                    ? `<span class="${emojiSpanClass}">${brandEmoji}</span>`
                     : `${i}`;
 
                 grid.appendChild(stamp);
             }
         }
 
-        // Confetes Interativos de Sucesso com Emojis da Empresa
+        let isCelebrating = false;
+        let particleInterval;
+
         function fireVictoryConfetti() {
-            // X-07: sem confete quando o usuário pede menos movimento (o banner de vitória já comunica).
-            if (prefersReducedMotion) return;
-            try {
-                var scalar = 3;
-                var emojiShape = confetti.shapeFromText({ text: brandEmoji, scalar });
-
-                var duration = 3000;
-                var end = Date.now() + duration;
-
-                (function frame() {
-                    confetti({
-                        particleCount: 3,
-                        angle: 60,
-                        spread: 55,
-                        origin: { x: 0 },
-                        shapes: [emojiShape],
-                        scalar: scalar,
-                        ticks: 60
+            if (isCelebrating) return;
+            isCelebrating = true;
+            if (prefersReducedMotion) return; // X-07
+            
+            const container = document.getElementById("particles-container");
+            if(container) container.innerHTML = "";
+            
+            particleInterval = setInterval(() => {
+                if (!isCelebrating) {
+                    clearInterval(particleInterval);
+                    return;
+                }
+                
+                const emoji = document.createElement("div");
+                emoji.innerText = brandEmoji;
+                emoji.className = "absolute text-3xl filter drop-shadow-md";
+                
+                const startX = Math.random() * window.innerWidth;
+                emoji.style.left = startX + "px";
+                emoji.style.bottom = "-50px";
+                
+                emoji.style.transition = "transform 4s linear, opacity 4s ease-out";
+                if(container) container.appendChild(emoji);
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const endY = -(window.innerHeight + 150);
+                        const endX = (Math.random() - 0.5) * 400;
+                        const rotate = (Math.random() - 0.5) * 720;
+                        
+                        emoji.style.transform = `translate(${endX}px, ${endY}px) rotate(${rotate}deg)`;
+                        emoji.style.opacity = "0";
                     });
-                    confetti({
-                        particleCount: 3,
-                        angle: 120,
-                        spread: 55,
-                        origin: { x: 1 },
-                        shapes: [emojiShape],
-                        scalar: scalar,
-                        ticks: 60
-                    });
+                });
+                
+                setTimeout(() => {
+                    if (emoji.parentNode) emoji.remove();
+                }, 4000);
+                
+            }, 200);
+        }
 
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
-                    }
-                }());
-            } catch (e) {
-                console.error("Confetti error", e);
-            }
+        function stopVictory() {
+            isCelebrating = false;
+            if (particleInterval) clearInterval(particleInterval);
+            const container = document.getElementById("particles-container");
+            if (container) container.innerHTML = "";
         }
 
         // --- Social Login Actions ---
