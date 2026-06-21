@@ -16,8 +16,8 @@ import {
             createUserWithEmailAndPassword,
             loginWithGoogle,
             increment
-        } from "./config.js?v=2";
-        import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite } from "./points-api.js?v=2";
+        } from "../config.js?v=2";
+        import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite } from "../points-api.js?v=2";
 
         // Variáveis de Estado
         let empresaId = "";

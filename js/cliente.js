@@ -15,8 +15,8 @@ import {
             getRedirectResult,
             signInWithEmailAndPassword,
             createUserWithEmailAndPassword
-        } from "./config.js?v=2";
-        import { ensureClientCard, listenCard, deleteMyData } from "./points-api.js?v=2";
+        } from "../config.js?v=2";
+        import { ensureClientCard, listenCard, deleteMyData } from "../points-api.js?v=2";
 
         // Toast não-bloqueante (substitui alert) + modal de confirmação (substitui confirm)
         function showToast(message, type = "success") {

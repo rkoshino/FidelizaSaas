@@ -13,8 +13,8 @@ import {
             onSnapshot,
             deleteDoc,
             sendEmailVerification
-        } from "./config.js?v=2";
-        import { setPoints, awardPoints, removePoint, createSubscription } from "./points-api.js?v=2";
+        } from "../config.js?v=2";
+        import { setPoints, awardPoints, removePoint, createSubscription } from "../points-api.js?v=2";
 
         // --- Toast de notificação ---
         window.showToast = function(message, type = "success") {
