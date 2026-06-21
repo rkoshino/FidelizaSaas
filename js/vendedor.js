@@ -1315,8 +1315,12 @@ import {
         }
 
         window.gerarConviteVendedor = async function() {
+            const btn = document.getElementById("btn-novo-vendedor");
+            if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
+            
             if (!empresaId || !auth.currentUser) {
-                showToast("Dados da empresa ainda não carregados. Aguarde um instante.", "warn");
+                if(typeof showToast === 'function') showToast("Dados da empresa ainda não carregados. Aguarde um instante.", "warn");
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Convidar Vendedor';
                 return;
             }
             try {
@@ -1332,17 +1336,24 @@ import {
                 const input = document.getElementById("vendor-invite-url");
                 input.value = inviteUrl;
                 card.classList.remove("hidden");
+                
+                // Remove readonly temporariamente para mobile conseguir selecionar
+                input.removeAttribute('readonly');
+                
                 document.getElementById("btn-copy-vendor-invite").onclick = async () => {
                     const copied = await copyTextSafe(inviteUrl);
-                    showToast(copied ? "Convite copiado!" : "Copie o link selecionado.", copied ? "success" : "warn");
+                    if(typeof showToast === 'function') showToast(copied ? "Convite copiado!" : "Copie o link selecionado.", copied ? "success" : "warn");
                     input.select();
+                    input.setSelectionRange(0, 99999);
                 };
                 const copied = await copyTextSafe(inviteUrl);
-                showToast(copied ? "Convite de vendedor criado e copiado." : "Convite de vendedor criado. Copie o link exibido.", copied ? "success" : "warn");
+                if(typeof showToast === 'function') showToast(copied ? "Convite de vendedor criado e copiado." : "Convite de vendedor criado. Copie o link exibido.", copied ? "success" : "warn");
             } catch (err) {
                 console.error(err);
-                showToast("Erro ao gerar convite. Verifique sua conexão e tente novamente.", "error");
+                if(typeof showToast === 'function') showToast("Erro ao gerar convite. Verifique sua conexão e tente novamente.", "error");
             }
+            
+            if(btn) btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Convidar Vendedor';
         };
 
         window.pausarVendedor = async function(vUid, estaAtivo) {
@@ -2039,41 +2050,7 @@ document?.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-window.gerarConviteVendedor = async function() {
-    const btn = document.getElementById('btn-novo-vendedor');
-    if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
-    try {
-        const nToken = Math.random().toString(36).substring(2, 10).toUpperCase();
-        await updateDoc(doc(db, "empresas", empresaId), {
-            inviteToken: nToken
-        });
-        inviteToken = nToken;
-        const inviteUrl = `https://tempontinho.com/vendedor.html?empresa=${encodeURIComponent(empresaId)}&convite=${encodeURIComponent(nToken)}`;
-        const inputUrl = document.getElementById('vendor-invite-url');
-        inputUrl.value = inviteUrl;
-        document.getElementById('vendor-invite-card').classList.remove('hidden');
-        
-        // Remove 'readonly' temporariamente para mobile conseguir focar/selecionar
-        inputUrl.removeAttribute('readonly');
-        
-        document.getElementById("btn-copy-vendor-invite").onclick = async () => {
-            try {
-                await navigator.clipboard.writeText(inviteUrl);
-                if(typeof showToast === 'function') showToast("Convite copiado!", "success");
-                inputUrl.select();
-                inputUrl.setSelectionRange(0, 99999); // Mobile
-            } catch(e) {
-                if(typeof showToast === 'function') showToast("Copie o link manualmente.", "warn");
-            }
-        };
-        
-        if(typeof showToast === 'function') showToast("Novo link gerado! Clique no botão para copiar.", "success");
-    } catch(e) {
-        console.error(e);
-        if(typeof showToast === 'function') showToast("Erro ao gerar convite", "error");
-    }
-    if(btn) btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Convidar Vendedor';
-};
+
 
 
 
