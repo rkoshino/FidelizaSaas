@@ -24,6 +24,10 @@
       "functions/**",
       "**/*.md",
       "docs/**",
+      "test/**",
+      "scripts/**",
+      "package.json",
+      "package-lock.json",
       "check.js",
       "check2.js"
     ],
