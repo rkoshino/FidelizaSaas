@@ -9,6 +9,7 @@ import {
             where, 
             getDocs, 
             onSnapshot,
+            setDoc,
             loginWithGoogleRedirect,
             getRedirectResult,
             logoutUser,
