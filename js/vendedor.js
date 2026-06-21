@@ -989,7 +989,6 @@ import {
                         card.innerHTML = `
                             <div class="flex items-start justify-between gap-3">
                                 <div class="flex items-center gap-3 w-full">
-                                    <input type="checkbox" data-id="${clientId}" data-name="${nome}" data-points="${pontos}" class="client-checkbox mt-1 cursor-pointer w-4 h-4 rounded border-stone-200 bg-white text-indigo-600 focus:ring-indigo-500">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="font-bold text-stone-800 text-sm leading-tight truncate">${nome}</h4>
                                         <p class="text-[10px] text-stone-500 mt-0.5 truncate">${client.email || ""}</p>
