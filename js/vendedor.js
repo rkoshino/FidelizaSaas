@@ -2040,7 +2040,7 @@ document?.addEventListener('DOMContentLoaded', () => {
 });
 
 window.gerarConviteVendedor = async function() {
-    const btn = document.getElementById('btn-gerar-convite');
+    const btn = document.getElementById('btn-novo-vendedor');
     if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
     try {
         const nToken = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -2048,14 +2048,14 @@ window.gerarConviteVendedor = async function() {
             inviteToken: nToken
         });
         inviteToken = nToken;
-        document.getElementById('link-convite-vendedor').value = `https://tempontinho.com/vendedor.html?invite=${nToken}`;
-        document.getElementById('caixa-convite').classList.remove('hidden');
+        document.getElementById('vendor-invite-url').value = `https://tempontinho.com/vendedor.html?invite=${nToken}`;
+        document.getElementById('vendor-invite-card').classList.remove('hidden');
         if(typeof showToast === 'function') showToast("Novo link de convite gerado!", "success");
     } catch(e) {
         console.error(e);
         if(typeof showToast === 'function') showToast("Erro ao gerar convite", "error");
     }
-    if(btn) btn.innerHTML = '<i class="fa-solid fa-link"></i> Gerar Link de Convite';
+    if(btn) btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Convidar Vendedor';
 };
 
 
