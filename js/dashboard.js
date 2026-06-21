@@ -16,20 +16,6 @@ import {
         } from "../config.js?v=2";
         import { setPoints, awardPoints, removePoint, createSubscription } from "../points-api.js?v=2";
 
-        // Globais
-        let empresaId = null;
-        let fullEmpresaData = null;
-        let visualConfig = {};
-        let metaCampanha = 0;
-        let hasClientes = false;
-        let hasVendedores = false;
-        let isBulkAjuste = false;
-        let targetClienteId = null;
-        let currentAjusteAction = "add";
-        let writesBlocked = false;
-        let targetClienteIds = [];
-        let qrCodeFlyerInstance = null;
-
         // --- Toast de notificação ---
         window.showToast = function(message, type = "success") {
             const existing = document.getElementById("toast-notification");

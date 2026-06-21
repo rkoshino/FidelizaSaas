@@ -30,16 +30,6 @@ import {
         let targetClienteId = null;
         let targetClienteIds = [];
         let isBulkAjuste = false;
-        let currentAjusteAction = "add";
-        let audioCtx = null;
-        let isProcessing = false;
-        let clientUid = null;
-        let currentClientName = "";
-        let panelClienteId = null;
-        let currentPremios = 0;
-        let hasClientes = false;
-        let hasVendedores = false;
-        let writesBlocked = false;
 
         let html5QrcodeScanner = null;
         let isScannerRunning = false;
