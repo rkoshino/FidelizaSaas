@@ -601,39 +601,6 @@
             }
         }
 
-        /* M-02: tabela de clientes vira cards no mobile (< md) */
-        @media (max-width: 767px) {
-            #tab-content-clientes thead { display: none; }
-            #clientes-table-body, #clientes-table-body tr, #clientes-table-body td { display: block; width: 100%; }
-            #clientes-table-body tr {
-                position: relative;
-                border: 1px solid rgb(227 219 204);
-                border-radius: 1rem;
-                margin-bottom: 0.75rem;
-                padding: 0.25rem 0;
-            }
-            #clientes-table-body td {
-                padding: 0.4rem 1rem !important;
-                text-align: left !important;
-            }
-            #clientes-table-body td[data-label]::before {
-                content: attr(data-label);
-                display: block;
-                font-size: 10px;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: rgb(111 101 87);
-                margin-bottom: 2px;
-            }
-            #clientes-table-body td.col-check {
-                position: absolute;
-                top: 0.5rem;
-                right: 0.5rem;
-                width: auto;
-                padding: 0.5rem !important;
-            }
-            #clientes-table-body td.col-actions .flex { justify-content: flex-start !important; }
-        }
         /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
         :focus-visible {
             outline: 2px solid #2A5A44 !important;
