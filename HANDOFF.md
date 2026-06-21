@@ -3,7 +3,10 @@
 > **Para o próximo Claude:** leia este documento inteiro antes de qualquer ação.
 > Ele contém tudo para dar seguimento sem o usuário precisar reexplicar.
 > Atualize a TODO list no fim conforme as tarefas forem concluídas.
-> Última atualização: 2026-06-18 (sessão: **login/cadastro + equipe/vendedores**).
+> Última atualização: 2026-06-21 (sessão: **billing endurecido + suíte de testes + merge da UI nova**).
+> **⚠️ LEIA A SEÇÃO "SESSÃO 2026-06-21" LOGO ABAIXO PRIMEIRO** — muita coisa mudou
+> (arquitetura do front virou módulos `js/`, suíte de testes nova, billing endurecido,
+> tudo deployado e pushado pro `origin/main`).
 > **Deploy production concluído** (`firebase deploy --only functions,hosting`) em `tempontinho.com` e
 > `nice-dreamks-fidelidade.web.app`: tema claro oficial nas 7 telas, modais X-01, fundo do cliente fixo
 > em creme `#F4EFE6`, e novo contrato de pontos/prêmio (cartão trava cheio, scan resgata, sobra entra só
@@ -11,6 +14,71 @@
 > Deploy production concluído também para login/cadastro + equipe/vendedores
 > (`firebase deploy --only functions,firestore,hosting`) em `tempontinho.com` e
 > `nice-dreamks-fidelidade.web.app`.
+
+## 🆕 SESSÃO 2026-06-21 — billing endurecido + suíte de testes + merge da UI nova
+
+> **Tudo abaixo está DEPLOYADO em produção (`tempontinho.com`) e PUSHADO em `origin/main`.**
+> `main` e `origin/main` em sincronia no commit de merge `a3148ad`.
+
+### 0. ⚠️ MUDANÇA DE ARQUITETURA DO FRONTEND
+O parceiro (agente "bot"/Gemini) **extraiu o JS inline para módulos**:
+- `dashboard.html`, `vendedor.html`, `cliente.html` agora são **cascas** que carregam
+  `js/dashboard.js`, `js/vendedor.js`, `js/cliente.js` (`<script type="module">`).
+- `login.html` e `onboarding.html` **continuam com JS inline** (não foram extraídos).
+- **Ao editar lógica de dashboard/vendedor/cliente, edite os `js/*.js`, NÃO o HTML.**
+- Os módulos importam de `../points-api.js` e `../config.js` (raiz).
+
+### 1. Billing endurecido (auditoria P0+P1) — commit `680db38`
+Auditei o billing Asaas/PIX (já existia) e corrigi furos:
+- **P0 rules:** `allow create` de `empresas` agora valida billing (`billingCreateValido`)
+  — antes dava pra criar a empresa já com `statusAssinatura:"active"`/trial forjado e nunca pagar.
+- **P0 idempotência:** `createSubscription` reaproveita assinatura existente (exceto `canceled`)
+  — antes duplicava assinatura/cobrança PIX a cada clique/reload.
+- **P0 paywall real:** guard em JS (`bloquearSeInativa`) no topo das mutações de pontos
+  (o `disabled` do botão era contornável).
+- **P1:** `setPoints`/`removePoint` agora exigem `assertAssinaturaAtiva`; webhook trata
+  refund/chargeback→`canceled`; `proximoVencimento` usa `nextDueDate` autoritativo da assinatura;
+  token do webhook em tempo constante; `cpfCnpj` protegido nas rules; validação real de CPF/CNPJ
+  (mód-11); erros do checkout tratados por código; LGPD/Salvar-link fora do paywall;
+  vendedor com banner de loja inativa + latch (para de martelar a callable).
+
+### 2. Suíte de testes automatizada (NOVA) — commits `6baad9f`, `a0b5673`, `a7232fa`
+Roda contra o **Firebase Emulator Suite** (isolado de produção, mock local do Asaas, sem chave real):
+- `npm test` → 44 testes (rules + functions/pontos/enforcement + billing/webhook), projeto `demo-tempontinho`.
+- `npm run test:e2e` → 6 testes em **browser real (Playwright/Chromium)**: dono (login+paywall+reativação
+  em tempo real), vendedor (loja inativa trava UI), cliente (branding público). Projeto real
+  `nice-dreamks-fidelidade` (pra casar com o `config.js`).
+- `npm run test:all` → os **50**. Pré-req do e2e: `npx playwright install chromium` (1ª vez).
+- Detalhes em **`test/README.md`**. **Padrão:** rodar `test:all` verde ANTES de deployar.
+- `config.js`/`points-api.js` conectam aos emuladores só quando `localStorage.USE_EMULATOR==="1"`
+  em host local (inócuo em produção). Hosting deixou de servir `test/`, `scripts/`, `package*.json`.
+
+### 3. Merge da UI nova do parceiro — commit de merge `a3148ad`
+O branch `origin/ui-vendor-updates` (refactor `js/` + UI nova + **histórico de atividade do vendedor**
+em `vendedores/{uid}/logs`) foi **reconciliado** com os fixes acima:
+- Backend aditivo, **sem regressão de segurança** (meu P0/billing + features deles convivem).
+- **Re-apliquei meus 3 fixes de frontend** nos módulos extraídos (paywall/CPF em `js/dashboard.js`;
+  banner inativa/latch em `js/vendedor.js` + `#inativa-banner` no `vendedor.html`).
+- Removidos **~30 arquivos scratch** do processo de extração (extract.js, temp_*.js, script_0..9.js,
+  test1/test2.js, old_vendedor.html, modals_tmp.html, etc.).
+
+### 4. ⚠️ Coordenação git (causa raiz de um incidente — NÃO repetir)
+Houve um episódio em que um deploy sobrescreveu o trabalho do outro porque cada dev deployava de
+**cópia local divergente**. Regra agora: **`origin/main` é a fonte única da verdade**.
+- **Antes de trabalhar/deployar: `git pull` (fetch+merge) do `origin/main`.**
+- **Deploy SEMPRE do `main` sincronizado**, com `npm run test:all` verde.
+- Push trava no osxkeychain → usar o helper do gh (`gh auth setup-git` antes do `git push`).
+- **O parceiro precisa dar `git pull` no `main`** (o `ui-vendor-updates` dele já está mergeado lá).
+
+### 5. Pendências desta frente (validação manual)
+- **Teste PIX ponta-a-ponta real** (createSubscription → pagar → webhook vira `active` → paywall some).
+  Webhook validado vivo (401 sem token) na URL configurada no Asaas
+  (`…cloudfunctions.net/asaasWebhook`, que é alias 2ª-gen do serviço — não precisa mexer).
+- **UI nova do parceiro NÃO coberta por teste automatizado**: histórico do vendedor, animações de
+  vitória, tema dinâmico, lista de clientes em cards, geração/cópia de convite, modais. **Validar à mão.**
+- **App Check** segue pendente (reCAPTCHA site key) — ver TODO do lado do Claude.
+
+---
 
 ## 📚 Documentação do projeto (comece aqui)
 
@@ -366,3 +434,17 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST \
 - [x] **Organização da pasta:** docs movidos para `docs/`; `AI_CONTEXT.md` (desatualizado)
       e `PLANO_ACAO_DESIGN.md` (redundante) removidos; hosting deixou de servir `.md`;
       token do webhook removido do HANDOFF (estava em texto puro num doc público)
+
+### Status consolidado — sessão 2026-06-21 (ver seção "🆕 SESSÃO 2026-06-21" no topo)
+- [x] **Billing endurecido** (auditoria P0+P1): rules create-guard, idempotência do
+      `createSubscription`, paywall real, enforcement em set/removePoint, webhook refund→canceled,
+      validação CPF/CNPJ — `680db38`. **Deployado.**
+- [x] **Suíte de testes automatizada** (50): `npm test` (44, emulador) + `npm run test:e2e`
+      (6, Playwright). `test/README.md`. — `6baad9f`/`a0b5673`/`a7232fa`.
+- [x] **Refactor `js/` do parceiro mergeado** (dashboard/vendedor/cliente em módulos) + UI nova
+      + histórico de vendedor, com meus fixes re-aplicados; ~30 scratch files removidos — merge `a3148ad`.
+      **Deployado e pushado em `origin/main`.**
+- [ ] **Teste PIX real ponta-a-ponta** (manual) — pendente.
+- [ ] **Validar à mão a UI nova do parceiro** (histórico vendedor, animações, cards, convites) — sem
+      cobertura automatizada.
+- [ ] **Parceiro: `git pull` no `main`** antes de continuar (evita nova divergência).
