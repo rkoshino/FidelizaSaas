@@ -26,6 +26,8 @@ import {
         let metaConfig = { metaPontos: 10, descriçãoPremio: "Recompensa" };
         let visualConfig = {};
         let fullEmpresaData = null;
+        let currentAjusteAction = "add";
+        let writesBlocked = false;
         
         let targetClienteId = null;
         let targetClienteIds = [];
