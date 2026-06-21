@@ -10,6 +10,7 @@ import {
             getDocs, 
             onSnapshot,
             setDoc,
+            deleteDoc,
             loginWithGoogleRedirect,
             getRedirectResult,
             logoutUser,
@@ -1045,6 +1046,14 @@ import {
                                 <span class="text-[10px] font-bold uppercase tracking-wider ${vended.ativo !== false ? 'text-emerald-700' : 'text-stone-500'}">
                                     ${vended.ativo !== false ? 'Ativo' : 'Pausado'}
                                 </span>
+                                <div class="flex gap-2">
+                                    <button onclick="window.pausarVendedor('${vUid}', ${vended.ativo !== false})" class="w-8 h-8 rounded-full border border-stone-200 text-stone-500 flex items-center justify-center hover:bg-stone-50 hover:text-orange-500 transition-colors" title="${vended.ativo !== false ? 'Pausar Vendedor' : 'Retomar Vendedor'}">
+                                        <i class="fa-solid ${vended.ativo !== false ? 'fa-pause' : 'fa-play'}"></i>
+                                    </button>
+                                    <button onclick="window.apagarVendedor('${vUid}')" class="w-8 h-8 rounded-full border border-stone-200 text-stone-500 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors" title="Remover Vendedor">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         `;
                         grid.appendChild(card);
