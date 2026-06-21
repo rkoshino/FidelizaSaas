@@ -17,7 +17,9 @@ import {
             signInWithEmailAndPassword,
             createUserWithEmailAndPassword,
             loginWithGoogle,
-            increment
+            increment,
+            orderBy,
+            limit
         } from "../config.js?v=2";
         import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite } from "../points-api.js?v=2";
 

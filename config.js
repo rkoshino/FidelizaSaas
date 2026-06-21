@@ -23,7 +23,9 @@ import {
     where, 
     getDocs, 
     onSnapshot,
-    increment
+    increment,
+    orderBy,
+    limit
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
@@ -114,5 +116,7 @@ export {
     loginWithGoogleRedirect,
     logoutUser,
     getRedirectResult,
-    increment
+    increment,
+    orderBy,
+    limit
 };
