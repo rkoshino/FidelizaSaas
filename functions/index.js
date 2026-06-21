@@ -40,7 +40,7 @@ async function assertAutorizado(request, empresaId) {
   if (!auth) throw new HttpsError("unauthenticated", "Faça login para continuar.");
 
   // Dono da empresa.
-  if (auth.uid === empresaId) return { papel: "dono", nome: "Dono" };
+  if (auth.uid === empresaId) return { papel: "dono", nome: "Dono", uid: auth.uid };
 
   // Vendedor: precisa existir um doc em `vendedores` com o e-mail do token
   // E vinculado a esta empresa.
@@ -55,7 +55,7 @@ async function assertAutorizado(request, empresaId) {
     if (!snap.empty) {
       const v = snap.docs[0].data();
       if (v.ativo !== false) {
-        return { papel: "vendedor", nome: v.nomeVendedor || email };
+        return { papel: "vendedor", nome: v.nomeVendedor || email, uid: snap.docs[0].id };
       }
     }
   }
@@ -166,13 +166,22 @@ exports.awardPoints = onCall(async (request) => {
         atualizadoEm: FieldValue.serverTimestamp(),
       });
     }
-    tx.set(ref.collection("logs").doc(), {
+    const logData = {
       tipo: "carimbo",
       qtd,
       premiosGanhos,
       vendedor: caller.nome,
       data: FieldValue.serverTimestamp(),
-    });
+    };
+    tx.set(ref.collection("logs").doc(), logData);
+    if (caller.uid && caller.papel === "vendedor") {
+      tx.set(db.collection("vendedores").doc(caller.uid).collection("logs").doc(), {
+        ...logData,
+        clienteNome: data.nome || data.nomeCompleto || "Cliente",
+        clienteId,
+        empresaId
+      });
+    }
     return {
       pontos: premiosGanhos > 0 ? meta : total,
       premiosGanhos,
@@ -219,11 +228,20 @@ exports.deliverPrize = onCall(async (request) => {
     }
     tx.update(ref, update);
     tx.update(empRef, { totalPremiosEntregues: FieldValue.increment(1) });
-    tx.set(ref.collection("logs").doc(), {
+    const logData = {
       tipo: "resgate",
       vendedor: caller.nome,
       data: FieldValue.serverTimestamp(),
-    });
+    };
+    tx.set(ref.collection("logs").doc(), logData);
+    if (caller.uid && caller.papel === "vendedor") {
+      tx.set(db.collection("vendedores").doc(caller.uid).collection("logs").doc(), {
+        ...logData,
+        clienteNome: data.nome || data.nomeCompleto || "Cliente",
+        clienteId,
+        empresaId
+      });
+    }
     return { premiosPendentes: novoPendentes, pontos };
   });
 
@@ -245,7 +263,16 @@ exports.removePoint = onCall(async (request) => {
     const atuais = Number(snap.data().pontos) || 0;
     const novo = Math.max(0, atuais - 1);
     tx.update(ref, { pontos: novo, atualizadoEm: FieldValue.serverTimestamp() });
-    tx.set(ref.collection("logs").doc(), { tipo: "remocao", vendedor: caller.nome, data: FieldValue.serverTimestamp() });
+    const logData = { tipo: "remocao", vendedor: caller.nome, data: FieldValue.serverTimestamp() };
+    tx.set(ref.collection("logs").doc(), logData);
+    if (caller.uid && caller.papel === "vendedor") {
+      tx.set(db.collection("vendedores").doc(caller.uid).collection("logs").doc(), {
+        ...logData,
+        clienteNome: snap.data().nome || snap.data().nomeCompleto || "Cliente",
+        clienteId,
+        empresaId
+      });
+    }
     return novo;
   });
 

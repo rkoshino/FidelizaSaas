@@ -1058,6 +1058,9 @@ import {
                                     ${vended.ativo !== false ? 'Ativo' : 'Pausado'}
                                 </span>
                                 <div class="flex gap-2">
+                                    <button onclick="window.openHistoricoVendedorModal('${vUid}', '${vended.nomeVendedor || "Atendente"}')" class="w-8 h-8 rounded-full border border-stone-200 text-stone-500 flex items-center justify-center hover:bg-stone-50 hover:text-indigo-600 transition-colors" title="Ver Histórico">
+                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                    </button>
                                     <button onclick="window.pausarVendedor('${vUid}', ${vended.ativo !== false})" class="w-8 h-8 rounded-full border border-stone-200 text-stone-500 flex items-center justify-center hover:bg-stone-50 hover:text-orange-500 transition-colors" title="${vended.ativo !== false ? 'Pausar Vendedor' : 'Retomar Vendedor'}">
                                         <i class="fa-solid ${vended.ativo !== false ? 'fa-pause' : 'fa-play'}"></i>
                                     </button>
@@ -1139,6 +1142,62 @@ import {
         window.closeHistoricoModal = function() {
             document.getElementById("modal-historico").classList.add("hidden");
         };
+
+        // Abrir Modal de Histórico do Vendedor
+        window.openHistoricoVendedorModal = async function(vUid, vName) {
+            document.getElementById("historico-vendedor-nome").innerText = vName || "Atendente";
+            const historicoLista = document.getElementById("historico-vendedor-lista");
+            historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Carregando atividades...</div>`;
+            document.getElementById("modal-historico-vendedor").classList.remove("hidden");
+
+            try {
+                const logsRef = collection(db, "vendedores", vUid, "logs");
+                const snap = await getDocs(query(logsRef, orderBy("data", "desc"), limit(50)));
+
+                if (snap.empty) {
+                    historicoLista.innerHTML = `<div class="text-center text-stone-500 py-6 text-xs">Nenhuma atividade recente registrada.</div>`;
+                    return;
+                }
+
+                const logs = snap.docs.map(d => d.data());
+
+                historicoLista.innerHTML = logs.map(log => {
+                    const dateObj = log.data?.toDate ? log.data.toDate() : new Date();
+                    const dateStr = dateObj.toLocaleDateString('pt-BR');
+                    const timeStr = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                    const desc = log.tipo === "resgate"
+                        ? `<i class="fa-solid fa-gift text-yellow-400 mr-1.5"></i> Resgatou prêmio`
+                        : log.tipo === "remocao"
+                        ? `<i class="fa-solid fa-minus text-red-600 mr-1.5"></i> Removeu ponto`
+                        : log.tipo === "ajuste"
+                        ? `<i class="fa-solid fa-pen text-amber-400 mr-1.5"></i> Ajuste manual (${log.qtd ?? 0})`
+                        : `<i class="fa-solid fa-stamp text-indigo-400 mr-1.5"></i> Adicionou ${log.qtd || 1} Ponto(s)`;
+                    const sub = `Para: ${log.clienteNome || "Cliente"}`;
+
+                    return `
+                        <div class="bg-stone-50 border border-stone-200 p-3 rounded-xl flex justify-between items-center text-xs">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-stone-800 font-medium">${desc}</span>
+                                <span class="text-stone-500 text-[10px]">${sub}</span>
+                            </div>
+                            <div class="text-right flex flex-col gap-0.5">
+                                <span class="text-stone-500">${dateStr}</span>
+                                <span class="text-stone-500 text-[10px]">${timeStr}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            } catch (err) {
+                console.error("Erro ao carregar histórico do vendedor:", err);
+                historicoLista.innerHTML = `<div class="text-center text-red-600 py-6 text-xs">Erro ao carregar atividades.</div>`;
+            }
+        };
+
+        window.closeHistoricoVendedorModal = function() {
+            document.getElementById("modal-historico-vendedor").classList.add("hidden");
+        };
+
 
         // Abrir Modal de Feature Pro
         window.openProFeatureModal = function(featureName) {
