@@ -60,6 +60,26 @@
             outline-offset: 2px !important;
             border-radius: 6px;
         }
+    
+        .theme-light {
+            --text-main: #1c1917;
+            --text-muted: rgba(0, 0, 0, 0.5);
+            --bg-glass: rgba(0, 0, 0, 0.05);
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --icon-bg: #1c1917;
+            --icon-text: #ffffff;
+            --prize-color: #2A5A44;
+        }
+        .theme-dark {
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.2);
+            --icon-bg: #ffffff;
+            --icon-text: #000000;
+            --prize-color: #D96B43;
+        }
+
     </style>
 </head>
 <body class="h-full flex flex-col justify-between overflow-x-hidden bg-brand-paper p-4 font-sans">
@@ -122,7 +142,10 @@
         </div>
 
         <!-- SCANNER APP SCREEN (Hidden initially) -->
-        <div id="app-screen" class="hidden w-full flex flex-col gap-4 text-center">
+        <div id="app-screen" class="hidden w-full flex flex-col gap-4 text-center pb-20 relative">
+
+            <!-- TAB: CÂMERA (Scanner original) -->
+            <div id="tab-camera" class="app-tab flex flex-col gap-4 transition-opacity duration-300">
             
             <!-- Branding Header -->
             <div class="flex justify-between items-center glassmorphism px-4 py-3 rounded-2xl">
@@ -136,7 +159,6 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <a href="dashboard.html" class="text-xs font-bold text-stone-600 hover:text-stone-800 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition" title="Abrir Painel do Dono"><i class="fa-solid fa-gauge-high"></i> Painel</a>
                     <button id="btn-logout" class="text-xs font-bold text-red-500 hover:text-red-600 px-3 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-white border border-stone-200 transition"><i class="fa-solid fa-power-off"></i> Sair</button>
                 </div>
             </div>
@@ -238,923 +260,714 @@
                 <a id="cliente-qr-link" href="#" target="_blank" rel="noopener" class="text-xs font-semibold text-brand-green hover:text-brand-green-dark break-all">Abrir página do cliente</a>
             </div>
 
+            </div> <!-- Fim TAB CAMERA -->
+
+            <!-- TABS VAZIAS (Para o Dono) -->
+            <div id="tab-status" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left">
+                <h3 class="text-xl font-bold font-outfit text-stone-800 px-4 pt-2">Visão Geral</h3>
+                
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 px-4">
+                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-users"></i></div>
+                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Clientes</span>
+                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-clientes">0</span>
+                    </div>
+                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-star"></i></div>
+                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Carimbos</span>
+                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-total-pontos">0</span>
+                    </div>
+                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
+                        <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-gift"></i></div>
+                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">A Resgatar</span>
+                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-disponiveis">0</span>
+                    </div>
+                    <div class="glassmorphism p-4 rounded-2xl flex flex-col items-start gap-3 relative overflow-hidden">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-lg absolute top-4 right-4"><i class="fa-solid fa-circle-check"></i></div>
+                        <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Entregues</span>
+                        <span class="text-3xl font-bold text-stone-800 font-outfit" id="stat-premios-entregues">0</span>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Performance (Futuro) -->
+                <div class="px-4">
+                    <div class="glassmorphism p-4 rounded-2xl">
+                        <h4 class="text-sm font-bold text-stone-800 mb-4">Engajamento</h4>
+                        <div class="h-40 bg-stone-50 rounded-xl flex items-center justify-center text-stone-400 text-xs border border-stone-200">Gráfico em breve...</div>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-cartao" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left">
+                <h3 class="text-xl font-bold font-outfit text-stone-800">Cartão</h3>
+                <p class="text-sm text-stone-600">Altere o visual que seus clientes vão ver no celular deles.</p>
+                
+                <!-- PREVIEW DO CARTÃO -->
+                <div class="w-full flex justify-center py-2 relative flex-col items-center gap-3">
+                    <div id="preview-cartao-container" class="w-[280px] rounded-3xl p-5 shadow-sm border border-stone-200 flex flex-col items-center gap-4 transition-colors duration-500 overflow-hidden relative">
+                        
+                        <!-- Header igual ao cliente -->
+                        <div class="flex flex-col items-center gap-1 mt-2 relative z-10">
+                            <div class="w-8 h-8 rounded-full bg-[var(--icon-bg)] text-[var(--icon-text)] flex items-center justify-center text-sm shadow-sm transition-colors duration-500">
+                                ✶
+                            </div>
+                            <h2 id="preview-title" class="font-bold text-base text-[var(--text-main)] leading-tight mt-1">Seu Programa</h2>
+                            <span class="text-[9px] bg-[var(--bg-glass)] text-[var(--text-main)] border border-[var(--border-glass)] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm transition-colors duration-500">Cartão de Pontos</span>
+                        </div>
+
+                        <!-- Card igual ao cliente -->
+                        <div class="w-full rounded-2xl p-4 flex flex-col gap-3 border border-[var(--border-glass)] text-[var(--text-main)] relative z-10 transition-colors duration-500 shadow-inner bg-[var(--bg-glass)]">
+                            <div class="flex justify-between items-center text-[10px] border-b border-[var(--border-glass)] pb-2">
+                                <span class="text-[var(--text-muted)] font-medium">Pontuação Acumulada</span>
+                                <span id="preview-points-counter" class="font-bold text-[var(--text-main)] bg-[var(--bg-glass)] px-2 py-0.5 rounded-lg">2 / 10</span>
+                            </div>
+                            
+                            <div id="preview-stamps-grid" class="grid gap-2 justify-items-center w-full">
+                                <!-- JS fills this -->
+                            </div>
+
+                            <div class="p-2 bg-[var(--bg-glass)] border border-[var(--border-glass)] rounded-xl text-[10px] text-[var(--text-main)] opacity-90 leading-relaxed font-medium transition-colors duration-500 text-center">
+                                Meta de <span id="preview-meta-txt" class="font-bold border-b border-[var(--text-main)] pb-0.5">10</span> carimbos = <span id="preview-premio" class="font-bold uppercase text-[var(--prize-color)]">Prêmio</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="flex justify-center mt-1">
+                    <button onclick="toggleEditCard()" class="px-4 py-2 bg-stone-100 border border-stone-200 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition active:scale-95">
+                        <i class="fa-solid fa-pen mr-1"></i> Editar Cartão
+                    </button>
+                </div>
+
+
+            </div>
+            <div id="tab-divulgue" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left px-4">
+                <h3 class="text-xl font-bold font-outfit text-stone-800">Divulgue</h3>
+                <div class="glassmorphism p-4 rounded-2xl flex flex-col gap-6">
+                    <div class="flex flex-col gap-4">
+                        <!-- Client link -->
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Link do Cliente (Cartão Digital)</span>
+                            <div class="flex gap-2">
+                                <input type="text" readonly id="overview-link-cliente-url" class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none text-indigo-700 select-all">
+                                <button id="btn-overview-copy-cliente" class="px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp Kit -->
+                        <div class="flex flex-col gap-1.5 mt-2">
+                            <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Texto para WhatsApp</span>
+                            <div class="relative">
+                                <textarea readonly id="overview-whatsapp-kit-text" class="w-full min-h-[100px] bg-white border border-stone-200 rounded-xl p-3 text-[10px] text-stone-500 focus:outline-none resize-none leading-relaxed select-all"></textarea>
+                                <button id="btn-overview-copy-whatsapp" class="absolute bottom-2 right-2 bg-indigo-600/80 hover:bg-indigo-600 text-white px-2 py-1 rounded-lg text-[10px] font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i> Copiar</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Flyer -->
+                        <div class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-stone-50 border border-stone-200 mt-2">
+                            <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 shadow-sm" id="overview-qrcode-box">
+                                <div id="overview-qrcode-placeholder" class="w-[80px] h-[80px] flex items-center justify-center text-stone-400">
+                                    <i class="fa-solid fa-qrcode text-3xl"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1 text-center">
+                                <h3 class="font-bold text-stone-800 text-sm font-outfit">Flyer de Divulgação</h3>
+                                <p class="text-[10px] text-stone-500">Imprima e coloque no balcão para os clientes escanearem.</p>
+                                <button onclick="openFlyerModal()" class="mt-2 text-[10px] font-semibold text-stone-600 bg-white border border-stone-200 hover:bg-stone-100 px-3 py-2 rounded-xl inline-flex items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Baixar Flyer (A4)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-menu" class="app-tab hidden flex-col gap-5 transition-opacity duration-300 text-left px-4">
+                <h3 class="text-xl font-bold font-outfit text-stone-800">Menu</h3>
+                <div class="flex flex-col gap-3">
+                    <button onclick="openSubTab('sub-clientes')" class="glassmorphism p-4 rounded-2xl flex items-center justify-between hover:bg-stone-50 transition active:scale-[0.98]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div>
+                            <span class="font-bold text-stone-800 text-sm">Clientes Participantes</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-400"></i>
+                    </button>
+                    <button onclick="openSubTab('sub-equipe')" class="glassmorphism p-4 rounded-2xl flex items-center justify-between hover:bg-stone-50 transition active:scale-[0.98]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-user-shield"></i></div>
+                            <span class="font-bold text-stone-800 text-sm">Equipe (Vendedores)</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-400"></i>
+                    </button>
+                    <button onclick="openSubTab('sub-conta')" class="glassmorphism p-4 rounded-2xl flex items-center justify-between hover:bg-stone-50 transition active:scale-[0.98]">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-lg"><i class="fa-solid fa-gear"></i></div>
+                            <span class="font-bold text-stone-800 text-sm">Configurações e Assinatura</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-400"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SUB-TABS (Telas sobrepostas ao Menu) -->
+        <div id="sub-clientes" class="sub-tab fixed inset-0 bg-brand-paper z-[60] hidden flex-col overflow-y-auto pb-20 transition-transform duration-300 translate-x-full">
+            <div class="flex items-center gap-3 p-4 glassmorphism sticky top-0 z-10 border-b border-stone-200">
+                <button onclick="closeSubTab('sub-clientes')" class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-600 transition active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Clientes Participantes</h3>
+            </div>
+            <div class="p-4 flex flex-col gap-4">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-500 text-xs"></i>
+                    <input type="text" id="search-cliente" placeholder="Buscar nome ou e-mail..." class="w-full bg-white border border-stone-200 rounded-xl pl-9 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-stone-500">
+                </div>
+
+                <div id="clientes-list" class="flex flex-col gap-3">
+                    <div class="glassmorphism p-8 rounded-2xl text-center text-stone-500 w-full"><i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sub-equipe" class="sub-tab fixed inset-0 bg-brand-paper z-[60] hidden flex-col overflow-y-auto pb-20 transition-transform duration-300 translate-x-full">
+            <div class="flex items-center gap-3 p-4 glassmorphism sticky top-0 z-10 border-b border-stone-200">
+                <button onclick="closeSubTab('sub-equipe')" class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-600 transition active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Equipe</h3>
+            </div>
+            <div class="p-4 flex flex-col gap-4">
+                <button id="btn-novo-vendedor" type="button" class="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 font-semibold text-white rounded-xl text-xs flex justify-center items-center gap-2 shadow-lg transition active:scale-95">
+                    <i class="fa-solid fa-user-plus"></i> Convidar Vendedor
+                </button>
+                <div id="vendor-invite-card" class="hidden glassmorphism rounded-2xl p-4 border border-brand-green/20 bg-brand-green/5 flex flex-col gap-3">
+                    <div class="flex gap-2">
+                        <input id="vendor-invite-url" readonly class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-[10px] text-brand-green select-all focus:outline-none" value="">
+                        <button id="btn-copy-vendor-invite" class="px-3 bg-brand-green text-white rounded-xl text-[10px] font-bold" type="button"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4" id="vendedores-grid">
+                    <div class="glassmorphism p-6 rounded-2xl text-center text-stone-500"><i class="fa-solid fa-spinner animate-spin mr-2"></i> Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sub-conta" class="sub-tab fixed inset-0 bg-brand-paper z-[60] hidden flex-col overflow-y-auto pb-20 transition-transform duration-300 translate-x-full">
+            <div class="flex items-center gap-3 p-4 glassmorphism sticky top-0 z-10 border-b border-stone-200">
+                <button onclick="closeSubTab('sub-conta')" class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-600 transition active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Conta</h3>
+            </div>
+            <div class="p-4 flex flex-col gap-4">
+                <div class="glassmorphism p-5 rounded-2xl flex flex-col gap-4 border border-stone-200">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Nome da Empresa</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="config-company-name" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 transition">
+                            <button id="btn-save-company-name" class="px-4 bg-indigo-600 text-white rounded-xl text-xs font-semibold active:scale-95">Salvar</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">E-mail Comercial</label>
+                        <input type="text" id="config-owner-email" readonly class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-500 opacity-70">
+                    </div>
+                </div>
+                <div class="glassmorphism p-5 rounded-2xl flex flex-col gap-3 border border-red-200 bg-red-50">
+                    <h4 class="font-bold text-red-600 text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Excluir Conta</h4>
+                    <p class="text-[10px] text-stone-500">Ação irreversível de exclusão de dados (LGPD).</p>
+                    <button id="btn-delete-controller-account" class="text-[10px] font-bold bg-red-50 border border-red-300 text-red-600 px-3 py-2 rounded-xl active:scale-95">Apagar Minha Conta e Dados</button>
+                </div>
+            </div>
         </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="w-full text-center text-xs text-stone-500 pb-2">
+    <footer id="app-footer" class="w-full text-center text-xs text-stone-500 pb-2">
         <p>Validador Tem Pontinho &copy; 2026. Segurança lógica ativa.</p>
     </footer>
 
-    <!-- Firebase SDK Logic connection -->
-    <script type="module">
-        import { 
-            auth, 
-            db, 
-            doc, 
-            getDoc, 
-            updateDoc, 
-            collection, 
-            query, 
-            where, 
-            getDocs, 
-            onSnapshot,
-            loginWithGoogleRedirect,
-            getRedirectResult,
-            logoutUser,
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            loginWithGoogle,
-            increment
-        } from "./config.js?v=2";
-        import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite } from "./points-api.js?v=2";
+    <!-- Bottom Navigation (Exclusivo para o Dono) -->
+    <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 w-full bg-white border-t border-stone-200 pb-safe z-50 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+        <div class="flex justify-around items-center pt-2 pb-2">
+            <button onclick="switchAppTab('tab-camera')" class="nav-btn flex flex-col items-center gap-1 w-16 text-indigo-600 transition" data-target="tab-camera">
+                <i class="fa-solid fa-camera text-xl mb-0.5"></i>
+                <span class="text-[10px] font-bold">Câmera</span>
+            </button>
+            <button onclick="switchAppTab('tab-status')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-status">
+                <i class="fa-solid fa-chart-pie text-xl mb-0.5"></i>
+                <span class="text-[10px] font-bold">Status</span>
+            </button>
+            <button onclick="switchAppTab('tab-cartao')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-cartao">
+                <i class="fa-solid fa-palette text-xl mb-0.5"></i>
+                <span class="text-[10px] font-bold">Cartão</span>
+            </button>
+            <button onclick="switchAppTab('tab-divulgue')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-divulgue">
+                <i class="fa-solid fa-bullhorn text-xl mb-0.5"></i>
+                <span class="text-[10px] font-bold">Divulgue</span>
+            </button>
+            <button onclick="switchAppTab('tab-menu')" class="nav-btn flex flex-col items-center gap-1 w-16 text-stone-400 hover:text-stone-600 transition" data-target="tab-menu">
+                <i class="fa-solid fa-bars text-xl mb-0.5"></i>
+                <span class="text-[10px] font-bold">Menu</span>
+            </button>
+        </div>
+    </nav>
 
-        // Variáveis de Estado
-        let empresaId = "";
-        let inviteToken = "";
-        let loggedVendedor = null;
-        let metaConfig = { metaPontos: 10, descriçãoPremio: "Recompensa" };
-        let visualConfig = {};
-        
-        let html5QrcodeScanner = null;
-        let isScannerRunning = false;
-
-        // Latch da assinatura inativa: quando true, bloqueia ações de pontuação/resgate
-        // e mostra o banner persistente. Definido proativamente no branding e reforçado
-        // (defesa em profundidade) ao primeiro erro ASSINATURA_INATIVA do backend.
-        let lojaInativa = false;
-
-        function showToast(message, type = "success") {
-          const toast = document.getElementById("toast");
-          const toastText = document.getElementById("toast-text");
-          const toastIcon = document.getElementById("toast-icon");
-          toastText.textContent = message;
-          const configs = {
-            success: { bg: "bg-indigo-600", icon: "fa-circle-check" },
-            error:   { bg: "bg-red-600",    icon: "fa-circle-xmark" },
-            warn:    { bg: "bg-amber-500",  icon: "fa-triangle-exclamation" },
-          };
-          const cfg = configs[type] || configs.success;
-          toast.className = `fixed top-5 right-5 z-[100] flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium text-white ${cfg.bg}`;
-          toastIcon.className = `fa-solid ${cfg.icon} text-base`;
-          toast.style.opacity = "1"; toast.style.transform = "translateY(0)"; toast.style.pointerEvents = "auto";
-          clearTimeout(toast._hideTimer);
-          toast._hideTimer = setTimeout(() => { toast.style.opacity = "0"; toast.style.transform = "translateY(-8px)"; toast.style.pointerEvents = "none"; }, 3500);
-        }
-
-        function confirmDialog({ title = "Confirmar", message = "", confirmText = "Confirmar", cancelText = "Cancelar", danger = false, keyword = null } = {}) {
-          return new Promise((resolve) => {
-            const modal = document.getElementById("modal-confirm");
-            const elTitle = document.getElementById("confirm-title");
-            const elMsg = document.getElementById("confirm-message");
-            const elInput = document.getElementById("confirm-input");
-            const btnOk = document.getElementById("confirm-ok");
-            const btnCancel = document.getElementById("confirm-cancel");
-            const iconWrap = document.getElementById("confirm-icon-wrap");
-            const icon = document.getElementById("confirm-icon");
-            elTitle.textContent = title; elMsg.textContent = message;
-            btnOk.textContent = confirmText; btnCancel.textContent = cancelText;
-            btnOk.className = `flex-1 min-h-[44px] rounded-xl text-white font-semibold transition ${danger ? "bg-red-600 hover:bg-red-500" : "bg-indigo-600 hover:bg-indigo-500"}`;
-            iconWrap.className = `shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${danger ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-600"}`;
-            icon.className = `fa-solid ${danger ? "fa-trash-can" : "fa-triangle-exclamation"}`;
-            if (keyword) { elInput.classList.remove("hidden"); elInput.value = ""; } else { elInput.classList.add("hidden"); }
-            modal.classList.remove("hidden");
-            if (keyword) setTimeout(() => elInput.focus(), 50);
-            function cleanup(result) { modal.classList.add("hidden"); btnOk.onclick = null; btnCancel.onclick = null; modal.onclick = null; document.removeEventListener("keydown", onKey); resolve(result); }
-            function accept() { if (keyword && elInput.value.trim() !== keyword) { cleanup(false); return; } cleanup(true); }
-            function onKey(e) { if (e.key === "Escape") cleanup(false); if (e.key === "Enter" && !keyword) accept(); }
-            btnOk.onclick = accept; btnCancel.onclick = () => cleanup(false);
-            modal.onclick = (e) => { if (e.target === modal) cleanup(false); };
-            document.addEventListener("keydown", onKey);
-          });
-        }
-
-        // Tenta obter o ID da empresa pela query param com fallback de localStorage
-        const urlParams = new URLSearchParams(window.location.search);
-        empresaId = urlParams.get("empresa") || urlParams.get("empresaId") || urlParams.get("id") || localStorage.getItem("tempontinho_vendedor_empresa") || "";
-        inviteToken = urlParams.get("convite") || "";
-
-        if (empresaId) localStorage.setItem("tempontinho_vendedor_empresa", empresaId);
-        if (inviteToken) document.getElementById("invite-hint")?.classList.remove("hidden");
-
-        // Web Audio Sintetizador de Feedback Sonoro
-        let audioCtx = null;
-
-        function getPublicBaseUrl() {
-            if (["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.protocol === "file:") {
-                return window.location.origin + window.location.pathname.replace(/[^/]*$/, "");
-            }
-            return "https://tempontinho.com/";
-        }
-        
-        function playSound(type) {
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                // Reinicia se suspenso
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                if (type === "success") {
-                    // Beep-Beep agradável de sucesso
-                    osc.type = "sine";
-                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.1);
-                    
-                    setTimeout(() => {
-                        const osc2 = audioCtx.createOscillator();
-                        const gain2 = audioCtx.createGain();
-                        osc2.connect(gain2);
-                        gain2.connect(audioCtx.destination);
-                        osc2.type = "sine";
-                        osc2.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-                        gain2.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                        osc2.start();
-                        osc2.stop(audioCtx.currentTime + 0.15);
-                    }, 120);
-                } else if (type === "win") {
-                    // Fanfarra / Chime especial de resgate de prêmio
-                    osc.type = "triangle";
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.1);
-                    
-                    const steps = [659.25, 783.99, 1046.50]; // E5, G5, C6
-                    steps.forEach((freq, idx) => {
-                        setTimeout(() => {
-                            const o = audioCtx.createOscillator();
-                            const g = audioCtx.createGain();
-                            o.connect(g);
-                            g.connect(audioCtx.destination);
-                            o.type = "triangle";
-                            o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                            o.start();
-                            o.stop(audioCtx.currentTime + 0.2);
-                        }, (idx + 1) * 100);
-                    });
-                } else if (type === "error") {
-                    // Som de erro de baixa frequência
-                    osc.type = "sawtooth";
-                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.35);
-                }
-            } catch (err) {
-                console.error("Falha ao tocar som de feedback", err);
-            }
-        }
-
-        // Haptic Feedback de vibração
-        function triggerVibration(pattern) {
-            if (navigator.vibrate) {
-                navigator.vibrate(pattern);
-            }
-        }
-
-        // Executa busca preliminar das regras e nome da empresa
-        async function fetchCompanyBranding() {
-            if (!empresaId) {
-                // Se não tiver empresaId na URL, bloqueia login e mostra aviso com diagnóstico
-                document.getElementById("login-empresa-nome").innerText = "Link de Vendedor Inválido";
-                document.getElementById("login-form").outerHTML = `
-                    <div class="p-4 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs leading-relaxed text-left font-medium flex flex-col gap-2">
-                        <div>
-                            <i class="fa-solid fa-triangle-exclamation mr-1 text-sm"></i>
-                            <strong>Erro:</strong> O link do vendedor está incompleto.
-                        </div>
-                        <div class="bg-red-100/50 p-2 rounded border border-red-200 font-mono text-xs break-all select-all">
-                            URL Detectada: ${window.location.href}
-                        </div>
-                        <p>Por favor, use a URL completa fornecida no painel (ex: <code>vendedor.html?empresa=ID_DA_EMPRESA</code>).</p>
-                    </div>
-                `;
-                return;
-            }
-            try {
-                const docSnap = await getDoc(doc(db, "empresas", empresaId));
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    metaConfig = data.metaConfig;
-                    visualConfig = data.visualConfig || {};
-                    populateQtyOptions((metaConfig && metaConfig.metaPontos) || 10);
-
-                    // Exibe nome da empresa no topo e na tela de login
-                    document.getElementById("empresa-nome").innerText = data.nomeEmpresa;
-                    document.getElementById("login-empresa-nome").innerText = `Atendente - ${data.nomeEmpresa}`;
-
-                    // $-01: banner de trial (mês grátis) — só durante o trial vigente.
-                    const trialEnd = data.trialEndDate
-                        ? (typeof data.trialEndDate.toDate === "function" ? data.trialEndDate.toDate() : new Date(data.trialEndDate))
-                        : null;
-                    const emTrial = (data.statusAssinatura === "trial") && trialEnd && trialEnd > new Date();
-
-                    // Detecção proativa de assinatura inativa — MESMA regra do backend:
-                    // active = "active" OU ("trial" com trialEndDate futuro). Qualquer
-                    // outro caso (overdue/canceled/trial expirado) => inativa.
-                    const ativa = (data.statusAssinatura === "active") || emTrial;
-                    if (!ativa) aplicarLojaInativa();
-
-                    if (emTrial) {
-                        const diffDays = Math.max(0, Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24)));
-                        const daysEl = document.getElementById("trial-banner-days");
-                        if (daysEl) daysEl.innerText = diffDays;
-                        const banner = document.getElementById("trial-banner");
-                        if (banner) banner.classList.replace("hidden", "flex");
-                    }
-
-                    // C-02: QR da página do cliente (novos clientes escaneiam para entrar)
-                    const slug = data.linkUnicoCliente || empresaId;
-                    if (slug && typeof QRCode !== "undefined") {
-                        const base = getPublicBaseUrl();
-                        const clienteUrl = `${base}cliente.html?link=${encodeURIComponent(slug)}`;
-                        const qrBox = document.getElementById("cliente-qr");
-                        const qrCard = document.getElementById("cliente-qr-card");
-                        const qrLink = document.getElementById("cliente-qr-link");
-                        if (qrBox && qrCard) {
-                            qrBox.innerHTML = "";
-                            new QRCode(qrBox, { text: clienteUrl, width: 140, height: 140, correctLevel: QRCode.CorrectLevel.M });
-                            if (qrLink) qrLink.href = clienteUrl;
-                            qrCard.classList.replace("hidden", "flex");
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error("Erro ao buscar dados da empresa: ", err);
-            }
-        }
-
-        // Branding não-bloqueante: um top-level await aqui travava o registro dos
-        // listeners (botão de login) enquanto a init carregava — no mobile ficava "sem efeito".
-        fetchCompanyBranding().catch((e) => console.error("Erro no branding:", e));
-
-        function authErrorMessage(err) {
-            const code = err && err.code;
-            if (code === "auth/invalid-email") return "Digite um e-mail válido.";
-            if (code === "auth/missing-password") return "Digite sua senha.";
-            if (code === "auth/weak-password") return "Use uma senha com pelo menos 6 caracteres.";
-            if (code === "auth/email-already-in-use") return "Este e-mail já tem conta. Entre com a senha correta ou use Google.";
-            if (code === "auth/invalid-credential" || code === "auth/user-not-found" || code === "auth/wrong-password") return inviteToken ? "Não foi possível entrar. Confira a senha ou crie uma senha para este convite." : "E-mail/senha incorretos ou atendente não autorizado.";
-            if (code === "auth/popup-closed-by-user") return "Login cancelado antes de concluir.";
-            if (code === "auth/network-request-failed") return "Falha de conexão. Verifique sua internet e tente novamente.";
-            return "Não foi possível concluir o login. Tente novamente.";
-        }
-
-        // Lê o vínculo do vendedor; a regra nega leitura de doc inexistente, então
-        // tratamos erro/inexistência como "ainda não vinculado" (e seguimos pro convite).
-        async function safeGetVendor(ref) {
-            try {
-                const snap = await getDoc(ref);
-                return snap.exists() ? snap.data() : null;
-            } catch (_) {
-                return null;
-            }
-        }
-
-        function conviteErrMsg(err) {
-            const m = String((err && err.message) || "");
-            if (m.includes("já foi usado") || m.includes("cancelado")) return "Este convite já foi usado. Peça um novo ao dono da loja.";
-            if (m.includes("não encontrado") || m.includes("expirado") || m.includes("inválido")) return "Convite inválido ou expirado. Peça um novo ao dono da loja.";
-            if (m.includes("outra empresa")) return "Este e-mail já está vinculado a outra loja.";
-            return "Não foi possível validar seu acesso de atendente. Tente novamente ou peça um novo convite.";
-        }
-
-        async function liberarVendedor(user) {
-            if (user.uid === empresaId) {
-                loggedVendedor = {
-                    nomeVendedor: user.displayName || "Dono da loja",
-                    email: user.email || "",
-                    empresaId,
-                    ativo: true,
-                    papel: "dono"
-                };
-                document.getElementById("login-screen").classList.add("hidden");
-                document.getElementById("app-screen").classList.remove("hidden");
-                document.getElementById("vendedor-nome").innerText = loggedVendedor.nomeVendedor;
-                await teardownScanner();
-                html5QrcodeScanner = new Html5Qrcode("reader");
-                return;
-            }
-
-            const slug = user.email.toLowerCase().replace(/[^a-z0-9]/g, "_");
-            // Chave COMPOSTA (empresa + e-mail): some a colisão global que dava
-            // "este atendente não pertence a esta empresa".
-            const vendedorRef = doc(db, "vendedores", `${empresaId}__${slug}`);
-
-            let vData = await safeGetVendor(vendedorRef);
-
-            // Sem vínculo nesta loja + tem convite → aceita via Cloud Function (Admin SDK).
-            if (!vData && inviteToken) {
-                try {
-                    const res = await acceptVendorInvite({ empresaId, token: inviteToken });
-                    const d = (res && res.data) || {};
-                    // Confia no retorno da função (não depende de reler o doc logo após criar).
-                    vData = { nomeVendedor: d.nomeVendedor || user.displayName || user.email, email: d.email || user.email, empresaId, ativo: true };
-                    showToast("Convite aceito. Acesso de atendente ativado.", "success");
-                } catch (err) {
-                    console.error("Erro ao aceitar convite:", err);
-                    showToast(conviteErrMsg(err), "error");
-                    await logoutUser();
-                    return;
-                }
-            }
-
-            if (!vData) {
-                showToast("Acesso negado. Peça ao dono da loja um convite de atendente.", "error");
-                await logoutUser();
-                return;
-            }
-            if (vData.ativo === false) {
-                showToast("Seu acesso de atendente está pausado. Fale com o dono da loja.", "warn");
-                await logoutUser();
-                return;
-            }
-
-            loggedVendedor = vData;
-            document.getElementById("login-screen").classList.add("hidden");
-            document.getElementById("app-screen").classList.remove("hidden");
-            document.getElementById("vendedor-nome").innerText = vData.nomeVendedor || user.displayName || user.email;
-            await teardownScanner();
-            html5QrcodeScanner = new Html5Qrcode("reader");
-        }
-
-        // Finaliza o fluxo de redirect do mobile SEM bloquear o módulo (IIFE).
-        (async () => {
-            try {
-                await getRedirectResult(auth);
-            } catch (err) {
-                console.error("Erro ao recuperar resultado do redirecionamento:", err);
-                showToast(authErrorMessage(err), "error");
-            }
-        })();
-
-        // Gerenciamento da Autenticação do Vendedor
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    await liberarVendedor(user);
-                } catch (err) {
-                    console.error("Erro ao verificar vendedor:", err);
-                    showToast("Não foi possível validar seu acesso de atendente. Tente novamente ou peça um novo convite.", "error");
-                    await logoutUser();
-                }
-            } else {
-                await teardownScanner();
-                document.getElementById("login-screen").classList.remove("hidden");
-                document.getElementById("app-screen").classList.add("hidden");
-            }
-        });
-
-        // Form Login do Vendedor
-        document.getElementById("login-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = document.getElementById("email").value.trim().toLowerCase();
-            const password = document.getElementById("password").value;
-            const btn = document.getElementById("btn-login");
-
-            if (!email) {
-                showToast("Digite seu e-mail.", "warn");
-                document.getElementById("email").focus();
-                return;
-            }
-            if (!password) {
-                showToast("Digite sua senha.", "warn");
-                document.getElementById("password").focus();
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "Verificando credenciais...";
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (err) {
-                try {
-                    if (inviteToken && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
-                        await createUserWithEmailAndPassword(auth, email, password);
-                        return;
-                    }
-
-                    const cleanId = email.replace(/[^a-z0-9]/g, "_");
-                    const vendedorSnap = await getDoc(doc(db, "vendedores", cleanId));
-                    if (vendedorSnap.exists() && vendedorSnap.data().empresaId === empresaId && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
-                        await createUserWithEmailAndPassword(auth, email, password);
-                        return;
-                    }
-                } catch (innerErr) {
-                    console.error(innerErr);
-                    showToast(authErrorMessage(innerErr), "error");
-                    btn.disabled = false;
-                    btn.innerText = "Entrar na câmera";
-                    return;
-                }
-
-                console.error(err);
-                showToast(authErrorMessage(err), "error");
-                btn.disabled = false;
-                btn.innerText = "Entrar na câmera";
-            }
-        });
-
-        // Login Social Google
-        document.getElementById("btn-login-google").addEventListener("click", async () => {
-            const btn = document.getElementById("btn-login-google");
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Redirecionando...`;
-            try {
-                // Usando Redirect ao invés de Popup porque Popup é bloqueado por navegadores mobile in-app
-                await loginWithGoogleRedirect();
-            } catch (err) {
-                console.error(err);
-                showToast(authErrorMessage(err), "error");
-                btn.innerHTML = originalText;
-            }
-        });
-
-        // Logout
-        document.getElementById("btn-logout").addEventListener("click", async () => {
-            // B-02: desmonta totalmente (stop + clear) antes de deslogar.
-            await teardownScanner();
-            await logoutUser();
-        });
-
-        // --- Lógica do Scanner de Câmera (html5-qrcode) ---
-        const btnStart = document.getElementById("btn-start-scanner");
-        const btnStop = document.getElementById("btn-stop-scanner");
-        const statusDot = document.getElementById("scanner-status-dot");
-
-        btnStart.addEventListener("click", () => startScanner());
-        btnStop.addEventListener("click", () => stopScanner());
-
-        async function startScanner() {
-            if (!html5QrcodeScanner) return;
-            if (lojaInativa) {
-                showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
-                return;
-            }
-
-            btnStart.disabled = true;
-            btnStop.disabled = false;
-            statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
-
-            try {
-                isScannerRunning = true;
-                // facingMode: "environment" força o uso da Câmera Traseira por padrão!
-                await html5QrcodeScanner.start(
-                    { facingMode: "environment" },
-                    {
-                        fps: 10,
-                        qrbox: { width: 220, height: 220 }
+    <!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-brand-paper text-stone-800 font-inter">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Empresário - Tem Pontinho</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        playfair: ['Playfair Display', 'serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bebas: ['Bebas Neue', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
                     },
-                    onScanSuccess,
-                    onScanFailure
-                );
-            } catch (err) {
-                console.error("Falha ao abrir a câmera: ", err);
-                showAlert("error", "Falha na Câmera", "Verifique as permissões de câmera do seu navegador.");
-                stopScanner();
-            }
-        }
-
-        async function stopScanner() {
-            if (!html5QrcodeScanner || !isScannerRunning) return;
-
-            btnStart.disabled = false;
-            btnStop.disabled = true;
-            statusDot.className = "w-2 h-2 rounded-full bg-stone-300";
-
-            try {
-                await html5QrcodeScanner.stop();
-                isScannerRunning = false;
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        // B-02: desmonta o scanner por completo (stop + clear + libera a instância).
-        // Sem isto, ao relogar criávamos um novo Html5Qrcode sobre o <div id="reader">
-        // que ainda continha o vídeo/canvas da sessão anterior → tela preta.
-        async function teardownScanner() {
-            if (!html5QrcodeScanner) return;
-            try {
-                if (isScannerRunning) {
-                    await html5QrcodeScanner.stop();
-                }
-                await html5QrcodeScanner.clear(); // remove o vídeo/canvas do #reader
-            } catch (err) {
-                console.error("Erro ao desmontar o scanner:", err);
-            } finally {
-                isScannerRunning = false;
-                html5QrcodeScanner = null;
-                if (btnStart) btnStart.disabled = false;
-                if (btnStop) btnStop.disabled = true;
-                if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-stone-300";
-            }
-        }
-
-        // --- Processamento da Leitura de QR Code ---
-        
-        // Evitar múltiplos processamentos repetitivos da mesma leitura rápida
-        let isProcessing = false;
-
-        async function onScanSuccess(decodedText) {
-            const clientUid = decodedText.trim();
-            // Trava anti-duplicação: a câmera dispara a leitura várias vezes com o QR na
-            // frente. Processa 1 vez e só libera após um cooldown (evita pontuar/resgatar
-            // em rajada na mesma aproximação).
-            if (isProcessing) return;
-            isProcessing = true;
-
-            triggerVibration(100); // confirmação de captura
-            await loadClient(clientUid);
-
-            // Depois do cooldown, reaproximar o MESMO cliente já age de novo
-            // (ex.: completar o cartão e, na sequência, resgatar o prêmio).
-            setTimeout(() => {
-                isProcessing = false;
-            }, 2500);
-        }
-
-        function onScanFailure(error) {
-            // Callback silencioso para não entupir o console
-        }
-
-        // Manual Submit Button
-        document.getElementById("btn-manual-submit").addEventListener("click", async () => {
-            const input = document.getElementById("manual-client-input");
-            const val = input.value.trim();
-            
-            if (!val) {
-                showToast("Por favor, digite o UID ou E-mail do cliente.", "warn");
-                return;
-            }
-
-            document.getElementById("btn-manual-submit").disabled = true;
-            
-            let clientUid = val;
-
-            // Se for um e-mail, resolve o cliente via Cloud Function (findClient)
-            if (val.includes("@")) {
-                try {
-                    const r = await findClient({ empresaId, email: val.toLowerCase() });
-                    if (!r.found) {
-                        showAlert("error", "Erro de Busca", "Nenhum cliente cadastrado com este e-mail.");
-                        playSound("error");
-                        document.getElementById("btn-manual-submit").disabled = false;
-                        return;
+                    colors: {
+                      brand: { paper:'#F4EFE6', surface:'#FFFFFF', ink:'#2A2520', green:'#2A5A44', 'green-dark':'#214636', accent:'#D96B43', 'accent-dark':'#C25733', muted:'#6F6557', line:'#E3DBCC' },
+                      indigo:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      emerald:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      teal:{50:'#EEF4F0',100:'#D6E4DC',200:'#AECABA',300:'#82AB94',400:'#548C70',500:'#356E52',600:'#2A5A44',700:'#214636',800:'#1A372A',900:'#12251C'},
+                      amber:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
+                      orange:{50:'#FBEEE8',100:'#F5D7C8',200:'#ECB49B',300:'#E2906E',400:'#DD7A53',500:'#D96B43',600:'#C25733',700:'#9E4528',800:'#7B3620',900:'#5A2818'},
                     }
-                    if (!r.temCartao) {
-                        showAlert("error", "Sem cartão", "Cliente ainda não ativou o cartão desta loja.");
-                        playSound("error");
-                        document.getElementById("btn-manual-submit").disabled = false;
-                        return;
-                    }
-                    clientUid = r.clienteId;
-                } catch (err) {
-                    console.error(err);
-                    showAlert("error", "Erro de busca", "Não foi possível buscar este cliente. Tente novamente.");
-                    playSound("error");
-                    document.getElementById("btn-manual-submit").disabled = false;
-                    return;
                 }
             }
-
-            await loadClient(clientUid);
-            input.value = "";
-            document.getElementById("btn-manual-submit").disabled = false;
-        });
-
-        // ---- Scan automático: QR age direto (pontua ou resgata) ----
-        // Estado do cliente atualmente no painel.
-        let panelClienteId = null;
-        let currentClientName = "";
-        let currentPremios = 0;
-
-        const selectPointsQty = document.getElementById("scan-qty");
-        const clientPanel = document.getElementById("client-panel");
-        const prizeBox = document.getElementById("prize-box");
-        const btnDeliverPrize = document.getElementById("btn-deliver-prize");
-        const btnAddPoints = document.getElementById("btn-add-points");
-        const btnRemovePoint = document.getElementById("btn-remove-point");
-        const btnNextClient = document.getElementById("btn-next-client");
-
-        const isInativaErr = (err) =>
-            String(err && err.message).includes("ASSINATURA_INATIVA") ||
-            String(err && err.code).includes("failed-precondition");
-
-        // Aplica o estado de loja inativa: trava o latch, mostra o banner persistente
-        // e desabilita TODAS as ações de pontuação/resgate. Usado tanto na detecção
-        // proativa (branding) quanto no latch por erro do backend.
-        function aplicarLojaInativa() {
-            lojaInativa = true;
-            const banner = document.getElementById("inativa-banner");
-            if (banner) banner.classList.replace("hidden", "flex");
-            // Botões de ação de pontos: scan, manual, +pontos, -ponto, entregar prêmio.
-            const btnManual = document.getElementById("btn-manual-submit");
-            [btnStart, btnManual, btnAddPoints, btnRemovePoint, btnDeliverPrize].forEach((b) => {
-                if (b) b.disabled = true;
-            });
-            // Encerra o leitor para que a câmera não dispare novas leituras condenadas.
-            teardownScanner().catch(() => {});
         }
-
-        // Scan/manual AGE DIRETO: resgata se houver prêmio pendente, senão credita a
-        // quantidade selecionada no leitor. Sem etapa de confirmação (decisão de produto).
-        async function loadClient(clientUid) {
-            if (!empresaId) {
-                showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
-                playSound("error");
-                return;
-            }
-            // Loja inativa: não dispara callable condenada; mostra o aviso e para por aqui.
-            if (lojaInativa) {
-                showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
-                playSound("error");
-                return;
-            }
-            try {
-                const card = await getCard({ empresaId, clienteId: clientUid });
-                if (!card || !card.exists) {
-                    resetPanel();
-                    showAlert("error", "Sem cartão", "Este cliente ainda não ativou o cartão desta loja.");
-                    playSound("error");
-                    return;
-                }
-                currentClientName = card.nome || "Cliente";
-                if ((card.premiosPendentes || 0) > 0) {
-                    await autoRedeem(clientUid);   // cliente tem prêmio → resgate automático
-                } else {
-                    await autoAward(clientUid);    // sem prêmio → credita a quantidade do leitor
-                }
-            } catch (err) {
-                console.error("Erro ao processar leitura:", err);
-                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
-                resetPanel();
-                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao processar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento." : "Não foi possível processar a leitura. Tente novamente.");
-                playSound("error");
-            }
-        }
-
-        // Credita a quantidade selecionada. Se o backend recusar por prêmio pendente
-        // (corrida com outro caixa), cai para o resgate automaticamente.
-        async function autoAward(clientUid) {
-            const qty = parseInt(selectPointsQty?.value || "1");
-            try {
-                const res = await awardPoints({ empresaId, clienteId: clientUid, qtd: qty });
-                renderClientPanel(clientUid, res.pontos, res.premiosPendentes, currentClientName);
-                if (res.premiosGanhos > 0) {
-                    showAlert("win", "Cartão completo! 🎉", `+${qty} · cliente ganhou ${res.premiosGanhos} prêmio(s). O próximo scan resgata.`);
-                    playSound("win");
-                    triggerVibration([100, 50, 100, 50, 300]);
-                } else {
-                    showAlert("success", "Pontos adicionados", `+${qty} · agora ${res.pontos}/${res.meta}.`);
-                    playSound("success");
-                    triggerVibration(150);
-                }
-                showEmojiFeedback(qty);
-                if (selectPointsQty) selectPointsQty.value = "1"; // Reset automático por segurança
-            } catch (err) {
-                if (String(err && err.message).includes("PREMIO_PENDENTE")) {
-                    await autoRedeem(clientUid);
-                    return;
-                }
-                throw err;
-            }
-        }
-
-        // Resgate automático de 1 prêmio. No último prêmio o cartão renova com a sobra.
-        async function autoRedeem(clientUid) {
-            const r = await deliverPrize({ empresaId, clienteId: clientUid });
-            renderClientPanel(clientUid, r.pontos, r.premiosPendentes, currentClientName);
-            const msg = r.premiosPendentes > 0
-                ? `Prêmio entregue! Ainda restam ${r.premiosPendentes} prêmio(s).`
-                : "Prêmio entregue! Cartão renovado.";
-            showAlert("win", "🎁 Prêmio entregue!", msg);
-            playSound("win");
-            triggerVibration([100, 50, 100, 50, 300]);
-        }
-
-        // Opções de pontos = múltiplos relativos à meta (x): 1, 2, 3, ⌊x/2⌋, x
-        // (deduplicadas e ≤ x). O maior valor completa um cartão inteiro num scan.
-        function populateQtyOptions(meta) {
-            if (!selectPointsQty) return;
-            const opts = [...new Set([1, 2, 3, Math.floor(meta / 2), meta])]
-                .filter((n) => n >= 1 && n <= meta)
-                .sort((a, b) => a - b);
-            selectPointsQty.innerHTML = opts
-                .map((n) => `<option value="${n}">+${n}${n === meta ? " (cartão)" : ""}</option>`)
-                .join("");
-            selectPointsQty.value = "1";
-        }
-
-        function renderClientPanel(clienteId, pontos, premiosPendentes, nome) {
-            panelClienteId = clienteId;
-            if (nome != null) currentClientName = nome;
-            const meta = metaConfig.metaPontos || 10;
-            if (clientPanel) clientPanel.classList.remove("hidden");
-            const elName = document.getElementById("client-name");
-            if (elName) elName.innerText = currentClientName || "Cliente";
-            const elP = document.getElementById("client-points");
-            const elM = document.getElementById("client-meta");
-            if (elP && pontos != null) elP.innerText = pontos;
-            if (elM) elM.innerText = meta;
-            const prog = document.getElementById("client-progress");
-            if (prog && pontos != null) prog.style.width = Math.min(100, Math.round((pontos / meta) * 100)) + "%";
-            updatePrizeBox(premiosPendentes != null ? premiosPendentes : currentPremios);
-        }
-
-        function updatePrizeBox(premiosPendentes) {
-            if (!prizeBox) return;
-            if (premiosPendentes != null && premiosPendentes > 0) {
-                currentPremios = premiosPendentes;
-                prizeBox.classList.remove("hidden");
-                prizeBox.classList.add("flex");
-                const txt = document.getElementById("prize-count-text");
-                if (txt) txt.innerText = `${premiosPendentes} prêmio(s) a entregar`;
-                if (btnDeliverPrize) btnDeliverPrize.disabled = false;
-            } else if (premiosPendentes != null) {
-                currentPremios = 0;
-                prizeBox.classList.add("hidden");
-                prizeBox.classList.remove("flex");
-            }
-        }
-
-        function resetPanel() {
-            panelClienteId = null;
-            currentClientName = "";
-            currentPremios = 0;
-            if (clientPanel) clientPanel.classList.add("hidden");
-            updatePrizeBox(0);
-        }
-
-        // Ação manual opcional: adicionar pontos ao cliente carregado.
-        async function addPoints() {
-            if (!panelClienteId) return;
-            const qtyToAdd = parseInt(selectPointsQty?.value || "1");
-            if (btnAddPoints) btnAddPoints.disabled = true;
-            try {
-                const res = await awardPoints({ empresaId, clienteId: panelClienteId, qtd: qtyToAdd });
-                renderClientPanel(panelClienteId, res.pontos, res.premiosPendentes, currentClientName);
-                if (res.premiosGanhos > 0) {
-                    showAlert("win", "Cartão completo!", `+${qtyToAdd} · ${res.premiosGanhos} cartão(ões) completo(s) · ${res.premiosPendentes} prêmio(s) a entregar · agora ${res.pontos}/${res.meta}.`);
-                    playSound("win");
-                    triggerVibration([100, 50, 100, 50, 300]);
-                } else {
-                    showAlert("success", "Pontos adicionados", `+${qtyToAdd} · cliente agora tem ${res.pontos}/${res.meta} pontos.`);
-                    playSound("success");
-                    triggerVibration(150);
-                }
-                showEmojiFeedback(qtyToAdd);
-                if (selectPointsQty) selectPointsQty.value = "1"; // Reset automático por segurança
-            } catch (err) {
-                console.error("Erro ao adicionar pontos:", err);
-                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
-                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao pontuar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento." : "Não foi possível registrar os pontos. Tente novamente.");
-                playSound("error");
-            } finally {
-                // Não reabilita se a loja latchou inativa — senão o vendedor volta a martelar.
-                if (btnAddPoints && !lojaInativa) btnAddPoints.disabled = false;
-            }
-        }
-
-        // Ação manual opcional: tirar 1 ponto (correção). Não altera prêmios pendentes.
-        async function removeOnePoint() {
-            if (!panelClienteId) return;
-            if (btnRemovePoint) btnRemovePoint.disabled = true;
-            try {
-                const r = await removePoint({ empresaId, clienteId: panelClienteId });
-                renderClientPanel(panelClienteId, r.pontos, currentPremios, currentClientName);
-                showAlert("success", "Ponto removido", `Cliente agora tem ${r.pontos}/${metaConfig.metaPontos || 10}.`);
-                playSound("success");
-                triggerVibration(120);
-            } catch (err) {
-                console.error("Erro ao remover ponto:", err);
-                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
-                showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao remover",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento." : "Não foi possível remover o ponto. Tente novamente.");
-                playSound("error");
-            } finally {
-                // Não reabilita se a loja latchou inativa.
-                if (btnRemovePoint && !lojaInativa) btnRemovePoint.disabled = false;
-            }
-        }
-
-        if (btnAddPoints) btnAddPoints.addEventListener("click", addPoints);
-        if (btnRemovePoint) btnRemovePoint.addEventListener("click", removeOnePoint);
-        if (btnNextClient) btnNextClient.addEventListener("click", resetPanel);
-
-        if (btnDeliverPrize) {
-            btnDeliverPrize.addEventListener("click", async () => {
-                if (!panelClienteId) return;
-                btnDeliverPrize.disabled = true; // idempotência: trava no clique
-                try {
-                    const r = await deliverPrize({ empresaId, clienteId: panelClienteId });
-                    showAlert("win", "Prêmio entregue!", `Restam ${r.premiosPendentes} prêmio(s) pendente(s).`);
-                    playSound("win");
-                    triggerVibration([100, 50, 100, 50, 300]);
-                    updatePrizeBox(r.premiosPendentes);
-                } catch (err) {
-                    console.error("Erro ao entregar prêmio:", err);
-                    const isInativa = isInativaErr(err);
-                    if (isInativa) {
-                        aplicarLojaInativa(); // latch: trava a UI no 1º erro
-                        showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
-                    } else {
-                        showAlert("error", "Erro ao entregar", "Não foi possível entregar o prêmio. Tente novamente.");
-                    }
-                    playSound("error");
-                    // Só reabilita se NÃO latchou inativa (senão o vendedor volta a martelar).
-                    if (!lojaInativa) btnDeliverPrize.disabled = false;
-                }
-            });
-        }
-        // Visual Emoji Feedback for Vendor
-        function showEmojiFeedback(qty) {
-            const emojiStr = visualConfig.emoji || "⭐";
-            const popup = document.createElement("div");
-            popup.innerHTML = qty > 1 ? `+${qty} <span class="ml-2">${emojiStr}</span>` : `+1 <span class="ml-2">${emojiStr}</span>`;
-            popup.className = "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-extrabold bg-white/95 backdrop-blur-md px-10 py-8 rounded-[3rem] shadow-2xl flex items-center justify-center z-[99999] transition-all duration-300 pointer-events-none scale-50 opacity-0 border-4 border-indigo-100 text-slate-800 drop-shadow-xl";
-            document.body.appendChild(popup);
-            
-            popup.offsetWidth; // force reflow
-            
-            popup.classList.remove("opacity-0", "scale-50");
-            popup.classList.add("opacity-100", "scale-110");
-            
-            setTimeout(() => {
-                popup.classList.remove("opacity-100", "scale-110");
-                popup.classList.add("opacity-0", "scale-150");
-                setTimeout(() => popup.remove(), 300);
-            }, 800);
-        }
-
-        // --- Manipulação da Área de Alertas na Interface ---
-        function showAlert(type, title, message) {
-            const card = document.getElementById("alert-card");
-            const iconBox = document.getElementById("alert-icon-box");
-            const titleEl = document.getElementById("alert-title");
-            const messageEl = document.getElementById("alert-message");
-
-            card.className = "p-4 rounded-2xl flex items-start gap-3 text-left transition-all duration-300 animate-fade-in";
-            
-            if (type === "success") {
-                card.classList.add("bg-emerald-50", "border-2", "border-emerald-200", "text-emerald-700");
-                iconBox.className = "w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 text-lg shrink-0";
-                iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-            } else if (type === "win") {
-                card.classList.add("bg-yellow-50", "border-2", "border-yellow-300", "text-yellow-700");
-                iconBox.className = "w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-700 text-lg shrink-0";
-                iconBox.innerHTML = '<i class="fa-solid fa-trophy animate-bounce"></i>';
-            } else if (type === "error") {
-                card.classList.add("bg-red-50", "border-2", "border-red-200", "text-red-600");
-                iconBox.className = "w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 text-lg shrink-0";
-                iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-            }
-
-            titleEl.innerText = title;
-            messageEl.innerText = message;
-            card.classList.remove("hidden");
-
-            // Oculta feedback após 6 segundos
-            setTimeout(() => {
-                card.classList.add("hidden");
-            }, 6000);
-        }
-
     </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- QRCode.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .glassmorphism {
+            background: #FFFFFF;
+            border: 1px solid #E3DBCC;
+            box-shadow: 0 1px 2px 0 rgba(42, 37, 32, 0.05);
+        }
+        @media print {
+            @page { size: auto; margin: 0mm; }
+            body * {
+                visibility: hidden !important;
+            }
+            #flyer-a4-preview, #flyer-a4-preview * {
+                visibility: visible !important;
+            }
+            #flyer-a4-preview {
+                position: fixed !important;
+                left: 50% !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                width: 18cm !important;
+                height: 18cm !important;
+                background: white !important;
+                color: black !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 1cm !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 9999999 !important;
+            }
+            #flyer-a4-preview * {
+                color: black !important;
+            }
+            #flyer-qrcode-placeholder img, #flyer-qrcode-placeholder canvas {
+                width: 10cm !important;
+                height: 10cm !important;
+                margin: 0 auto !important;
+            }
+            .no-print, .no-print * {
+                display: none !important;
+            }
+        }
 
+        /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
+        :focus-visible {
+            outline: 2px solid #2A5A44 !important;
+            outline-offset: 2px !important;
+            border-radius: 6px;
+        }
+    </style>
+</head>
 <div id="modal-confirm" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-  <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
-    <div class="flex items-start gap-3">
-      <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-100 text-amber-600">
-        <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <div class="flex-1 min-w-0">
-        <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
-        <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
-        <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+      <div class="bg-white border border-stone-200 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="flex items-start gap-3">
+          <div id="confirm-icon-wrap" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-amber-500/15 text-amber-400">
+            <i id="confirm-icon" class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 id="confirm-title" class="font-bold text-lg text-stone-800 font-outfit">Confirmar</h3>
+            <p id="confirm-message" class="text-sm text-stone-500 mt-1 whitespace-pre-line"></p>
+            <input id="confirm-input" type="text" class="hidden mt-3 w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-stone-800 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-800 font-semibold hover:bg-stone-100 transition">Cancelar</button>
+          <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+        </div>
       </div>
     </div>
-    <div class="flex gap-3 mt-6">
-      <button id="confirm-cancel" class="flex-1 min-h-[44px] rounded-xl border border-stone-300 text-stone-700 font-semibold hover:bg-stone-100 transition">Cancelar</button>
-      <button id="confirm-ok" class="flex-1 min-h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition">Confirmar</button>
+    <!-- MODAL 1: AJUSTAR PONTOS -->
+    <div id="modal-ajustar-pontos" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit" id="modal-ajuste-title">Ajustar Pontos</h3>
+                <button onclick="closeAjustarModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                <div class="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+                    <p class="text-stone-500">Cliente selecionado:</p>
+                    <p class="text-stone-800 font-semibold mt-0.5" id="modal-ajuste-nome">Nome do Cliente</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5" id="modal-ajuste-email">email@cliente.com</p>
+                    <p class="text-indigo-400 font-bold mt-2">Pontuação Atual: <span id="modal-ajuste-pontos-atuais">0</span> Pontos</p>
+                </div>
+
+                <!-- Ações de Ajuste -->
+                <div class="flex gap-2">
+                    <button onclick="setAjusteAction('add')" id="btn-action-add" class="flex-1 py-2.5 rounded-lg border-2 border-indigo-600 bg-indigo-600/10 font-bold text-xs text-indigo-700 transition">+ Adicionar</button>
+                    <button onclick="setAjusteAction('remove')" id="btn-action-remove" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">- Remover</button>
+                    <button onclick="setAjusteAction('zero')" id="btn-action-zero" class="flex-1 py-2.5 rounded-lg border-2 border-stone-200 bg-transparent text-stone-500 font-bold text-xs transition">Zerar Pontos</button>
+                </div>
+
+                <!-- Campo de Entrada de Pontos -->
+                <div class="flex flex-col gap-1" id="input-pontos-container">
+                    <label for="ajuste-quantidade-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Quantidade de Pontos</label>
+                    <input type="number" id="ajuste-quantidade-pontos" value="1" min="1" max="100" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <!-- Campo Justificativa Obrigatória -->
+                <div class="flex flex-col gap-1">
+                    <label for="ajuste-justificativa" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Justificativa do Ajuste (Obrigatório)</label>
+                    <input type="text" id="ajuste-justificativa" placeholder="Ex: Cliente esqueceu de pontuar ontem..." required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    <span class="text-[9px] text-stone-500">Insira pelo menos 5 caracteres justificando o motivo do ajuste.</span>
+                </div>
+
+                <!-- Confirm buttons -->
+                <button id="btn-confirm-ajuste" disabled class="w-full py-3.5 bg-indigo-600 disabled:bg-stone-200 text-white disabled:text-stone-500 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar Ajuste
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <!-- MODAL 2: LINKS DE DIVULGAÇÃO -->
+    <div id="modal-promo-links" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Links de Divulgação</h3>
+                <button onclick="closePromoLinks()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-stone-500">Link do Cartão de Fidelidade do Cliente</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-client-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-indigo-700 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-client-url')" class="px-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">Copiar</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="font-semibold text-stone-500">Link da câmera do vendedor (equipe)</span>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" readonly id="promo-vendor-url" class="flex-1 bg-white border border-stone-200 rounded-lg px-3 py-2 text-violet-700 select-all focus:outline-none">
+                        <button onclick="copyPromoUrl('promo-vendor-url')" class="px-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition">Copiar</button>
+                    </div>
+                </div>
+                
+                <p class="text-[10px] text-stone-500 leading-normal mt-2">Dica: Envie o link do vendedor para seus atendentes criarem login e senha. Eles só conseguirão dar pontos para clientes logados da sua empresa.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTÓRICO DE CARIMBOS -->
+    <div id="modal-historico" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Histórico de Carimbos</h3>
+                    <p class="text-[10px] text-stone-500 mt-0.5">Cliente: <span id="historico-cliente-nome" class="text-stone-800 font-medium">...</span></p>
+                </div>
+                <button onclick="closeHistoricoModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div id="historico-lista" class="flex flex-col gap-3 mt-2">
+                <div class="text-center text-stone-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTÓRICO DE VENDEDOR -->
+    <div id="modal-historico-vendedor" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Atividades do Atendente</h3>
+                    <p class="text-[10px] text-stone-500 mt-0.5">Atendente: <span id="historico-vendedor-nome" class="text-stone-800 font-medium">...</span></p>
+                </div>
+                <button onclick="closeHistoricoVendedorModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            
+            <div id="historico-vendedor-lista" class="flex flex-col gap-3 mt-2">
+                <div class="text-center text-stone-500 py-6 text-xs"><i class="fa-solid fa-spinner animate-spin"></i> Carregando...</div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: FLYER DE DIVULGAÇÃO A4 -->
+    <div id="modal-flyer-divulgacao" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-lg w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800 max-h-[90vh]">
+            <div class="flex justify-between items-center no-print">
+                <h3 class="font-bold text-lg text-stone-800 font-outfit">Flyer de Divulgação</h3>
+                <div class="flex gap-2">
+                    <button id="btn-download-png" onclick="downloadFlyerPng()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition text-xs flex items-center gap-1.5"><i class="fa-solid fa-download"></i> Baixar Flyer (PNG)</button>
+                    <button onclick="closeFlyerModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            
+            <!-- Flyer Container (Designed for Printing) -->
+            <div class="overflow-y-auto flex justify-center p-4 bg-stone-100 border border-stone-200 rounded-xl max-h-[60vh] no-print">
+                <div id="flyer-a4-preview" class="w-[320px] min-h-[420px] py-8 bg-white text-slate-900 flex flex-col justify-center items-center px-4 text-center shadow-2xl relative rounded-md select-none font-sans border-4 border-dashed border-slate-200">
+                    <div class="flex flex-col items-center gap-4 mt-2">
+                        <!-- QR Code Grande no Topo -->
+                        <div class="bg-white p-2 rounded-xl flex items-center justify-center shrink-0 border border-slate-100 shadow-sm">
+                            <div id="flyer-qrcode-placeholder"></div>
+                        </div>
+
+                        <!-- Informações em baixo de forma simples -->
+                        <div class="flex flex-col items-center gap-1">
+                            <h1 id="flyer-company-name" class="font-bold text-2xl tracking-tight leading-tight text-slate-900">Nome da Empresa</h1>
+                            <p class="text-[9px] uppercase tracking-widest text-stone-500 font-semibold mb-1">Clube de Fidelidade</p>
+                            
+                            <h2 id="flyer-main-title" class="text-lg font-extrabold tracking-tight leading-tight text-slate-900 mt-1">Escaneie e Ganhe!</h2>
+                            <p class="text-[10px] text-stone-500 max-w-[240px] mx-auto leading-snug">Complete seu cartão e resgate:<br><span id="flyer-prize-desc" class="font-black text-indigo-600 text-sm uppercase tracking-wide">Prêmio da Campanha</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-[8px] text-stone-500 font-semibold mt-3">Powered by Tem Pontinho</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRO FEATURE -->
+    <div id="modal-pro-feature" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-sm w-full p-8 flex flex-col gap-4 shadow-2xl animate-fade-in text-stone-800 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl"></div>
+            
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-2xl mx-auto flex items-center justify-center text-slate-900 text-3xl shadow-lg shadow-amber-500/30 mb-2">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            
+            <h3 class="font-bold text-2xl text-stone-800 font-outfit">Recurso Premium</h3>
+            <p class="text-xs text-stone-500 mb-2">A funcionalidade <strong id="pro-feature-name" class="text-amber-400">Links Externos</strong> é exclusiva do plano Profissional (PRO).</p>
+            
+            <div class="bg-stone-50 border border-stone-200 p-4 rounded-xl text-left flex flex-col gap-2 mb-2">
+                <p class="text-xs font-semibold text-stone-500 mb-1">Com o Plano PRO você pode:</p>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Inserir botões de WhatsApp, Cardápio, etc.</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Trocar logotipo do cartão</div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500"><i class="fa-solid fa-check text-emerald-500"></i> Modificar cores e estilo avançado</div>
+            </div>
+
+            <button onclick="closeProFeatureModal(); switchTab('stripe');" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-900 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-95">
+                Ver Planos de Assinatura
+            </button>
+            <button onclick="closeProFeatureModal()" class="text-xs text-stone-500 hover:text-stone-800 mt-1">Agora não</button>
+        </div>
+    </div>
+
+    <!-- PAYWALL BANNER -->
+    <div id="paywall-banner" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40 flex items-end justify-center p-4 pointer-events-none">
+        <div class="w-full max-w-2xl pointer-events-auto mb-6">
+            <div class="glassmorphism rounded-2xl border border-red-200 bg-red-50 p-5 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
+                <div class="w-12 h-12 rounded-xl bg-red-500/15 flex items-center justify-center text-red-600 shrink-0 text-xl">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h4 class="font-bold text-stone-800 text-sm">Assinatura inativa — <span id="paywall-motivo">Período de teste encerrado</span></h4>
+                    <p class="text-stone-500 text-xs mt-0.5">Os carimbos e resgates estão bloqueados. Regularize sua assinatura para continuar operando seu programa de fidelidade.</p>
+                </div>
+                <button onclick="switchTab('stripe')" class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> Pagar com PIX
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PIX CHECKOUT -->
+    <div id="modal-pix-checkout" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl max-w-md w-full p-6 flex flex-col gap-5 shadow-2xl animate-fade-in text-stone-800">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-stone-800 font-outfit">Assinar — Plano Tem Pontinho</h3>
+                    <p class="text-xs text-stone-500 mt-0.5">R$ 19,90 / mês via PIX</p>
+                </div>
+                <button onclick="closePixCheckoutModal()" class="w-8 h-8 rounded-lg bg-white border border-stone-200 flex items-center justify-center hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition" aria-label="Fechar"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+
+            <!-- Step 1: Form -->
+            <div id="pix-checkout-form-step" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-cpfcnpj" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">CPF / CNPJ <span class="text-red-600">*</span></label>
+                    <input type="text" id="pix-cpfcnpj" placeholder="Somente números (11 ou 14 dígitos)" maxlength="18"
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                    <p id="pix-cpfcnpj-error" class="hidden text-[10px] text-red-600">CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.</p>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="pix-telefone" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Telefone <span class="text-stone-500">(opcional)</span></label>
+                    <input type="text" id="pix-telefone" placeholder="Ex: 11999990000"
+                        class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-stone-800 transition">
+                </div>
+                <button id="btn-pix-submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 font-semibold text-white text-sm rounded-xl shadow-lg shadow-indigo-500/10 transition active:scale-95 mt-1">
+                    <i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX
+                </button>
+                <p class="text-[10px] text-stone-500 text-center">Seu CPF/CNPJ é exigido pela operadora de pagamentos (Asaas) para emissão da cobrança PIX.</p>
+            </div>
+
+            <!-- Step 2: PIX Result -->
+            <div id="pix-result-step" class="hidden flex flex-col gap-5 items-center">
+                <div class="w-full p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-700 text-center">
+                    <i class="fa-solid fa-circle-check mr-1"></i>
+                    Cobrança gerada! Escaneie o QR no app do seu banco. A liberação é automática assim que o pagamento cair.
+                </div>
+
+                <!-- QR Code -->
+                <div class="bg-white p-3 rounded-2xl shadow-lg">
+                    <img id="pix-qr-image" src="" alt="QR Code PIX" class="w-48 h-48 object-contain">
+                </div>
+
+                <!-- Copia e Cola -->
+                <div class="w-full flex flex-col gap-1.5">
+                    <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">PIX Copia e Cola</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="pix-copia-cola" readonly
+                            class="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-xs text-indigo-700 select-all focus:outline-none">
+                        <button id="btn-pix-copiar" class="px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95">
+                            <i class="fa-regular fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Link da fatura -->
+                <a id="pix-invoice-link" href="#" target="_blank" rel="noopener"
+                    class="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Abrir fatura no navegador
+                </a>
+
+                <button onclick="closePixCheckoutModal()" class="w-full py-2.5 bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl transition active:scale-95">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic connection -->
+    
+<!-- Firebase SDK Logic connection -->
+<script>
+
+window.switchAppTab = function(tabId) {
+    document.querySelectorAll('.app-tab').forEach(t => {
+        t.classList.add('hidden');
+    });
+    document.getElementById(tabId).classList.remove('hidden');
+    
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.target === tabId) {
+            btn.classList.remove('text-stone-400');
+            btn.classList.add('text-indigo-600');
+        } else {
+            btn.classList.remove('text-indigo-600');
+            btn.classList.add('text-stone-400');
+        }
+    });
+
+    if (tabId === 'tab-camera' && typeof window.initScanner === 'function') {
+        window.initScanner();
+    } else if (typeof window.teardownScanner === 'function') {
+        window.teardownScanner();
+    }
+};
+
+</script>
+<script type="module" src="js/vendedor.js?v=1782071073984"></script>
+
+
+<!-- MODAL DE EDIÇÃO DE CARTÃO -->
+<div id="modal-edit-cartao" class="fixed inset-0 z-[100] hidden bg-stone-900/40 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-brand-paper w-full max-w-sm rounded-3xl shadow-2xl p-6 relative flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+        <button onclick="toggleEditCard()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-500 hover:text-stone-700 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <h3 class="text-xl font-bold font-outfit text-stone-800">Editar Cartão</h3>
+        <p class="text-xs text-stone-500">Altere o visual que seus clientes vão ver no celular deles.</p>
+        
+<form id="edit-campanha-form" class="flex flex-col gap-4 text-xs">
+                <div class="flex flex-col gap-1">
+                    <label for="edit-theme-title" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Título da Página do Cliente</label>
+                    <input type="text" id="edit-theme-title" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-meta-pontos" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Meta de Pontos</label>
+                        <input type="number" id="edit-meta-pontos" min="3" max="20" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-premio-desc" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Descrição do Prêmio</label>
+                        <input type="text" id="edit-premio-desc" required class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-color" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Cor de Fundo Principal</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="color" id="edit-theme-color" class="w-10 h-10 bg-transparent border-0 cursor-pointer rounded-lg">
+                            <input type="text" id="edit-theme-color-hex" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 uppercase focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="edit-theme-font" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Tipografia (Fonte)</label>
+                        <select id="edit-theme-font" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-800 focus:outline-none focus:border-indigo-500">
+                            <option value="sans">Inter</option>
+                            <option value="playfair">Playfair Display</option>
+                            <option value="space">Space Grotesk</option>
+                            <option value="mono">JetBrains Mono</option>
+                            <option value="bebas">Bebas Neue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5 relative">
+                    <label for="edit-theme-emoji" class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Emoji dos Carimbos</label>
+                    <input type="text" id="edit-theme-emoji" placeholder="Ex: ⭐" maxlength="2" class="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 transition text-center text-xl">
+                    <p class="text-[10px] text-stone-500 mt-1">Use o teclado para inserir 1 emoji.</p>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs rounded-xl shadow-lg transition active:scale-95 mt-2">
+                    Confirmar e Salvar Campanha
+                </button>
+            </form>
+
+    </div>
 </div>
+
 </body>
 </html>

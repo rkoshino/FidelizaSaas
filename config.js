@@ -25,7 +25,9 @@ import {
     where, 
     getDocs, 
     onSnapshot,
-    increment
+    increment,
+    orderBy,
+    limit
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
@@ -33,7 +35,7 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com
 // O usuário pode substituir este bloco pelas credenciais do seu próprio projeto Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyAH5BxqOq3KoF48Nkz43eZd9IZleBjckz8", // Chave demonstrativa (substituir por sua chave ativa)
-    authDomain: "tempontinho.com",
+    authDomain: window.location.hostname || "tempontinho.com",
     projectId: "nice-dreamks-fidelidade",
     storageBucket: "nice-dreamks-fidelidade.firebasestorage.app",
     messagingSenderId: "287947707168",
@@ -138,5 +140,7 @@ export {
     loginWithGoogleRedirect,
     logoutUser,
     getRedirectResult,
-    increment
+    increment,
+    orderBy,
+    limit
 };

@@ -1187,10 +1187,10 @@
                     empresaData.dataCadastro = new Date();
                     empresaData.statusAssinatura = "trial";
                     empresaData.trialEndDate = trialEnd;
+                    await setDoc(empresaRef, empresaData);
+                } else {
+                    await setDoc(empresaRef, empresaData, { merge: true });
                 }
-
-                // Cria (com trial) ou atualiza (sem tocar nos campos de billing).
-                await setDoc(empresaRef, empresaData, { merge: true });
 
                 // Recupera documento atualizado para obter o linkUnicoCliente
                 const docSnap = await getDoc(empresaRef);

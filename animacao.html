@@ -164,7 +164,7 @@
             }
         }
 
-        function playLandingAnimation(pointIndex) {
+        function playLandingAnimation(pointIndex, isVictory = false) {
             const giantEmoji = document.createElement("div");
             giantEmoji.innerText = brandEmoji;
             giantEmoji.style.position = "fixed";
@@ -196,7 +196,7 @@
             
             setTimeout(() => {
                 giantEmoji.remove();
-                renderStamps(currentPoints, false);
+                renderStamps(currentPoints, isVictory);
             }, 1100);
         }
 
@@ -290,7 +290,7 @@
             currentPoints = metaPontos;
             setCounter(currentPoints);
             renderStamps(currentPoints, true);
-            playLandingAnimation(currentPoints);
+            playLandingAnimation(currentPoints, true);
             
             const banner = document.getElementById("victory-banner");
             banner.classList.remove("hidden");

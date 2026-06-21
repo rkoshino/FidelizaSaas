@@ -230,7 +230,12 @@
                         showToast("Sessão encontrada! Redirecionando...");
                         sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
                         setTimeout(() => {
-                            window.location.href = `./dashboard.html?empresa=${user.uid}`;
+                            const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+                            if (isMobile) {
+                                window.location.href = `./vendedor.html?empresa=${user.uid}`;
+                            } else {
+                                window.location.href = `./dashboard.html?empresa=${user.uid}`;
+                            }
                         }, 600);
                         return "redirecting";
                     }
