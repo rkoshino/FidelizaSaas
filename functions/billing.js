@@ -12,6 +12,7 @@
 
 "use strict";
 
+const crypto = require("crypto");
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const { getFirestore, Timestamp } = require("firebase-admin/firestore");
@@ -118,6 +119,58 @@ exports.createSubscription = onCall(
     }
     const empData = empSnap.data();
 
+    /* --- 0. Idempotência: já existe assinatura ATIVA? Reaproveita, não cria de novo ---
+     * Em reload / duplo-submit, o doc já tem asaasSubscriptionId. Nesse caso NÃO
+     * criamos cliente/assinatura novos (evita assinaturas duplicadas / dupla
+     * cobrança PIX). Buscamos a cobrança existente e devolvemos o mesmo shape.
+     * Exceção: se a assinatura foi CANCELADA (estorno/chargeback/cancelamento),
+     * deixamos seguir para criar uma assinatura nova — é o fluxo de reassinatura. */
+    if (empData.asaasSubscriptionId && empData.statusAssinatura !== "canceled") {
+      const existingSubId = empData.asaasSubscriptionId;
+
+      // Busca cobrança da assinatura existente (mesmo retry da via de criação)
+      let existingPayment = null;
+      for (let tentativa = 0; tentativa < 5 && !existingPayment; tentativa++) {
+        if (tentativa > 0) await sleep(1200);
+        const paymentsResp = await asaasRequest(
+          `/subscriptions/${existingSubId}/payments`,
+          "GET",
+          null,
+          apiKey
+        );
+        const payments = paymentsResp.data || [];
+        if (payments.length) existingPayment = payments[0];
+      }
+      if (!existingPayment) {
+        throw new HttpsError("unavailable", "A cobrança PIX ainda está sendo gerada. Tente novamente em alguns segundos.");
+      }
+      const existingPaymentId = existingPayment.id;
+      const existingInvoiceUrl = existingPayment.invoiceUrl || existingPayment.bankSlipUrl || null;
+
+      let existingPixCopiaECola = null;
+      let existingPixQrCodeBase64 = null;
+      for (let tentativa = 0; tentativa < 5 && !existingPixCopiaECola; tentativa++) {
+        if (tentativa > 0) await sleep(1200);
+        const pixResp = await asaasRequest(
+          `/payments/${existingPaymentId}/pixQrCode`,
+          "GET",
+          null,
+          apiKey
+        );
+        existingPixCopiaECola = pixResp.payload || null;
+        existingPixQrCodeBase64 = pixResp.encodedImage || null;
+      }
+
+      return {
+        status: existingPayment.status,
+        subscriptionId: existingSubId,
+        value: 19.90,
+        pixCopiaECola: existingPixCopiaECola,
+        pixQrCodeBase64: existingPixQrCodeBase64,
+        invoiceUrl: existingInvoiceUrl,
+      };
+    }
+
     /* --- 1. Cria ou reutiliza cliente Asaas --- */
     let asaasCustomerId = empData.asaasCustomerId || null;
 
@@ -163,6 +216,15 @@ exports.createSubscription = onCall(
 
     const subscription = await asaasRequest("/subscriptions", "POST", subscriptionPayload, apiKey);
     const asaasSubscriptionId = subscription.id;
+
+    /* --- Persiste os IDs IMEDIATAMENTE (evita estado órfão no Asaas) ---
+     * Se a busca da cobrança/QR falhar logo abaixo, os IDs já ficam mapeados no
+     * doc para o webhook conseguir achar a empresa pela assinatura/cliente. */
+    await empRef.update({
+      asaasCustomerId,
+      asaasSubscriptionId,
+      cpfCnpj: cpfCnpj.replace(/\D/g, ""),
+    });
 
     /* --- 3. Busca a 1ª cobrança da assinatura (com retry) ---
      * O Asaas pode gerar a cobrança da assinatura de forma assíncrona; a
@@ -232,13 +294,25 @@ exports.createSubscription = onCall(
  * Responde 200 o mais rápido possível.
  */
 exports.asaasWebhook = onRequest(
-  { secrets: [ASAAS_WEBHOOK_TOKEN] },
+  { secrets: [ASAAS_WEBHOOK_TOKEN, ASAAS_API_KEY] },
   async (req, res) => {
-    /* --- Validação do token --- */
-    const receivedToken = req.headers["asaas-access-token"];
+    /* --- Validação do token (comparação em tempo constante) ---
+     * O header pode chegar como array; coagimos para string. Comparamos com
+     * timingSafeEqual sobre Buffers de mesmo tamanho (evita timing attack);
+     * tamanhos diferentes → desigualdade segura. */
+    const rawToken = req.headers["asaas-access-token"];
+    const receivedToken = Array.isArray(rawToken) ? rawToken[0] : rawToken;
     const expectedToken = ASAAS_WEBHOOK_TOKEN.value();
 
-    if (!receivedToken || receivedToken !== expectedToken) {
+    const tokenOk = (() => {
+      if (typeof receivedToken !== "string" || !receivedToken) return false;
+      const a = Buffer.from(receivedToken);
+      const b = Buffer.from(expectedToken);
+      if (a.length !== b.length) return false;
+      return crypto.timingSafeEqual(a, b);
+    })();
+
+    if (!tokenOk) {
       console.warn("[asaasWebhook] Token inválido ou ausente.");
       res.status(401).json({ error: "Unauthorized" });
       return;
@@ -288,8 +362,29 @@ exports.asaasWebhook = onRequest(
       if (event === "PAYMENT_CONFIRMED" || event === "PAYMENT_RECEIVED") {
         updatePayload.statusAssinatura = "active";
 
-        // proximoVencimento: dueDate da cobrança + 1 mês (se disponível)
-        if (payment.dueDate) {
+        // proximoVencimento: prioriza o nextDueDate autoritativo da assinatura.
+        // Só cai no fallback (dueDate + 1 mês) se a busca/o campo falharem.
+        let proximoVencimentoSet = false;
+        if (payment.subscription) {
+          try {
+            const sub = await asaasRequest(
+              `/subscriptions/${payment.subscription}`,
+              "GET",
+              null,
+              ASAAS_API_KEY.value()
+            );
+            if (sub && sub.nextDueDate) {
+              updatePayload.proximoVencimento = Timestamp.fromDate(new Date(sub.nextDueDate));
+              proximoVencimentoSet = true;
+            }
+          } catch (err) {
+            // Nunca falha o webhook por causa disso — só registra e usa fallback.
+            console.warn("[asaasWebhook] Falha ao buscar nextDueDate da assinatura:", err);
+          }
+        }
+
+        // Fallback: dueDate da cobrança + 1 mês (se disponível)
+        if (!proximoVencimentoSet && payment.dueDate) {
           try {
             const due = new Date(payment.dueDate);
             due.setMonth(due.getMonth() + 1);
@@ -303,8 +398,14 @@ exports.asaasWebhook = onRequest(
       } else if (
         event === "SUBSCRIPTION_DELETED" ||
         event === "PAYMENT_DELETED" ||
-        event === "SUBSCRIPTION_INACTIVATED"
+        event === "SUBSCRIPTION_INACTIVATED" ||
+        event === "PAYMENT_REFUNDED" ||
+        event === "PAYMENT_REVERSED" ||
+        event === "PAYMENT_CHARGEBACK_REQUESTED" ||
+        event === "PAYMENT_CHARGEBACK_DISPUTE" ||
+        event === "PAYMENT_RECEIVED_IN_CASH_UNDONE"
       ) {
+        // Dinheiro devolvido/estornado/contestado → assinatura cancelada
         updatePayload.statusAssinatura = "canceled";
       } else {
         // Evento não mapeado — ignora silenciosamente

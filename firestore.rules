@@ -33,6 +33,34 @@ service cloud.firestore {
         && (!('asaasSubscriptionId' in d) || ('asaasSubscriptionId' in r && d.asaasSubscriptionId == r.asaasSubscriptionId))
         && (!('proximoVencimento' in d) || ('proximoVencimento' in r && d.proximoVencimento == r.proximoVencimento))
         && (!('totalPremiosEntregues' in d) || ('totalPremiosEntregues' in r && d.totalPremiosEntregues == r.totalPremiosEntregues))
+        // cpfCnpj é PII gravado pela Cloud Function (createSubscription) — o dono
+        // não pode sobrescrevê-lo/adulterá-lo via update.
+        && (!('cpfCnpj' in d) || ('cpfCnpj' in r && d.cpfCnpj == r.cpfCnpj))
+      );
+    }
+
+    // Guarda de billing no MOMENTO DA CRIAÇÃO. camposProtegidosIntactos() só roda
+    // no update; sem isto, um dono malicioso criaria o doc já com
+    // statusAssinatura:"active" ou um trialEndDate no ano 3000 e nunca pagaria.
+    // Espelha exatamente o que o onboarding.html grava na 1ª criação:
+    //   statusAssinatura:"trial", trialEndDate ≈ agora+30d, dataCadastro.
+    // Campos de billing escritos só depois (createSubscription/webhook) NÃO podem
+    // aparecer na criação via client.
+    function billingCreateValido() {
+      let d = request.resource.data;
+      return (
+        // Único status que o client pode criar é "trial" (onboarding sempre envia).
+        d.statusAssinatura == "trial"
+        // trialEndDate obrigatório, dentro de [agora-1d (clock skew); agora+32d].
+        && d.trialEndDate is timestamp
+        && d.trialEndDate >= request.time - duration.value(1, 'd')
+        && d.trialEndDate <= request.time + duration.value(32, 'd')
+        // Campos de billing gravados só por Cloud Function não podem vir na criação.
+        && !('asaasCustomerId' in d)
+        && !('asaasSubscriptionId' in d)
+        && !('proximoVencimento' in d)
+        // Se vier totalPremiosEntregues, tem de ser 0.
+        && (!('totalPremiosEntregues' in d) || d.totalPremiosEntregues == 0)
       );
     }
 
@@ -42,7 +70,10 @@ service cloud.firestore {
     // subdocumento público — ver docs/PLANO_ACAO.md §6.
     match /empresas/{empresaId} {
       allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == empresaId;
+      // SuperAdmin cria livremente. O dono só cria o próprio doc e SEM forjar
+      // billing (status/trial/asaas...) — ver billingCreateValido().
+      allow create: if isSuperAdmin() ||
+        (request.auth != null && request.auth.uid == empresaId && billingCreateValido());
       // SuperAdmin pode tudo. Dono pode atualizar, mas não pode alterar campos
       // protegidos de billing (esses campos só mudam via Admin SDK / Cloud Functions).
       allow update: if isSuperAdmin() ||

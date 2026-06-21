@@ -940,7 +940,18 @@
         let metaCampanha = 10;
         let visualConfig = {};
         let writesBlocked = false; // $-04: estado do paywall (reaplica em re-renders)
+        let statusAssinaturaAtual = ""; // espelho do statusAssinatura vindo do onSnapshot
         let fullEmpresaData = null;
+
+        // $-04: guarda autoritativo em JS. O botão "disabled" é cosmético/bypassável;
+        // esta verificação no topo de cada mutação de pontos é o bloqueio real.
+        function bloquearSeInativa() {
+            if (writesBlocked) {
+                showToast("Assinatura inativa — regularize para continuar operando.", "error");
+                return true;
+            }
+            return false;
+        }
         let qrCodeFlyerInstance = null;
 
         function getPublicBaseUrl() {
@@ -1403,7 +1414,7 @@
             const justificativaLength = justificativaInput.value.trim().length;
             const btnConfirm = document.getElementById("btn-confirm-ajuste");
             
-            if (justificativaLength >= 5) {
+            if (justificativaLength >= 5 && !writesBlocked) {
                 btnConfirm.disabled = false;
             } else {
                 btnConfirm.disabled = true;
@@ -1412,6 +1423,7 @@
 
         // Submissão do Ajuste de Pontos
         document.getElementById("btn-confirm-ajuste").addEventListener("click", async () => {
+            if (bloquearSeInativa()) return;
             const btnConfirm = document.getElementById("btn-confirm-ajuste");
             btnConfirm.disabled = true;
             btnConfirm.innerText = "Salvando...";
@@ -1605,13 +1617,55 @@
             document.getElementById("modal-pix-checkout").classList.add("hidden");
         };
 
-        // Validação CPF/CNPJ: apenas dígitos, 11 ou 14 caracteres
+        // Validação CPF/CNPJ com dígitos verificadores (módulo 11).
+        // Mantém a assinatura (string -> boolean) para não alterar chamadores.
         function validarCpfCnpj(valor) {
-            const digits = valor.replace(/\D/g, "");
-            return digits.length === 11 || digits.length === 14;
+            const digits = (valor || "").replace(/\D/g, "");
+            if (digits.length === 11) return validarCpf(digits);
+            if (digits.length === 14) return validarCnpj(digits);
+            return false;
+        }
+
+        function validarCpf(cpf) {
+            if (/^(\d)\1{10}$/.test(cpf)) return false; // rejeita sequências iguais
+            let soma = 0;
+            for (let i = 0; i < 9; i++) soma += parseInt(cpf[i], 10) * (10 - i);
+            let dv1 = (soma * 10) % 11;
+            if (dv1 === 10) dv1 = 0;
+            if (dv1 !== parseInt(cpf[9], 10)) return false;
+            soma = 0;
+            for (let i = 0; i < 10; i++) soma += parseInt(cpf[i], 10) * (11 - i);
+            let dv2 = (soma * 10) % 11;
+            if (dv2 === 10) dv2 = 0;
+            return dv2 === parseInt(cpf[10], 10);
+        }
+
+        function validarCnpj(cnpj) {
+            if (/^(\d)\1{13}$/.test(cnpj)) return false; // rejeita sequências iguais
+            const calcDv = (base) => {
+                let pos = base.length - 7;
+                let soma = 0;
+                for (let i = base.length - 1; i >= 0; i--) {
+                    soma += parseInt(base[i], 10) * pos;
+                    pos = (pos === 2) ? 9 : pos - 1;
+                }
+                const resto = soma % 11;
+                return (resto < 2) ? 0 : 11 - resto;
+            };
+            const dv1 = calcDv(cnpj.slice(0, 12));
+            if (dv1 !== parseInt(cnpj[12], 10)) return false;
+            const dv2 = calcDv(cnpj.slice(0, 13));
+            return dv2 === parseInt(cnpj[13], 10);
         }
 
         document.getElementById("btn-pix-submit").addEventListener("click", async () => {
+            // Evita criar uma nova assinatura no Asaas quando já está ativa
+            // (ex.: reabrir o modal depois de pagar).
+            if (statusAssinaturaAtual === "active") {
+                showToast("Sua assinatura já está ativa.", "success");
+                return;
+            }
+
             const cpfCnpjRaw = document.getElementById("pix-cpfcnpj").value.trim();
             const telefoneRaw = document.getElementById("pix-telefone").value.trim();
             const errEl = document.getElementById("pix-cpfcnpj-error");
@@ -1649,9 +1703,18 @@
 
             } catch (err) {
                 console.error("Erro ao gerar cobrança PIX:", err);
+                // Mantém o form utilizável para nova tentativa.
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-qrcode mr-1"></i> Gerar cobrança PIX`;
-                showToast("Erro ao gerar cobrança PIX. Tente novamente.", "error");
+                if (err.code === "unavailable") {
+                    showToast("A cobrança PIX ainda está sendo gerada. Tente novamente em instantes.", "warn");
+                } else if (err.code === "unauthenticated" || err.code === "permission-denied") {
+                    showToast("Faça login novamente.", "error");
+                } else if (err.code === "failed-precondition") {
+                    showToast(err.message || "Não foi possível gerar a cobrança PIX.", "error");
+                } else {
+                    showToast("Erro ao gerar cobrança PIX. Tente novamente.", "error");
+                }
             }
         });
 
@@ -1669,6 +1732,7 @@
                 if (!snap.exists()) return;
                 const data = snap.data();
                 const status = data.statusAssinatura;
+                statusAssinaturaAtual = status; // espelho para o checkout (evita duplicidade)
                 const trialEnd = data.trialEndDate ? data.trialEndDate.toDate() : null;
 
                 const agora = new Date();
@@ -1749,10 +1813,11 @@
                 "[onclick^='openEditarCampanhaModal']"  // Editar Regras
             ].join(", ");
 
-            // id-based — botões estáticos de escrita.
+            // id-based — apenas mutações de pontos.
+            // Salvar Link (slug) e Apagar conta (LGPD) NÃO entram no paywall:
+            // gerir o link da loja e exercer o direito de exclusão devem funcionar
+            // sempre, independentemente do status da assinatura.
             const idButtons = [
-                "btn-save-company-slug",         // Salvar Link (slug)
-                "btn-delete-controller-account", // Apagar conta (LGPD)
                 "btn-confirm-ajuste"             // Confirmar ajuste no modal
             ];
 
@@ -1867,6 +1932,7 @@
         };
 
         window.bulkResetPoints = async function() {
+            if (bloquearSeInativa()) return;
             const checkboxes = document.querySelectorAll(".client-checkbox:checked");
             const ids = Array.from(checkboxes).map(cb => cb.getAttribute("data-id"));
             
@@ -1887,6 +1953,7 @@
 
         // --- Resetar/Zerar Pontos de Cliente ---
         window.resetClientePontos = async function(clientId, clientName) {
+            if (bloquearSeInativa()) return;
             if (!(await confirmDialog({ title: "Zerar pontuação", message: `Deseja realmente zerar a pontuação de "${clientName}" nesta empresa?`, confirmText: "Zerar", danger: true }))) return;
             try {
                 await setPoints({ empresaId, clienteId: clientId, pontos: 0, motivo: "Zerado pelo painel" });

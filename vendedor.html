@@ -150,6 +150,12 @@
                 <a href="dashboard.html" class="shrink-0 text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 px-3 min-h-[40px] inline-flex items-center rounded-lg transition active:scale-95">Assinar</a>
             </div>
 
+            <!-- Banner persistente: assinatura inativa (bloqueia ações do vendedor) -->
+            <div id="inativa-banner" class="hidden items-start gap-3 p-3 rounded-2xl border border-red-200 bg-red-50 text-left">
+                <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 shrink-0"><i class="fa-solid fa-circle-exclamation text-xs"></i></div>
+                <p class="text-xs text-stone-700 leading-tight">A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.</p>
+            </div>
+
             <!-- Camera Scanner Box -->
             <div class="glassmorphism rounded-3xl p-4 flex flex-col gap-3 relative">
                 <div class="flex justify-between items-center">
@@ -272,6 +278,11 @@
         
         let html5QrcodeScanner = null;
         let isScannerRunning = false;
+
+        // Latch da assinatura inativa: quando true, bloqueia ações de pontuação/resgate
+        // e mostra o banner persistente. Definido proativamente no branding e reforçado
+        // (defesa em profundidade) ao primeiro erro ASSINATURA_INATIVA do backend.
+        let lojaInativa = false;
 
         function showToast(message, type = "success") {
           const toast = document.getElementById("toast");
@@ -448,6 +459,13 @@
                         ? (typeof data.trialEndDate.toDate === "function" ? data.trialEndDate.toDate() : new Date(data.trialEndDate))
                         : null;
                     const emTrial = (data.statusAssinatura === "trial") && trialEnd && trialEnd > new Date();
+
+                    // Detecção proativa de assinatura inativa — MESMA regra do backend:
+                    // active = "active" OU ("trial" com trialEndDate futuro). Qualquer
+                    // outro caso (overdue/canceled/trial expirado) => inativa.
+                    const ativa = (data.statusAssinatura === "active") || emTrial;
+                    if (!ativa) aplicarLojaInativa();
+
                     if (emTrial) {
                         const diffDays = Math.max(0, Math.ceil((trialEnd - new Date()) / (1000 * 60 * 60 * 24)));
                         const daysEl = document.getElementById("trial-banner-days");
@@ -681,7 +699,11 @@
 
         async function startScanner() {
             if (!html5QrcodeScanner) return;
-            
+            if (lojaInativa) {
+                showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
+                return;
+            }
+
             btnStart.disabled = true;
             btnStop.disabled = false;
             statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
@@ -831,11 +853,33 @@
             String(err && err.message).includes("ASSINATURA_INATIVA") ||
             String(err && err.code).includes("failed-precondition");
 
+        // Aplica o estado de loja inativa: trava o latch, mostra o banner persistente
+        // e desabilita TODAS as ações de pontuação/resgate. Usado tanto na detecção
+        // proativa (branding) quanto no latch por erro do backend.
+        function aplicarLojaInativa() {
+            lojaInativa = true;
+            const banner = document.getElementById("inativa-banner");
+            if (banner) banner.classList.replace("hidden", "flex");
+            // Botões de ação de pontos: scan, manual, +pontos, -ponto, entregar prêmio.
+            const btnManual = document.getElementById("btn-manual-submit");
+            [btnStart, btnManual, btnAddPoints, btnRemovePoint, btnDeliverPrize].forEach((b) => {
+                if (b) b.disabled = true;
+            });
+            // Encerra o leitor para que a câmera não dispare novas leituras condenadas.
+            teardownScanner().catch(() => {});
+        }
+
         // Scan/manual AGE DIRETO: resgata se houver prêmio pendente, senão credita a
         // quantidade selecionada no leitor. Sem etapa de confirmação (decisão de produto).
         async function loadClient(clientUid) {
             if (!empresaId) {
                 showAlert("error", "Empresa não identificada", "Abra o link com ?empresa=ID.");
+                playSound("error");
+                return;
+            }
+            // Loja inativa: não dispara callable condenada; mostra o aviso e para por aqui.
+            if (lojaInativa) {
+                showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
                 playSound("error");
                 return;
             }
@@ -855,9 +899,10 @@
                 }
             } catch (err) {
                 console.error("Erro ao processar leitura:", err);
+                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
                 resetPanel();
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao processar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível processar a leitura. Tente novamente.");
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento." : "Não foi possível processar a leitura. Tente novamente.");
                 playSound("error");
             }
         }
@@ -973,11 +1018,13 @@
                 showEmojiFeedback(qtyToAdd);
             } catch (err) {
                 console.error("Erro ao adicionar pontos:", err);
+                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao pontuar",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível registrar os pontos. Tente novamente.");
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento." : "Não foi possível registrar os pontos. Tente novamente.");
                 playSound("error");
             } finally {
-                if (btnAddPoints) btnAddPoints.disabled = false;
+                // Não reabilita se a loja latchou inativa — senão o vendedor volta a martelar.
+                if (btnAddPoints && !lojaInativa) btnAddPoints.disabled = false;
             }
         }
 
@@ -993,11 +1040,13 @@
                 triggerVibration(120);
             } catch (err) {
                 console.error("Erro ao remover ponto:", err);
+                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao remover",
-                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível remover o ponto. Tente novamente.");
+                    isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento." : "Não foi possível remover o ponto. Tente novamente.");
                 playSound("error");
             } finally {
-                if (btnRemovePoint) btnRemovePoint.disabled = false;
+                // Não reabilita se a loja latchou inativa.
+                if (btnRemovePoint && !lojaInativa) btnRemovePoint.disabled = false;
             }
         }
 
@@ -1017,14 +1066,16 @@
                     updatePrizeBox(r.premiosPendentes);
                 } catch (err) {
                     console.error("Erro ao entregar prêmio:", err);
-                    const isInativa = String(err.message).includes("ASSINATURA_INATIVA") || String(err.code).includes("failed-precondition");
+                    const isInativa = isInativaErr(err);
                     if (isInativa) {
+                        aplicarLojaInativa(); // latch: trava a UI no 1º erro
                         showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
                     } else {
                         showAlert("error", "Erro ao entregar", "Não foi possível entregar o prêmio. Tente novamente.");
                     }
                     playSound("error");
-                    btnDeliverPrize.disabled = false;
+                    // Só reabilita se NÃO latchou inativa (senão o vendedor volta a martelar).
+                    if (!lojaInativa) btnDeliverPrize.disabled = false;
                 }
             });
         }

@@ -237,6 +237,7 @@ exports.removePoint = onCall(async (request) => {
   const { empresaId, clienteId } = request.data || {};
   validarIds(empresaId, clienteId);
   const caller = await assertAutorizado(request, empresaId);
+  await assertAssinaturaAtiva(empresaId);
   const ref = cartaoRef(empresaId, clienteId);
 
   const pontos = await db.runTransaction(async (tx) => {
@@ -263,6 +264,7 @@ exports.setPoints = onCall(async (request) => {
   if (request.auth.uid !== empresaId) {
     throw new HttpsError("permission-denied", "Apenas o dono da empresa pode ajustar pontos manualmente.");
   }
+  await assertAssinaturaAtiva(empresaId);
   const { meta } = await lerMeta(empresaId);
   pontos = Math.floor(Number(pontos));
   if (!Number.isFinite(pontos) || pontos < 0 || pontos >= meta) {
