@@ -2048,7 +2048,7 @@ window.gerarConviteVendedor = async function() {
             inviteToken: nToken
         });
         inviteToken = nToken;
-        const inviteUrl = `https://tempontinho.com/vendedor.html?invite=${nToken}`;
+        const inviteUrl = `https://tempontinho.com/vendedor.html?empresa=${encodeURIComponent(empresaId)}&convite=${encodeURIComponent(nToken)}`;
         const inputUrl = document.getElementById('vendor-invite-url');
         inputUrl.value = inviteUrl;
         document.getElementById('vendor-invite-card').classList.remove('hidden');
