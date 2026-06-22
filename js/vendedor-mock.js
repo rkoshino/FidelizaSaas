@@ -141,16 +141,42 @@ document.getElementById("stat-premios-entregues").innerText = "12";
 
 const clientesList = document.getElementById("clientes-list");
 if (clientesList) {
-    clientesList.innerHTML = `
-        <div class="glassmorphism p-4 rounded-2xl flex justify-between items-center text-left">
-            <div><p class="font-bold text-stone-800 text-sm">João Fictício</p><p class="text-[10px] text-stone-500">joao@teste.com</p></div>
-            <div class="text-right"><p class="font-bold text-indigo-600 text-xs">8 / 10 pts</p></div>
-        </div>
-        <div class="glassmorphism p-4 rounded-2xl flex justify-between items-center mt-3 text-left">
-            <div><p class="font-bold text-stone-800 text-sm">Maria Fictícia</p><p class="text-[10px] text-stone-500">maria@teste.com</p></div>
-            <div class="text-right"><p class="font-bold text-emerald-600 text-xs">Resgatar 1x</p></div>
-        </div>
-    `;
+    const clients = [
+        { nome: "Cliente Fidelidade", email: "kksjhashsad@ashuhsua.com", pontos: 1, premios: 0 },
+        { nome: "Vanessa Santos", email: "vss.vanessasantos@gmail.com", pontos: 1, premios: 0 },
+        { nome: "Rodrigo Koshino", email: "admin@tempontinho.com", pontos: 10, premios: 1 }
+    ];
+    
+    let html = "";
+    clients.forEach((client, idx) => {
+        const isWin = client.premios > 0;
+        html += `
+            <div class="client-card glassmorphism p-4 rounded-2xl flex flex-col gap-3 border border-stone-200 hover:bg-stone-50 transition-colors mt-3">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="flex-1 min-w-0 text-left">
+                            <h4 class="font-bold text-stone-800 text-sm leading-tight truncate">${client.nome}</h4>
+                            <p class="text-[10px] text-stone-500 mt-0.5 truncate">${client.email}</p>
+                        </div>
+                        <div class="text-right shrink-0 flex flex-col items-end">
+                            <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Pontos</span>
+                            <span class="font-bold font-outfit text-indigo-500 text-lg leading-none">${client.pontos}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between gap-2 border-t border-stone-100 pt-3 mt-1">
+                    <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold border ${isWin ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-stone-100 text-stone-500 border-stone-200'}">
+                        ${isWin ? `<i class="fa-solid fa-gift mr-1"></i> ${client.premios} prêmio` : "Acumulando"}
+                    </span>
+                    <div class="flex gap-2">
+                        <button onclick="showToast('Histórico mockado')" class="w-8 h-8 flex items-center justify-center text-indigo-600 hover:text-indigo-800 transition bg-indigo-50 border border-indigo-100 rounded-lg active:scale-95 shadow-sm" title="Ver Histórico"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                        <button onclick="showToast('Ajustar mockado')" class="w-8 h-8 flex items-center justify-center text-amber-600 hover:text-amber-800 transition bg-amber-50 border border-amber-100 rounded-lg active:scale-95 shadow-sm" title="Ajustar Pontos"><i class="fa-solid fa-pen"></i></button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    clientesList.innerHTML = html;
 }
 
 const vendedoresGrid = document.getElementById("vendedores-grid");
