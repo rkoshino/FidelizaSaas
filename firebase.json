@@ -14,33 +14,64 @@
     "ui": { "enabled": false },
     "singleProjectMode": true
   },
-  "hosting": {
-    "site": "nice-dreamks-fidelidade",
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**",
-      "functions/**",
-      "**/*.md",
-      "docs/**",
-      "test/**",
-      "scripts/**",
-      "package.json",
-      "package-lock.json",
-      "check.js",
-      "check2.js"
-    ],
-    "headers": [
-      {
-        "source": "**/*.@(html|js|css)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
-      }
-    ]
-  }
+  "hosting": [
+    {
+      "target": "production",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "functions/**",
+        "**/*.md",
+        "docs/**",
+        "test/**",
+        "scripts/**",
+        "package.json",
+        "package-lock.json",
+        "check.js",
+        "check2.js"
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(html|js|css)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "testes",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "functions/**",
+        "**/*.md",
+        "docs/**",
+        "test/**",
+        "scripts/**",
+        "package.json",
+        "package-lock.json",
+        "check.js",
+        "check2.js"
+      ],
+      "headers": [
+        {
+          "source": "**/*.@(html|js|css)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

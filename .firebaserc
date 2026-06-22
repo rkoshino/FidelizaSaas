@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "nice-dreamks-fidelidade"
-  }
+  },
+  "targets": {
+    "nice-dreamks-fidelidade": {
+      "hosting": {
+        "testes": [
+          "nice-dreamks-testes"
+        ],
+        "production": [
+          "nice-dreamks-fidelidade"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
