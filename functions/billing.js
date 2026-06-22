@@ -207,9 +207,14 @@ exports.createSubscription = onCall(
     const dd = String(dueDateObj.getDate()).padStart(2, "0");
     const nextDueDate = `${yyyy}-${mm}-${dd}`;
 
+    // billingType: o Asaas NÃO aceita "PIX" como forma de cobrança de assinatura
+    // (POST /subscriptions → 400 invalid_billingType). Usa-se "UNDEFINED": a
+    // assinatura é criada sem fixar a forma, e cada cobrança gerada expõe o QR
+    // PIX via /payments/{id}/pixQrCode (buscado logo abaixo). É assim que se faz
+    // assinatura PIX no Asaas.
     const subscriptionPayload = {
       customer: asaasCustomerId,
-      billingType: "PIX",
+      billingType: "UNDEFINED",
       value: 19.90,
       cycle: "MONTHLY",
       nextDueDate,

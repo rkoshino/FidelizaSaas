@@ -324,9 +324,6 @@ import {
                                 <button onclick="openAjustarModal('${clientId}', '${nome}', '${client.email || ""}', ${pontos})" class="text-xs bg-white hover:bg-emerald-50 hover:text-brand-green hover:border-emerald-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition">
                                     Ajustar
                                 </button>
-                                <button onclick="resetClientePontos('${clientId}', '${nome}')" class="text-xs bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-stone-500 font-semibold px-3 py-1.5 min-h-[44px] inline-flex items-center justify-center rounded-lg border border-stone-200 transition">
-                                    Zerar
-                                </button>
                             </div>
                         </td>
                     `;
