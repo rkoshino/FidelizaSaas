@@ -906,7 +906,14 @@ window.switchAppTab = function(tabId) {
 };
 
 </script>
-<script type="module" src="js/vendedor.js?v=1782071073984"></script>
+<script type="module">
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("mock") === "true") {
+        import("./js/vendedor-mock.js");
+    } else {
+        import("./js/vendedor.js?v=1782071073984");
+    }
+</script>
 
 
 <!-- MODAL DE EDIÇÃO DE CARTÃO -->
