@@ -187,9 +187,136 @@ document.getElementById("btn-stop-scanner")?.addEventListener("click", () => {
 });
 
 // Setup básico dos links
-document.getElementById("overview-link-cliente-url").value = "https://tempontinho.com/cliente.html?link=loja-ficticia";
-document.getElementById("overview-whatsapp-kit-text").value = "🎉 Olá! Acesse seu cartão fictício aqui: https://tempontinho.com/cliente.html";
+document.getElementById("overview-link-cliente-url").value = "https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
+document.getElementById("overview-whatsapp-kit-text").value = "🎉 Olá! Acesse seu cartão fictício aqui: https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
 
 document.getElementById("btn-logout")?.addEventListener("click", () => {
     showToast("Logout ignorado no modo Mock", "error");
+});
+
+// --- Navegação Sub-Tabs ---
+window.openSubTab = function(subId) {
+    const el = document.getElementById(subId);
+    if (!el) return;
+    el.classList.remove("hidden");
+    setTimeout(() => {
+        el.classList.remove("translate-x-full");
+    }, 10);
+};
+
+window.closeSubTab = function(subId) {
+    const el = document.getElementById(subId);
+    if (!el) return;
+    el.classList.add("translate-x-full");
+    setTimeout(() => {
+        el.classList.add("hidden");
+    }, 300);
+};
+
+window.toggleEditCard = function() {
+    const el = document.getElementById('modal-edit-cartao');
+    if (!el) return;
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+    } else {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+    }
+};
+
+window.updatePreviewCartao = function() {
+    const meta = document.getElementById('edit-meta-pontos')?.value || 10;
+    const premio = document.getElementById('edit-premio-desc')?.value || "Recompensa";
+    const bg = document.getElementById('edit-theme-color')?.value || "#4f46e5";
+    const title = document.getElementById('edit-theme-title')?.value || "Seu Programa";
+    const emoji = document.getElementById('edit-theme-emoji')?.value || "🌟";
+    
+    const container = document.getElementById('preview-cartao-container');
+    if (!container) return;
+    container.style.backgroundColor = bg;
+    
+    if(document.getElementById('preview-title')) document.getElementById('preview-title').innerText = title;
+    if(document.getElementById('preview-premio')) document.getElementById('preview-premio').innerText = premio;
+    if(document.getElementById('preview-meta-txt')) document.getElementById('preview-meta-txt').innerText = meta;
+    if(document.getElementById('preview-points-counter')) document.getElementById('preview-points-counter').innerText = "2 / " + meta;
+    
+    // Calc Brightness (theme-light or theme-dark)
+    const hexColor = bg.replace('#', '');
+    const r = parseInt(hexColor.substr(0, 2), 16) || 0;
+    const g = parseInt(hexColor.substr(2, 2), 16) || 0;
+    const b = parseInt(hexColor.substr(4, 2), 16) || 0;
+    const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    const isLightTheme = brightness > 155;
+    
+    container.classList.remove('theme-light', 'theme-dark');
+    container.classList.add(isLightTheme ? 'theme-light' : 'theme-dark');
+    
+    const grid = document.getElementById('preview-stamps-grid');
+    if (!grid) return;
+    
+    let cols = 5;
+    if(meta <= 6) cols = 3;
+    else if(meta <= 8) cols = 4;
+    else if(meta > 10 && meta <= 12) cols = 4;
+    else if(meta > 15) cols = 5;
+    grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+    
+    let html = '';
+    for(let i=0; i<meta; i++) {
+        const isStamped = i < 2; // EXEMPLIFICANDO COM 2 PONTOS
+        
+        let slotClass = isStamped 
+            ? "bg-[var(--bg-glass)] border-transparent"
+            : "bg-[var(--bg-glass)] text-[var(--text-muted)] border-[var(--border-glass)] border-2";
+            
+        html += `
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-lg md:text-xl transition-all duration-300 ${slotClass}">
+                ${isStamped ? emoji : ''}
+            </div>
+        `;
+    }
+    grid.innerHTML = html;
+};
+
+// Initial update call
+setTimeout(() => {
+    if(window.updatePreviewCartao) window.updatePreviewCartao();
+}, 500);
+
+const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-theme-emoji'];
+inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', window.updatePreviewCartao);
+});
+
+// Dummy listeners para botões das subtabs
+document.getElementById("btn-novo-vendedor")?.addEventListener("click", () => {
+    document.getElementById("vendor-invite-card").classList.toggle("hidden");
+    document.getElementById("vendor-invite-url").value = "https://tempontinho.com/vendedor.html?convite=123mock456";
+    showToast("Link de convite gerado!");
+});
+
+document.getElementById("btn-save-company-name")?.addEventListener("click", () => {
+    const newName = document.getElementById("config-company-name").value;
+    if(newName) {
+        document.getElementById("empresa-nome").innerText = newName;
+        showToast("Nome da empresa salvo!");
+    }
+});
+
+document.getElementById("btn-delete-controller-account")?.addEventListener("click", () => {
+    showAlert("error", "Exclusão de Conta", "Você clicou para apagar a conta (Ação Mockada).");
+});
+
+document.getElementById("btn-copy-vendor-invite")?.addEventListener("click", () => {
+    showToast("Link de convite copiado!");
+});
+
+document.getElementById("btn-overview-copy-cliente")?.addEventListener("click", () => {
+    showToast("Link do cliente copiado!");
+});
+
+document.getElementById("btn-overview-copy-whatsapp")?.addEventListener("click", () => {
+    showToast("Texto para WhatsApp copiado!");
 });
