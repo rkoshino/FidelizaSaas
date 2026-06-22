@@ -909,7 +909,7 @@ window.switchAppTab = function(tabId) {
 <script type="module">
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("mock") === "true") {
-        import("./js/vendedor-mock.js");
+        import(`./js/vendedor-mock.js?v=${Date.now()}`);
     } else {
         import("./js/vendedor.js?v=1782071073984");
     }

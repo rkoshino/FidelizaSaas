@@ -298,7 +298,7 @@
 <script type="module">
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("mock") === "true") {
-        import("./js/cliente-mock.js");
+        import(`./js/cliente-mock.js?v=${Date.now()}`);
     } else {
         import("./js/cliente.js?v=1782071073984");
     }
