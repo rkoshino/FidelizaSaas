@@ -263,20 +263,12 @@ import {
                         if (banner) banner.classList.replace("hidden", "flex");
                     }
 
-                    // C-02: QR da página do cliente (novos clientes escaneiam para entrar)
-                    const slug = data.linkUnicoCliente || empresaId;
-                    if (slug && typeof QRCode !== "undefined") {
-                        const base = getPublicBaseUrl();
-                        const clienteUrl = `${base}cliente.html?link=${encodeURIComponent(slug)}`;
-                        const qrBox = document.getElementById("cliente-qr");
-                        const qrCard = document.getElementById("cliente-qr-card");
-                        const qrLink = document.getElementById("cliente-qr-link");
-                        if (qrBox && qrCard) {
-                            qrBox.innerHTML = "";
-                            new QRCode(qrBox, { text: clienteUrl, width: 140, height: 140, correctLevel: QRCode.CorrectLevel.M });
-                            if (qrLink) qrLink.href = clienteUrl;
-                            qrCard.classList.replace("hidden", "flex");
-                        }
+                        // C-02: Link da página do cliente (QR gerado nos placeholders em outro fluxo)
+                        const slug = data.linkUnicoCliente || empresaId;
+                        if (slug) {
+                            const base = getPublicBaseUrl();
+                            const clienteUrl = `${base}cliente.html?link=${encodeURIComponent(slug)}`;
+
                         
                         // Populate Divulgue and Conta info se os elementos existirem
                         const overviewLinkCliente = document.getElementById("overview-link-cliente-url");
