@@ -196,6 +196,17 @@ import {
                             // Atualiza textos
                             document.getElementById("prize-description").innerText = companyData.metaConfig?.descriçãoPremio || "Prêmio";
                             document.getElementById("points-target").innerText = metaPontos;
+                            
+                            const ruleBanner = document.getElementById("rule-banner");
+                            const ruleDesc = document.getElementById("rule-description");
+                            if (ruleBanner && ruleDesc) {
+                                if (companyData.metaConfig?.regraPonto) {
+                                    ruleDesc.innerText = companyData.metaConfig.regraPonto;
+                                    ruleBanner.classList.remove("hidden");
+                                } else {
+                                    ruleBanner.classList.add("hidden");
+                                }
+                            }
 
                             const headerImg = document.getElementById("header-profile-img");
                             const headerEmoji = document.getElementById("header-emoji");

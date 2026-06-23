@@ -1884,6 +1884,7 @@ import {
             document.getElementById("edit-theme-title").value = fullEmpresaData.visualConfig?.tituloPagina || "";
             document.getElementById("edit-meta-pontos").value = fullEmpresaData.metaConfig?.metaPontos || 10;
             document.getElementById("edit-premio-desc").value = fullEmpresaData.metaConfig?.descriçãoPremio || "";
+            document.getElementById("edit-regra-ponto").value = fullEmpresaData.metaConfig?.regraPonto || "Ganhe 1 ponto a cada R$ 30,00 em compras";
             document.getElementById("edit-theme-color").value = fullEmpresaData.visualConfig?.corFundo || "#4f46e5";
             document.getElementById("edit-theme-color-hex").value = fullEmpresaData.visualConfig?.corFundo || "#4f46e5";
             document.getElementById("edit-theme-font").value = fullEmpresaData.visualConfig?.fonte || "sans";
@@ -1966,7 +1967,8 @@ import {
                 await updateDoc(docRef, {
                     metaConfig: {
                         metaPontos: parseInt(document.getElementById("edit-meta-pontos").value) || 10,
-                        descriçãoPremio: document.getElementById("edit-premio-desc").value.trim()
+                        descriçãoPremio: document.getElementById("edit-premio-desc").value.trim(),
+                        regraPonto: document.getElementById("edit-regra-ponto").value.trim()
                     },
                     visualConfig: {
                         tituloPagina: document.getElementById("edit-theme-title").value.trim(),
@@ -2254,7 +2256,8 @@ window.updatePreviewCartao = function() {
 };
 
 document?.addEventListener('DOMContentLoaded', () => {
-    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-theme-color', 'edit-theme-title', 'edit-theme-emoji'];
+    // Atualiza preview inicial
+    const inputs = ['edit-meta-pontos', 'edit-premio-desc', 'edit-regra-ponto', 'edit-theme-color', 'edit-theme-title', 'edit-theme-emoji'];
     inputs.forEach(id => {
         const el = document.getElementById(id);
         if(el) {

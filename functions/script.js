@@ -1,0 +1,1 @@
+setTimeout(async () => { try { const e = await admin.firestore().collection("empresas").limit(1).get(); if(e.empty) return; const empId = e.docs[0].id; console.log("E:", empId); process.exit(0); } catch(err) { console.error(err); process.exit(1); } }, 2000);
