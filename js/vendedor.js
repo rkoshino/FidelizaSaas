@@ -290,6 +290,21 @@ import {
                                 };
                             }
                         }
+                        const menuLinkCliente = document.getElementById("menu-link-cliente-url");
+                        if (menuLinkCliente) {
+                            menuLinkCliente.value = clienteUrl;
+                        }
+                        const cameraLinkCliente = document.getElementById("camera-link-cliente-url");
+                        if (cameraLinkCliente) {
+                            cameraLinkCliente.value = clienteUrl;
+                            const btnCopyCamera = document.getElementById("btn-camera-copy-cliente");
+                            if (btnCopyCamera) {
+                                btnCopyCamera.onclick = () => {
+                                    navigator.clipboard.writeText(clienteUrl);
+                                    showToast("Link copiado!");
+                                };
+                            }
+                        }
                         
                         const overviewWhatsapp = document.getElementById("overview-whatsapp-kit-text");
                         if (overviewWhatsapp) {
@@ -310,8 +325,20 @@ import {
                             overviewQrContainer.className = "";
                             new QRCode(overviewQrContainer, {
                                 text: clienteUrl,
-                                width: 80,
-                                height: 80,
+                                width: 160,
+                                height: 160,
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                        }
+                        
+                        const cameraQrContainer = document.getElementById("camera-qrcode-placeholder");
+                        if (cameraQrContainer && typeof QRCode !== "undefined") {
+                            cameraQrContainer.innerHTML = "";
+                            cameraQrContainer.className = "";
+                            new QRCode(cameraQrContainer, {
+                                text: clienteUrl,
+                                width: 160,
+                                height: 160,
                                 correctLevel: QRCode.CorrectLevel.H
                             });
                         }

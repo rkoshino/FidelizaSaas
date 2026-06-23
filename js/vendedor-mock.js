@@ -213,8 +213,42 @@ document.getElementById("btn-stop-scanner")?.addEventListener("click", () => {
 });
 
 // Setup básico dos links
-document.getElementById("overview-link-cliente-url").value = "https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
-document.getElementById("overview-whatsapp-kit-text").value = "🎉 Olá! Acesse seu cartão fictício aqui: https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
+if(document.getElementById("overview-link-cliente-url")) document.getElementById("overview-link-cliente-url").value = "https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
+if(document.getElementById("menu-link-cliente-url")) document.getElementById("menu-link-cliente-url").value = "https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
+const mockUrl = "https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
+if(document.getElementById("camera-link-cliente-url")) document.getElementById("camera-link-cliente-url").value = mockUrl;
+if(document.getElementById("btn-camera-copy-cliente")) {
+    document.getElementById("btn-camera-copy-cliente").addEventListener("click", () => {
+        navigator.clipboard.writeText(mockUrl);
+        showToast("Link copiado! (Mock)");
+    });
+}
+if(document.getElementById("overview-whatsapp-kit-text")) document.getElementById("overview-whatsapp-kit-text").value = "🎉 Olá! Acesse seu cartão fictício aqui: https://tempontinho.com/cliente.html?link=loja-ficticia&mock=true";
+
+// Setup Mock QR Codes
+const overviewQrContainer = document.getElementById("overview-qrcode-placeholder");
+if (overviewQrContainer && typeof QRCode !== "undefined") {
+    overviewQrContainer.innerHTML = "";
+    overviewQrContainer.className = "";
+    new QRCode(overviewQrContainer, {
+        text: mockUrl,
+        width: 160,
+        height: 160,
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+
+const cameraQrContainer = document.getElementById("camera-qrcode-placeholder");
+if (cameraQrContainer && typeof QRCode !== "undefined") {
+    cameraQrContainer.innerHTML = "";
+    cameraQrContainer.className = "";
+    new QRCode(cameraQrContainer, {
+        text: mockUrl,
+        width: 160,
+        height: 160,
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
 
 document.getElementById("btn-logout")?.addEventListener("click", () => {
     showToast("Logout ignorado no modo Mock", "error");
