@@ -234,6 +234,22 @@ import {
                     const emojiInput = document.getElementById("edit-theme-emoji");
                     if (emojiInput) emojiInput.value = data.visualConfig?.emoji || "⭐";
 
+                    ["edit", "preview", "header"].forEach(prefix => {
+                        const img = document.getElementById(`${prefix}-profile-img`);
+                        const icon = document.getElementById(`${prefix}-profile-icon`);
+                        if (img && icon) {
+                            if (data.visualConfig?.fotoPerfil) {
+                                img.src = data.visualConfig.fotoPerfil;
+                                img.classList.remove("hidden");
+                                icon.classList.add("hidden");
+                            } else {
+                                img.src = "";
+                                img.classList.add("hidden");
+                                icon.classList.remove("hidden");
+                            }
+                        }
+                    });
+
                     if (typeof window.updatePreviewCartao === 'function') {
                         window.updatePreviewCartao();
                     }
@@ -1893,10 +1909,58 @@ import {
             }
         });
 
+        async function resizeImage(file, maxSize) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > height) {
+                            if (width > maxSize) {
+                                height *= maxSize / width;
+                                width = maxSize;
+                            }
+                        } else {
+                            if (height > maxSize) {
+                                width *= maxSize / height;
+                                height = maxSize;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL("image/webp", 0.7));
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
         // Submit edit campaign rules
         document.getElementById("edit-campanha-form")?.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!(await confirmDialog({ title: "Mudar campanha", message: "Tem certeza que quer mudar? Isso atualizará a campanha e a identidade visual sem resetar os carimbos existentes de seus clientes.", confirmText: "Mudar", danger: false }))) return;
+            
+            let fotoPerfilBase64 = fullEmpresaData.visualConfig?.fotoPerfil || null;
+            const profilePicInput = document.getElementById("profile-pic-upload");
+            if (profilePicInput && profilePicInput.files && profilePicInput.files[0]) {
+                showToast("Processando imagem...", "success");
+                try {
+                    fotoPerfilBase64 = await resizeImage(profilePicInput.files[0], 256);
+                } catch (err) {
+                    console.error("Erro ao processar imagem:", err);
+                    showToast("Erro ao processar imagem de perfil.", "error");
+                    return;
+                }
+            }
+
             try {
                 const docRef = doc(db, "empresas", empresaId);
                 await updateDoc(docRef, {
@@ -1908,7 +1972,8 @@ import {
                         tituloPagina: document.getElementById("edit-theme-title").value.trim(),
                         corFundo: document.getElementById("edit-theme-color").value,
                         fonte: document.getElementById("edit-theme-font").value,
-                        emoji: document.getElementById("edit-theme-emoji").value
+                        emoji: document.getElementById("edit-theme-emoji").value,
+                        fotoPerfil: fotoPerfilBase64
                     }
                 });
                 showToast("Campanha atualizada com sucesso!", "success");
