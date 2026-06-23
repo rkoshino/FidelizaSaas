@@ -476,6 +476,11 @@ import {
                 await teardownScanner();
                 document.getElementById("login-screen").classList.remove("hidden");
                 document.getElementById("app-screen").classList.add("hidden");
+                const bNav = document.getElementById("bottom-nav");
+                if (bNav) {
+                    bNav.classList.add("hidden");
+                    bNav.classList.remove("block");
+                }
             }
         });
 
