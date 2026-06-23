@@ -219,8 +219,9 @@
             
             <!-- Branding Header -->
             <div class="flex flex-col items-center gap-1.5 mt-2 relative z-30">
-                <div class="w-10 h-10 rounded-full bg-[var(--icon-bg)] text-[var(--icon-text)] flex items-center justify-center text-lg shadow-sm transition-colors duration-500">
-                    ✶
+                <div class="w-10 h-10 rounded-full bg-[var(--icon-bg)] text-[var(--icon-text)] flex items-center justify-center text-lg shadow-sm transition-colors duration-500 overflow-hidden relative">
+                    <img id="header-profile-img" src="" class="absolute inset-0 w-full h-full object-cover hidden" alt="Perfil">
+                    <span id="header-emoji">✶</span>
                 </div>
                 <h2 id="app-title" class="font-bold text-lg text-[var(--text-main)] leading-tight">Clube de Fidelidade</h2>
                 <span class="text-xs bg-[var(--bg-glass)] text-[var(--text-main)] border border-[var(--border-glass)] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm transition-colors duration-500">Cartão de Pontos</span>

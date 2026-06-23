@@ -197,6 +197,21 @@ import {
                             document.getElementById("prize-description").innerText = companyData.metaConfig?.descriçãoPremio || "Prêmio";
                             document.getElementById("points-target").innerText = metaPontos;
 
+                            const headerImg = document.getElementById("header-profile-img");
+                            const headerEmoji = document.getElementById("header-emoji");
+                            if (headerImg && headerEmoji) {
+                                if (visualConfig.fotoPerfil) {
+                                    headerImg.src = visualConfig.fotoPerfil;
+                                    headerImg.classList.remove("hidden");
+                                    headerEmoji.classList.add("hidden");
+                                } else {
+                                    headerImg.src = "";
+                                    headerImg.classList.add("hidden");
+                                    headerEmoji.innerText = brandEmoji;
+                                    headerEmoji.classList.remove("hidden");
+                                }
+                            }
+
                             // Configura os textos de boas-vindas da tela de login
                             document.getElementById("login-welcome-title").innerText = `Fidelidade - ${pageTitle}`;
                             document.getElementById("login-welcome-desc").innerText = `Entre e comece a acumular pontos para ganhar: ${companyData.metaConfig?.descriçãoPremio || "um prêmio especial"}`;
