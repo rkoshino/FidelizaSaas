@@ -47,6 +47,14 @@ Os quatro painéis separados (Total de Clientes, Prêmios Pendentes, Prêmios Re
 - A aba de personalização do cartão (`tab-cartao`) e o menu inferior foram completamente ocultados e desabilitados via JavaScript para usuários que não são o dono da loja (papel `dono`). (No backend o Firestore já impedia a escrita).
 - Incluído um botão "Voltar" orgânico no cabeçalho da aba "Divulgue", já que o atendente perdeu o menu inferior e antes ficava preso nessa tela sem conseguir retornar à câmera.
 
+### 7. 🚀 Otimização de Conversão da Landing Page (`index.html`)
+A landing page foi reescrita com foco Mobile-First para refletir a morte do Dashboard e o novo produto:
+- O mockup simulado na tela inicial agora é idêntico ao `cliente.html` atual (incluindo Foto de Perfil da loja e banner da "Regra do Ponto"). O carimbo pula de forma animada via CSS (`@keyframes stamp-pop`).
+- Adicionado o botão "Simular Cartão" na hero section, linkando diretamente para a experiência interativa `cliente.html?mock=true`.
+- Alterada a copy das Funcionalidades para remover qualquer menção ao finado "Painel do Vendedor", enfatizando a **Gestão 100% no Celular**.
+- Inclusão de um bloco de ROI ancorando o preço (vs Gráfica) e uma seção Sanfona (FAQ) abordando objeções.
+- Adição de Sticky CTA "Começar 1º Mês Grátis" travado no rodapé para telas mobile.
+
 ## 🆕 SESSÃO 2026-06-21 — billing endurecido + suíte de testes + merge da UI nova
 
 > **Tudo abaixo está DEPLOYADO em produção (`tempontinho.com`) e PUSHADO em `origin/main`.**

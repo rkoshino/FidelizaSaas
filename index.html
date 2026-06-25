@@ -98,6 +98,11 @@
             border-color: rgba(42, 90, 68, 0.30); /* verde forest */
             box-shadow: 0 10px 30px rgba(42,90,68,0.10);
         }
+        @keyframes stamp-pop {
+            0%   { transform: scale(0.4); opacity: 0.3; }
+            60%  { transform: scale(1.18); }
+            100% { transform: scale(1); opacity: 1; }
+        }
         /* X-03: foco de teclado sempre visível (só em navegação por teclado, não no clique). */
         :focus-visible {
             outline: 2px solid #2A5A44 !important;
@@ -171,11 +176,12 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center lg:justify-start">
-                    <a href="onboarding.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-bold text-lg transition-all shadow-[0_4px_20px_rgba(42,90,68,0.30)] transform hover:-translate-y-1">
-                        Criar Conta Grátis
+                    <a href="onboarding.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-bold text-lg transition-all shadow-[0_4px_20px_rgba(42,90,68,0.30)] transform hover:-translate-y-1 text-center">
+                        Começar 1º Mês Grátis
                     </a>
-                    <a href="login.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white border-2 border-brand-green/40 hover:border-brand-green hover:bg-brand-paper text-brand-green font-semibold text-lg transition-all shadow-sm">
-                        Fazer Login
+                    <a href="cliente.html?mock=true" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white border-2 border-brand-green/40 hover:border-brand-green hover:bg-brand-paper text-brand-green font-semibold text-lg transition-all shadow-sm flex items-center justify-center gap-2 group">
+                        <i class="fa-solid fa-mobile-screen text-xl group-hover:scale-110 transition-transform"></i>
+                        Simular Cartão
                     </a>
                 </div>
 
@@ -199,25 +205,52 @@
                     <!-- Notch -->
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
                     
-                    <!-- App UI Replica -->
-                    <div class="absolute inset-0 bg-white p-6 flex flex-col pt-12">
-                        <div class="w-12 h-12 rounded-full bg-indigo-100 mx-auto mb-4 flex items-center justify-center text-2xl shadow-sm">☕</div>
-                        <h3 class="text-slate-900 text-center font-bold text-xl font-outfit leading-tight mb-8">Café Premium</h3>
+                    <!-- App UI Replica (idêntico ao cliente.html) -->
+                    <div class="absolute inset-0 bg-[#2A5A44] p-4 flex flex-col pt-8">
                         
-                        <div class="grid grid-cols-4 gap-3 mb-8">
-                            <!-- Stamps -->
-                            <div class="aspect-square rounded-full bg-indigo-500 flex items-center justify-center text-xl shadow-md text-white">⭐</div>
-                            <div class="aspect-square rounded-full bg-indigo-500 flex items-center justify-center text-xl shadow-md text-white">⭐</div>
-                            <div class="aspect-square rounded-full bg-indigo-500 flex items-center justify-center text-xl shadow-md text-white">⭐</div>
-                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">4</div>
-                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">5</div>
-                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">6</div>
-                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">7</div>
-                            <div class="aspect-square rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm font-bold shadow-inner">8</div>
+                        <!-- Header com Logo e Nome -->
+                        <div class="flex flex-col items-center gap-1.5 mt-2 relative z-30">
+                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg shadow-sm overflow-hidden border border-white/20">
+                                <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" class="w-full h-full object-cover" alt="Perfil">
+                            </div>
+                            <h2 class="font-bold text-lg text-white leading-tight font-outfit">Café Premium</h2>
+                            <span class="text-[10px] bg-white/10 text-white border border-white/20 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-sm">Cartão de Pontos</span>
                         </div>
 
-                        <div class="mt-auto bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-center shadow-inner">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=example" class="w-24 h-24" alt="QR Code">
+                        <!-- QR Code -->
+                        <div class="bg-white/10 backdrop-blur-md rounded-3xl p-3 w-fit mx-auto flex flex-col items-center gap-1 mt-4 relative z-30 border border-white/20 shadow-lg">
+                            <div class="bg-white p-1 rounded-2xl flex items-center justify-center shadow-sm">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=example" class="w-16 h-16 opacity-80" alt="QR Code">
+                            </div>
+                        </div>
+
+                        <!-- Loyalty Card bg-brand-green -->
+                        <div class="rounded-3xl p-4 flex flex-col gap-3 shadow-2xl border border-white/20 text-white mt-4 bg-[#214636] relative z-30">
+                            <div class="flex justify-between items-center text-xs border-b border-white/10 pb-2">
+                                <span class="text-white/80 font-medium">Pontuação</span>
+                                <span class="font-bold text-white bg-white/10 px-2 py-1 rounded-lg">3 / 10</span>
+                            </div>
+
+                            <div class="grid grid-cols-5 gap-2 py-1 justify-center">
+                                <div class="aspect-square rounded-full bg-white flex items-center justify-center text-sm shadow-sm text-[#2A5A44]">☕</div>
+                                <div class="aspect-square rounded-full bg-white flex items-center justify-center text-sm shadow-sm text-[#2A5A44]">☕</div>
+                                <div class="aspect-square rounded-full bg-white flex items-center justify-center text-sm shadow-sm text-[#2A5A44] animate-[stamp-pop_1.5s_ease-out_infinite]">☕</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold">4</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold">5</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold">6</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold">7</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold">8</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold">9</div>
+                                <div class="aspect-square rounded-full bg-black/20 flex items-center justify-center text-white/30 text-[10px] font-bold text-center leading-tight">10</div>
+                            </div>
+
+                            <div class="p-2 bg-white/10 border border-white/10 rounded-xl text-[10px] text-white opacity-90 leading-tight font-medium text-center">
+                                Meta de <strong>10</strong> carimbos = <strong>Café Grátis</strong>
+                            </div>
+                            
+                            <div class="p-1.5 bg-white/10 border border-white/10 rounded-xl text-[9px] text-white/80 leading-tight font-medium flex items-center justify-center gap-1.5 text-center mt-[-4px]">
+                                <i class="fa-solid fa-circle-info"></i> 1 ponto a cada R$ 15
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -289,11 +322,11 @@
                     <!-- Feature 3 -->
                     <div class="feature-card rounded-3xl p-6 flex gap-4 items-start">
                         <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
-                            <i class="fa-solid fa-shield-halved"></i>
+                            <i class="fa-solid fa-mobile-button"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900 mb-2 font-outfit">Seguro & Antifraude</h3>
-                            <p class="text-slate-600 leading-relaxed text-sm">Apenas seus funcionários com o "Painel do Vendedor" podem validar os pontos via QR Code. Adeus carimbos falsificados.</p>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 font-outfit">Gestão 100% no Celular</h3>
+                            <p class="text-slate-600 leading-relaxed text-sm">Esqueça computadores e painéis complexos. Você e sua equipe escaneiam, pontuam e gerenciam tudo na mesma tela, usando apenas a câmera.</p>
                         </div>
                     </div>
 
@@ -342,7 +375,15 @@
                         1º mês grátis
                     </div>
                     <h3 class="text-xl font-bold text-slate-900 mb-2 font-outfit">Plano Único</h3>
-                    <p class="text-slate-500 text-sm mb-6">Simples e sem pegadinha. Comece grátis por 30 dias.</p>
+                    <p class="text-slate-500 text-sm mb-4">Simples e sem pegadinha. Comece grátis por 30 dias.</p>
+                    
+                    <div class="bg-red-50 text-red-700 p-3 rounded-xl text-xs mb-6 border border-red-100 flex items-start gap-2 shadow-sm">
+                        <i class="fa-solid fa-xmark mt-0.5 text-red-500"></i>
+                        <div>
+                            <span class="font-bold block mb-0.5">Comparativo de Gráfica:</span>
+                            R$ 80+ por 1000 cartões (que amassam, molham e o cliente perde).
+                        </div>
+                    </div>
                     <div class="flex items-baseline gap-2 mb-2">
                         <span class="text-5xl font-extrabold text-slate-900">R$ 19,90</span>
                         <span class="text-slate-500 text-sm">/mês</span>
@@ -356,6 +397,54 @@
                     </ul>
                     <a href="onboarding.html" class="w-full py-4 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-bold text-center transition shadow-lg transform hover:scale-[1.02]">Começar Grátis</a>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-24 bg-white border-t border-slate-100" id="faq">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold font-outfit text-slate-900 mb-4">Ainda com dúvidas?</h2>
+                <p class="text-slate-600">As perguntas mais comuns dos nossos parceiros.</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <!-- FAQ Item 1 -->
+                <details class="group bg-slate-50 p-6 rounded-2xl cursor-pointer border border-slate-200 shadow-sm">
+                    <summary class="flex justify-between items-center font-bold text-slate-900 font-outfit list-none">
+                        <span>Meu cliente precisa baixar um aplicativo?</span>
+                        <span class="transition group-open:rotate-180">
+                            <i class="fa-solid fa-chevron-down text-brand-green"></i>
+                        </span>
+                    </summary>
+                    <p class="text-slate-600 text-sm mt-4 leading-relaxed">
+                        Não! Esse é nosso maior diferencial. O cartão abre direto no navegador do celular do cliente na mesma hora, de forma leve e rápida, sem exigir instalação ou senhas complexas.
+                    </p>
+                </details>
+                <!-- FAQ Item 2 -->
+                <details class="group bg-slate-50 p-6 rounded-2xl cursor-pointer border border-slate-200 shadow-sm">
+                    <summary class="flex justify-between items-center font-bold text-slate-900 font-outfit list-none">
+                        <span>Como funciona o mês grátis?</span>
+                        <span class="transition group-open:rotate-180">
+                            <i class="fa-solid fa-chevron-down text-brand-green"></i>
+                        </span>
+                    </summary>
+                    <p class="text-slate-600 text-sm mt-4 leading-relaxed">
+                        Você cria sua conta e ganha 30 dias de uso total, sem precisar informar cartão de crédito. Se você gostar e quiser continuar retendo clientes após o teste, basta pagar a assinatura via PIX.
+                    </p>
+                </details>
+                <!-- FAQ Item 3 -->
+                <details class="group bg-slate-50 p-6 rounded-2xl cursor-pointer border border-slate-200 shadow-sm">
+                    <summary class="flex justify-between items-center font-bold text-slate-900 font-outfit list-none">
+                        <span>Preciso de computador para usar?</span>
+                        <span class="transition group-open:rotate-180">
+                            <i class="fa-solid fa-chevron-down text-brand-green"></i>
+                        </span>
+                    </summary>
+                    <p class="text-slate-600 text-sm mt-4 leading-relaxed">
+                        De forma alguma. Toda a gestão do Tem Pontinho foi pensada para ser 100% no celular. Você cadastra, adiciona pontos aos clientes e gerencia prêmios tudo na mesma tela.
+                    </p>
+                </details>
             </div>
         </div>
     </section>
@@ -382,6 +471,14 @@
             </button>
         </div>
     </div>
+
+    <!-- Sticky Mobile CTA -->
+    <div class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 md:hidden z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <a href="onboarding.html" class="w-full flex items-center justify-center px-4 py-3.5 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-bold text-sm transition-all shadow-lg">
+            Começar 1º Mês Grátis
+        </a>
+    </div>
+
 
     <script>
         // Cookie Banner Logic
