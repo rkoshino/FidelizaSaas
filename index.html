@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full scroll-smooth">
+<html lang="pt-BR" class="h-full scroll-smooth overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,6 +65,7 @@
             background-color: #F4EFE6; /* off-white amendoado */
             color: #2A2520; /* espresso */
             overflow-x: hidden;
+            width: 100%;
         }
         .glassmorphism {
             background: rgba(244, 239, 230, 0.85); /* papel translúcido */
@@ -75,7 +76,8 @@
         /* hero-glow removido: SEM degradê. Bloco vira um realce sólido sutil. */
         .hero-glow {
             position: absolute;
-            width: 600px;
+            width: 100%;
+            max-width: 600px;
             height: 600px;
             background: #EADFCB; /* tom amendoado um pouco mais quente, sólido */
             border-radius: 9999px;
@@ -142,13 +144,13 @@
                         </defs>
                     </svg>
                 </div>
-                <span class="text-xl md:text-2xl font-extrabold tracking-tight font-outfit text-slate-900 truncate">Tem <span class="text-indigo-600">Pontinho</span></span>
+                <span class="text-xl md:text-2xl font-extrabold tracking-tight font-outfit text-slate-900 truncate">Tem <span class="text-brand-green">Pontinho</span></span>
             </div>
 
             <!-- Navigation Actions -->
-            <div class="flex items-center gap-3 md:gap-4 shrink-0">
-                <a href="login.html" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition">Login</a>
-                <a href="onboarding.html" class="px-4 md:px-5 py-2.5 rounded-full bg-brand-green text-white font-bold text-xs md:text-sm hover:bg-brand-green-dark transition-colors shadow-lg whitespace-nowrap">Cadastrar Grátis</a>
+            <div class="flex items-center gap-2 md:gap-4 shrink-0">
+                <a href="login.html" class="text-sm font-semibold text-slate-600 hover:text-brand-green transition">Login</a>
+                <a href="onboarding.html" class="px-3 md:px-5 py-2 md:py-2.5 rounded-full bg-brand-green text-white font-bold text-[11px] md:text-sm hover:bg-brand-green-dark transition-colors shadow-lg whitespace-nowrap">Criar Conta</a>
             </div>
         </div>
     </header>
@@ -175,12 +177,12 @@
                     Pare de jogar dinheiro na gráfica toda semana para imprimir cartões que seus clientes perdem. Com o Tem Pontinho, o cartão de pontos vai direto para o celular do cliente.
                 </p>
 
-                <div class="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center lg:justify-start">
-                    <a href="onboarding.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-bold text-lg transition-all shadow-[0_4px_20px_rgba(42,90,68,0.30)] transform hover:-translate-y-1 text-center">
+                <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-2 justify-center lg:justify-start w-full max-w-xs mx-auto sm:max-w-none lg:mx-0">
+                    <a href="onboarding.html" class="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-brand-green hover:bg-brand-green-dark text-white font-bold text-base sm:text-lg transition-all shadow-[0_4px_20px_rgba(42,90,68,0.30)] transform hover:-translate-y-1 text-center">
                         Começar 1º Mês Grátis
                     </a>
-                    <a href="cliente.html?mock=true" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white border-2 border-brand-green/40 hover:border-brand-green hover:bg-brand-paper text-brand-green font-semibold text-lg transition-all shadow-sm flex items-center justify-center gap-2 group">
-                        <i class="fa-solid fa-mobile-screen text-xl group-hover:scale-110 transition-transform"></i>
+                    <a href="cliente.html?mock=true" target="_blank" class="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-white border-2 border-brand-green/40 hover:border-brand-green hover:bg-brand-paper text-brand-green font-semibold text-base sm:text-lg transition-all shadow-sm flex items-center justify-center gap-2 group">
+                        <i class="fa-solid fa-mobile-screen text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
                         Simular Cartão
                     </a>
                 </div>
@@ -198,7 +200,7 @@
             <!-- Right Visual Mockup (Smartphone) -->
             <div class="relative w-full max-w-lg mx-auto lg:ml-auto z-10 animate-float">
                 <!-- Abstract blobs -->
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-100 rounded-full blur-3xl -z-10"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] sm:w-[120%] aspect-square bg-gradient-to-tr from-indigo-200/40 to-brand-green/20 rounded-full blur-3xl -z-10"></div>
                 
                 <!-- Phone Mockup -->
                 <div class="relative bg-slate-900 border-[8px] border-slate-800 rounded-[3rem] shadow-2xl overflow-hidden aspect-[9/19] w-3/4 mx-auto rotate-[-2deg] transform transition hover:rotate-0 duration-500">
