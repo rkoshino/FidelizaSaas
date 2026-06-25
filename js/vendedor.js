@@ -461,6 +461,12 @@ import {
             }
 
             loggedVendedor = vData;
+            const btnCartao = document.getElementById("btn-open-cartao");
+            if (btnCartao) {
+                btnCartao.onclick = null;
+                btnCartao.classList.remove("hover:opacity-80", "active:scale-95");
+                btnCartao.classList.add("cursor-default");
+            }
             document.getElementById("login-screen").classList.add("hidden");
             document.getElementById("app-screen").classList.remove("hidden");
             document.getElementById("vendedor-nome").innerText = vData.nomeVendedor || user.displayName || user.email;
