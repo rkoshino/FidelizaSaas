@@ -21,7 +21,7 @@ import {
             orderBy,
             limit
         } from "../config.js?v=2";
-        import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite } from "../points-api.js?v=2";
+        import { awardPoints, deliverPrize, removePoint, getCard, findClient, acceptVendorInvite, processScan, ping } from "../points-api.js?v=2";
 
         // Variáveis de Estado
         let empresaId = "";
@@ -487,6 +487,7 @@ import {
         // Gerenciamento da Autenticação do Vendedor
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                ping().catch(() => {}); // Aquecer Cloud Functions
                 try {
                     await liberarVendedor(user);
                 } catch (err) {
@@ -765,33 +766,64 @@ import {
                 playSound("error");
                 return;
             }
-            // Loja inativa: não dispara callable condenada; avisa e para por aqui.
             if (lojaInativa) {
                 showAlert("error", "Loja com assinatura inativa", "A assinatura desta loja está inativa. Avise o responsável pelo estabelecimento.");
                 playSound("error");
                 return;
             }
+
+            const statusDot = document.getElementById("scanner-status-dot");
+            if (statusDot) {
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+            }
+            const qty = parseInt(selectPointsQty?.value || "1");
+
             try {
-                const card = await getCard({ empresaId, clienteId: clientUid });
-                if (!card || !card.exists) {
+                const res = await processScan({ empresaId, clienteId: clientUid, qtd: qty });
+                
+                if (res.status === "not-found") {
                     resetPanel();
                     showAlert("error", "Sem cartão", "Este cliente ainda não ativou o cartão desta loja.");
                     playSound("error");
                     return;
                 }
-                currentClientName = card.nome || "Cliente";
-                if ((card.premiosPendentes || 0) > 0) {
-                    await autoRedeem(clientUid);   // cliente tem prêmio → resgate automático
-                } else {
-                    await autoAward(clientUid);    // sem prêmio → credita a quantidade do leitor
+                
+                currentClientName = res.nome || "Cliente";
+                renderClientPanel(clientUid, res.pontos, res.premiosPendentes, currentClientName);
+
+                if (res.status === "redeemed") {
+                    const msg = res.premiosPendentes > 0
+                        ? `Prêmio entregue! Ainda restam ${res.premiosPendentes} prêmio(s).`
+                        : "Prêmio entregue! Cartão renovado.";
+                    showAlert("win", "🎁 Prêmio entregue!", msg);
+                    playSound("win");
+                    triggerVibration([100, 50, 100, 50, 300]);
+                } else if (res.status === "awarded") {
+                    if (res.premiosGanhos > 0) {
+                        showAlert("win", "Cartão completo! 🎉", `+${qty} · cliente ganhou ${res.premiosGanhos} prêmio(s). O próximo scan resgata.`);
+                        playSound("win");
+                        triggerVibration([100, 50, 100, 50, 300]);
+                    } else {
+                        showAlert("success", "Pontos adicionados", `+${qty} · agora ${res.pontos}/${res.meta}.`);
+                        playSound("success");
+                        triggerVibration(150);
+                    }
+                    showEmojiFeedback(qty);
+                    if (selectPointsQty) selectPointsQty.value = "1";
                 }
             } catch (err) {
                 console.error("Erro ao processar leitura:", err);
-                if (isInativaErr(err)) aplicarLojaInativa(); // latch: trava a UI no 1º erro
+                if (isInativaErr(err)) aplicarLojaInativa();
                 resetPanel();
                 showAlert("error", isInativaErr(err) ? "Loja com assinatura inativa" : "Erro ao processar",
                     isInativaErr(err) ? "A assinatura desta loja está inativa. Avise o responsável." : "Não foi possível processar a leitura. Tente novamente.");
                 playSound("error");
+            } finally {
+                if (statusDot && typeof isScannerRunning !== 'undefined' && isScannerRunning) {
+                    statusDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse-slow";
+                } else if (statusDot) {
+                    statusDot.className = "w-2 h-2 rounded-full bg-stone-300";
+                }
             }
         }
 

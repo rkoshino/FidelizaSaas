@@ -306,8 +306,8 @@ O cliente só mostra um QR; toda ação fica na mão do vendedor.
 
 - **Mutações de pontos = só via Cloud Functions** (Admin SDK). O client nunca
   escreve pontos. Functions em `functions/index.js`:
-  `awardPoints`, `deliverPrize`, `removePoint`, `setPoints`, `getCard`,
-  `findClient`, `deleteMyData`.
+  `processScan`, `ping`, `awardPoints`, `deliverPrize`, `removePoint`, `setPoints`, `getCard`,
+  `findClient`, `deleteMyData`. (Nota: O app do vendedor usa `processScan` para escanear QR Code em 1 roundtrip atômico, mitigando latência).
 - **Modelo de dados multi-tenant:** `empresas/{empresaId}/clientes/{clienteId}` =
   `{ clienteId, nome, email, pontos, premiosPendentes, atualizadoEm }`; logs em
   subcoleção `.../logs/{logId}`. Perfil do consumidor em `clientes/{uid}`.

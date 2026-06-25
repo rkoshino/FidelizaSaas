@@ -55,6 +55,12 @@ export const getCard = call("getCard");
 //   Fallback do vendedor: buscar cliente por e-mail quando não há QR.
 export const findClient = call("findClient");
 
+// processScan({ empresaId, clienteId, qtd }) -> { status, pontos, premiosPendentes, premiosGanhos, sobra, meta, nome }
+export const processScan = call("processScan");
+
+// ping() -> { status: "pong" }
+export const ping = call("ping");
+
 // deleteMyData() -> { deletedCards }   LGPD: apaga cartões + perfil do cliente logado.
 export const deleteMyData = call("deleteMyData");
 

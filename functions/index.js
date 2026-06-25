@@ -437,6 +437,115 @@ exports.deleteMyData = onCall(async (request) => {
   return { deletedCards: cards.size };
 });
 
+/**
+ * processScan({ empresaId, clienteId, qtd })
+ * Transação única e atômica que:
+ * 1. Verifica se o cliente existe (retorna status 'not-found' se não)
+ * 2. Se houver prêmios pendentes: resgata 1 prêmio (como deliverPrize)
+ * 3. Se NÃO houver: adiciona qtd pontos (como awardPoints)
+ * Retorna o estado final para a UI em apenas 1 roundtrip.
+ */
+exports.processScan = onCall(async (request) => {
+  const { empresaId, clienteId } = request.data || {};
+  let { qtd } = request.data || {};
+  validarIds(empresaId, clienteId);
+  qtd = Math.floor(Number(qtd)) || 1;
+  if (!Number.isFinite(qtd) || qtd < 1 || qtd > QTD_MAX) {
+    throw new HttpsError("invalid-argument", `qtd deve ser um inteiro entre 1 e ${QTD_MAX}.`);
+  }
+
+  const caller = await assertAutorizado(request, empresaId);
+  await assertAssinaturaAtiva(empresaId);
+  const { meta } = await lerMeta(empresaId);
+  const ref = cartaoRef(empresaId, clienteId);
+  const empRef = db.collection("empresas").doc(empresaId);
+
+  const result = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) {
+      return { status: "not-found", message: "Cartão do cliente não encontrado." };
+    }
+    const data = snap.data();
+    const pendentesAtuais = Number(data.premiosPendentes) || 0;
+    const nomeCliente = data.nome || data.nomeCompleto || "Cliente";
+
+    // CASO 1: Resgate Automático (se tiver prêmio pendente)
+    if (pendentesAtuais > 0) {
+      const novoPendentes = pendentesAtuais - 1;
+      const update = { premiosPendentes: novoPendentes, atualizadoEm: FieldValue.serverTimestamp() };
+      let pontos = Number(data.pontos) || 0;
+      if (novoPendentes === 0) {
+        const sobra = Number(data.pontosSobra) || 0;
+        update.pontos = sobra;
+        update.pontosSobra = 0;
+        pontos = sobra;
+      }
+      tx.update(ref, update);
+      tx.update(empRef, { totalPremiosEntregues: FieldValue.increment(1) });
+      const logData = { tipo: "resgate", vendedor: caller.nome, data: FieldValue.serverTimestamp() };
+      tx.set(ref.collection("logs").doc(), logData);
+      if (caller.uid && caller.papel === "vendedor") {
+        tx.set(db.collection("vendedores").doc(caller.uid).collection("logs").doc(), {
+          ...logData, clienteNome: nomeCliente, clienteId, empresaId
+        });
+      }
+      return { 
+        status: "redeemed", 
+        pontos, 
+        premiosPendentes: novoPendentes, 
+        nome: nomeCliente 
+      };
+    }
+
+    // CASO 2: Dar Pontos Automático (se NÃO tiver prêmio pendente)
+    const pontosAtuais = Number(data.pontos) || 0;
+    const total = pontosAtuais + qtd;
+    const premiosGanhos = Math.floor(total / meta);
+    const sobra = total % meta;
+
+    if (premiosGanhos > 0) {
+      tx.update(ref, {
+        pontos: meta,
+        premiosPendentes: FieldValue.increment(premiosGanhos),
+        pontosSobra: sobra,
+        atualizadoEm: FieldValue.serverTimestamp(),
+      });
+    } else {
+      tx.update(ref, {
+        pontos: total,
+        atualizadoEm: FieldValue.serverTimestamp(),
+      });
+    }
+    const logData = { tipo: "carimbo", qtd, premiosGanhos, vendedor: caller.nome, data: FieldValue.serverTimestamp() };
+    tx.set(ref.collection("logs").doc(), logData);
+    if (caller.uid && caller.papel === "vendedor") {
+      tx.set(db.collection("vendedores").doc(caller.uid).collection("logs").doc(), {
+        ...logData, clienteNome: nomeCliente, clienteId, empresaId
+      });
+    }
+    
+    return {
+      status: "awarded",
+      pontos: premiosGanhos > 0 ? meta : total,
+      premiosPendentes: pendentesAtuais + premiosGanhos,
+      premiosGanhos,
+      sobra: premiosGanhos > 0 ? sobra : 0,
+      meta,
+      nome: nomeCliente
+    };
+  });
+
+  return result;
+});
+
+/**
+ * ping() — endpoint super leve usado apenas para tirar as Cloud Functions
+ * do "cold start" (aquecimento prévio) assim que o vendedor abre a câmera.
+ */
+exports.ping = onCall(() => {
+  return { status: "pong" };
+});
+
 /* ------------------------------------------------------------------ */
 /*  Billing (Asaas / PIX) — exportado do módulo billing.js             */
 /*  Nomes exportados: createSubscription, asaasWebhook                 */
