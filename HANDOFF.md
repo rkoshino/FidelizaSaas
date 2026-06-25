@@ -15,6 +15,28 @@
 > (`firebase deploy --only functions,firestore,hosting`) em `tempontinho.com` e
 > `nice-dreamks-fidelidade.web.app`.
 
+## 🆕 SESSÃO 2026-06-25 — Morte do Dashboard & Polimentos Visuais
+
+> **Todas as mudanças abaixo já estão deployadas no Firebase (`tempontinho.com`).**
+
+### 1. 💀 Remoção do `dashboard.html` (Depreciação Completa)
+O CEO decidiu centralizar a experiência do lojista 100% no celular. O antigo `dashboard.html` foi fisicamente deletado do projeto.
+- **Roteamento atualizado:** Tanto o término do cadastro (`onboarding.html`) quanto o login (`login.html`) agora redirecionam qualquer proprietário diretamente para a página do vendedor (`vendedor.html`), focando a experiência inicial na câmera e no cartão.
+- **Limpeza de UI:** Todos os links para o antigo dashboard (como o botão "Assinar" e o bloco "Assinatura e Planos") que ficavam na Visão Geral do `vendedor.html` foram removidos/ocultados.
+
+### 2. 📸 Upload de Foto de Perfil Otimizado
+- Implementado um sistema de upload de foto de perfil no menu "Editar Cartão" (`vendedor.html`) e no Passo 3 do `onboarding.html`.
+- Para evitar sobrecarga no servidor e manter a performance, a imagem é **redimensionada e comprimida no navegador (para WebP)** e enviada diretamente como Base64 para o documento Firestore da loja, eliminando a necessidade de usar o Firebase Storage.
+- A foto da empresa agora substitui dinamicamente o ícone/emoji padrão no topo da página do cliente (`cliente.html`) e do vendedor (`vendedor.html`).
+
+### 3. 📝 Campo "Regra do Ponto" Adicionado
+Para maior transparência com o consumidor, a mecânica de pontuação agora é explícita.
+- Campo adicionado no Passo 2 do `onboarding.html` e no menu "Editar Cartão" do `vendedor.html` (ex: *"Você ganha 1 pontinho a cada R$ 30,00 gastos na loja"*).
+- No `cliente.html`, essa regra é exibida elegantemente abaixo da meta de pontos, em um banner discreto com ícone de informação.
+
+### 4. 🎨 Consolidação da Visão Geral do Vendedor
+Os quatro painéis separados (Total de Clientes, Prêmios Pendentes, Prêmios Resgatados, Avaliações) na visão geral do `vendedor.html` foram unificados em uma única "caixa" (card) de métricas simplificada, melhorando muito a leitura e o uso do espaço no mobile. O botão "Adicionar Cliente Manualmente" foi movido para o topo da aba Visão Geral, correspondendo à aba Câmera. Correção também no layout do menu inferior que estava scrollando horizontalmente sem necessidade.
+
 ## 🆕 SESSÃO 2026-06-21 — billing endurecido + suíte de testes + merge da UI nova
 
 > **Tudo abaixo está DEPLOYADO em produção (`tempontinho.com`) e PUSHADO em `origin/main`.**

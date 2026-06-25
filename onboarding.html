@@ -1028,7 +1028,7 @@
                 const snap = await getDoc(doc(db, "empresas", uid));
                 if (snap.exists() && snap.data().linkUnicoCliente) {
                     showToast("Você já tem uma empresa cadastrada. Abrindo seu painel...");
-                    setTimeout(() => { window.location.href = `./vendedor.html?empresa=${uid}`; }, 800);
+                    window.location.href = `./vendedor.html?empresa=${uid}`;
                     return true;
                 }
             } catch (e) {
@@ -1400,7 +1400,7 @@
 
         // Finalizar Wizard e Direcionar para Dashboard
         btnFinishWizardBtn.addEventListener("click", () => {
-            window.location.href = `./vendedor.html?empresa=${createdCompanyId}`;
+                    window.location.href = `./vendedor.html?empresa=${uid}`;
         });
 
     </script>
