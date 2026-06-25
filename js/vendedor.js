@@ -290,6 +290,7 @@ import {
                         const overviewLinkCliente = document.getElementById("overview-link-cliente-url");
                         if (overviewLinkCliente) {
                             overviewLinkCliente.value = clienteUrl;
+                            document.getElementById("overview-link-label")?.setAttribute("href", clienteUrl);
                             const btnCopyCliente = document.getElementById("btn-overview-copy-cliente");
                             if (btnCopyCliente) {
                                 btnCopyCliente.onclick = () => {
@@ -301,10 +302,12 @@ import {
                         const menuLinkCliente = document.getElementById("menu-link-cliente-url");
                         if (menuLinkCliente) {
                             menuLinkCliente.value = clienteUrl;
+                            document.getElementById("menu-link-label")?.setAttribute("href", clienteUrl);
                         }
                         const cameraLinkCliente = document.getElementById("camera-link-cliente-url");
                         if (cameraLinkCliente) {
                             cameraLinkCliente.value = clienteUrl;
+                            document.getElementById("camera-link-label")?.setAttribute("href", clienteUrl);
                             const btnCopyCamera = document.getElementById("btn-camera-copy-cliente");
                             if (btnCopyCamera) {
                                 btnCopyCamera.onclick = () => {

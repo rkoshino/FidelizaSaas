@@ -270,9 +270,9 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-1.5 w-full">
-                    <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider text-center">Link para o Cliente</span>
+                    <a href="#" target="_blank" id="camera-link-label" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline uppercase tracking-wider text-center">Link para o Cliente</a>
                     <div class="flex gap-2 w-full">
-                        <input type="text" readonly id="camera-link-cliente-url" class="flex-1 min-w-0 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none text-indigo-700 select-all text-center">
+                        <input type="text" id="camera-link-cliente-url" onclick="this.select()" class="flex-1 min-w-0 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none text-indigo-700 select-all text-center">
                         <button id="btn-camera-copy-cliente" class="px-3 shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
@@ -388,9 +388,9 @@
                     <div class="flex flex-col gap-4">
                         <!-- Client link -->
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Link do Cliente (Cartão Digital)</span>
+                            <a href="#" target="_blank" id="overview-link-label" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline uppercase tracking-wider">Link do Cliente (Cartão Digital)</a>
                             <div class="flex gap-2">
-                                <input type="text" readonly id="overview-link-cliente-url" class="flex-1 min-w-0 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none text-indigo-700 select-all">
+                                <input type="text" id="overview-link-cliente-url" onclick="this.select()" class="flex-1 min-w-0 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none text-indigo-700 select-all">
                                 <button id="btn-overview-copy-cliente" class="px-3 shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition active:scale-95"><i class="fa-regular fa-copy"></i></button>
                             </div>
                         </div>
@@ -463,8 +463,8 @@
                     </div>
                     <!-- Link do cliente (integrado do Divulgue) -->
                     <div class="flex flex-col gap-1.5 mt-2 pt-4 border-t border-stone-100">
-                        <label class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Página do Cliente (URL)</label>
-                        <input type="text" readonly id="menu-link-cliente-url" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-indigo-700 select-all focus:outline-none">
+                        <a href="#" target="_blank" id="menu-link-label" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline uppercase tracking-wider inline-block">Página do Cliente (URL)</a>
+                        <input type="text" id="menu-link-cliente-url" onclick="this.select()" class="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-indigo-700 select-all focus:outline-none">
                     </div>
                 </div>
 
