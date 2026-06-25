@@ -37,6 +37,16 @@ Para maior transparência com o consumidor, a mecânica de pontuação agora é 
 ### 4. 🎨 Consolidação da Visão Geral do Vendedor
 Os quatro painéis separados (Total de Clientes, Prêmios Pendentes, Prêmios Resgatados, Avaliações) na visão geral do `vendedor.html` foram unificados em uma única "caixa" (card) de métricas simplificada, melhorando muito a leitura e o uso do espaço no mobile. O botão "Adicionar Cliente Manualmente" foi movido para o topo da aba Visão Geral, correspondendo à aba Câmera. Correção também no layout do menu inferior que estava scrollando horizontalmente sem necessidade.
 
+### 5. 🔑 Login Unificado e Múltiplas Lojas
+- O `login.html` agora funciona como uma central de inteligência. Ao invés de botões separados para donos e atendentes na landing page, um único formulário de login varre as coleções `empresas` e `vendedores`.
+- **Roteamento Expresso:** Se o usuário tem vínculo em apenas 1 local (dono ou atendente), o redirecionamento para a câmera é imediato.
+- **Seletor de Lojas:** Se ele pertencer a mais de 1 loja (ex: dono em uma, atendente em outra), o login exibe uma interface limpa de múltipla escolha perguntando em qual loja ele quer entrar.
+
+### 6. 🔒 UX e Segurança da Interface do Atendente
+- Foi resolvido o "piscar" de duplo login no `vendedor.html` ocultando o formulário por padrão até que a autenticação valide que o usuário realmente não tem sessão.
+- A aba de personalização do cartão (`tab-cartao`) e o menu inferior foram completamente ocultados e desabilitados via JavaScript para usuários que não são o dono da loja (papel `dono`). (No backend o Firestore já impedia a escrita).
+- Incluído um botão "Voltar" orgânico no cabeçalho da aba "Divulgue", já que o atendente perdeu o menu inferior e antes ficava preso nessa tela sem conseguir retornar à câmera.
+
 ## 🆕 SESSÃO 2026-06-21 — billing endurecido + suíte de testes + merge da UI nova
 
 > **Tudo abaixo está DEPLOYADO em produção (`tempontinho.com`) e PUSHADO em `origin/main`.**
