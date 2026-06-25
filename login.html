@@ -58,6 +58,8 @@
     </div>
 
     <div class="glassmorphism rounded-3xl p-8 max-w-md w-full shadow-xl relative overflow-hidden border border-stone-200">
+        <!-- Header Text -->
+        <div id="login-header" class="text-center relative z-10">
         <!-- Glow effect -->
         <div class="absolute -top-32 -left-32 w-64 h-64 bg-indigo-600 rounded-full blur-[100px] opacity-10 pointer-events-none"></div>
 
@@ -67,6 +69,23 @@
             </div>
             <h2 class="text-3xl font-bold font-outfit text-stone-800 tracking-tight">Bem-vindo de volta</h2>
             <p class="text-stone-500 text-sm mt-2">Acesse seu painel administrativo.</p>
+        </div>
+        </div>
+
+        <!-- Store Selector (Hidden by Default) -->
+        <div id="store-selector" class="hidden flex-col gap-4 relative z-10 w-full animate-[float_0.3s_ease-out]">
+            <div class="flex flex-col items-center gap-2 mb-2">
+                <div class="w-16 h-16 rounded-2xl bg-brand-green/10 text-brand-green flex items-center justify-center text-2xl shadow-sm border border-brand-green/20">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h2 class="text-2xl font-bold font-outfit text-stone-800">Escolha a Loja</h2>
+                <p class="text-stone-500 text-sm px-2 text-center">
+                    Você tem acesso a mais de um estabelecimento. Qual deseja acessar agora?
+                </p>
+            </div>
+            <div id="store-buttons" class="flex flex-col gap-3 w-full">
+                <!-- Buttons will be injected here by JS -->
+            </div>
         </div>
 
         <form id="auth-form" class="flex flex-col gap-4 relative z-10" novalidate>
@@ -89,7 +108,7 @@
 
             <div class="flex flex-col gap-1.5">
                 <label for="owner-email" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">E-mail</label>
-                <input type="email" id="owner-email" placeholder="nome@empresa.com" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 placeholder-stone-400 transition">
+                <input type="email" id="owner-email" autofocus placeholder="nome@empresa.com" required class="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-stone-800 placeholder-stone-400 transition">
             </div>
             <div class="flex flex-col gap-1.5">
                 <div class="flex justify-between items-center">
@@ -150,6 +169,10 @@
             db,
             doc,
             getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
             signInWithEmailAndPassword,
             sendPasswordResetEmail,
             loginWithGoogle,
@@ -225,25 +248,103 @@
             if (routingSessionPromise) return routingSessionPromise;
 
             routingSessionPromise = (async () => {
+                let stores = [];
                 try {
+                    // 1. Verifica se é dono (coleção empresas)
                     if (await companyExists(user.uid)) {
-                        showToast("Sessão encontrada! Redirecionando...");
-                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
-                        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-                        if (isMobile) {
-                            window.location.href = `./vendedor.html?empresa=${user.uid}`;
-                        } else {
-                            window.location.href = `./vendedor.html?empresa=${user.uid}`;
+                        const ownerSnap = await getDoc(doc(db, "empresas", user.uid));
+                        stores.push({
+                            id: user.uid,
+                            role: "Proprietário",
+                            nome: (ownerSnap.exists() && ownerSnap.data().tituloCard) ? ownerSnap.data().tituloCard : "Sua Loja",
+                            icon: "fa-crown"
+                        });
+                    }
+
+                    // 2. Verifica se é atendente (coleção vendedores)
+                    if (user.email) {
+                        const q = query(collection(db, "vendedores"), where("email", "==", user.email));
+                        const vSnaps = await getDocs(q);
+                        
+                        for (let vDoc of vSnaps.docs) {
+                            const empId = vDoc.data().empresaId;
+                            // Se já não tiver sido adicionado (ex: é dono E atendente da mesma loja por erro)
+                            if (empId && !stores.some(s => s.id === empId)) {
+                                const empSnap = await getDoc(doc(db, "empresas", empId));
+                                stores.push({
+                                    id: empId,
+                                    role: "Atendente",
+                                    nome: (empSnap.exists() && empSnap.data().tituloCard) ? empSnap.data().tituloCard : "Empresa Parceira",
+                                    icon: "fa-user-shield"
+                                });
+                            }
                         }
+                    }
+
+                    // Processa resultados
+                    if (stores.length === 1) {
+                        showToast(`Acessando ${stores[0].nome}...`);
+                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                        window.location.replace(`./vendedor.html?empresa=${stores[0].id}`);
                         return "redirecting";
                     }
 
-                    if (!allowCreatePrompt) return "no-company";
+                    if (stores.length > 1) {
+                        sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
+                        
+                        // Oculta login original
+                        document.getElementById("auth-form").classList.add("hidden");
+                        document.getElementById("login-header").classList.add("hidden");
+                        
+                        // Exibe seletor de lojas
+                        const selector = document.getElementById("store-selector");
+                        const buttonsContainer = document.getElementById("store-buttons");
+                        buttonsContainer.innerHTML = "";
+                        
+                        stores.forEach(store => {
+                            const btn = document.createElement("button");
+                            btn.className = "w-full py-4 px-4 bg-white border border-stone-200 hover:border-brand-green rounded-xl shadow-sm hover:shadow-md transition flex items-center justify-between group text-left";
+                            btn.innerHTML = `
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-stone-100 group-hover:bg-brand-green/10 flex items-center justify-center text-stone-500 group-hover:text-brand-green transition shrink-0">
+                                        <i class="fa-solid ${store.icon}"></i>
+                                    </div>
+                                    <div class="flex flex-col overflow-hidden">
+                                        <span class="font-bold text-stone-800 text-sm truncate">${store.nome}</span>
+                                        <span class="text-xs text-stone-500 font-medium tracking-wide uppercase mt-0.5">${store.role}</span>
+                                    </div>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-stone-300 group-hover:text-brand-green transition shrink-0"></i>
+                            `;
+                            btn.onclick = () => {
+                                Array.from(buttonsContainer.children).forEach(b => b.disabled = true);
+                                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-brand-green text-2xl mx-auto"></i>`;
+                                window.location.replace(`./vendedor.html?empresa=${store.id}`);
+                            };
+                            buttonsContainer.appendChild(btn);
+                        });
+                        
+                        selector.classList.remove("hidden");
+                        selector.classList.add("flex");
+                        return "waiting-selection";
+                    }
+
+                    // Se não tiver nenhuma loja
+                    if (!allowCreatePrompt) {
+                        await logoutUser();
+                        document.getElementById("login-help-card")?.classList.remove("hidden");
+                        const btn = document.getElementById("btn-submit-login");
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerText = "Acessar Painel";
+                        }
+                        return "no-company";
+                    }
 
                     const wantsCreate = await askCreateGoogleAccount();
                     if (wantsCreate) {
                         sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
-                        window.location.href = "./onboarding.html?continue=google";
+                        window.location.replace("./onboarding.html?continue=google");
                         return "redirecting";
                     }
 
@@ -251,11 +352,11 @@
                     showToast("Cadastro cancelado. Nenhuma empresa foi criada.");
                     return "cancelled";
                 } catch (err) {
-                    console.error("Erro ao rotear sessão da empresa:", err);
-                    showToast("Não foi possível validar sua empresa. Tente novamente.");
+                    console.error("Erro ao rotear sessão:", err);
+                    showToast("Não foi possível validar seu acesso. Tente novamente.");
                     return "error";
                 } finally {
-                    if (allowCreatePrompt) {
+                    if (allowCreatePrompt && stores.length === 0) {
                         sessionStorage.removeItem(OWNER_GOOGLE_PENDING_KEY);
                     }
                     routingSessionPromise = null;
@@ -320,8 +421,8 @@
             btnSubmitLogin.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Acessando...`;
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // O onAuthStateChanged vai capturar e redirecionar
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                await routeOwnerSession(cred.user, { allowCreatePrompt: false });
             } catch (err) {
                 console.error(err);
                 showToast(authErrorMessage(err));
